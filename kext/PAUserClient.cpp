@@ -27,6 +27,36 @@ OSDefineMetaClassAndStructors(PAUserClient, IOUserClient)
 
 #pragma mark --- IOUserClient ---
 
+const IOExternalMethodDispatch PAUserClient::sMethods[kPAUserClientNumberOfMethods] = {
+	{   // kPAUserClientGetNumSampleFrames
+		(IOExternalMethodAction) &PAUserClient::getNumSampleFrames,
+		0,
+		0,
+		0,
+		0
+	},
+	{   // kPAUserClientSetSampleRate
+		(IOExternalMethodAction) &PAUserClient::setSampleRate,
+		0,
+		0,
+		0,
+		0
+	},
+};
+
+IOReturn PAUserClient::externalMethod(uint32_t selector, IOExternalMethodArguments *arguments,
+									  IOExternalMethodDispatch *dispatch, OSObject *target, void *reference)
+{
+	if (selector < (uint32_t) kPAUserClientNumberOfMethods) {
+		dispatch = (IOExternalMethodDispatch *) sMethods + selector;
+
+		if (!target)
+				target = this;
+	}
+
+	return super::externalMethod(selector, arguments, dispatch, target, reference);
+}
+
 IOReturn PAUserClient::clientMemoryForType(UInt32 type, UInt32 *flags,
 										   IOMemoryDescriptor **memory)
 {
@@ -96,4 +126,16 @@ bool PAUserClient::terminate(IOOptionBits options)
 {
 	debugFunctionEnter();
 	return super::terminate(options);
+}
+
+#pragma mark --- PAUserClient interface ---
+
+IOReturn PAUserClient::setSampleRate(PAUserClient *target, void *reference, IOExternalMethodArguments *arguments)
+{
+	return kIOReturnSuccess;
+}
+
+IOReturn PAUserClient::getNumSampleFrames(PAUserClient* target, void* reference, IOExternalMethodArguments* arguments)
+{
+	return kIOReturnSuccess;
 }
