@@ -25,7 +25,6 @@
 
 #define super IOAudioEngine
 
-#define INITIAL_SAMPLERATE		44100
 #define SAMPLERATES				{ 44100, 48000, 64000, 88200, 96000, 128000, 176400, 192000 }
 #define NUM_SAMPLE_FRAMES       (1024*16)
 #define CHANNELS_PER_STREAM     2
@@ -58,11 +57,6 @@ void PAEngine::free()
         audioInBuf->complete();
         audioInBuf->release();
         audioInBuf = NULL;
-    }
-        
-    if (audioStream) {
-        IOFree(audioStream, sizeof(IOAudioStream *) * nStreams * CHANNELS_PER_STREAM);
-        audioStream = NULL;
     }
 
     super::free();
@@ -112,10 +106,12 @@ bool PAEngine::initHardware(IOService *provider)
 {
 	debugFunctionEnter();
 
+	UInt32 sampleRates[] = SAMPLERATES;
+
 	if (!super::initHardware(provider))
 		return false;
 
-    sampleRate.whole = INITIAL_SAMPLERATE;
+    sampleRate.whole = sampleRates[0];
     sampleRate.fraction = 0;
     setSampleRate(&sampleRate);
         
@@ -126,7 +122,6 @@ bool PAEngine::initHardware(IOService *provider)
 
     audioInBuf	= IOBufferMemoryDescriptor::withCapacity(audioBufferSize, kIODirectionInOut);
     audioOutBuf	= IOBufferMemoryDescriptor::withCapacity(audioBufferSize, kIODirectionInOut);
-    audioStream	= (IOAudioStream **) IOMalloc(sizeof(IOAudioStream *) * nStreams * CHANNELS_PER_STREAM);
 
 	if (!audioInBuf || !audioOutBuf || !audioStream) {
 		IOLog("%s(%p)::%s unable to allocate memory\n", getName(), this, __func__);
@@ -189,7 +184,7 @@ IOReturn PAEngine::performAudioEngineStart()
 
 IOReturn PAEngine::performAudioEngineStop()
 {
-	debugIOLog("%s(%p)::%s\n", getName(), this, __func__);
+	debugFunctionEnter();
 	return kIOReturnSuccess;
 }
 

@@ -10,6 +10,7 @@
 #include <IOKit/IOLib.h>
 
 #define PAEngine org_pulseaudio_ioaudioengine
+#define MAX_STREAMS		64
 
 class PAEngine : public IOAudioEngine
 {
@@ -41,7 +42,7 @@ protected:
 	UInt32						currentFrame;
 
 	IOAudioSampleRate			sampleRate;
-    IOAudioStream				**audioStream;
+    IOAudioStream				*audioStream[MAX_STREAMS];
 	IOTimerEventSource			*timerEventSource;
 };
 
