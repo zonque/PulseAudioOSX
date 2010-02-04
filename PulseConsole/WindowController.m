@@ -179,11 +179,20 @@ static void pa_sample_info_cb(struct pa_context *c, const struct pa_sample_info 
 {
     char t[32];
 
-    [statisticDict setObject: [NSNumber numberWithInt: i->memblock_total]                                               forKey: @"Currently allocated memory blocks"];
-    [statisticDict setObject: [NSString stringWithCString: pa_bytes_snprint(t, sizeof(t), i->memblock_total_size)]      forKey: @"Current total size of allocated memory blocks"];
-    [statisticDict setObject: [NSString stringWithCString: pa_bytes_snprint(t, sizeof(t), i->memblock_allocated)]       forKey: @"Allocated memory blocks during the whole lifetime of the daemon"];
-    [statisticDict setObject: [NSString stringWithCString: pa_bytes_snprint(t, sizeof(t), i->memblock_allocated_size)]  forKey: @"Total size of all memory blocks allocated during the whole lifetime of the daemon"];
-    [statisticDict setObject: [NSString stringWithCString: pa_bytes_snprint(t, sizeof(t), i->scache_size)]              forKey: @"Total size of all sample cache entries"];     
+    [statisticDict setObject: [NSNumber numberWithInt: i->memblock_total]
+					  forKey: @"Currently allocated memory blocks"];
+    [statisticDict setObject: [NSString stringWithCString: pa_bytes_snprint(t, sizeof(t), i->memblock_total_size)
+												 encoding: NSUTF8StringEncoding]
+					  forKey: @"Current total size of allocated memory blocks"];
+    [statisticDict setObject: [NSString stringWithCString: pa_bytes_snprint(t, sizeof(t), i->memblock_allocated)
+												 encoding: NSUTF8StringEncoding]
+					  forKey: @"Allocated memory blocks during the whole lifetime of the daemon"];
+    [statisticDict setObject: [NSString stringWithCString: pa_bytes_snprint(t, sizeof(t), i->memblock_allocated_size)
+												 encoding: NSUTF8StringEncoding]
+					  forKey: @"Total size of all memory blocks allocated during the whole lifetime of the daemon"];
+    [statisticDict setObject: [NSString stringWithCString: pa_bytes_snprint(t, sizeof(t), i->scache_size)
+												 encoding: NSUTF8StringEncoding]
+					  forKey: @"Total size of all sample cache entries"];     
 
     [self performSelectorOnMainThread: @selector(repaintViews) withObject: nil waitUntilDone: NO];
 }
@@ -192,15 +201,32 @@ static void pa_sample_info_cb(struct pa_context *c, const struct pa_sample_info 
 {
     char tmp[0x100];
 
-    [serverinfo setObject: [NSString stringWithCString: info->user_name] forKey: @"User Name"];
-    [serverinfo setObject: [NSString stringWithCString: info->host_name] forKey: @"Host Name"];
-    [serverinfo setObject: [NSString stringWithCString: info->server_version] forKey: @"Server Version"];
-    [serverinfo setObject: [NSString stringWithCString: info->server_name] forKey: @"Server Name"];
-    [serverinfo setObject: [NSString stringWithCString: pa_sample_spec_snprint(tmp, sizeof(tmp), &info->sample_spec)] forKey: @"Sample Spec"];
-    [serverinfo setObject: [NSString stringWithCString: pa_channel_map_snprint(tmp, sizeof(tmp), &info->channel_map)] forKey: @"Channel Map"];
-    [serverinfo setObject: [NSString stringWithCString: info->default_sink_name] forKey: @"Default Sink Name"];
-    [serverinfo setObject: [NSString stringWithCString: info->default_source_name] forKey: @"Default Source Name"];
-    [serverinfo setObject: [NSString stringWithFormat: @"%08x", info->cookie] forKey: @"Cookie"];
+    [serverinfo setObject: [NSString stringWithCString: info->user_name
+											  encoding: NSUTF8StringEncoding]
+				   forKey: @"User Name"];
+    [serverinfo setObject: [NSString stringWithCString: info->host_name
+											  encoding: NSUTF8StringEncoding]
+				   forKey: @"Host Name"];
+    [serverinfo setObject: [NSString stringWithCString: info->server_version
+											  encoding: NSUTF8StringEncoding]
+				   forKey: @"Server Version"];
+    [serverinfo setObject: [NSString stringWithCString: info->server_name
+											  encoding: NSUTF8StringEncoding]
+				   forKey: @"Server Name"];
+    [serverinfo setObject: [NSString stringWithCString: pa_sample_spec_snprint(tmp, sizeof(tmp), &info->sample_spec)
+											  encoding: NSUTF8StringEncoding]
+				   forKey: @"Sample Spec"];
+    [serverinfo setObject: [NSString stringWithCString: pa_channel_map_snprint(tmp, sizeof(tmp), &info->channel_map)
+											  encoding: NSUTF8StringEncoding]
+				   forKey: @"Channel Map"];
+    [serverinfo setObject: [NSString stringWithCString: info->default_sink_name
+											  encoding: NSUTF8StringEncoding]
+				   forKey: @"Default Sink Name"];
+    [serverinfo setObject: [NSString stringWithCString: info->default_source_name
+											  encoding: NSUTF8StringEncoding]
+				   forKey: @"Default Source Name"];
+    [serverinfo setObject: [NSString stringWithFormat: @"%08x", info->cookie]
+				   forKey: @"Cookie"];
 
     [self performSelectorOnMainThread: @selector(repaintViews) withObject: nil waitUntilDone: NO];
 }
@@ -208,13 +234,24 @@ static void pa_sample_info_cb(struct pa_context *c, const struct pa_sample_info 
 - (void) addCardInfo: (const pa_card_info *) info
 {
     NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithCapacity: 0];
-    [parameters setObject: [NSString stringWithCString: info->name] forKey: @"Card Name"];
-    [parameters setObject: [NSString stringWithCString: info->driver ?: ""] forKey: @"Driver"];
+    [parameters setObject: [NSString stringWithCString: info->name
+											  encoding: NSUTF8StringEncoding]
+				   forKey: @"Card Name"];
+    
+	[parameters setObject: [NSString stringWithCString: info->driver ?: ""
+											  encoding: NSUTF8StringEncoding]
+				   forKey: @"Driver"];
 
     NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity: 0];
-    [d setObject: [NSString stringWithCString: info->name] forKey: @"label"];
-    [d setObject: parameters forKey: @"parameters"];
-    [d setObject: [self createDictionaryFromProplist: info->proplist] forKey: @"properties"];
+    [d setObject: [NSString stringWithCString: info->name
+									 encoding: NSUTF8StringEncoding]
+		  forKey: @"label"];
+    
+	[d setObject: parameters
+		  forKey: @"parameters"];
+    
+	[d setObject: [self createDictionaryFromProplist: info->proplist]
+		  forKey: @"properties"];
 
     [cards addObject: d];
 }
@@ -224,20 +261,43 @@ static void pa_sample_info_cb(struct pa_context *c, const struct pa_sample_info 
     char tmp[0x100];
 
     NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithCapacity: 0];
-    [parameters setObject: [NSString stringWithCString: info->name] forKey: @"Sink Name"];
-    [parameters setObject: [NSString stringWithCString: info->description] forKey: @"Description"];
-    [parameters setObject: [NSString stringWithCString: pa_sample_spec_snprint(tmp, sizeof(tmp), &info->sample_spec)] forKey: @"Sample Spec"];
-    [parameters setObject: [NSString stringWithCString: pa_channel_map_snprint(tmp, sizeof(tmp), &info->channel_map)] forKey: @"Channel Map"];
-    [parameters setObject: [NSNumber numberWithInt: info->latency] forKey: @"Latency (us)"];
-    [parameters setObject: [NSString stringWithCString: info->driver] forKey: @"Driver"];
-    [parameters setObject: [NSNumber numberWithInt: info->configured_latency] forKey: @"Configured Latency (us)"];
+    [parameters setObject: [NSString stringWithCString: info->name
+											  encoding: NSUTF8StringEncoding]
+				   forKey: @"Sink Name"];
+	
+    [parameters setObject: [NSString stringWithCString: info->description
+											  encoding: NSUTF8StringEncoding]
+				   forKey: @"Description"];
+    
+	[parameters setObject: [NSString stringWithCString: pa_sample_spec_snprint(tmp, sizeof(tmp), &info->sample_spec)
+											  encoding: NSUTF8StringEncoding]
+				   forKey: @"Sample Spec"];
+    
+	[parameters setObject: [NSString stringWithCString: pa_channel_map_snprint(tmp, sizeof(tmp), &info->channel_map)
+											  encoding: NSUTF8StringEncoding]
+				   forKey: @"Channel Map"];
+    
+	[parameters setObject: [NSNumber numberWithInt: info->latency]
+				   forKey: @"Latency (us)"];
+    
+	[parameters setObject: [NSString stringWithCString: info->driver
+											  encoding: NSUTF8StringEncoding]
+				   forKey: @"Driver"];
+    
+	[parameters setObject: [NSNumber numberWithInt: info->configured_latency]
+				   forKey: @"Configured Latency (us)"];
 
     NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity: 0];
-    [d setObject: [NSString stringWithCString: info->description] forKey: @"label"];
-    [d setObject: [NSNumber numberWithInt: pa_cvolume_avg(&info->volume)] forKey: @"volume"];
-    [d setObject: [NSNumber numberWithInt: info->n_volume_steps] forKey: @"n_volume_steps"];
+    [d setObject: [NSString stringWithCString: info->description
+									 encoding: NSUTF8StringEncoding]
+		  forKey: @"label"];
+    [d setObject: [NSNumber numberWithInt: pa_cvolume_avg(&info->volume)]
+		  forKey: @"volume"];
+    [d setObject: [NSNumber numberWithInt: info->n_volume_steps]
+		  forKey: @"n_volume_steps"];
     [d setObject: parameters forKey: @"parameters"];
-    [d setObject: [self createDictionaryFromProplist: info->proplist] forKey: @"properties"];
+    [d setObject: [self createDictionaryFromProplist: info->proplist]
+		  forKey: @"properties"];
 
     [sinks addObject: d];
 }
@@ -247,18 +307,36 @@ static void pa_sample_info_cb(struct pa_context *c, const struct pa_sample_info 
     char tmp[0x100];
 
     NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithCapacity: 0];
-    [parameters setObject: [NSString stringWithCString: info->name] forKey: @"Sink Name"];
-    [parameters setObject: [NSString stringWithCString: info->description] forKey: @"Description"];
-    [parameters setObject: [NSString stringWithCString: pa_sample_spec_snprint(tmp, sizeof(tmp), &info->sample_spec)] forKey: @"Sample Spec"];
-    [parameters setObject: [NSString stringWithCString: pa_channel_map_snprint(tmp, sizeof(tmp), &info->channel_map)] forKey: @"Channel Map"];
-    [parameters setObject: [NSNumber numberWithInt: info->latency] forKey: @"Latency (us)"];
-    [parameters setObject: [NSString stringWithCString: info->driver] forKey: @"Driver"];
-    [parameters setObject: [NSNumber numberWithInt: info->configured_latency] forKey: @"Configured Latency (us)"];
+    [parameters setObject: [NSString stringWithCString: info->name
+											  encoding: NSUTF8StringEncoding]
+				   forKey: @"Sink Name"];
+    [parameters setObject: [NSString stringWithCString: info->description
+											  encoding: NSUTF8StringEncoding]
+				   forKey: @"Description"];
+    [parameters setObject: [NSString stringWithCString: pa_sample_spec_snprint(tmp, sizeof(tmp), &info->sample_spec)
+											  encoding: NSUTF8StringEncoding]
+				   forKey: @"Sample Spec"];
+    [parameters setObject: [NSString stringWithCString: pa_channel_map_snprint(tmp, sizeof(tmp), &info->channel_map)
+											  encoding: NSUTF8StringEncoding]
+				   forKey: @"Channel Map"];
+    [parameters setObject: [NSNumber numberWithInt: info->latency]
+				   forKey: @"Latency (us)"];
+    [parameters setObject: [NSString stringWithCString: info->driver
+											  encoding: NSUTF8StringEncoding]
+				   forKey: @"Driver"];
+    [parameters setObject: [NSNumber numberWithInt: info->configured_latency]
+				   forKey: @"Configured Latency (us)"];
 
     NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity: 0];
-    [d setObject: [NSString stringWithCString: info->description] forKey: @"label"];
-    [d setObject: parameters forKey: @"parameters"];
-    [d setObject: [self createDictionaryFromProplist: info->proplist] forKey: @"properties"];
+    [d setObject: [NSString stringWithCString: info->description
+									 encoding: NSUTF8StringEncoding]
+		  forKey: @"label"];
+
+    [d setObject: parameters
+		  forKey: @"parameters"];
+
+    [d setObject: [self createDictionaryFromProplist: info->proplist]
+		  forKey: @"properties"];
 
     [sources addObject: d];
 }
@@ -266,14 +344,27 @@ static void pa_sample_info_cb(struct pa_context *c, const struct pa_sample_info 
 - (void) addModuleInfo: (const pa_module_info *) info
 {
     NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithCapacity: 0];
-    [parameters setObject: [NSString stringWithCString: info->name] forKey: @"Module Name"];
-    [parameters setObject: [NSString stringWithCString: info->argument ?: ""] forKey: @"Arguments"];
-    [parameters setObject: [NSNumber numberWithInt: info->n_used] forKey: @"Use count"];
+    [parameters setObject: [NSString stringWithCString: info->name
+											  encoding: NSUTF8StringEncoding]
+				   forKey: @"Module Name"];
+    
+	[parameters setObject: [NSString stringWithCString: info->argument ?: ""
+											  encoding: NSUTF8StringEncoding]
+				   forKey: @"Arguments"];
+    
+	[parameters setObject: [NSNumber numberWithInt: info->n_used]
+				   forKey: @"Use count"];
 
     NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity: 0];
-    [d setObject: [NSString stringWithCString: info->name] forKey: @"label"];
-    [d setObject: parameters forKey: @"parameters"];
-    [d setObject: [self createDictionaryFromProplist: info->proplist] forKey: @"properties"];
+    [d setObject: [NSString stringWithCString: info->name
+									 encoding: NSUTF8StringEncoding]
+		  forKey: @"label"];
+    
+	[d setObject: parameters
+		  forKey: @"parameters"];
+    
+	[d setObject: [self createDictionaryFromProplist: info->proplist]
+		  forKey: @"properties"];
 
     [modules addObject: d];
 }
@@ -281,13 +372,24 @@ static void pa_sample_info_cb(struct pa_context *c, const struct pa_sample_info 
 - (void) addClientInfo: (const pa_client_info *) info
 {
     NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithCapacity: 0];
-    [parameters setObject: [NSString stringWithCString: info->name] forKey: @"Module Name"];
-    [parameters setObject: [NSString stringWithCString: info->driver] forKey: @"Driver"];
+    [parameters setObject: [NSString stringWithCString: info->name
+											  encoding: NSUTF8StringEncoding]
+				   forKey: @"Module Name"];
+    
+	[parameters setObject: [NSString stringWithCString: info->driver
+											  encoding: NSUTF8StringEncoding]
+				   forKey: @"Driver"];
 
     NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity: 0];
-    [d setObject: [NSString stringWithCString: info->name] forKey: @"label"];
-    [d setObject: parameters forKey: @"parameters"];
-    [d setObject: [self createDictionaryFromProplist: info->proplist] forKey: @"properties"];
+    [d setObject: [NSString stringWithCString: info->name
+									 encoding: NSUTF8StringEncoding]
+		  forKey: @"label"];
+    
+	[d setObject: parameters
+		  forKey: @"parameters"];
+    
+	[d setObject: [self createDictionaryFromProplist: info->proplist]
+		  forKey: @"properties"];
 
     [clients addObject: d];
 }
@@ -297,17 +399,35 @@ static void pa_sample_info_cb(struct pa_context *c, const struct pa_sample_info 
     char tmp[0x100];
 
     NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithCapacity: 0];
-    [parameters setObject: [NSString stringWithCString: info->name] forKey: @"Name"];
-    [parameters setObject: [NSString stringWithCString: pa_sample_spec_snprint(tmp, sizeof(tmp), &info->sample_spec)] forKey: @"Sample Spec"];
-    [parameters setObject: [NSString stringWithCString: pa_channel_map_snprint(tmp, sizeof(tmp), &info->channel_map)] forKey: @"Channel Map"];
-    [parameters setObject: [NSString stringWithCString: info->filename] forKey: @"File Name"];
-    [parameters setObject: [NSNumber numberWithInt: info->duration] forKey: @"Duration"];
-    [parameters setObject: [NSNumber numberWithInt: info->bytes] forKey: @"bytes"];
-    [parameters setObject: info->lazy ? @"YES":@"NO" forKey: @"Lazy"];
+    [parameters setObject: [NSString stringWithCString: info->name 
+											  encoding: NSUTF8StringEncoding]
+				   forKey: @"Name"];
+    [parameters setObject: [NSString stringWithCString: pa_sample_spec_snprint(tmp, sizeof(tmp), &info->sample_spec)
+											  encoding: NSUTF8StringEncoding]
+				   forKey: @"Sample Spec"];
+    [parameters setObject: [NSString stringWithCString: pa_channel_map_snprint(tmp, sizeof(tmp), &info->channel_map)
+											  encoding: NSUTF8StringEncoding]
+				   forKey: @"Channel Map"];
+    [parameters setObject: [NSString stringWithCString: info->filename
+											  encoding: NSUTF8StringEncoding]
+				   forKey: @"File Name"];
+    
+	[parameters setObject: [NSNumber numberWithInt: info->duration]
+				   forKey: @"Duration"];
+    
+	[parameters setObject: [NSNumber numberWithInt: info->bytes]
+				   forKey: @"bytes"];
+    
+	[parameters setObject: info->lazy ? @"YES" : @"NO"
+				   forKey: @"Lazy"];
 
     NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity: 0];
-    [d setObject: [NSString stringWithCString: info->name] forKey: @"label"];
-    [d setObject: parameters forKey: @"parameters"];
+    [d setObject: [NSString stringWithCString: info->name
+									 encoding: NSUTF8StringEncoding]
+		  forKey: @"label"];
+    
+	[d setObject: parameters
+		  forKey: @"parameters"];
 
     [samplecache addObject: d];
 }
@@ -327,29 +447,31 @@ static void pa_sample_info_cb(struct pa_context *c, const struct pa_sample_info 
 - (void) contextChangeCallback
 {
     switch (pa_context_get_state(context)) {
-        case PA_CONTEXT_CONNECTING: {
+        case PA_CONTEXT_CONNECTING:
             [connectStatus performSelectorOnMainThread: @selector(setStringValue:)
-                withObject: [NSString stringWithFormat: @"Connection to %s ...", pa_context_get_server(context)]
-                waitUntilDone: NO];
+											withObject: [NSString stringWithFormat: @"Connection to %s ...", pa_context_get_server(context)]
+										 waitUntilDone: NO];
             return;
-        }
 
         case PA_CONTEXT_AUTHORIZING:
             [connectStatus performSelectorOnMainThread: @selector(setStringValue:)
-                withObject: @"Authorizing ..." waitUntilDone: NO];
+											withObject: @"Authorizing ..."
+										 waitUntilDone: NO];
             return;
 
         case PA_CONTEXT_SETTING_NAME:
             [connectStatus performSelectorOnMainThread: @selector(setStringValue:)
-                withObject: @"Setting name ..." waitUntilDone: NO];
-            return;
+											withObject: @"Setting name ..." waitUntilDone: NO];
+			return;
 
         case PA_CONTEXT_READY: {
             [connectStatus performSelectorOnMainThread: @selector(setStringValue:)
-                withObject: @"Connection established" waitUntilDone: NO];
+											withObject: @"Connection established"
+										 waitUntilDone: NO];
             [self getServerInfo];
             [self performSelectorOnMainThread: @selector(enableGUI)
-                withObject: nil waitUntilDone: NO];
+								   withObject: nil
+								waitUntilDone: NO];
 
             pa_context_subscribe(context, PA_SUBSCRIPTION_MASK_ALL, NULL, NULL);
             pa_context_set_subscribe_callback(context, subscribe_callback, self);
@@ -359,9 +481,11 @@ static void pa_sample_info_cb(struct pa_context *c, const struct pa_sample_info 
 
         case PA_CONTEXT_TERMINATED:
             [connectStatus performSelectorOnMainThread: @selector(setStringValue:)
-                withObject: @"Connection terminated" waitUntilDone: NO];
+											withObject: @"Connection terminated"
+										 waitUntilDone: NO];
             [self performSelectorOnMainThread: @selector(stopProgressIndicator)
-                withObject: nil waitUntilDone: NO];
+								   withObject: nil
+								waitUntilDone: NO];
 
             break;
 
@@ -369,9 +493,11 @@ static void pa_sample_info_cb(struct pa_context *c, const struct pa_sample_info 
         default:
             printf("FAILED %d\n", pa_context_errno(context));
             [connectStatus performSelectorOnMainThread: @selector(setStringValue:)
-                withObject: @"Connection failed" waitUntilDone:NO];
+											withObject: @"Connection failed"
+										 waitUntilDone: NO];
             [self performSelectorOnMainThread: @selector(stopProgressIndicator)
-                withObject: nil waitUntilDone: NO];
+								   withObject: nil
+								waitUntilDone: NO];
             break;
     }
 
@@ -400,7 +526,9 @@ static void pa_sample_info_cb(struct pa_context *c, const struct pa_sample_info 
             break;
         
         val = pa_proplist_gets(plist, key);
-        [dict setValue: [NSString stringWithCString: val] forKey: [NSString stringWithFormat: @"%s", key]];
+        [dict setValue: [NSString stringWithCString: val
+										   encoding: NSUTF8StringEncoding]
+				forKey: [NSString stringWithFormat: @"%s", key]];
     } while (state);
 
     return dict;
@@ -446,8 +574,10 @@ static void pa_sample_info_cb(struct pa_context *c, const struct pa_sample_info 
 
 - (void) repaintViews
 {
-    [outlineView reloadItem: nil reloadChildren: YES];
-    [outlineView expandItem: nil expandChildren: YES];
+    [outlineView reloadItem: nil
+			 reloadChildren: YES];
+    [outlineView expandItem: nil
+			 expandChildren: YES];
     [parameterTableView reloadData];
     [propertyTableView reloadData];
     [statisticsTableView reloadData];
@@ -503,38 +633,52 @@ static void pa_sample_info_cb(struct pa_context *c, const struct pa_sample_info 
     samplecache = [NSMutableArray arrayWithCapacity: 0];
 
     d = [NSMutableDictionary dictionaryWithCapacity: 0];
-    [d setObject: @"Server Information" forKey: @"label"];
-    [d setObject: serverinfo forKey: @"parameters"];
+    [d setObject: @"Server Information"
+		  forKey: @"label"];
+    [d setObject: serverinfo
+		  forKey: @"parameters"];
     [outlineToplevel addObject: d];
 
     d = [NSMutableDictionary dictionaryWithCapacity: 0];
-    [d setObject: @"Cards" forKey: @"label"];
-    [d setObject: cards forKey: @"children"];
+    [d setObject: @"Cards"
+		  forKey: @"label"];
+    [d setObject: cards
+		  forKey: @"children"];
     [outlineToplevel addObject: d];
 
     d = [NSMutableDictionary dictionaryWithCapacity: 0];
-    [d setObject: @"Sinks" forKey: @"label"];
-    [d setObject: sinks forKey: @"children"];
+    [d setObject: @"Sinks"
+		  forKey: @"label"];
+    [d setObject: sinks
+		  forKey: @"children"];
     [outlineToplevel addObject: d];
 
     d = [NSMutableDictionary dictionaryWithCapacity: 0];
-    [d setObject: @"Sources" forKey: @"label"];
-    [d setObject: sources forKey: @"children"];
+    [d setObject: @"Sources"
+		  forKey: @"label"];
+    [d setObject: sources
+		  forKey: @"children"];
     [outlineToplevel addObject: d];
 
     d = [NSMutableDictionary dictionaryWithCapacity: 0];
-    [d setObject: @"Clients" forKey: @"label"];
-    [d setObject: clients forKey: @"children"];
+    [d setObject: @"Clients"
+		  forKey: @"label"];
+    [d setObject: clients
+		  forKey: @"children"];
     [outlineToplevel addObject: d];
 
     d = [NSMutableDictionary dictionaryWithCapacity: 0];
-    [d setObject: @"Modules" forKey: @"label"];
-    [d setObject: modules forKey: @"children"];
+    [d setObject: @"Modules"
+		  forKey: @"label"];
+    [d setObject: modules
+		  forKey: @"children"];
     [outlineToplevel addObject: d];
 
     d = [NSMutableDictionary dictionaryWithCapacity: 0];
-    [d setObject: @"Sample Cache" forKey: @"label"];
-    [d setObject: samplecache forKey: @"children"];
+    [d setObject: @"Sample Cache"
+		  forKey: @"label"];
+    [d setObject: samplecache
+		  forKey: @"children"];
     [outlineToplevel addObject: d];
 
     [outlineView setEnabled: NO];
@@ -551,6 +695,11 @@ static void pa_sample_info_cb(struct pa_context *c, const struct pa_sample_info 
 	[NSThread detachNewThreadSelector: @selector(PAMainloopThread:) toTarget: self withObject: nil];
 //    [serverSelector addItemWithTitle: @"daniel@ubuntu.local."];
 //    [serverSelector addItemWithTitle: @"172.16.193.161"];
+
+    StreamViewCollapsed *s = [[StreamViewCollapsed alloc] initWithFrame: NSMakeRect(0.0, 0.0, 500.0, 100.0)];
+//    [streamList addSubview: s positioned: NSWindowBelow relativeTo: nil];
+    [streamList addSubview: s];
+    [streamList setNeedsDisplay: YES];
 
     [listener start];
 }
@@ -588,7 +737,7 @@ static void pa_sample_info_cb(struct pa_context *c, const struct pa_sample_info 
     return [d count];
 }
 
-- (bool) outlineView: (NSOutlineView *) outlineView isItemExpandable:(id)item
+- (BOOL) outlineView: (NSOutlineView *) outlineView isItemExpandable:(id)item
 {
     if (item == nil)
         return [outlineToplevel count] > 0;
@@ -639,10 +788,10 @@ static void pa_sample_info_cb(struct pa_context *c, const struct pa_sample_info 
     if (!item)
         return @"";
 
-    if ([[col identifier] isEqualToString:@"key"])
+    if ([[col identifier] isEqualToString: @"key"])
         return [[item allKeys] objectAtIndex: rowIndex];
 
-    if ([[col identifier] isEqualToString:@"value"])
+    if ([[col identifier] isEqualToString: @"value"])
         return [[item allValues] objectAtIndex: rowIndex];
 
     return @"";
@@ -664,7 +813,7 @@ static void pa_sample_info_cb(struct pa_context *c, const struct pa_sample_info 
 
 #pragma mark ### delegate methods ###
 
-- (bool) outlineView: (NSOutlineView *) outlineView shouldEditTableColumn: (NSTableColumn *)tableColumn item:(id)item
+- (BOOL) outlineView: (NSOutlineView *) outlineView shouldEditTableColumn: (NSTableColumn *)tableColumn item:(id)item
 {
     return NO;
 }
@@ -680,6 +829,8 @@ static void pa_sample_info_cb(struct pa_context *c, const struct pa_sample_info 
 
 - (void) connectToServer: (NSString *) server
 {
+	activeItem = nil;
+
     [connectStatus setStringValue: @"Connecting ..."];
     [connectionProgressIndicator startAnimation: self];
     [connectionProgressIndicator setHidden: NO];
@@ -711,8 +862,10 @@ static void pa_sample_info_cb(struct pa_context *c, const struct pa_sample_info 
 - (IBAction) displayAbout: (id) sender
 {
     NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity: 0];
-    [d setValue: @"(c) 2009 Daniel Mack" forKey: @"Copyright"];
-    [d setValue: [NSString stringWithFormat: @"pulseaudio library version %s", pa_get_library_version()] forKey: @"Copyright"];
+    [d setValue: @"(c) 2009 Daniel Mack"
+		 forKey: @"Copyright"];
+    [d setValue: [NSString stringWithFormat: @"pulseaudio library version %s", pa_get_library_version()]
+		 forKey: @"Copyright"];
 
     [NSApp orderFrontStandardAboutPanelWithOptions: d];
 }
