@@ -8,10 +8,13 @@
 
 /* Begin PBXBuildFile section */
 		6515ED1E10D13D930048DEB5 /* WindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6515ED1D10D13D930048DEB5 /* WindowController.m */; };
-		6515ED4210D13E6E0048DEB5 /* pulse.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6515ED4110D13E6E0048DEB5 /* pulse.framework */; };
 		6515F1CC10D3926C0048DEB5 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 6515F1CB10D3926C0048DEB5 /* Credits.rtf */; };
 		6515F1D910D397D60048DEB5 /* logo.icns in Resources */ = {isa = PBXBuildFile; fileRef = 6515F1D810D397D60048DEB5 /* logo.icns */; };
+		65287261111EF7A600C40D7B /* MeterView.m in Sources */ = {isa = PBXBuildFile; fileRef = 65287260111EF7A600C40D7B /* MeterView.m */; };
 		6545582E10D4FA9200E3839A /* BonjourListener.m in Sources */ = {isa = PBXBuildFile; fileRef = 6545582D10D4FA9200E3839A /* BonjourListener.m */; };
+		654559E410D8CC1100E3839A /* pulse.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 654559E310D8CC1100E3839A /* pulse.framework */; };
+		65A09CC310F72B3300D07CF1 /* StreamView.m in Sources */ = {isa = PBXBuildFile; fileRef = 65A09CC210F72B3300D07CF1 /* StreamView.m */; };
+		65A09CE210F74DF300D07CF1 /* StreamListView.m in Sources */ = {isa = PBXBuildFile; fileRef = 65A09CE110F74DF300D07CF1 /* StreamListView.m */; };
 		8D11072A0486CEB800E47090 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 29B97318FDCFA39411CA2CEA /* MainMenu.nib */; };
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		8D11072D0486CEB800E47090 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
@@ -29,11 +32,17 @@
 		32CA4F630368D1EE00C91783 /* PulseConsole_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PulseConsole_Prefix.pch; sourceTree = "<group>"; };
 		6515ED1C10D13D930048DEB5 /* WindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WindowController.h; sourceTree = "<group>"; };
 		6515ED1D10D13D930048DEB5 /* WindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WindowController.m; sourceTree = "<group>"; };
-		6515ED4110D13E6E0048DEB5 /* pulse.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = pulse.framework; path = ../PulseAudioOSX/PulseAudio.framework/pulse.framework; sourceTree = SOURCE_ROOT; };
 		6515F1CB10D3926C0048DEB5 /* Credits.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
 		6515F1D810D397D60048DEB5 /* logo.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = logo.icns; sourceTree = "<group>"; };
+		6528725F111EF7A600C40D7B /* MeterView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MeterView.h; sourceTree = "<group>"; };
+		65287260111EF7A600C40D7B /* MeterView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MeterView.m; sourceTree = "<group>"; };
 		6545582C10D4FA9200E3839A /* BonjourListener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BonjourListener.h; sourceTree = "<group>"; };
 		6545582D10D4FA9200E3839A /* BonjourListener.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BonjourListener.m; sourceTree = "<group>"; };
+		654559E310D8CC1100E3839A /* pulse.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = pulse.framework; path = ../PulseAudio.framework/pulse.framework; sourceTree = SOURCE_ROOT; };
+		65A09CC110F72B3300D07CF1 /* StreamView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StreamView.h; sourceTree = "<group>"; };
+		65A09CC210F72B3300D07CF1 /* StreamView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StreamView.m; sourceTree = "<group>"; };
+		65A09CE010F74DF300D07CF1 /* StreamListView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StreamListView.h; sourceTree = "<group>"; };
+		65A09CE110F74DF300D07CF1 /* StreamListView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StreamListView.m; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* PulseConsole.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PulseConsole.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -44,7 +53,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */,
-				6515ED4210D13E6E0048DEB5 /* pulse.framework in Frameworks */,
+				654559E410D8CC1100E3839A /* pulse.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -87,9 +96,11 @@
 		29B97314FDCFA39411CA2CEA /* PulseConsole */ = {
 			isa = PBXGroup;
 			children = (
+				6528725F111EF7A600C40D7B /* MeterView.h */,
+				65287260111EF7A600C40D7B /* MeterView.m */,
+				654559E310D8CC1100E3839A /* pulse.framework */,
 				6515F1D810D397D60048DEB5 /* logo.icns */,
 				6515F1CB10D3926C0048DEB5 /* Credits.rtf */,
-				6515ED4110D13E6E0048DEB5 /* pulse.framework */,
 				080E96DDFE201D6D7F000001 /* Classes */,
 				29B97315FDCFA39411CA2CEA /* Other Sources */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
@@ -115,9 +126,13 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				65A09CE010F74DF300D07CF1 /* StreamListView.h */,
+				65A09CE110F74DF300D07CF1 /* StreamListView.m */,
 				8D1107310486CEB800E47090 /* Info.plist */,
 				089C165CFE840E0CC02AAC07 /* InfoPlist.strings */,
 				29B97318FDCFA39411CA2CEA /* MainMenu.nib */,
+				65A09CC110F72B3300D07CF1 /* StreamView.h */,
+				65A09CC210F72B3300D07CF1 /* StreamView.m */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -191,6 +206,9 @@
 				8D11072D0486CEB800E47090 /* main.m in Sources */,
 				6515ED1E10D13D930048DEB5 /* WindowController.m in Sources */,
 				6545582E10D4FA9200E3839A /* BonjourListener.m in Sources */,
+				65A09CC310F72B3300D07CF1 /* StreamView.m in Sources */,
+				65A09CE210F74DF300D07CF1 /* StreamListView.m in Sources */,
+				65287261111EF7A600C40D7B /* MeterView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -224,6 +242,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../PulseAudioOSX/PulseAudio.framework\"",
+					"\"$(SRCROOT)/../PulseAudio.framework\"",
 				);
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
@@ -245,6 +264,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../PulseAudioOSX/PulseAudio.framework\"",
+					"\"$(SRCROOT)/../PulseAudio.framework\"",
 				);
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;

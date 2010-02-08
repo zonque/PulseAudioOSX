@@ -1,7 +1,7 @@
 /***
   This file is part of PulseConsole
 
-  Copyright 2009 Daniel Mack <daniel@caiaq.de>
+  Copyright 2010 Daniel Mack <daniel@caiaq.de>
 
   PulseConsole is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
   USA.
 ***/
 
+#import "StreamListView.h"
 #import "WindowController.h"
 
 @implementation WindowController
@@ -184,8 +185,7 @@ static void pa_sample_info_cb(struct pa_context *c, const struct pa_sample_info 
     [statisticDict setObject: [NSString stringWithCString: pa_bytes_snprint(t, sizeof(t), i->memblock_total_size)
 												 encoding: NSUTF8StringEncoding]
 					  forKey: @"Current total size of allocated memory blocks"];
-    [statisticDict setObject: [NSString stringWithCString: pa_bytes_snprint(t, sizeof(t), i->memblock_allocated)
-												 encoding: NSUTF8StringEncoding]
+    [statisticDict setObject: [NSNumber numberWithInt: i->memblock_allocated]
 					  forKey: @"Allocated memory blocks during the whole lifetime of the daemon"];
     [statisticDict setObject: [NSString stringWithCString: pa_bytes_snprint(t, sizeof(t), i->memblock_allocated_size)
 												 encoding: NSUTF8StringEncoding]
@@ -258,9 +258,14 @@ static void pa_sample_info_cb(struct pa_context *c, const struct pa_sample_info 
 
 - (void) addSinkInfo: (const pa_sink_info *) info
 {
+	[sinkStreamListView addStreamView: info
+							   ofType: StreamTypeSink
+								 name: [NSString stringWithCString: info->description
+														  encoding: NSUTF8StringEncoding]];
+	
     char tmp[0x100];
-
     NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithCapacity: 0];
+
     [parameters setObject: [NSString stringWithCString: info->name
 											  encoding: NSUTF8StringEncoding]
 				   forKey: @"Sink Name"];
@@ -304,10 +309,15 @@ static void pa_sample_info_cb(struct pa_context *c, const struct pa_sample_info 
 
 - (void) addSourceInfo: (const pa_source_info *) info
 {
-    char tmp[0x100];
+	[sourceStreamListView addStreamView: info
+								 ofType: StreamTypeSource
+								   name: [NSString stringWithCString: info->description
+															encoding: NSUTF8StringEncoding]];
 
+    char tmp[0x100];
     NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithCapacity: 0];
-    [parameters setObject: [NSString stringWithCString: info->name
+    
+	[parameters setObject: [NSString stringWithCString: info->name
 											  encoding: NSUTF8StringEncoding]
 				   forKey: @"Sink Name"];
     [parameters setObject: [NSString stringWithCString: info->description
@@ -490,7 +500,6 @@ static void pa_sample_info_cb(struct pa_context *c, const struct pa_sample_info 
             break;
 
         case PA_CONTEXT_FAILED:
-        default:
             printf("FAILED %d\n", pa_context_errno(context));
             [connectStatus performSelectorOnMainThread: @selector(setStringValue:)
 											withObject: @"Connection failed"
@@ -560,6 +569,7 @@ static void pa_sample_info_cb(struct pa_context *c, const struct pa_sample_info 
             pa_context_set_event_callback(context, context_event_cb, self);
             pa_context_set_state_callback(context, context_state_cb, self);
             pa_context_connect(context, currentServer, 0, NULL);
+			printf(" connect to >%s<\n", currentServer);
         }
 
         pa_mainloop_iterate(mainloop, true, &ret);
@@ -694,12 +704,7 @@ static void pa_sample_info_cb(struct pa_context *c, const struct pa_sample_info 
 
 	[NSThread detachNewThreadSelector: @selector(PAMainloopThread:) toTarget: self withObject: nil];
 //    [serverSelector addItemWithTitle: @"daniel@ubuntu.local."];
-//    [serverSelector addItemWithTitle: @"172.16.193.161"];
-
-    StreamViewCollapsed *s = [[StreamViewCollapsed alloc] initWithFrame: NSMakeRect(0.0, 0.0, 500.0, 100.0)];
-//    [streamList addSubview: s positioned: NSWindowBelow relativeTo: nil];
-    [streamList addSubview: s];
-    [streamList setNeedsDisplay: YES];
+//    [serverSelector addItemWithTitle: @"172.16.193.164"];
 
     [listener start];
 }
@@ -731,10 +736,8 @@ static void pa_sample_info_cb(struct pa_context *c, const struct pa_sample_info 
     }
 
     NSArray *d = [item valueForKey: @"children"];
-    if (!d)
-        return 0;
 
-    return [d count];
+    return d ? [d count] : 0;
 }
 
 - (BOOL) outlineView: (NSOutlineView *) outlineView isItemExpandable:(id)item
@@ -850,7 +853,12 @@ static void pa_sample_info_cb(struct pa_context *c, const struct pa_sample_info 
     [modules removeAllObjects];
     [clients removeAllObjects];
     [statisticDict removeAllObjects];
-
+	
+	[sinkStreamListView removeAllStreams];
+	[sourceStreamListView removeAllStreams];
+	[playbackStreamListView removeAllStreams];
+	[recordStreamListView removeAllStreams];
+	
     [outlineView setEnabled: NO];
     [parameterTableView setEnabled: NO];
     [propertyTableView setEnabled: NO];

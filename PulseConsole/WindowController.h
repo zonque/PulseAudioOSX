@@ -26,6 +26,7 @@
 #import <Cocoa/Cocoa.h>
 
 #import "BonjourListener.h"
+#import "StreamView.h"
 
 @interface WindowController : NSObject {
 
@@ -39,6 +40,11 @@
     IBOutlet NSTextField            *connectStatus;
     IBOutlet NSTabView              *tabView;
     IBOutlet NSTableView            *statisticsTableView;
+    IBOutlet NSTextView             *commandShell;
+    IBOutlet StreamListView			*playbackStreamListView;
+    IBOutlet StreamListView			*recordStreamListView;
+    IBOutlet StreamListView			*sinkStreamListView;
+    IBOutlet StreamListView			*sourceStreamListView;
 
     pa_mainloop *mainloop;
     pa_context *context;

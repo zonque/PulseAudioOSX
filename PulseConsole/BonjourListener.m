@@ -66,8 +66,10 @@ static void dns_service_resolve_reply (DNSServiceRef sdRef,
 {
     BonjourListener *l = context;
 
-    if (![l->known containsObject: [NSString stringWithCString: hosttarget]]) {
-         [l->known addObject: [NSString stringWithCString: hosttarget]];
+    if (![l->known containsObject: [NSString stringWithCString: hosttarget
+													  encoding: NSUTF8StringEncoding]]) {
+         [l->known addObject: [NSString stringWithCString: hosttarget
+												 encoding: NSUTF8StringEncoding]];
 
         [[NSNotificationCenter defaultCenter]
 				postNotificationName:@"serviceAdded" object: l
@@ -80,8 +82,10 @@ static void dns_service_resolve_reply (DNSServiceRef sdRef,
                 regtype: (const char *) regtype
             replyDomain: (const char *) replyDomain
 {
-    if (![known containsObject: [NSString stringWithCString: serviceName]]) {
-         [known addObject: [NSString stringWithCString: serviceName]];
+    if (![known containsObject: [NSString stringWithCString: serviceName
+												   encoding: NSUTF8StringEncoding]]) {
+         [known addObject: [NSString stringWithCString: serviceName
+											  encoding: NSUTF8StringEncoding]];
 
         [[NSNotificationCenter defaultCenter]
 				postNotificationName:@"serviceAdded" object: self
