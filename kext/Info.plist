@@ -34,9 +34,9 @@
 			<key>CFBundleIdentifier</key>
 			<string>org.pulseaudio.driver.PulseAudioKext</string>
 			<key>IOClass</key>
-			<string>org_pulseaudio_ioaudiodevice</string>
+			<string>org_pulseaudio_ioaudiodriver</string>
 			<key>IOMatchCategory</key>
-			<string>org_pulseaudio_ioaudiodevice</string>
+			<string>org_pulseaudio_ioaudiodriver</string>
 			<key>IOProviderClass</key>
 			<string>IOResources</string>
 			<key>IOResourceMatch</key>

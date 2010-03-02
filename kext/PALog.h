@@ -1,7 +1,3 @@
-//
-//	PALog.h
-//
-
 #ifdef PA_DEBUG
 #define debugIOLog(x...)    IOLog(x)
 #else

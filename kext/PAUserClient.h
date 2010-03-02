@@ -1,29 +1,39 @@
-//
-//  PAUserClient.h
-//
+/***
+ This file is part of PulseAudioKext
+ 
+ Copyright 2010 Daniel Mack <daniel@caiaq.de>
+ 
+ PulseAudioKext is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2.1 of the License, or
+ (at your option) any later version.
+ ***/
 
 #ifndef PAUSERCLIENT_H
 #define PAUSERCLIENT_H
 
 #include <IOKit/IOUserClient.h>
 
-#define PAUserClient org_pulseaudio_iouserclient
+#include "PADriver.h"
+#include "BuildNames.h"
 
-// keep this enum in sync with userspace applications
-enum {
-	kPAUserClientGetNumSampleFrames,
-	kPAUserClientSetSampleRate,
-	kPAUserClientNumberOfMethods
-};
+class PADevice;
 
 class PAUserClient : public IOUserClient
 {
 	OSDeclareDefaultStructors(PAUserClient)
 
 private:
-	PADevice	*device;
+	PADriver	*driver;
+	UInt		 currentDispatchSelector;
 
-	static const IOExternalMethodDispatch	sMethods[kPAUserClientNumberOfMethods];
+	/* IOMethodDispatchers */
+	static IOReturn	genericMethodDispatchAction(PAUserClient *target, void *reference, IOExternalMethodArguments *args);
+
+	IOReturn	addDevice(IOExternalMethodArguments *args);
+	IOReturn	removeDevice(IOExternalMethodArguments *args);
+	IOReturn	getDeviceInfo(IOExternalMethodArguments *args);
+	IOReturn	setSamplerate(IOExternalMethodArguments *args);
 
 // IOUserClient interface
 public:
@@ -39,8 +49,6 @@ public:
 	bool		finalize(IOOptionBits options);
 	bool		terminate(IOOptionBits options);
 
-	static IOReturn		setSampleRate(PAUserClient *target, void *reference, IOExternalMethodArguments *arguments);
-	static IOReturn		getNumSampleFrames(PAUserClient *target, void *reference, IOExternalMethodArguments *arguments);
 };
 
 #endif // PAUSERCLIENT_H

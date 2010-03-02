@@ -1,30 +1,35 @@
-//
-//   PADevice.cpp
-//
-//	Copyright (c) 2009 Daniel Mack <daniel@caiaq.de>
-// 
-//   This program is free software; you can redistribute it and/or modify
-//   it under the terms of the GNU General Public License as published by
-//   the Free Software Foundation; either version 2 of the License, or
-//   (at your option) any later version.
-//
+/***
+ This file is part of PulseAudioKext
+ 
+ Copyright 2010 Daniel Mack <daniel@caiaq.de>
+ 
+ PulseAudioKext is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2.1 of the License, or
+ (at your option) any later version.
+ ***/
 
+#include "PAUserClient.h"
+#include "PAUserClientTypes.h"
 #include "PAEngine.h"
 #include "PADevice.h"
 #include "PALog.h"
 
-OSDefineMetaClassAndStructors(PADevice, IOAudioDevice)
+#define super IOAudioDevice
 
-bool PADevice::initHardware(IOService* inProvider)
+OSDefineMetaClassAndStructors(PADevice, super)
+
+IOReturn
+PADevice::initHardware(IOService *provider,
+					   const struct PAVirtualDevice *info)
 {
 	debugFunctionEnter();
 
-	if(!IOAudioDevice::initHardware(inProvider))
+	if (!IOAudioDevice::initHardware(provider))
 		return false;
 
-	// provide some settings and strings
-	setDeviceName("PulseAudio");
-	setDeviceShortName("PulseAudio");
+	setDeviceName(info->name);
+	setDeviceShortName(info->name);
 	setManufacturerName("pulseaudio.org");
 	setDeviceModelName("virtual audio device");
 	setDeviceTransportType('virt');
@@ -34,8 +39,10 @@ bool PADevice::initHardware(IOService* inProvider)
 
 	if (!audioEngine)
 		return false;
-	
-	if (!audioEngine->init(2, 2)) {
+
+	memcpy(&deviceInfo, info, sizeof(deviceInfo));
+
+	if (!audioEngine->init(&deviceInfo)) {
 		audioEngine->release();
 		return false;
 	}
@@ -46,4 +53,19 @@ bool PADevice::initHardware(IOService* inProvider)
 	audioEngine->release();
 
 	return true;
+}
+
+IOReturn
+PADevice::getInfo(struct PAVirtualDevice *info)
+{
+	debugFunctionEnter();
+	memcpy(info, &deviceInfo, sizeof(deviceInfo));
+	return kIOReturnSuccess;
+}
+
+IOReturn
+PADevice::setSamplerate(UInt rate)
+{
+	debugFunctionEnter();
+	return kIOReturnSuccess;
 }

@@ -1,15 +1,16 @@
-//
-//   PAEngine.cpp
-//
-//	Copyright (c) 2009 Daniel Mack <daniel@caiaq.de>
-// 
-//   This program is free software; you can redistribute it and/or modify
-//   it under the terms of the GNU General Public License as published by
-//   the Free Software Foundation; either version 2 of the License, or
-//   (at your option) any later version.
-//
+/***
+ This file is part of PulseAudioKext
+ 
+ Copyright 2010 Daniel Mack <daniel@caiaq.de>
+ 
+ PulseAudioKext is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2.1 of the License, or
+ (at your option) any later version.
+ ***/
 
 #include "PAEngine.h"
+#include "PAUserClientTypes.h"
 #include "PALog.h"
 
 #include <libkern/sysctl.h>
@@ -23,23 +24,25 @@
 #include <IOKit/IOWorkLoop.h>
 #include <IOKit/IOTimerEventSource.h>
 
-#define super IOAudioEngine
-
 #define SAMPLERATES				{ 44100, 48000, 64000, 88200, 96000, 128000, 176400, 192000 }
 #define NUM_SAMPLE_FRAMES       (1024*16)
 #define CHANNELS_PER_STREAM     2
 #define BYTES_PER_SAMPLE        sizeof(float)
 #define AUDIO_BUFFER_SIZE       (NUM_SAMPLE_FRAMES * BYTES_PER_SAMPLE * CHANNELS_PER_STREAM)
 
-OSDefineMetaClassAndStructors(PAEngine, IOAudioEngine)
+#define super IOAudioEngine
 
-bool PAEngine::init(UInt32 in, UInt32 out)
+OSDefineMetaClassAndStructors(PAEngine, super)
+
+bool PAEngine::init(struct PAVirtualDevice *info)
 {
+	debugFunctionEnter();
+
     if (!super::init(NULL))
         return false;
 
-	channelsIn = in;
-	channelsOut = out;
+	channelsIn = info->channelsIn;
+	channelsOut = info->channelsOut;
     nStreams = max(channelsIn, channelsOut) / CHANNELS_PER_STREAM;
 
 	return true;
@@ -47,6 +50,8 @@ bool PAEngine::init(UInt32 in, UInt32 out)
 
 void PAEngine::free()
 {
+	debugFunctionEnter();
+
     if (audioOutBuf) {
         audioOutBuf->complete();
         audioOutBuf->release();
@@ -68,6 +73,8 @@ IOAudioStream *PAEngine::createNewAudioStream(IOAudioStreamDirection direction,
 	UInt32 sampleRates[] = SAMPLERATES;
     IOAudioSampleRate rate;
     IOAudioStream *audioStream = new IOAudioStream;
+
+	debugFunctionEnter();
 
     if (!audioStream)
         return NULL;
@@ -162,6 +169,8 @@ bool PAEngine::initHardware(IOService *provider)
         }
     }
 
+	timeStampFactory = new PATimeStampFactory(NUM_SAMPLE_FRAMES, sampleRates[0]);
+
 	return true;
 }
 
@@ -225,5 +234,5 @@ IOReturn PAEngine::convertInputSamples(const void *inSourceBuffer, void *outTarg
 UInt32 PAEngine::getCurrentSampleFrame()
 {
 	//IOLog("%s: currentFrame %d\n", __func__, currentFrame);
-	return currentFrame;
+	return timeStampFactory->getCurrentSampleFrame();
 }
