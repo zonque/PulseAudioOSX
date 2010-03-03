@@ -32,12 +32,12 @@
 
 #define super IOAudioEngine
 
-OSDefineMetaClassAndStructors(PAEngine, super)
+OSDefineMetaClassAndStructors(PAEngine, IOAudioEngine)
+
+#pragma mark ########## IOAudioEngine ##########
 
 bool PAEngine::init(struct PAVirtualDevice *info)
 {
-	debugFunctionEnter();
-
     if (!super::init(NULL))
         return false;
 
@@ -174,11 +174,8 @@ bool PAEngine::initHardware(IOService *provider)
 	return true;
 }
 
-#pragma mark --- CoreAudio ---
-
 OSString* PAEngine::getGlobalUniqueID()
 {
-	debugFunctionEnter();
     return OSString::withCString("PulseAudioIOAudioEngine");
 }
 

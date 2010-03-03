@@ -19,50 +19,9 @@
 
 #define super IOUserClient
 
-OSDefineMetaClassAndStructors(PAUserClient, super)
+OSDefineMetaClassAndStructors(PAUserClient, IOUserClient)
 
-#pragma mark --- IOUserClient ---
-
-IOReturn
-PAUserClient::genericMethodDispatchAction(PAUserClient *target,
-										  void *reference,
-										  IOExternalMethodArguments *args)
-{
-	IOReturn status = kIOReturnBadArgument;
-	
-	debugIOLog("%s(%p) -- currentDispatchSelector %d\n", __func__, target, target->currentDispatchSelector);
-	//target->dumpIOExternalMethodArguments(args);
-	
-	if (args->asyncReferenceCount == 0) {
-		switch (target->currentDispatchSelector) {
-			case kPAUserClientAddDevice:
-				status = target->addDevice(args);
-				break;
-			case kPAUserClientRemoveDevice:
-				status = target->removeDevice(args);
-				break;
-			case kPAUserClientGetDeviceInfo:
-				status = target->getDeviceInfo(args);
-				break;
-			case kPAUserClientSetSampleRate:
-				status = target->setSamplerate(args);
-				break;
-			default:
-				IOLog("%s(%p): unknown selector %d!\n", __func__, target, target->currentDispatchSelector);
-				status = kIOReturnInvalid;
-		} // switch
-	} else {
-		/* ASYNC METHODS */
-		
-		switch (target->currentDispatchSelector) {
-			default:
-				IOLog("%s(%p): unknown async selector %d!\n", __func__, target, target->currentDispatchSelector);
-				status = kIOReturnInvalid;
-		} // switch
-	}
-	
-	return status;	
-}
+#pragma mark ########## IOUserClient ##########
 
 IOReturn
 PAUserClient::externalMethod(uint32_t selector, IOExternalMethodArguments *args,
@@ -112,8 +71,7 @@ PAUserClient::clientMemoryForType(UInt32 type, UInt32 *flags,
 bool
 PAUserClient::initWithTask(task_t owningTask, void *securityID, UInt32 type)
 {
-	debugFunctionEnter();
-	return true;
+	return super::initWithTask(owningTask, securityID, type);
 }
 
 bool
@@ -125,14 +83,13 @@ PAUserClient::start(IOService *provider)
 	if (!driver)
 		return false;
 
-	return driver->registerUserClient(this);
+	return super::start(provider);
 }
 
 void
 PAUserClient::stop(IOService *provider)
 {
 	debugFunctionEnter();
-	driver->deregisterUserClient(this);
 	super::stop(provider);
 }
 
@@ -165,7 +122,60 @@ PAUserClient::terminate(IOOptionBits options)
 	return super::terminate(options);
 }
 
-#pragma mark --- PAUserClient interface ---
+#pragma mark ########## message dispatch ##########
+
+IOReturn
+PAUserClient::genericMethodDispatchAction(PAUserClient *target,
+										  void *reference,
+										  IOExternalMethodArguments *args)
+{
+	IOReturn status = kIOReturnBadArgument;
+	
+	debugIOLog("%s(%p) -- currentDispatchSelector %d\n", __func__, target, target->currentDispatchSelector);
+	//target->dumpIOExternalMethodArguments(args);
+	
+	if (args->asyncReferenceCount == 0) {
+		switch (target->currentDispatchSelector) {
+			case kPAUserClientGetNumberOfDevices:
+				status = target->getNumberOfDevices(args);
+				break;
+			case kPAUserClientAddDevice:
+				status = target->addDevice(args);
+				break;
+			case kPAUserClientRemoveDevice:
+				status = target->removeDevice(args);
+				break;
+			case kPAUserClientGetDeviceInfo:
+				status = target->getDeviceInfo(args);
+				break;
+			case kPAUserClientSetSampleRate:
+				status = target->setSamplerate(args);
+				break;
+			default:
+				IOLog("%s(%p): unknown selector %d!\n", __func__, target, target->currentDispatchSelector);
+				status = kIOReturnInvalid;
+		} // switch
+	} else {
+		/* ASYNC METHODS */
+		
+		switch (target->currentDispatchSelector) {
+			default:
+				IOLog("%s(%p): unknown async selector %d!\n", __func__, target, target->currentDispatchSelector);
+				status = kIOReturnInvalid;
+		} // switch
+	}
+	
+	return status;	
+}
+
+#pragma mark ########## PAUserClient interface ##########
+
+IOReturn
+PAUserClient::getNumberOfDevices(IOExternalMethodArguments *args)
+{
+	args->scalarOutput[0] = driver->numberOfDevices();
+	return kIOReturnSuccess;
+}
 
 IOReturn
 PAUserClient::addDevice(IOExternalMethodArguments *args)

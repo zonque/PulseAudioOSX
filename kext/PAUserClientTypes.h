@@ -22,6 +22,7 @@ enum {
 
 /* synchronous functions */
 enum {
+	kPAUserClientGetNumberOfDevices,
 	kPAUserClientAddDevice,
 	kPAUserClientRemoveDevice,
 	kPAUserClientGetDeviceInfo,

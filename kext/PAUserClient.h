@@ -30,6 +30,7 @@ private:
 	/* IOMethodDispatchers */
 	static IOReturn	genericMethodDispatchAction(PAUserClient *target, void *reference, IOExternalMethodArguments *args);
 
+	IOReturn	getNumberOfDevices(IOExternalMethodArguments *args);
 	IOReturn	addDevice(IOExternalMethodArguments *args);
 	IOReturn	removeDevice(IOExternalMethodArguments *args);
 	IOReturn	getDeviceInfo(IOExternalMethodArguments *args);

@@ -18,30 +18,26 @@
 
 #include "BuildNames.h"
 
-#define MAX_DEVICES		64
-
 class PADevice;
-class PAUserClient;
 
 class PADriver : public IOService
 {
 	OSDeclareDefaultStructors(PADriver)
-	
-	PAUserClient *userClient;
-	
-public:
-	bool			start(IOService *provider);
 
-	bool			registerUserClient(PAUserClient *client);
-	void			deregisterUserClient(PAUserClient *client);
-	
+public:
+	bool			init(OSDictionary* dictionary);
+	void			free(void);
+	bool			start(IOService *provider);
+	bool			terminate(IOOptionBits options);
+
+	IOReturn		numberOfDevices(void);
 	IOReturn		addAudioDevice(const struct PAVirtualDevice *info);
 	IOReturn		removeAudioDevice(UInt index);
 	IOReturn		getAudioEngineInfo(struct PAVirtualDevice *info, UInt index);
 	IOReturn		setSamplerate(UInt index, UInt rate);
 
 private:
-	PADevice		*device[MAX_DEVICES];
+	OSArray			*devices;
 };
 
 #endif // PADRIVER_H

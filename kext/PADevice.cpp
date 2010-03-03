@@ -17,7 +17,7 @@
 
 #define super IOAudioDevice
 
-OSDefineMetaClassAndStructors(PADevice, super)
+OSDefineMetaClassAndStructors(PADevice, IOAudioDevice)
 
 IOReturn
 PADevice::initHardware(IOService *provider,
@@ -25,9 +25,11 @@ PADevice::initHardware(IOService *provider,
 {
 	debugFunctionEnter();
 
-	if (!IOAudioDevice::initHardware(provider))
-		return false;
+	//if (!super::initHardware(provider))
+	//	return false;
 
+	return 0;
+	
 	setDeviceName(info->name);
 	setDeviceShortName(info->name);
 	setManufacturerName("pulseaudio.org");

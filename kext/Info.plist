@@ -26,11 +26,8 @@
 		<dict>
 			<key>IOUserClientClass</key>
 			<string>org_pulseaudio_iouserclient</string>
-			<key>AudioEngine</key>
-			<dict>
-				<key>Description</key>
-				<string>PAEngine</string>
-			</dict>
+			<key>IOProbeScore</key>
+			<string>1000</string>
 			<key>CFBundleIdentifier</key>
 			<string>org.pulseaudio.driver.PulseAudioKext</string>
 			<key>IOClass</key>
@@ -40,7 +37,7 @@
 			<key>IOProviderClass</key>
 			<string>IOResources</string>
 			<key>IOResourceMatch</key>
-			<string>IOBSD</string>
+			<string>IOKit</string>
 		</dict>
 	</dict>
 	<key>OSBundleLibraries</key>
