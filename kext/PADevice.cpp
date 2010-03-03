@@ -19,19 +19,16 @@
 
 OSDefineMetaClassAndStructors(PADevice, IOAudioDevice)
 
-IOReturn
-PADevice::initHardware(IOService *provider,
-					   const struct PAVirtualDevice *info)
+bool
+PADevice::initHardware(IOService *provider)
 {
 	debugFunctionEnter();
 
-	//if (!super::initHardware(provider))
-	//	return false;
+	if (!super::initHardware(provider))
+		return false;
 
-	return 0;
-	
-	setDeviceName(info->name);
-	setDeviceShortName(info->name);
+	setDeviceName(deviceInfo.name);
+	setDeviceShortName(deviceInfo.name);
 	setManufacturerName("pulseaudio.org");
 	setDeviceModelName("virtual audio device");
 	setDeviceTransportType('virt');
@@ -42,19 +39,33 @@ PADevice::initHardware(IOService *provider,
 	if (!audioEngine)
 		return false;
 
-	memcpy(&deviceInfo, info, sizeof(deviceInfo));
-
-	if (!audioEngine->init(&deviceInfo)) {
+	if (!audioEngine->init(NULL) ||
+		!audioEngine->setDeviceInfo(&deviceInfo)) {
 		audioEngine->release();
+		audioEngine = NULL;
 		return false;
 	}
-	
+
 	activateAudioEngine(audioEngine);
 
 	// the core is holding a reference now, so we can drop ours
 	audioEngine->release();
 
 	return true;
+}
+
+void
+PADevice::free(void)
+{
+	debugFunctionEnter();
+	super::free();
+}
+
+void
+PADevice::setInfo(const struct PAVirtualDevice *info)
+{
+	debugFunctionEnter();
+	memcpy(&deviceInfo, info, sizeof(deviceInfo));
 }
 
 IOReturn

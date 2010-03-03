@@ -17,6 +17,7 @@
 #include <IOKit/IOLib.h>
 
 #include "PATimeStampFactory.h"
+#include "PAUserClientTypes.h"
 
 #include "BuildNames.h"
 
@@ -27,13 +28,11 @@ class PAEngine : public IOAudioEngine
 	OSDeclareDefaultStructors(PAEngine)
 
 public:
-	virtual bool				init(struct PAVirtualDevice *info);
-	virtual void				free();
-	bool						initHardware(IOService *inProvider);
+	void						free();
+	bool						initHardware(IOService *provider);
+	bool						setDeviceInfo(struct PAVirtualDevice *info);
 	IOBufferMemoryDescriptor	*audioInBuf, *audioOutBuf;
 
-// CoreAudio interface
-public:
 	virtual OSString			*getGlobalUniqueID();
 	virtual IOReturn			performAudioEngineStart();
 	virtual IOReturn			performAudioEngineStop();
@@ -53,6 +52,8 @@ private:
 	IOTimerEventSource			*timerEventSource;
 
 	PATimeStampFactory			*timeStampFactory;
+	char						 deviceName[DEVICENAME_MAX];
+
 };
 
 #endif // PAENGINE_H

@@ -25,11 +25,13 @@ class PADevice : public IOAudioDevice
 {
 	OSDeclareDefaultStructors(PADevice)
 	struct PAVirtualDevice deviceInfo;
+	PAEngine	*audioEngine;
 
 public:
-	IOReturn	initHardware(IOService *provider,
-							 const struct PAVirtualDevice *info);
-	PAEngine	*audioEngine;
+	bool		 initHardware(IOService *provider);
+	void		 free(void);
+
+	void		 setInfo(const struct PAVirtualDevice *info);
 	IOReturn	 getInfo(struct PAVirtualDevice *info);
 	IOReturn	 setSamplerate(UInt rate);
 };

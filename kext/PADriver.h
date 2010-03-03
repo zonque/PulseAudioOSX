@@ -33,11 +33,12 @@ public:
 	IOReturn		numberOfDevices(void);
 	IOReturn		addAudioDevice(const struct PAVirtualDevice *info);
 	IOReturn		removeAudioDevice(UInt index);
+	void			removeAllAudioDevices(void);
 	IOReturn		getAudioEngineInfo(struct PAVirtualDevice *info, UInt index);
 	IOReturn		setSamplerate(UInt index, UInt rate);
 
 private:
-	OSArray			*devices;
+	OSArray			*deviceArray;
 };
 
 #endif // PADRIVER_H

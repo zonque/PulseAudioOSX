@@ -97,8 +97,10 @@ IOReturn
 PAUserClient::clientClose(void)
 {
 	debugFunctionEnter();
+	driver->removeAllAudioDevices();
+
 	// DON'T call super::clientClose, which just returns notSupported
-	return kIOReturnSuccess;
+	return terminate(0);
 }
 
 IOReturn

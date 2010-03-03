@@ -30,8 +30,8 @@ PADriver::init(OSDictionary* dictionary)
 	
 	debugFunctionEnter();
 
-	devices = OSArray::withCapacity(1);
-	if (!devices)
+	deviceArray = OSArray::withCapacity(1);
+	if (!deviceArray)
 		return false;
 	
 	return true;
@@ -41,7 +41,14 @@ void
 PADriver::free(void)
 {
 	debugFunctionEnter();
-	devices->release();
+
+	if (!deviceArray)
+		return;
+
+	deviceArray->release();
+	deviceArray = NULL;
+	
+	super::free();
 }
 
 bool
@@ -68,29 +75,33 @@ PADriver::terminate(IOOptionBits options)
 IOReturn
 PADriver::numberOfDevices(void)
 {
-	return devices->getCount();
+	return deviceArray->getCount();
 }
 
 IOReturn
 PADriver::addAudioDevice(const struct PAVirtualDevice *info)
 {
-	IOReturn ret;
-	
 	PADevice *device = new PADevice;
+
 	if (!device)
 		return kIOReturnNoMemory;
 
-	ret = device->initHardware(this, info);
-	
-	if (ret) {
-		device->release();
-		return ret;
-	}
-
-	if (!devices->setObject(device)) {
+	if (!device->init(NULL)) {
 		device->release();
 		return kIOReturnError;
 	}
+
+	device->setInfo(info);
+	device->attachToParent(this, gIOServicePlane);
+
+	if (!device->start(this) ||
+		!deviceArray->setObject(device)) {
+		device->release();
+		return kIOReturnError;
+	}
+
+	/* the OSArray holds a reference now, so we can drop ours */
+	//device->release();
 
 	return kIOReturnSuccess;
 }
@@ -98,20 +109,43 @@ PADriver::addAudioDevice(const struct PAVirtualDevice *info)
 IOReturn
 PADriver::removeAudioDevice(UInt index)
 {
-	PADevice *device = OSDynamicCast(PADevice, devices->getObject(index));
+	PADevice *device = OSDynamicCast(PADevice, deviceArray->getObject(index));
 	
 	if (!device)
 		return kIOReturnInvalid;
 
+	device->detachFromParent(this, gIOServicePlane);
+	device->stop(this);
 	device->release();
-	devices->removeObject(index);	
+	deviceArray->removeObject(index);
+
 	return kIOReturnSuccess;
+}
+
+void
+PADriver::removeAllAudioDevices(void)
+{
+	OSCollectionIterator *iter = OSCollectionIterator::withCollection(deviceArray);
+	OSObject *obj;
+
+	while ((obj = iter->getNextObject())) {
+		PADevice *device = OSDynamicCast(PADevice, obj);
+
+		if (device) {
+			device->detachFromParent(this, gIOServicePlane);
+			device->stop(this);
+			device->release();
+		}
+	}
+
+	iter->release();
+	deviceArray->flushCollection();
 }
 
 IOReturn
 PADriver::getAudioEngineInfo(struct PAVirtualDevice *info, UInt index)
 {
-	PADevice *device = OSDynamicCast(PADevice, devices->getObject(index));
+	PADevice *device = OSDynamicCast(PADevice, deviceArray->getObject(index));
 	
 	if (!device)
 		return kIOReturnInvalid;
@@ -122,7 +156,7 @@ PADriver::getAudioEngineInfo(struct PAVirtualDevice *info, UInt index)
 IOReturn
 PADriver::setSamplerate(UInt index, UInt rate)
 {
-	PADevice *device = OSDynamicCast(PADevice, devices->getObject(index));
+	PADevice *device = OSDynamicCast(PADevice, deviceArray->getObject(index));
 	
 	if (!device)
 		return kIOReturnInvalid;

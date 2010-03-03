@@ -36,18 +36,6 @@ OSDefineMetaClassAndStructors(PAEngine, IOAudioEngine)
 
 #pragma mark ########## IOAudioEngine ##########
 
-bool PAEngine::init(struct PAVirtualDevice *info)
-{
-    if (!super::init(NULL))
-        return false;
-
-	channelsIn = info->channelsIn;
-	channelsOut = info->channelsOut;
-    nStreams = max(channelsIn, channelsOut) / CHANNELS_PER_STREAM;
-
-	return true;
-}
-
 void PAEngine::free()
 {
 	debugFunctionEnter();
@@ -64,11 +52,17 @@ void PAEngine::free()
         audioInBuf = NULL;
     }
 
+	if (timeStampFactory) {
+		delete timeStampFactory;
+		timeStampFactory = NULL;
+	}
+
     super::free();
 }
 
-IOAudioStream *PAEngine::createNewAudioStream(IOAudioStreamDirection direction, 
-											  void *sampleBuffer)
+IOAudioStream *
+PAEngine::createNewAudioStream(IOAudioStreamDirection direction, 
+							   void *sampleBuffer)
 {
 	UInt32 sampleRates[] = SAMPLERATES;
     IOAudioSampleRate rate;
@@ -78,12 +72,12 @@ IOAudioStream *PAEngine::createNewAudioStream(IOAudioStreamDirection direction,
 
     if (!audioStream)
         return NULL;
-    
+
     if (!audioStream->initWithAudioEngine(this, direction, 1)) {
         audioStream->release();
         return NULL;
     } 
-    
+
     audioStream->setSampleBuffer(sampleBuffer, AUDIO_BUFFER_SIZE);
     rate.fraction = 0;
 
@@ -111,18 +105,18 @@ IOAudioStream *PAEngine::createNewAudioStream(IOAudioStreamDirection direction,
 
 bool PAEngine::initHardware(IOService *provider)
 {
-	debugFunctionEnter();
-
 	UInt32 sampleRates[] = SAMPLERATES;
+
+	debugFunctionEnter();
 
 	if (!super::initHardware(provider))
 		return false;
-
+	
     sampleRate.whole = sampleRates[0];
     sampleRate.fraction = 0;
     setSampleRate(&sampleRate);
-        
-    setDescription("PulseAudio");
+
+    setDescription(deviceName);
     setNumSampleFramesPerBuffer(NUM_SAMPLE_FRAMES);
 
 	UInt32 audioBufferSize = AUDIO_BUFFER_SIZE * nStreams;
@@ -130,7 +124,7 @@ bool PAEngine::initHardware(IOService *provider)
     audioInBuf	= IOBufferMemoryDescriptor::withCapacity(audioBufferSize, kIODirectionInOut);
     audioOutBuf	= IOBufferMemoryDescriptor::withCapacity(audioBufferSize, kIODirectionInOut);
 
-	if (!audioInBuf || !audioOutBuf || !audioStream) {
+	if (!audioInBuf || !audioOutBuf) {
 		IOLog("%s(%p)::%s unable to allocate memory\n", getName(), this, __func__);
 		return false;
 	}
@@ -154,7 +148,7 @@ bool PAEngine::initHardware(IOService *provider)
             audioStream[i * 2] = stream;
             stream->release();
         }
-
+		
         if (i * CHANNELS_PER_STREAM < channelsOut) {
             streamBuf = (char *) audioOutBuf->getBytesNoCopy() + (i * AUDIO_BUFFER_SIZE);
             stream = createNewAudioStream(kIOAudioStreamDirectionOutput, streamBuf);
@@ -168,15 +162,32 @@ bool PAEngine::initHardware(IOService *provider)
             stream->release();
         }
     }
-
+	
 	timeStampFactory = new PATimeStampFactory(NUM_SAMPLE_FRAMES, sampleRates[0]);
+
+	return true;
+}
+
+bool PAEngine::setDeviceInfo(struct PAVirtualDevice *info)
+{
+	debugFunctionEnter();
+
+	memcpy(deviceName, info->name, DEVICENAME_MAX);
+	channelsIn = info->channelsIn;
+	channelsOut = info->channelsOut;
+	nStreams = max(channelsIn, channelsOut) / CHANNELS_PER_STREAM;
+
+	if (nStreams == 0)
+			return false;
 
 	return true;
 }
 
 OSString* PAEngine::getGlobalUniqueID()
 {
-    return OSString::withCString("PulseAudioIOAudioEngine");
+    char tmp[0xff];
+	snprintf(tmp, sizeof(tmp), "%s @%p", getName(), this);
+    return OSString::withCString(tmp);
 }
 
 IOReturn PAEngine::performAudioEngineStart()
