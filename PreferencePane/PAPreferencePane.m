@@ -40,6 +40,20 @@
 
 - (void) mainViewDidLoad
 {
+	NSInteger i;
+
+	[channelsInPopup removeAllItems];
+	[channelsOutPopup removeAllItems];
+	[clockingSourcePopup removeAllItems];
+	[clockingSourcePopup addItemWithTitle: @"kernel driver"];
+	[clockingSourcePopup addItemWithTitle: @"PulseAudio"];
+
+	for (i = 0; i < 5; i++) {
+		NSString *s = [[NSNumber numberWithInt: 1UL << (i + 1)] stringValue];
+		[channelsInPopup addItemWithTitle: s];
+		[channelsOutPopup addItemWithTitle: s];
+	}
+
 	notificationCenter = [NSDistributedNotificationCenter defaultCenter];
 
 	[notificationCenter addObserver: self
@@ -47,6 +61,7 @@
 							   name: @"updateDeviceList"
 							 object: REMOTE_OBJECT];
 	[self requestDeviceList];
+	[self selectDevice: nil];
 }
 
 #pragma mark ### NSTableViewSource protocol ###
@@ -77,9 +92,53 @@
 
 #pragma mark ### IBActions ###
 
+- (IBAction) cancelAddDevice: (id) sender
+{
+	[NSApp endSheet: addDevicePanel];
+}
+
+- (IBAction) doAddDevice: (id) sender
+{
+	[NSApp endSheet: addDevicePanel];
+
+	NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithCapacity: 0];
+
+	NSInteger channelsIn = 1UL << ([channelsInPopup indexOfSelectedItem] + 1);
+	NSInteger channelsOut = 1UL << ([channelsOutPopup indexOfSelectedItem] + 1);
+	
+	[dict setValue: [deviceNameField stringValue]
+			forKey: @"name"];
+	[dict setValue: [NSNumber numberWithInt: channelsIn]
+			forKey: @"channelsIn"];
+	[dict setValue: [NSNumber numberWithInt: channelsOut]
+			forKey: @"channelsOut"];
+
+	[notificationCenter postNotificationName: @"addDevice"
+									  object: LOCAL_OBJECT
+									userInfo: dict
+						  deliverImmediately: YES];	
+	
+	[dict release];
+	
+	[self requestDeviceList];
+}
+
+- (void)didEndSheet: (NSWindow *) sheet
+		 returnCode: (NSInteger) returnCode
+		contextInfo: (void *)contextInfo
+{
+    [sheet orderOut:self];
+}
+
 - (IBAction) addDevice: (id) sender
 {
-	
+	NSWindow *window = [[self mainView] window];
+
+	[NSApp beginSheet: addDevicePanel
+	   modalForWindow: window
+		modalDelegate: self
+	   didEndSelector: @selector(didEndSheet:returnCode:contextInfo:)
+		  contextInfo: nil];
 }
 
 - (IBAction) removeDevice: (id) sender
@@ -103,5 +162,27 @@
 	[self requestDeviceList];
 }
 
+- (IBAction) selectDevice: (id) sender
+{
+	NSInteger selected = [deviceTableView selectedRow];
+	
+	if (selected < 0) {
+		[channelsInLabel setHidden: YES];
+		[channelsOutLabel setHidden: YES];
+		[clockingSourceLabel setHidden: YES];
+		return;
+	}
+
+	[channelsInLabel setHidden: NO];
+	[channelsOutLabel setHidden: NO];
+	[clockingSourceLabel setHidden: NO];
+	
+	NSDictionary *dict = [deviceList objectAtIndex: selected];
+	NSInteger channelsIn = [[dict valueForKey: @"channelsIn"] intValue];
+	NSInteger channelsOut = [[dict valueForKey: @"channelsOut"] intValue];
+	
+	[channelsInLabel setIntValue: channelsIn];
+	[channelsOutLabel setIntValue: channelsOut];
+}
 
 @end

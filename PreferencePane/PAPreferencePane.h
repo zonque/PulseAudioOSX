@@ -14,7 +14,15 @@
 
 @interface PAPreferencePane : NSPreferencePane 
 {
-	IBOutlet NSTableView *deviceTableView;
+	IBOutlet NSTableView	*deviceTableView;
+	IBOutlet NSPopUpButton	*channelsInPopup;
+	IBOutlet NSPopUpButton	*channelsOutPopup;
+	IBOutlet NSPopUpButton	*clockingSourcePopup;
+	IBOutlet NSTextField	*deviceNameField;
+	IBOutlet NSPanel		*addDevicePanel;
+	IBOutlet NSTextField	*channelsInLabel;
+	IBOutlet NSTextField	*channelsOutLabel;
+	IBOutlet NSTextField	*clockingSourceLabel;
 
 	NSDistributedNotificationCenter *notificationCenter;
 	NSArray *deviceList;
@@ -24,5 +32,8 @@
 
 - (IBAction) addDevice: (id) sender;
 - (IBAction) removeDevice: (id) sender;
+- (IBAction) cancelAddDevice: (id) sender;
+- (IBAction) doAddDevice: (id) sender;
+- (IBAction) selectDevice: (id) sender;
 
 @end
