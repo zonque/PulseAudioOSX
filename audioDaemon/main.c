@@ -27,12 +27,11 @@ __END_DECLS
 static mach_port_t async_port;
 static io_connect_t data_port;
 
-static IOReturn
-addDevice (io_connect_t port, const struct PAVirtualDevice *info)
+static IOReturn addDeviceFromInfo (struct PAVirtualDevice *info)
 {
 	IOReturn ret;
-
-	ret = IOConnectCallStructMethod(port,							// an io_connect_t returned from IOServiceOpen().
+	
+	ret = IOConnectCallStructMethod(data_port,						// an io_connect_t returned from IOServiceOpen().
 									kPAUserClientAddDevice,			// selector of the function to be called via the user client.
 									info,							// pointer to the input struct parameter.
 									sizeof(*info),					// the size of the input structure parameter.
@@ -75,8 +74,7 @@ serviceMatched (void *refCon, io_iterator_t iterator)
 	info.channelsIn = 2;
 	info.channelsOut = 2;
 
-	ret = addDevice(data_port, &info);
-	//ret = removeDevice(data_port, 0);
+	ret = addDeviceFromInfo(&info);
 	
 	printf ("%s(): %08x\n", __func__, ret);
 }
@@ -198,8 +196,9 @@ void sendDeviceList (CFNotificationCenterRef center,
 		dict = CFDictionaryCreateMutable(kCFAllocatorDefault, 1,
 										 &kCFCopyStringDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
 
-		CFDictionarySetValue(dict, CFSTR("name"),
-							 CFStringCreateWithCString(kCFAllocatorDefault, info.name, kCFStringEncodingUTF8));
+		CFDictionarySetValue(dict, CFSTR("name"), CFStringCreateWithCString(kCFAllocatorDefault, info.name, kCFStringEncodingUTF8));
+		CFDictionarySetValue(dict, CFSTR("channelsIn"), CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &info.channelsIn));
+		CFDictionarySetValue(dict, CFSTR("channelsOut"), CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &info.channelsOut));
 
 		CFArrayAppendValue(array, dict);
 		//CFRelease(dict);
@@ -220,6 +219,28 @@ void sendDeviceList (CFNotificationCenterRef center,
 	CFRelease(array);
 }
 
+void addDevice (CFNotificationCenterRef center,
+				void *observer,
+				CFStringRef name,
+				const void *object,
+				CFDictionaryRef userInfo)
+{
+	struct PAVirtualDevice info;
+	CFNumberRef num;
+	CFStringRef str;
+	
+	num = CFDictionaryGetValue(userInfo, CFSTR("channelsIn"));
+	CFNumberGetValue(num, kCFNumberIntType, &info.channelsIn);
+
+	num = CFDictionaryGetValue(userInfo, CFSTR("channelsOut"));
+	CFNumberGetValue(num, kCFNumberIntType, &info.channelsOut);
+	
+	str = CFDictionaryGetValue(userInfo, CFSTR("name"));
+	CFStringGetCString(str, info.name, sizeof(info.name), kCFStringEncodingUTF8);
+	
+	addDeviceFromInfo(&info);
+}
+
 void removeDevice (CFNotificationCenterRef center,
 				   void *observer,
 				   CFStringRef name,
@@ -233,7 +254,6 @@ void removeDevice (CFNotificationCenterRef center,
 		return;
 
 	CFNumberGetValue(num, kCFNumberIntType, &scalar);
-	printf("REMOVE! %d\n", scalar);
 	
 	IOConnectCallScalarMethod(data_port,					// an io_connect_t returned from IOServiceOpen().
 							  kPAUserClientRemoveDevice,	// selector of the function to be called via the user client.
@@ -266,6 +286,13 @@ int main (int argc, const char **argv) {
 									 CFSTR("PAPreferencePane"),
 									 CFNotificationSuspensionBehaviorDeliverImmediately);
 
+	CFNotificationCenterAddObserver (CFNotificationCenterGetDistributedCenter(),
+									 NULL, //const void *observer,
+									 addDevice,
+									 CFSTR("addDevice"),
+									 CFSTR("PAPreferencePane"),
+									 CFNotificationSuspensionBehaviorDeliverImmediately);
+	
 	CFNotificationCenterAddObserver (CFNotificationCenterGetDistributedCenter(),
 									 NULL, //const void *observer,
 									 removeDevice,
