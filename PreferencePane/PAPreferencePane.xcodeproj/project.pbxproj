@@ -8,11 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		8D202CEA0486D31800D8A456 /* PulseAudio_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 32DBCFA20370C41700C91783 /* PulseAudio_Prefix.pch */; };
-		8D202CEB0486D31800D8A456 /* PulseAudioPref.h in Headers */ = {isa = PBXBuildFile; fileRef = F506C03C013D9D7901CA16C8 /* PulseAudioPref.h */; };
+		8D202CEB0486D31800D8A456 /* PAPreferencePane.h in Headers */ = {isa = PBXBuildFile; fileRef = F506C03C013D9D7901CA16C8 /* PAPreferencePane.h */; };
 		8D202CED0486D31800D8A456 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C167DFE841241C02AAC07 /* InfoPlist.strings */; };
-		8D202CEE0486D31800D8A456 /* PulseAudioPref.tiff in Resources */ = {isa = PBXBuildFile; fileRef = F506C040013D9D8001CA16C8 /* PulseAudioPref.tiff */; };
-		8D202CEF0486D31800D8A456 /* PulseAudioPref.nib in Resources */ = {isa = PBXBuildFile; fileRef = F506C042013D9D8C01CA16C8 /* PulseAudioPref.nib */; };
-		8D202CF10486D31800D8A456 /* PulseAudioPref.m in Sources */ = {isa = PBXBuildFile; fileRef = F506C03D013D9D7901CA16C8 /* PulseAudioPref.m */; };
+		8D202CEE0486D31800D8A456 /* PAPreferencePane.tiff in Resources */ = {isa = PBXBuildFile; fileRef = F506C040013D9D8001CA16C8 /* PAPreferencePane.tiff */; };
+		8D202CEF0486D31800D8A456 /* PAPreferencePane.nib in Resources */ = {isa = PBXBuildFile; fileRef = F506C042013D9D8C01CA16C8 /* PAPreferencePane.nib */; };
+		8D202CF10486D31800D8A456 /* PAPreferencePane.m in Sources */ = {isa = PBXBuildFile; fileRef = F506C03D013D9D7901CA16C8 /* PAPreferencePane.m */; };
 		8D202CF30486D31800D8A456 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7ADFEA557BF11CA2CBB /* Cocoa.framework */; };
 		8D202CF40486D31800D8A456 /* PreferencePanes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F506C035013D953901CA16C8 /* PreferencePanes.framework */; };
 /* End PBXBuildFile section */
@@ -26,10 +26,10 @@
 		8D202CF70486D31800D8A456 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		8D202CF80486D31800D8A456 /* PulseAudio.prefPane */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PulseAudio.prefPane; sourceTree = BUILT_PRODUCTS_DIR; };
 		F506C035013D953901CA16C8 /* PreferencePanes.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PreferencePanes.framework; path = /System/Library/Frameworks/PreferencePanes.framework; sourceTree = "<absolute>"; };
-		F506C03C013D9D7901CA16C8 /* PulseAudioPref.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PulseAudioPref.h; sourceTree = "<group>"; };
-		F506C03D013D9D7901CA16C8 /* PulseAudioPref.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PulseAudioPref.m; sourceTree = "<group>"; };
-		F506C040013D9D8001CA16C8 /* PulseAudioPref.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = PulseAudioPref.tiff; sourceTree = "<group>"; };
-		F506C043013D9D8C01CA16C8 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/PulseAudioPref.nib; sourceTree = "<group>"; };
+		F506C03C013D9D7901CA16C8 /* PAPreferencePane.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PAPreferencePane.h; sourceTree = "<group>"; };
+		F506C03D013D9D7901CA16C8 /* PAPreferencePane.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PAPreferencePane.m; sourceTree = "<group>"; };
+		F506C040013D9D8001CA16C8 /* PAPreferencePane.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = PAPreferencePane.tiff; sourceTree = "<group>"; };
+		F506C043013D9D8C01CA16C8 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/PAPreferencePane.nib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,8 +71,8 @@
 			children = (
 				8D202CF70486D31800D8A456 /* Info.plist */,
 				089C167DFE841241C02AAC07 /* InfoPlist.strings */,
-				F506C040013D9D8001CA16C8 /* PulseAudioPref.tiff */,
-				F506C042013D9D8C01CA16C8 /* PulseAudioPref.nib */,
+				F506C040013D9D8001CA16C8 /* PAPreferencePane.tiff */,
+				F506C042013D9D8C01CA16C8 /* PAPreferencePane.nib */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -80,8 +80,8 @@
 		08FB77AFFE84173DC02AAC07 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				F506C03C013D9D7901CA16C8 /* PulseAudioPref.h */,
-				F506C03D013D9D7901CA16C8 /* PulseAudioPref.m */,
+				F506C03C013D9D7901CA16C8 /* PAPreferencePane.h */,
+				F506C03D013D9D7901CA16C8 /* PAPreferencePane.m */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -128,7 +128,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8D202CEA0486D31800D8A456 /* PulseAudio_Prefix.pch in Headers */,
-				8D202CEB0486D31800D8A456 /* PulseAudioPref.h in Headers */,
+				8D202CEB0486D31800D8A456 /* PAPreferencePane.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -160,7 +160,7 @@
 /* Begin PBXProject section */
 		089C1669FE841209C02AAC07 /* Project object */ = {
 			isa = PBXProject;
-			buildConfigurationList = 1DBD214C08BA80EA00186707 /* Build configuration list for PBXProject "PulseAudio" */;
+			buildConfigurationList = 1DBD214C08BA80EA00186707 /* Build configuration list for PBXProject "PAPreferencePane" */;
 			compatibilityVersion = "Xcode 3.0";
 			hasScannedForEncodings = 1;
 			mainGroup = 089C166AFE841209C02AAC07 /* PulseAudio */;
@@ -178,8 +178,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				8D202CED0486D31800D8A456 /* InfoPlist.strings in Resources */,
-				8D202CEE0486D31800D8A456 /* PulseAudioPref.tiff in Resources */,
-				8D202CEF0486D31800D8A456 /* PulseAudioPref.nib in Resources */,
+				8D202CEE0486D31800D8A456 /* PAPreferencePane.tiff in Resources */,
+				8D202CEF0486D31800D8A456 /* PAPreferencePane.nib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -200,7 +200,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8D202CF10486D31800D8A456 /* PulseAudioPref.m in Sources */,
+				8D202CF10486D31800D8A456 /* PAPreferencePane.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -215,12 +215,12 @@
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
 		};
-		F506C042013D9D8C01CA16C8 /* PulseAudioPref.nib */ = {
+		F506C042013D9D8C01CA16C8 /* PAPreferencePane.nib */ = {
 			isa = PBXVariantGroup;
 			children = (
 				F506C043013D9D8C01CA16C8 /* English */,
 			);
-			name = PulseAudioPref.nib;
+			name = PAPreferencePane.nib;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -230,6 +230,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../PulseAudio.framework\"",
+				);
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G5;
@@ -247,13 +251,22 @@
 		1DBD214A08BA80EA00186707 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1)";
+				ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1 = "x86_64 i386 ppc";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../PulseAudio.framework\"",
+				);
+				GCC_ENABLE_OBJC_GC = supported;
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = PulseAudio_Prefix.pch;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Library/PreferencePanes";
+				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				PRODUCT_NAME = PulseAudio;
+				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.6.sdk";
 				WRAPPER_EXTENSION = prefPane;
 			};
 			name = Release;
@@ -294,7 +307,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		1DBD214C08BA80EA00186707 /* Build configuration list for PBXProject "PulseAudio" */ = {
+		1DBD214C08BA80EA00186707 /* Build configuration list for PBXProject "PAPreferencePane" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1DBD214D08BA80EA00186707 /* Debug */,
