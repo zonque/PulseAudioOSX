@@ -22,7 +22,7 @@
 
 #define SAMPLERATES				{ 44100, 48000, 64000, 88200, 96000, 128000, 176400, 192000 }
 #define BLOCK_SIZE				512
-#define NUM_SAMPLE_FRAMES       (1024*16)
+#define NUM_SAMPLE_FRAMES       (1024*16*4)
 #define CHANNELS_PER_STREAM     2
 #define BYTES_PER_SAMPLE        sizeof(float)
 #define AUDIO_BUFFER_SIZE       (NUM_SAMPLE_FRAMES * BYTES_PER_SAMPLE * CHANNELS_PER_STREAM)
@@ -133,6 +133,8 @@ PAEngine::initHardware(IOService *provider)
     audioInBuf	= IOBufferMemoryDescriptor::withCapacity(audioBufferSize, kIODirectionInOut);
     audioOutBuf	= IOBufferMemoryDescriptor::withCapacity(audioBufferSize, kIODirectionInOut);
 
+	IOLog(" akdkjahd %d\n", audioBufferSize);
+	
 	if (!audioInBuf || !audioOutBuf) {
 		IOLog("%s(%p)::%s unable to allocate memory\n", getName(), this, __func__);
 		return false;
@@ -209,7 +211,7 @@ PAEngine::setDeviceInfo(struct PAVirtualDevice *info)
 OSString *
 PAEngine::getGlobalUniqueID()
 {
-    char tmp[0xff];
+    char tmp[128];
 	snprintf(tmp, sizeof(tmp), "%s (%s)", getName(), deviceName);
     return OSString::withCString(tmp);
 }
@@ -220,7 +222,8 @@ PAEngine::performAudioEngineStart()
 	debugFunctionEnter();
 	currentFrame = 0;
 	currentBlock = 0;
-	
+	startTime = 0;
+
 	// if we're clocked from kernel side, start our timer.
 	// otherwise, we rely on the userspace to push the block counter forward.
 	if (clockDirection == kPADeviceClockFromKernel) {
@@ -254,7 +257,7 @@ PAEngine::setNewSampleRate(UInt32 sampleRate)
 	//	compute the unscaled host ticks per ring buffer
 	//	computed in steps to make sure we don't overflow
 	//	note that we really don't care about fractional host ticks here
-	ticksPerRingBuffer = 1000000000ULL * numSampleFrames;
+	ticksPerRingBuffer = 1000000000ULL * NUM_SAMPLE_FRAMES;
 	ticksPerRingBuffer /= currentSampleRate;
 	ticksPerRingBuffer *= timeBaseInfo.denom;
 	ticksPerRingBuffer /= timeBaseInfo.numer;

@@ -65,9 +65,23 @@ PAUserClient::clientMemoryForType(UInt32 type, UInt32 *flags,
 		return kIOReturnUnsupported;
 	}
 
+	if (buf)
+		buf->retain();
+
 	*memory = buf;
 
 	return kIOReturnSuccess;
+}
+
+IOMemoryMap *
+PAUserClient::removeMappingForDescriptor(IOMemoryDescriptor *memory)
+{
+	debugFunctionEnter();
+
+	if (memory)
+		memory->release();
+
+	return super::removeMappingForDescriptor(memory);
 }
 
 bool

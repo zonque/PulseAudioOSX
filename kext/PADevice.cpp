@@ -92,8 +92,6 @@ PADevice::setSamplerate(UInt rate)
 IOMemoryDescriptor *
 PADevice::getAudioMemory(bool output)
 {
-	return NULL;
-
 	if (output)
 		return audioEngine->audioOutBuf;
 	else

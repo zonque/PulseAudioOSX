@@ -46,6 +46,7 @@ public:
 	IOReturn	externalMethod(uint32_t selector, IOExternalMethodArguments *arguments,
 							   IOExternalMethodDispatch *dispatch, OSObject *target, void *reference);
 	IOReturn	clientMemoryForType(UInt32 type, UInt32 *flags, IOMemoryDescriptor **memory);
+	IOMemoryMap *removeMappingForDescriptor(IOMemoryDescriptor *memory);
 	IOReturn	message(UInt32 type, IOService *provider,  void *argument = 0);
 	IOReturn	clientClose(void);
 

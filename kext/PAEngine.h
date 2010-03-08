@@ -51,7 +51,7 @@ private:
 	IOAudioStream				*createNewAudioStream(IOAudioStreamDirection direction, void *sampleBuffer);
 	UInt32						channelsIn, channelsOut, nStreams;
 	UInt32						currentFrame, currentBlock;
-	UInt32						numSampleFrames, numBlocks;
+	UInt32						numBlocks;
 
 	UInt64						blockTimeoutMicroseconds;
 	UInt64						ticksPerRingBuffer;
