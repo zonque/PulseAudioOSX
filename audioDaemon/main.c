@@ -27,6 +27,50 @@ __END_DECLS
 static mach_port_t async_port;
 static io_connect_t data_port;
 
+static struct samplePointerUpdateEvent samplePointerUpdateEvent;
+
+static void 
+samplePointerUpdateCallback(void *refcon, IOReturn result, void **args, int numArgs) 
+{
+	return;
+
+	printf(">>> %08x %08x  ... %08x (%d)\n",
+		   samplePointerUpdateEvent.timeStampSec,
+		   samplePointerUpdateEvent.timeStampNanoSec,
+		   samplePointerUpdateEvent.samplePointer,
+		   samplePointerUpdateEvent.index);
+}
+
+
+static OSStatus
+triggerAsyncRead(void)
+{
+	OSStatus ret;
+    io_async_ref64_t asyncRef;
+	uint64_t scalarRefs[8];
+	
+    scalarRefs[0] = (uint64_t) &samplePointerUpdateEvent;
+    scalarRefs[1] = (uint64_t) sizeof(samplePointerUpdateEvent);
+	
+    asyncRef[kIOAsyncCalloutFuncIndex] = &samplePointerUpdateCallback;
+
+	printf("%s(): &samplePointerUpdateEvent %p\n", __func__, &samplePointerUpdateEvent);
+	
+	ret = IOConnectCallAsyncScalarMethod(data_port,								// mach_port_t      connection,         // In
+										 kPAUserClientAsyncReadSamplePointer,	// uint32_t			selector			// In
+										 async_port,							// mach_port_t      wake_port			// In
+										 asyncRef,								// uint64_t        *reference			// In
+										 kOSAsyncRef64Count,					// uint32_t         referenceCnt		// In
+										 scalarRefs,							// const uint64_t  *input				// In
+										 2,										// uint32_t         inputCnt			// In
+										 NULL,									// uint64_t        *output				// Out
+										 NULL									// uint32_t        *outputCnt			// In/Out
+										 );
+	printf(" ret = %d\n", ret);
+	
+	return ret;
+}
+
 static IOReturn addDeviceFromInfo (struct PAVirtualDevice *info)
 {
 	IOReturn ret;
@@ -38,7 +82,6 @@ static IOReturn addDeviceFromInfo (struct PAVirtualDevice *info)
 									NULL,							// pointer to the output struct parameter.
 									NULL							// pointer to the size of the output structure parameter.
 									);
-
 	return ret;
 }
 
@@ -69,7 +112,28 @@ serviceMatched (void *refCon, io_iterator_t iterator)
 		return;
     }
 	
+	CFRunLoopSourceRef      runLoopSource;
+    CFMachPortContext       context;
+    Boolean                 shouldFreeInfo;
+    CFMachPortRef           cfPort;
+
+	context.version = 1;
+	//context.info = this;
+	context.retain = NULL;
+	context.release = NULL;
+	context.copyDescription = NULL;
+	
+	cfPort = CFMachPortCreateWithPort(NULL, async_port,
+									  (CFMachPortCallBack) IODispatchCalloutFromMessage,
+									  &context, &shouldFreeInfo);
+	
+	runLoopSource = CFMachPortCreateRunLoopSource(NULL, cfPort, 0);
+	CFRelease(cfPort);
+	CFRunLoopAddSource(CFRunLoopGetCurrent(), runLoopSource, kCFRunLoopDefaultMode);
+
 	struct PAVirtualDevice info;
+	
+	memset(&info, 0, sizeof(info));
 	strcpy(info.name, "gaga.");
 	info.channelsIn = 2;
 	info.channelsOut = 2;
@@ -77,6 +141,8 @@ serviceMatched (void *refCon, io_iterator_t iterator)
 	ret = addDeviceFromInfo(&info);
 	
 	printf ("%s(): %08x\n", __func__, ret);
+	
+	triggerAsyncRead();
 }
 
 static void 
@@ -234,6 +300,9 @@ void addDevice (CFNotificationCenterRef center,
 
 	num = CFDictionaryGetValue(userInfo, CFSTR("channelsOut"));
 	CFNumberGetValue(num, kCFNumberIntType, &info.channelsOut);
+	
+	num = CFDictionaryGetValue(userInfo, CFSTR("blockSize"));
+	CFNumberGetValue(num, kCFNumberIntType, &info.blockSize);
 	
 	str = CFDictionaryGetValue(userInfo, CFSTR("name"));
 	CFStringGetCString(str, info.name, sizeof(info.name), kCFStringEncodingUTF8);
