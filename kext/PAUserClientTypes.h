@@ -1,7 +1,7 @@
 /***
  This file is part of PulseAudioKext
  
- Copyright 2010 Daniel Mack <daniel@caiaq.de>
+ Copyright (c) 2010 Daniel Mack <daniel@caiaq.de>
  
  PulseAudioKext is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -22,11 +22,16 @@ enum {
 
 /* synchronous functions */
 enum {
-	kPAUserClientGetNumberOfDevices,
-	kPAUserClientAddDevice,
-	kPAUserClientRemoveDevice,
-	kPAUserClientGetDeviceInfo,
-	kPAUserClientSetSampleRate,
+	kPAUserClientGetNumberOfDevices	= 0,
+	kPAUserClientAddDevice			= 1,
+	kPAUserClientRemoveDevice		= 2,
+	kPAUserClientGetDeviceInfo		= 3,
+	kPAUserClientSetSampleRate		= 4,
+};
+
+enum {
+	kPAUserClientAsyncReadSamplePointer		= 0,
+	kPAUserClientAsyncReadSampleRateChange	= 1,
 };
 
 /* shared memory */
@@ -44,6 +49,14 @@ struct PAVirtualDevice {
 	UInt32 nUsers;
 	UInt32 clockDirection;
 	UInt32 sampleFrames;
+	UInt32 blockSize;
+};
+
+struct samplePointerUpdateEvent {
+	UInt32 index;
+	UInt32 timeStampSec;
+	UInt32 timeStampNanoSec;
+	UInt32 samplePointer;
 };
 
 #endif /* PAUSERCLIENT_TYPES_H */

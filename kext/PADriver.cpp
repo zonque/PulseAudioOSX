@@ -1,8 +1,8 @@
 /***
  This file is part of PulseAudioKext
- 
- Copyright 2010 Daniel Mack <daniel@caiaq.de>
- 
+
+ Copyright (c) 2010 Daniel Mack <daniel@caiaq.de>
+
  PulseAudioKext is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 2.1 of the License, or
@@ -27,13 +27,13 @@ PADriver::init(OSDictionary* dictionary)
 {
     if (!super::init(dictionary))
         return false;
-	
+
 	debugFunctionEnter();
 
 	deviceArray = OSArray::withCapacity(1);
 	if (!deviceArray)
 		return false;
-	
+
 	return true;
 }
 
@@ -47,7 +47,7 @@ PADriver::free(void)
 
 	deviceArray->release();
 	deviceArray = NULL;
-	
+
 	super::free();
 }
 
@@ -58,7 +58,7 @@ PADriver::start(IOService *provider)
 
 	if (!super::start(provider))
 		return false;
-	
+
 	registerService();
 	return true;
 }
@@ -66,7 +66,7 @@ PADriver::start(IOService *provider)
 bool
 PADriver::terminate(IOOptionBits options)
 {
-	debugFunctionEnter();	
+	debugFunctionEnter();
 	return super::terminate(options);
 }
 
@@ -100,9 +100,6 @@ PADriver::addAudioDevice(const struct PAVirtualDevice *info)
 		return kIOReturnError;
 	}
 
-	/* the OSArray holds a reference now, so we can drop ours */
-	//device->release();
-
 	return kIOReturnSuccess;
 }
 
@@ -110,7 +107,7 @@ IOReturn
 PADriver::removeAudioDevice(UInt index)
 {
 	PADevice *device = OSDynamicCast(PADevice, deviceArray->getObject(index));
-	
+
 	if (!device)
 		return kIOReturnInvalid;
 
@@ -146,10 +143,10 @@ IOReturn
 PADriver::getAudioEngineInfo(struct PAVirtualDevice *info, UInt index)
 {
 	PADevice *device = OSDynamicCast(PADevice, deviceArray->getObject(index));
-	
+
 	if (!device)
 		return kIOReturnInvalid;
-	
+
 	return device->getInfo(info);
 }
 
@@ -157,9 +154,33 @@ IOReturn
 PADriver::setSamplerate(UInt index, UInt rate)
 {
 	PADevice *device = OSDynamicCast(PADevice, deviceArray->getObject(index));
-	
+
 	if (!device)
 		return kIOReturnInvalid;
-	
+
 	return device->setSamplerate(rate);
 }
+
+IOMemoryDescriptor *
+PADriver::getAudioMemory(UInt index, bool output)
+{
+	PADevice *device = OSDynamicCast(PADevice, deviceArray->getObject(index));
+
+	if (!device)
+		return NULL;
+
+	return device->getAudioMemory(output);
+}
+
+void
+PADriver::reportSamplePointer(PADevice *device, UInt32 pointer)
+{
+	UInt32 index = deviceArray->getNextIndexOfObject((OSMetaClassBase *) device, 0);
+	PAUserClient *client = OSDynamicCast(PAUserClient, getClient());
+
+	if (!client)
+		return;
+
+	client->reportSamplePointer(index, pointer);
+}
+

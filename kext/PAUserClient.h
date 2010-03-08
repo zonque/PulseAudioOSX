@@ -1,7 +1,7 @@
 /***
  This file is part of PulseAudioKext
  
- Copyright 2010 Daniel Mack <daniel@caiaq.de>
+ Copyright (c) 2010 Daniel Mack <daniel@caiaq.de>
  
  PulseAudioKext is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -25,8 +25,12 @@ class PAUserClient : public IOUserClient
 
 private:
 	PADriver	*driver;
-	UInt		 currentDispatchSelector;
+	UInt		currentDispatchSelector;
+	task_t		clientTask;
 
+	IOMemoryDescriptor *samplePointerReadDescriptor;
+	OSAsyncReference64  samplePointerReadReference;
+	
 	/* IOMethodDispatchers */
 	static IOReturn	genericMethodDispatchAction(PAUserClient *target, void *reference, IOExternalMethodArguments *args);
 
@@ -35,6 +39,7 @@ private:
 	IOReturn	removeDevice(IOExternalMethodArguments *args);
 	IOReturn	getDeviceInfo(IOExternalMethodArguments *args);
 	IOReturn	setSamplerate(IOExternalMethodArguments *args);
+	IOReturn	readSamplePointer(IOExternalMethodArguments *args);
 
 // IOUserClient interface
 public:
@@ -50,6 +55,7 @@ public:
 	bool		finalize(IOOptionBits options);
 	bool		terminate(IOOptionBits options);
 
+	void		reportSamplePointer(UInt32 index, UInt32 samplePointer);
 };
 
 #endif // PAUSERCLIENT_H

@@ -1,7 +1,7 @@
 /***
  This file is part of PulseAudioKext
  
- Copyright 2010 Daniel Mack <daniel@caiaq.de>
+ Copyright (c) 2010 Daniel Mack <daniel@caiaq.de>
  
  PulseAudioKext is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -12,13 +12,16 @@
 #ifndef PADRIVER_H
 #define PADRIVER_H
 
+#include "BuildNames.h"
+
 #include <IOKit/audio/IOAudioEngine.h>
 #include <IOKit/audio/IOAudioDefines.h>
 #include <IOKit/IOLib.h>
 
-#include "BuildNames.h"
+//#include "PAEngine.h"
 
 class PADevice;
+class PAEngine;
 
 class PADriver : public IOService
 {
@@ -37,6 +40,9 @@ public:
 	IOReturn		getAudioEngineInfo(struct PAVirtualDevice *info, UInt index);
 	IOReturn		setSamplerate(UInt index, UInt rate);
 
+	IOMemoryDescriptor *getAudioMemory(UInt index, bool output);
+	void			reportSamplePointer(PADevice *device, UInt32 pointer);
+	
 private:
 	OSArray			*deviceArray;
 };

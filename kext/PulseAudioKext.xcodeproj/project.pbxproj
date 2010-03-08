@@ -11,8 +11,6 @@
 		65291A38113D5872001BED4D /* PAUserClientTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 65291A37113D5872001BED4D /* PAUserClientTypes.h */; };
 		65291A77113D6314001BED4D /* PADriver.h in Headers */ = {isa = PBXBuildFile; fileRef = 65291A75113D6314001BED4D /* PADriver.h */; };
 		65291A78113D6314001BED4D /* PADriver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65291A76113D6314001BED4D /* PADriver.cpp */; };
-		65BDA9C3105D4BE900D15169 /* PATimeStampFactory.h in Headers */ = {isa = PBXBuildFile; fileRef = 65BDA9C1105D4BE900D15169 /* PATimeStampFactory.h */; };
-		65BDA9C4105D4BE900D15169 /* PATimeStampFactory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65BDA9C2105D4BE900D15169 /* PATimeStampFactory.cpp */; };
 		65BDAA05105E346600D15169 /* BuildNames.h in Headers */ = {isa = PBXBuildFile; fileRef = 65BDAA04105E346600D15169 /* BuildNames.h */; };
 		65FE3F191010B89100B00791 /* PADevice.h in Headers */ = {isa = PBXBuildFile; fileRef = 65FE3F171010B89100B00791 /* PADevice.h */; };
 		65FE3F1A1010B89100B00791 /* PADevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65FE3F181010B89100B00791 /* PADevice.cpp */; };
@@ -30,8 +28,6 @@
 		65291A37113D5872001BED4D /* PAUserClientTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PAUserClientTypes.h; sourceTree = "<group>"; };
 		65291A75113D6314001BED4D /* PADriver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PADriver.h; sourceTree = "<group>"; };
 		65291A76113D6314001BED4D /* PADriver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PADriver.cpp; sourceTree = "<group>"; };
-		65BDA9C1105D4BE900D15169 /* PATimeStampFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PATimeStampFactory.h; sourceTree = "<group>"; };
-		65BDA9C2105D4BE900D15169 /* PATimeStampFactory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PATimeStampFactory.cpp; sourceTree = "<group>"; };
 		65BDAA04105E346600D15169 /* BuildNames.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BuildNames.h; sourceTree = "<group>"; };
 		65FE3F171010B89100B00791 /* PADevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PADevice.h; sourceTree = "<group>"; };
 		65FE3F181010B89100B00791 /* PADevice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PADevice.cpp; sourceTree = "<group>"; };
@@ -60,8 +56,6 @@
 				65291A75113D6314001BED4D /* PADriver.h */,
 				65291A76113D6314001BED4D /* PADriver.cpp */,
 				65291A37113D5872001BED4D /* PAUserClientTypes.h */,
-				65BDA9C1105D4BE900D15169 /* PATimeStampFactory.h */,
-				65BDA9C2105D4BE900D15169 /* PATimeStampFactory.cpp */,
 				247142CAFF3F8F9811CA285C /* Source */,
 				8DA8362C06AD9B9200E5AC22 /* Kernel.framework */,
 				089C167CFE841241C02AAC07 /* Resources */,
@@ -113,7 +107,6 @@
 				65FE3F241010B8A800B00791 /* PAEngine.h in Headers */,
 				65FE3F281010B8B200B00791 /* PAUserClient.h in Headers */,
 				65FE3F6E1010CD9E00B00791 /* PALog.h in Headers */,
-				65BDA9C3105D4BE900D15169 /* PATimeStampFactory.h in Headers */,
 				65BDAA05105E346600D15169 /* BuildNames.h in Headers */,
 				65291A38113D5872001BED4D /* PAUserClientTypes.h in Headers */,
 				65291A77113D6314001BED4D /* PADriver.h in Headers */,
@@ -189,7 +182,6 @@
 				65FE3F1A1010B89100B00791 /* PADevice.cpp in Sources */,
 				65FE3F251010B8A800B00791 /* PAEngine.cpp in Sources */,
 				65FE3F291010B8B200B00791 /* PAUserClient.cpp in Sources */,
-				65BDA9C4105D4BE900D15169 /* PATimeStampFactory.cpp in Sources */,
 				65291A78113D6314001BED4D /* PADriver.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -212,6 +204,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1.0.0d1;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -221,10 +214,12 @@
 				INFOPLIST_FILE = Info.plist;
 				INFOPLIST_PREPROCESS = YES;
 				INSTALL_PATH = "$(SYSTEM_LIBRARY_DIR)/Extensions";
+				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				MODULE_NAME = com.yourcompany.driver.PulseAudioKext;
 				MODULE_VERSION = 1.0.0d1;
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = PulseAudioKext;
+				SDKROOT = macosx10.6;
 				WRAPPER_EXTENSION = kext;
 			};
 			name = Debug;

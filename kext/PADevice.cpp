@@ -1,8 +1,8 @@
 /***
  This file is part of PulseAudioKext
- 
- Copyright 2010 Daniel Mack <daniel@caiaq.de>
- 
+
+ Copyright (c) 2010 Daniel Mack <daniel@caiaq.de>
+
  PulseAudioKext is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 2.1 of the License, or
@@ -24,6 +24,10 @@ PADevice::initHardware(IOService *provider)
 {
 	debugFunctionEnter();
 
+	driver = OSDynamicCast(PADriver, provider);
+	if (!driver)
+		return false;
+
 	if (!super::initHardware(provider))
 		return false;
 
@@ -32,7 +36,6 @@ PADevice::initHardware(IOService *provider)
 	setManufacturerName("pulseaudio.org");
 	setDeviceModelName("virtual audio device");
 	setDeviceTransportType('virt');
-	setDeviceCanBeDefault(true);
 
 	audioEngine = new PAEngine;
 
@@ -73,6 +76,9 @@ PADevice::getInfo(struct PAVirtualDevice *info)
 {
 	debugFunctionEnter();
 	memcpy(info, &deviceInfo, sizeof(deviceInfo));
+
+	info->currentSamplerate = audioEngine->currentSampleRate;
+
 	return kIOReturnSuccess;
 }
 
@@ -82,3 +88,15 @@ PADevice::setSamplerate(UInt rate)
 	debugFunctionEnter();
 	return kIOReturnSuccess;
 }
+
+IOMemoryDescriptor *
+PADevice::getAudioMemory(bool output)
+{
+	return NULL;
+
+	if (output)
+		return audioEngine->audioOutBuf;
+	else
+		return audioEngine->audioInBuf;
+}
+
