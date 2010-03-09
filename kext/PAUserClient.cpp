@@ -190,7 +190,7 @@ PAUserClient::genericMethodDispatchAction(PAUserClient *target,
 				status = target->readSamplePointer(args);
 				break;
 			case kPAUserClientAsyncReadNotification:
-				//status = target->readSampleRateChange(args);
+				status = target->readNotification(args);
 				break;
 			default:
 				IOLog("%s(%p): unknown async selector %d!\n", __func__, target, target->currentDispatchSelector);
@@ -213,12 +213,19 @@ PAUserClient::getNumberOfDevices(IOExternalMethodArguments *args)
 IOReturn
 PAUserClient::addDevice(IOExternalMethodArguments *args)
 {
-	const struct PAVirtualDevice *info = (struct PAVirtualDevice *) args->structureInput;
-
-	if (!info)
+	struct PAVirtualDevice info;
+	
+	if (!args->structureInput || args->structureInputSize != sizeof(info))
 		return kIOReturnInvalid;
 
-	return driver->addAudioDevice(info);
+	memcpy(&info, args->structureInput, sizeof(info));
+	IOReturn ret = driver->addAudioDevice(&info);
+	
+	if (args->structureOutput &&
+		args->structureOutputSize == sizeof(info))
+		memcpy(args->structureOutput, &info, sizeof(info));
+	
+	return ret;
 }
 
 IOReturn
@@ -251,7 +258,6 @@ PAUserClient::setSamplerate(IOExternalMethodArguments *args)
 }
 
 #pragma mark ########## PAUserClient interface: sample pointer feedback ##########
-
 
 IOReturn
 PAUserClient::readSamplePointer(IOExternalMethodArguments *args)
@@ -304,4 +310,59 @@ PAUserClient::reportSamplePointer(UInt32 index, UInt32 samplePointer)
 	samplePointerReadDescriptor->complete();
 
 	sendAsyncResult64(samplePointerReadReference, kIOReturnSuccess, NULL, 0);
+}
+
+#pragma mark ########## PAUserClient interface: notification feedback ##########
+
+IOReturn
+PAUserClient::readNotification(IOExternalMethodArguments *args)
+{
+	if (args->scalarInput[0] == 0 ||
+		args->scalarInput[1] != sizeof(struct notificationBlock))
+		return kIOReturnBadArgument;
+	
+	if (samplePointerReadDescriptor)
+		return kIOReturnBusy;
+	
+	notificationReadDescriptor =
+		IOMemoryDescriptor::withAddressRange((mach_vm_address_t) args->scalarInput[0],
+											 args->scalarInput[1], kIODirectionInOut, clientTask);
+	if (!notificationReadDescriptor)
+		return kIOReturnBadArgument;
+	
+	notificationReadDescriptor->map();
+	
+	bcopy(args->asyncReference, notificationReadReference, sizeof(OSAsyncReference64));
+	
+	return kIOReturnSuccess;
+}
+
+void
+PAUserClient::sendNotification(UInt32 index, UInt32 notificationType, UInt32 value)
+{
+	if (!notificationReadDescriptor)
+		return;
+	
+	clock_sec_t secs;
+	clock_nsec_t nanosecs;
+	clock_get_system_nanotime (&secs, &nanosecs);
+	
+	notificationBlock no;
+	
+	no.timeStampSec = secs;
+	no.timeStampNanoSec = nanosecs;
+	no.notificationType = notificationType;
+	no.value = value;
+	
+	if (notificationReadDescriptor->prepare() != kIOReturnSuccess) {
+		IOLog("%s(%p): notificationReadDescriptor->prepare() failed!\n", getName(), this);
+		notificationReadDescriptor->release();
+		notificationReadDescriptor = NULL;
+		return;
+	}
+	
+	notificationReadDescriptor->writeBytes(0, &no, sizeof(no));
+	notificationReadDescriptor->complete();
+	
+	sendAsyncResult64(notificationReadReference, kIOReturnSuccess, NULL, 0);
 }

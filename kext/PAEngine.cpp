@@ -21,7 +21,6 @@
 #include <IOKit/IOWorkLoop.h>
 
 #define SAMPLERATES				{ 44100, 48000, 64000, 88200, 96000, 128000, 176400, 192000 }
-#define BLOCK_SIZE				512
 #define NUM_SAMPLE_FRAMES       (1024*16*4)
 #define CHANNELS_PER_STREAM     2
 #define BYTES_PER_SAMPLE        sizeof(float)
@@ -125,15 +124,13 @@ PAEngine::initHardware(IOService *provider)
     setSampleRate(&sampleRate);
 	setNewSampleRate(sampleRate.whole);
 
-    setDescription(deviceName);
+    setDescription(info->name);
     setNumSampleFramesPerBuffer(NUM_SAMPLE_FRAMES);
 
-	UInt32 audioBufferSize = AUDIO_BUFFER_SIZE * nStreams;
+	info->audioBufferSize = AUDIO_BUFFER_SIZE * nStreams;
 
-    audioInBuf	= IOBufferMemoryDescriptor::withCapacity(audioBufferSize, kIODirectionInOut);
-    audioOutBuf	= IOBufferMemoryDescriptor::withCapacity(audioBufferSize, kIODirectionInOut);
-
-	IOLog(" akdkjahd %d\n", audioBufferSize);
+    audioInBuf	= IOBufferMemoryDescriptor::withCapacity(info->audioBufferSize, kIODirectionInOut);
+    audioOutBuf	= IOBufferMemoryDescriptor::withCapacity(info->audioBufferSize, kIODirectionInOut);
 	
 	if (!audioInBuf || !audioOutBuf) {
 		IOLog("%s(%p)::%s unable to allocate memory\n", getName(), this, __func__);
@@ -191,19 +188,22 @@ PAEngine::initHardware(IOService *provider)
 }
 
 bool
-PAEngine::setDeviceInfo(struct PAVirtualDevice *info)
+PAEngine::setDeviceInfo(struct PAVirtualDevice *newInfo)
 {
 	debugFunctionEnter();
 
-	memcpy(deviceName, info->name, DEVICENAME_MAX);
+	info = newInfo;
+
+	if (!info->blockSize ||
+		(NUM_SAMPLE_FRAMES % info->blockSize) != 0)
+		return false;
+	
 	channelsIn = info->channelsIn;
 	channelsOut = info->channelsOut;
 	nStreams = max(channelsIn, channelsOut) / CHANNELS_PER_STREAM;
 
 	if (nStreams == 0)
 			return false;
-
-	clockDirection = info->clockDirection;
 
 	return true;
 }
@@ -212,7 +212,7 @@ OSString *
 PAEngine::getGlobalUniqueID()
 {
     char tmp[128];
-	snprintf(tmp, sizeof(tmp), "%s (%s)", getName(), deviceName);
+	snprintf(tmp, sizeof(tmp), "%s (%s)", getName(), info->name);
     return OSString::withCString(tmp);
 }
 
@@ -226,11 +226,13 @@ PAEngine::performAudioEngineStart()
 
 	// if we're clocked from kernel side, start our timer.
 	// otherwise, we rely on the userspace to push the block counter forward.
-	if (clockDirection == kPADeviceClockFromKernel) {
+	if (info->clockDirection == kPADeviceClockFromKernel) {
 		timerEventSource->setTimeoutUS(blockTimeoutMicroseconds);
 		setClockIsStable(true);
 	}
 
+	device->driver->sendNotification(device, kPAUserClientNotificationEngineStarted, 0);
+	
 	return kIOReturnSuccess;
 }
 
@@ -239,8 +241,10 @@ PAEngine::performAudioEngineStop()
 {
 	debugFunctionEnter();
 
-	if (clockDirection == kPADeviceClockFromKernel)
+	if (info->clockDirection == kPADeviceClockFromKernel)
 		timerEventSource->cancelTimeout();
+
+	device->driver->sendNotification(device, kPAUserClientNotificationEngineStopped, 0);
 
 	return kIOReturnSuccess;
 }
@@ -268,9 +272,10 @@ PAEngine::setNewSampleRate(UInt32 sampleRate)
 	//ticksPerRingBuffer *= mRateScalar;
 	//ticksPerRingBuffer >>= 28;
 	
-	blockTimeoutMicroseconds = 1000000ULL * BLOCK_SIZE / currentSampleRate;
-	numBlocks = NUM_SAMPLE_FRAMES / BLOCK_SIZE;
-	IOLog(" ((((( %llu\n", blockTimeoutMicroseconds);
+	blockTimeoutMicroseconds = 1000000ULL * info->blockSize / currentSampleRate;
+	numBlocks = NUM_SAMPLE_FRAMES / info->blockSize;
+
+	device->driver->sendNotification(device, kPAUserClientNotificationSampleRateChanged, sampleRate);
 }
 
 IOReturn
@@ -290,7 +295,7 @@ UInt32
 PAEngine::getCurrentSampleFrame()
 {
 	//	this keeps the the erase head one full block behind
-	UInt32 frame = currentBlock * BLOCK_SIZE;
+	UInt32 frame = currentBlock * info->blockSize;
 
 	if (currentBlock != 0)
 		frame--;
@@ -321,7 +326,9 @@ PAEngine::timerFired(OSObject *target, IOTimerEventSource *timerSource)
 //	IOLog(" ---- currentBlock %d\n", engine->currentBlock);
 	
 	timerSource->setTimeoutUS(engine->blockTimeoutMicroseconds);
-	engine->device->driver->reportSamplePointer(engine->device, engine->currentBlock * BLOCK_SIZE);
+	engine->device->driver->reportSamplePointer(engine->device,
+												engine->currentBlock *
+													engine->info->blockSize);
 }
 
 void
@@ -339,8 +346,8 @@ PAEngine::getNextTimeStamp(UInt32 inLoopCount, AbsoluteTime *outTimeStamp)
 
 		//	compute the amount of jitter
 		//UInt64 jitter = (UInt64) random() * (UInt64) maxJitter;
-		//jitter = jitter >> 32;
-		//timeStamp += tjitter;
+		//jitter >>= 32;
+		//timeStamp += jitter;
 	}
 
 	//	return the time stamp as an AbsoluteTime to make life easy on the driver

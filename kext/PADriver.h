@@ -34,7 +34,7 @@ public:
 	bool			terminate(IOOptionBits options);
 
 	IOReturn		numberOfDevices(void);
-	IOReturn		addAudioDevice(const struct PAVirtualDevice *info);
+	IOReturn		addAudioDevice(struct PAVirtualDevice *info);
 	IOReturn		removeAudioDevice(UInt index);
 	void			removeAllAudioDevices(void);
 	IOReturn		getAudioEngineInfo(struct PAVirtualDevice *info, UInt index);
@@ -42,6 +42,7 @@ public:
 
 	IOMemoryDescriptor *getAudioMemory(UInt index, bool output);
 	void			reportSamplePointer(PADevice *device, UInt32 pointer);
+	void			sendNotification(PADevice *device, UInt32 notificationType, UInt32 value);
 	
 private:
 	OSArray			*deviceArray;

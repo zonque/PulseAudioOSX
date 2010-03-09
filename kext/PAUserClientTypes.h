@@ -37,7 +37,8 @@ enum {
 enum {
 	kPAUserClientNotificationEngineStarted		= 0,
 	kPAUserClientNotificationEngineStopped		= 1,
-	kPAUserClientNotificationSampleRateChanged	= 2,	
+	kPAUserClientNotificationSampleRateChanged	= 2,
+	kPAUserClientNotificationMax,
 };
 
 /* shared memory */
@@ -47,15 +48,18 @@ enum {
 };
 
 struct PAVirtualDevice {
+	/* to be provided upon creation */
 	char name[DEVICENAME_MAX];
-	UInt32 index;
-	
 	UInt32 channelsIn, channelsOut;
+	UInt32 clockDirection;
+	UInt32 blockSize;
+
+	/* field to read back from driver */
+	UInt32 index;
 	UInt32 currentSamplerate;
 	UInt32 nUsers;
-	UInt32 clockDirection;
 	UInt32 audioBufferSize;
-	UInt32 blockSize;
+
 };
 
 struct samplePointerUpdateEvent {

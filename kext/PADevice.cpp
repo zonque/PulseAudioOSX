@@ -71,6 +71,12 @@ PADevice::setInfo(const struct PAVirtualDevice *info)
 	memcpy(&deviceInfo, info, sizeof(deviceInfo));
 }
 
+void
+PADevice::setIndex(UInt32 index)
+{
+	deviceInfo.index = index;
+}
+
 IOReturn
 PADevice::getInfo(struct PAVirtualDevice *info)
 {

@@ -60,9 +60,8 @@ private:
     IOAudioStream				*audioStream[MAX_STREAMS];
 	IOTimerEventSource			*timerEventSource;
 
+	struct PAVirtualDevice		*info;
 	PADevice					*device;
-	char						deviceName[DEVICENAME_MAX];
-	UInt32						clockDirection;
 };
 
 #endif /* PAENGINE_H */

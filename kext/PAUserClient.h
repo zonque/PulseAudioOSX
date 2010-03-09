@@ -30,7 +30,10 @@ private:
 
 	IOMemoryDescriptor *samplePointerReadDescriptor;
 	OSAsyncReference64  samplePointerReadReference;
-	
+
+	IOMemoryDescriptor *notificationReadDescriptor;
+	OSAsyncReference64  notificationReadReference;
+
 	/* IOMethodDispatchers */
 	static IOReturn	genericMethodDispatchAction(PAUserClient *target, void *reference, IOExternalMethodArguments *args);
 
@@ -40,6 +43,7 @@ private:
 	IOReturn	getDeviceInfo(IOExternalMethodArguments *args);
 	IOReturn	setSamplerate(IOExternalMethodArguments *args);
 	IOReturn	readSamplePointer(IOExternalMethodArguments *args);
+	IOReturn	readNotification(IOExternalMethodArguments *args);
 
 // IOUserClient interface
 public:
@@ -57,6 +61,7 @@ public:
 	bool		terminate(IOOptionBits options);
 
 	void		reportSamplePointer(UInt32 index, UInt32 samplePointer);
+	void		sendNotification(UInt32 index, UInt32 notificationType, UInt32 value);
 };
 
 #endif // PAUSERCLIENT_H

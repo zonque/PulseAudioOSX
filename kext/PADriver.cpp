@@ -79,7 +79,7 @@ PADriver::numberOfDevices(void)
 }
 
 IOReturn
-PADriver::addAudioDevice(const struct PAVirtualDevice *info)
+PADriver::addAudioDevice(struct PAVirtualDevice *info)
 {
 	PADevice *device = new PADevice;
 
@@ -99,6 +99,13 @@ PADriver::addAudioDevice(const struct PAVirtualDevice *info)
 		device->release();
 		return kIOReturnError;
 	}
+	
+	/* find our new device in the array */
+	info->index = deviceArray->getNextIndexOfObject((OSMetaClassBase *) device, 0);
+	device->setIndex(info->index);
+
+	/* read back the deviceInfo struct - the Engine has filled its values now */
+	device->getInfo(info);
 
 	return kIOReturnSuccess;
 }
@@ -182,5 +189,17 @@ PADriver::reportSamplePointer(PADevice *device, UInt32 pointer)
 		return;
 
 	client->reportSamplePointer(index, pointer);
+}
+
+void
+PADriver::sendNotification(PADevice *device, UInt32 notificationType, UInt32 value)
+{
+	UInt32 index = deviceArray->getNextIndexOfObject((OSMetaClassBase *) device, 0);
+	PAUserClient *client = OSDynamicCast(PAUserClient, getClient());
+	
+	if (!client)
+		return;
+	
+	client->sendNotification(index, notificationType, value);	
 }
 
