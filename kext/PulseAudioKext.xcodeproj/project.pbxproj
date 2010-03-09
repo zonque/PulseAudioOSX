@@ -11,6 +11,7 @@
 		65291A38113D5872001BED4D /* PAUserClientTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 65291A37113D5872001BED4D /* PAUserClientTypes.h */; };
 		65291A77113D6314001BED4D /* PADriver.h in Headers */ = {isa = PBXBuildFile; fileRef = 65291A75113D6314001BED4D /* PADriver.h */; };
 		65291A78113D6314001BED4D /* PADriver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65291A76113D6314001BED4D /* PADriver.cpp */; };
+		652E2B241145C9980019804F /* PAClip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 652E2B221145C9980019804F /* PAClip.cpp */; };
 		65BDAA05105E346600D15169 /* BuildNames.h in Headers */ = {isa = PBXBuildFile; fileRef = 65BDAA04105E346600D15169 /* BuildNames.h */; };
 		65FE3F191010B89100B00791 /* PADevice.h in Headers */ = {isa = PBXBuildFile; fileRef = 65FE3F171010B89100B00791 /* PADevice.h */; };
 		65FE3F1A1010B89100B00791 /* PADevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65FE3F181010B89100B00791 /* PADevice.cpp */; };
@@ -28,6 +29,8 @@
 		65291A37113D5872001BED4D /* PAUserClientTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PAUserClientTypes.h; sourceTree = "<group>"; };
 		65291A75113D6314001BED4D /* PADriver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PADriver.h; sourceTree = "<group>"; };
 		65291A76113D6314001BED4D /* PADriver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PADriver.cpp; sourceTree = "<group>"; };
+		652E2B1B1145C9320019804F /* libPAFloatSupport.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPAFloatSupport.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		652E2B221145C9980019804F /* PAClip.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PAClip.cpp; sourceTree = "<group>"; };
 		65BDAA04105E346600D15169 /* BuildNames.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BuildNames.h; sourceTree = "<group>"; };
 		65FE3F171010B89100B00791 /* PADevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PADevice.h; sourceTree = "<group>"; };
 		65FE3F181010B89100B00791 /* PADevice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PADevice.cpp; sourceTree = "<group>"; };
@@ -41,6 +44,13 @@
 
 /* Begin PBXFrameworksBuildPhase section */
 		32D94FCB0562CBF700B6AF17 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		652E2B191145C9320019804F /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -68,6 +78,7 @@
 				65FE3F271010B8B200B00791 /* PAUserClient.cpp */,
 				65FE3F6D1010CD9E00B00791 /* PALog.h */,
 				65BDAA04105E346600D15169 /* BuildNames.h */,
+				652E2B221145C9980019804F /* PAClip.cpp */,
 			);
 			name = PulseAudioKext;
 			sourceTree = "<group>";
@@ -85,6 +96,7 @@
 			isa = PBXGroup;
 			children = (
 				32D94FD00562CBF700B6AF17 /* PulseAudioKext.kext */,
+				652E2B1B1145C9320019804F /* libPAFloatSupport.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -113,6 +125,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		652E2B171145C9320019804F /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
@@ -136,6 +155,23 @@
 			productReference = 32D94FD00562CBF700B6AF17 /* PulseAudioKext.kext */;
 			productType = "com.apple.product-type.kernel-extension.iokit";
 		};
+		652E2B1A1145C9320019804F /* PAFloatSupport */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 652E2B201145C9560019804F /* Build configuration list for PBXNativeTarget "PAFloatSupport" */;
+			buildPhases = (
+				652E2B171145C9320019804F /* Headers */,
+				652E2B181145C9320019804F /* Sources */,
+				652E2B191145C9320019804F /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PAFloatSupport;
+			productName = PAFloatSupport;
+			productReference = 652E2B1B1145C9320019804F /* libPAFloatSupport.a */;
+			productType = "com.apple.product-type.library.static";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -149,6 +185,7 @@
 			projectRoot = "";
 			targets = (
 				32D94FC30562CBF700B6AF17 /* PulseAudioKext */,
+				652E2B1A1145C9320019804F /* PAFloatSupport */,
 			);
 		};
 /* End PBXProject section */
@@ -183,6 +220,14 @@
 				65FE3F251010B8A800B00791 /* PAEngine.cpp in Sources */,
 				65FE3F291010B8B200B00791 /* PAUserClient.cpp in Sources */,
 				65291A78113D6314001BED4D /* PADriver.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		652E2B181145C9320019804F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				652E2B241145C9980019804F /* PAClip.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -245,14 +290,15 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
-				SDKROOT = macosx10.5;
+				SDKROOT = macosx10.6;
 			};
 			name = Debug;
 		};
@@ -266,6 +312,77 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				PREBINDING = NO;
 				SDKROOT = macosx10.5;
+			};
+			name = Release;
+		};
+		652E2B1C1145C9320019804F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				COPY_PHASE_STRIP = YES;
+				GCC_ALTIVEC_EXTENSIONS = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_PREFIX_HEADER = "";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"KERNEL=1",
+					"KERNEL_PRIVATE=1",
+					"AR_Debug=1",
+				);
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				HEADER_SEARCH_PATHS = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Kernel.framework/Headers";
+				INSTALL_PATH = /usr/local/lib;
+				KERNEL_MODULE = YES;
+				LIBRARY_STYLE = STATIC;
+				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				MODULE_IOKIT = YES;
+				MODULE_NAME = org.pulseaudio.PulseAudioKext;
+				MODULE_VERSION = 1.0;
+				OTHER_CFLAGS = (
+					"-fno-schedule-insns",
+					"-fno-schedule-insns2",
+					"-static",
+					"-findirect-virtual-calls",
+					"-mlong-branch",
+				);
+				OTHER_LDFLAGS = "";
+				PREBINDING = NO;
+				PRODUCT_NAME = PAFloatSupport;
+				SDKROOT = macosx10.6;
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		652E2B1D1145C9320019804F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INSTALL_PATH = /usr/local/lib;
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = PAFloatSupport;
+				ZERO_LINK = NO;
 			};
 			name = Release;
 		};
@@ -286,6 +403,15 @@
 			buildConfigurations = (
 				1DEB91DE08733DB10010E9CD /* Debug */,
 				1DEB91DF08733DB10010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		652E2B201145C9560019804F /* Build configuration list for PBXNativeTarget "PAFloatSupport" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				652E2B1C1145C9320019804F /* Debug */,
+				652E2B1D1145C9320019804F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -47,4 +47,4 @@ private:
 	OSArray			*deviceArray;
 };
 
-#endif // PADRIVER_H
+#endif /* PADRIVER_H */

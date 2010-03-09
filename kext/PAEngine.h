@@ -65,4 +65,4 @@ private:
 	UInt32						clockDirection;
 };
 
-#endif // PAENGINE_H
+#endif /* PAENGINE_H */

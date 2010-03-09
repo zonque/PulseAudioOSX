@@ -189,7 +189,7 @@ PAUserClient::genericMethodDispatchAction(PAUserClient *target,
 			case kPAUserClientAsyncReadSamplePointer:
 				status = target->readSamplePointer(args);
 				break;
-			case kPAUserClientAsyncReadSampleRateChange:
+			case kPAUserClientAsyncReadNotification:
 				//status = target->readSampleRateChange(args);
 				break;
 			default:

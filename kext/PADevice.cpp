@@ -78,6 +78,7 @@ PADevice::getInfo(struct PAVirtualDevice *info)
 	memcpy(info, &deviceInfo, sizeof(deviceInfo));
 
 	info->currentSamplerate = audioEngine->currentSampleRate;
+	info->audioBufferSize = audioEngine->audioOutBuf->getLength();
 
 	return kIOReturnSuccess;
 }

@@ -30,8 +30,14 @@ enum {
 };
 
 enum {
-	kPAUserClientAsyncReadSamplePointer		= 0,
-	kPAUserClientAsyncReadSampleRateChange	= 1,
+	kPAUserClientAsyncReadSamplePointer	= 0,
+	kPAUserClientAsyncReadNotification	= 1,
+};
+
+enum {
+	kPAUserClientNotificationEngineStarted		= 0,
+	kPAUserClientNotificationEngineStopped		= 1,
+	kPAUserClientNotificationSampleRateChanged	= 2,	
 };
 
 /* shared memory */
@@ -48,15 +54,23 @@ struct PAVirtualDevice {
 	UInt32 currentSamplerate;
 	UInt32 nUsers;
 	UInt32 clockDirection;
-	UInt32 sampleFrames;
+	UInt32 audioBufferSize;
 	UInt32 blockSize;
 };
 
 struct samplePointerUpdateEvent {
-	UInt32 index;
 	UInt32 timeStampSec;
 	UInt32 timeStampNanoSec;
+	UInt32 index;
 	UInt32 samplePointer;
 };
 
+struct notificationBlock {
+	UInt32 timeStampSec;
+	UInt32 timeStampNanoSec;
+	UInt32 notificationType;
+	UInt32 value;
+};
+
 #endif /* PAUSERCLIENT_TYPES_H */
+

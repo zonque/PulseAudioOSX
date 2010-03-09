@@ -286,34 +286,6 @@ PAEngine::performFormatChange(IOAudioStream *stream,
 	return kIOReturnSuccess;
 }
 
-IOReturn
-PAEngine::clipOutputSamples(const void *inMixBuffer, void *outTargetBuffer,
-							UInt32 inFirstFrame, UInt32 inNumberFrames,
-							const IOAudioStreamFormat *inFormat, IOAudioStream *inStream)
-{
-	memcpy((float *) outTargetBuffer + inFirstFrame,
-			(float *) inMixBuffer + inFirstFrame,
-			inNumberFrames * sizeof(float));
-
-	//IOLog("%s -- %d -> %d\n", __func__, inFirstFrame, inNumberFrames);
-
-	return kIOReturnSuccess;
-}
-
-IOReturn
-PAEngine::convertInputSamples(const void *inSourceBuffer, void *outTargetBuffer,
-							  UInt32 inFirstFrame, UInt32 inNumberFrames,
-							  const IOAudioStreamFormat *inFormat, IOAudioStream *inStream)
-{
-	memcpy((float *) outTargetBuffer + inFirstFrame,
-			(float *) inSourceBuffer + inFirstFrame,
-			inNumberFrames * sizeof(float));
-
-	//currentFrame = (inFirstFrame + inNumberFrames) % NUM_SAMPLE_FRAMES;
-
-	return kIOReturnSuccess;
-}
-
 UInt32
 PAEngine::getCurrentSampleFrame()
 {
