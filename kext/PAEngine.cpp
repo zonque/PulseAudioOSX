@@ -195,9 +195,11 @@ PAEngine::setDeviceInfo(struct PAVirtualDevice *newInfo)
 	info = newInfo;
 
 	if (!info->blockSize ||
-		(NUM_SAMPLE_FRAMES % info->blockSize) != 0)
+		(NUM_SAMPLE_FRAMES % info->blockSize) != 0) {
+		IOLog("%s(%p):: bogus blockSize %d\n", getName(), this, (int) info->blockSize);
 		return false;
-	
+	}
+
 	channelsIn = info->channelsIn;
 	channelsOut = info->channelsOut;
 	nStreams = max(channelsIn, channelsOut) / CHANNELS_PER_STREAM;

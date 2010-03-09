@@ -91,21 +91,24 @@ PADriver::addAudioDevice(struct PAVirtualDevice *info)
 		return kIOReturnError;
 	}
 
-	device->setInfo(info);
-	device->attachToParent(this, gIOServicePlane);
-
-	if (!device->start(this) ||
-		!deviceArray->setObject(device)) {
+	if (!deviceArray->setObject(device)) {
 		device->release();
 		return kIOReturnError;
 	}
-	
+
 	/* find our new device in the array */
 	info->index = deviceArray->getNextIndexOfObject((OSMetaClassBase *) device, 0);
-	device->setIndex(info->index);
+	device->setInfo(info);
+
+	if (!device->start(this)) {
+		deviceArray->removeObject(info->index);
+		device->release();
+		return kIOReturnError;
+	}
 
 	/* read back the deviceInfo struct - the Engine has filled its values now */
 	device->getInfo(info);
+	device->attachToParent(this, gIOServicePlane);
 
 	return kIOReturnSuccess;
 }

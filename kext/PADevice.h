@@ -34,7 +34,6 @@ public:
 	void		 free(void);
 
 	void		 setInfo(const struct PAVirtualDevice *info);
-	void		 setIndex(UInt32 index);
 	IOReturn	 getInfo(struct PAVirtualDevice *info);
 	IOReturn	 setSamplerate(UInt rate);
 	
