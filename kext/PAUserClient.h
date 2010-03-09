@@ -48,7 +48,7 @@ private:
 // IOUserClient interface
 public:
 	IOReturn	externalMethod(uint32_t selector, IOExternalMethodArguments *arguments,
-							   IOExternalMethodDispatch *dispatch, OSObject *target, void *reference);
+				       IOExternalMethodDispatch *dispatch, OSObject *target, void *reference);
 	IOReturn	clientMemoryForType(UInt32 type, UInt32 *flags, IOMemoryDescriptor **memory);
 	IOMemoryMap *removeMappingForDescriptor(IOMemoryDescriptor *memory);
 	IOReturn	message(UInt32 type, IOService *provider,  void *argument = 0);
@@ -64,4 +64,5 @@ public:
 	void		sendNotification(UInt32 index, UInt32 notificationType, UInt32 value);
 };
 
-#endif // PAUSERCLIENT_H
+#endif /* PAUSERCLIENT_H */
+

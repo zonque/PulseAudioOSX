@@ -25,8 +25,8 @@ OSDefineMetaClassAndStructors(PADriver, IOService)
 bool
 PADriver::init(OSDictionary* dictionary)
 {
-    if (!super::init(dictionary))
-        return false;
+	if (!super::init(dictionary))
+		return false;
 
 	debugFunctionEnter();
 

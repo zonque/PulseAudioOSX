@@ -21,10 +21,10 @@
 #include <IOKit/IOWorkLoop.h>
 
 #define SAMPLERATES				{ 44100, 48000, 64000, 88200, 96000, 128000, 176400, 192000 }
-#define NUM_SAMPLE_FRAMES       (1024*16*4)
-#define CHANNELS_PER_STREAM     2
-#define BYTES_PER_SAMPLE        sizeof(float)
-#define AUDIO_BUFFER_SIZE       (NUM_SAMPLE_FRAMES * BYTES_PER_SAMPLE * CHANNELS_PER_STREAM)
+#define NUM_SAMPLE_FRAMES	   (1024*16*4)
+#define CHANNELS_PER_STREAM	 2
+#define BYTES_PER_SAMPLE		sizeof(float)
+#define AUDIO_BUFFER_SIZE	   (NUM_SAMPLE_FRAMES * BYTES_PER_SAMPLE * CHANNELS_PER_STREAM)
 
 #define super IOAudioEngine
 
@@ -37,17 +37,17 @@ PAEngine::free()
 {
 	debugFunctionEnter();
 
-    if (audioOutBuf) {
-        audioOutBuf->complete();
-        audioOutBuf->release();
-        audioOutBuf = NULL;
-    }
+	if (audioOutBuf) {
+		audioOutBuf->complete();
+		audioOutBuf->release();
+		audioOutBuf = NULL;
+	}
 
-    if (audioInBuf) {
-        audioInBuf->complete();
-        audioInBuf->release();
-        audioInBuf = NULL;
-    }
+	if (audioInBuf) {
+		audioInBuf->complete();
+		audioInBuf->release();
+		audioInBuf = NULL;
+	}
 
 	if (timerEventSource) {
 		IOWorkLoop *workLoop = getWorkLoop();
@@ -58,7 +58,7 @@ PAEngine::free()
 		timerEventSource = NULL;
 	}
 
-    super::free();
+	super::free();
 }
 
 IOAudioStream *
@@ -66,42 +66,42 @@ PAEngine::createNewAudioStream(IOAudioStreamDirection direction,
 							   void *sampleBuffer)
 {
 	UInt32 sampleRates[] = SAMPLERATES;
-    IOAudioSampleRate rate;
-    IOAudioStream *audioStream = new IOAudioStream;
+	IOAudioSampleRate rate;
+	IOAudioStream *audioStream = new IOAudioStream;
 
 	debugFunctionEnter();
 
-    if (!audioStream)
-        return NULL;
+	if (!audioStream)
+		return NULL;
 
-    if (!audioStream->initWithAudioEngine(this, direction, 1)) {
-        audioStream->release();
-        return NULL;
-    }
+	if (!audioStream->initWithAudioEngine(this, direction, 1)) {
+		audioStream->release();
+		return NULL;
+	}
 
-    audioStream->setSampleBuffer(sampleBuffer, AUDIO_BUFFER_SIZE);
-    rate.fraction = 0;
+	audioStream->setSampleBuffer(sampleBuffer, AUDIO_BUFFER_SIZE);
+	rate.fraction = 0;
 
-    IOAudioStreamFormat format;
+	IOAudioStreamFormat format;
 
-    format.fNumChannels              = CHANNELS_PER_STREAM;
-    format.fSampleFormat             = kIOAudioStreamSampleFormatLinearPCM;
-    format.fNumericRepresentation    = kIOAudioStreamNumericRepresentationIEEE754Float;
-    format.fBitDepth                 = 32;
-    format.fBitWidth                 = 32;
-    format.fAlignment                = kIOAudioStreamAlignmentHighByte;
-    format.fByteOrder                = kIOAudioStreamByteOrderBigEndian;
-    format.fIsMixable                = true;
-    format.fDriverTag                = 0;
+	format.fNumChannels			  = CHANNELS_PER_STREAM;
+	format.fSampleFormat			 = kIOAudioStreamSampleFormatLinearPCM;
+	format.fNumericRepresentation	= kIOAudioStreamNumericRepresentationIEEE754Float;
+	format.fBitDepth				 = 32;
+	format.fBitWidth				 = 32;
+	format.fAlignment				= kIOAudioStreamAlignmentHighByte;
+	format.fByteOrder				= kIOAudioStreamByteOrderBigEndian;
+	format.fIsMixable				= true;
+	format.fDriverTag				= 0;
 
 	for (UInt32 i = 0; i < sizeof(sampleRates) / sizeof(sampleRates[0]); i++) {
 		rate.whole = sampleRates[i];
 		audioStream->addAvailableFormat(&format, &rate, &rate);
 	}
 
-    audioStream->setFormat(&format);
+	audioStream->setFormat(&format);
 
-    return audioStream;
+	return audioStream;
 }
 
 bool
@@ -120,17 +120,17 @@ PAEngine::initHardware(IOService *provider)
 		return false;
 
 	sampleRate.whole = sampleRates[0];
-    sampleRate.fraction = 0;
-    setSampleRate(&sampleRate);
+	sampleRate.fraction = 0;
+	setSampleRate(&sampleRate);
 	setNewSampleRate(sampleRate.whole);
 
-    setDescription(info->name);
-    setNumSampleFramesPerBuffer(NUM_SAMPLE_FRAMES);
+	setDescription(info->name);
+	setNumSampleFramesPerBuffer(NUM_SAMPLE_FRAMES);
 
 	info->audioBufferSize = AUDIO_BUFFER_SIZE * nStreams;
 
-    audioInBuf	= IOBufferMemoryDescriptor::withCapacity(info->audioBufferSize, kIODirectionInOut);
-    audioOutBuf	= IOBufferMemoryDescriptor::withCapacity(info->audioBufferSize, kIODirectionInOut);
+	audioInBuf	= IOBufferMemoryDescriptor::withCapacity(info->audioBufferSize, kIODirectionInOut);
+	audioOutBuf	= IOBufferMemoryDescriptor::withCapacity(info->audioBufferSize, kIODirectionInOut);
 	
 	if (!audioInBuf || !audioOutBuf) {
 		IOLog("%s(%p)::%s unable to allocate memory\n", getName(), this, __func__);
@@ -140,36 +140,36 @@ PAEngine::initHardware(IOService *provider)
 	audioInBuf->prepare();
 	audioOutBuf->prepare();
 
-    for (UInt32 i = 0; i < nStreams; i++) {
+	for (UInt32 i = 0; i < nStreams; i++) {
 		IOAudioStream *stream;
-	    char *streamBuf;
+		char *streamBuf;
 
-        if (i * CHANNELS_PER_STREAM < channelsIn) {
-            streamBuf = (char *) audioInBuf->getBytesNoCopy() + (i * AUDIO_BUFFER_SIZE);
-            stream = createNewAudioStream(kIOAudioStreamDirectionInput, streamBuf);
-            if (!stream) {
-                IOLog("%s(%p)::%s failed to create audio streams\n", getName(), this, __func__);
-                return false;
-            }
+		if (i * CHANNELS_PER_STREAM < channelsIn) {
+			streamBuf = (char *) audioInBuf->getBytesNoCopy() + (i * AUDIO_BUFFER_SIZE);
+			stream = createNewAudioStream(kIOAudioStreamDirectionInput, streamBuf);
+			if (!stream) {
+				IOLog("%s(%p)::%s failed to create audio streams\n", getName(), this, __func__);
+				return false;
+			}
 
-            addAudioStream(stream);
-            audioStream[i * 2] = stream;
-            stream->release();
-        }
+			addAudioStream(stream);
+			audioStream[i * 2] = stream;
+			stream->release();
+		}
 
-        if (i * CHANNELS_PER_STREAM < channelsOut) {
-            streamBuf = (char *) audioOutBuf->getBytesNoCopy() + (i * AUDIO_BUFFER_SIZE);
-            stream = createNewAudioStream(kIOAudioStreamDirectionOutput, streamBuf);
-            if (!stream) {
-                IOLog("%s(%p)::%s failed to create audio streams\n", getName(), this, __func__);
-                return false;
-            }
+		if (i * CHANNELS_PER_STREAM < channelsOut) {
+			streamBuf = (char *) audioOutBuf->getBytesNoCopy() + (i * AUDIO_BUFFER_SIZE);
+			stream = createNewAudioStream(kIOAudioStreamDirectionOutput, streamBuf);
+			if (!stream) {
+				IOLog("%s(%p)::%s failed to create audio streams\n", getName(), this, __func__);
+				return false;
+			}
 
-            addAudioStream(stream);
-            audioStream[(i * 2) + 1] = stream;
-            stream->release();
-        }
-    }
+			addAudioStream(stream);
+			audioStream[(i * 2) + 1] = stream;
+			stream->release();
+		}
+	}
 
 	IOWorkLoop *workLoop = getWorkLoop();
 	if (!workLoop)
@@ -213,9 +213,9 @@ PAEngine::setDeviceInfo(struct PAVirtualDevice *newInfo)
 OSString *
 PAEngine::getGlobalUniqueID()
 {
-    char tmp[128];
+	char tmp[128];
 	snprintf(tmp, sizeof(tmp), "%s (%s)", getName(), info->name);
-    return OSString::withCString(tmp);
+	return OSString::withCString(tmp);
 }
 
 IOReturn
@@ -282,8 +282,8 @@ PAEngine::setNewSampleRate(UInt32 sampleRate)
 
 IOReturn
 PAEngine::performFormatChange(IOAudioStream *stream,
-							  const IOAudioStreamFormat *newFormat,
-							  const IOAudioSampleRate *newSampleRate)
+			      const IOAudioStreamFormat *newFormat,
+			      const IOAudioSampleRate *newSampleRate)
 {
 	debugFunctionEnter();
 
@@ -329,8 +329,7 @@ PAEngine::timerFired(OSObject *target, IOTimerEventSource *timerSource)
 	
 	timerSource->setTimeoutUS(engine->blockTimeoutMicroseconds);
 	engine->device->driver->reportSamplePointer(engine->device,
-												engine->currentBlock *
-													engine->info->blockSize);
+						    engine->currentBlock * engine->info->blockSize);
 }
 
 void
@@ -355,3 +354,4 @@ PAEngine::getNextTimeStamp(UInt32 inLoopCount, AbsoluteTime *outTimeStamp)
 	//	return the time stamp as an AbsoluteTime to make life easy on the driver
 	*outTimeStamp = *((AbsoluteTime*) &timeStamp);
 }
+

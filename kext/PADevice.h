@@ -41,4 +41,5 @@ public:
 	PADriver	 *driver;
 };
 
-#endif // PADEVICE_H
+#endif /* PADEVICE_H */
+

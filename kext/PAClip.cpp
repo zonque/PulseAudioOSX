@@ -16,24 +16,25 @@
 
 IOReturn
 PAEngine::clipOutputSamples(const void *inMixBuffer, void *outTargetBuffer,
-							UInt32 inFirstFrame, UInt32 inNumberFrames,
-							const IOAudioStreamFormat *inFormat, IOAudioStream *inStream)
+			    UInt32 inFirstFrame, UInt32 inNumberFrames,
+			    const IOAudioStreamFormat *inFormat, IOAudioStream *inStream)
 {
 	memcpy((float *) outTargetBuffer + inFirstFrame,
-		   (float *) inMixBuffer + inFirstFrame,
-		   inNumberFrames * sizeof(float));
-	
+		(float *) inMixBuffer + inFirstFrame,
+		inNumberFrames * sizeof(float));
+
 	return kIOReturnSuccess;
 }
 
 IOReturn
 PAEngine::convertInputSamples(const void *inSourceBuffer, void *outTargetBuffer,
-							  UInt32 inFirstFrame, UInt32 inNumberFrames,
-							  const IOAudioStreamFormat *inFormat, IOAudioStream *inStream)
+			      UInt32 inFirstFrame, UInt32 inNumberFrames,
+			      const IOAudioStreamFormat *inFormat, IOAudioStream *inStream)
 {
 	memcpy((float *) outTargetBuffer + inFirstFrame,
-		   (float *) inSourceBuffer + inFirstFrame,
-		   inNumberFrames * sizeof(float));
-	 
+		(float *) inSourceBuffer + inFirstFrame,
+		inNumberFrames * sizeof(float));
+
 	return kIOReturnSuccess;
 }
+

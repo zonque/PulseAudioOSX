@@ -25,7 +25,7 @@ OSDefineMetaClassAndStructors(PAUserClient, IOUserClient)
 
 IOReturn
 PAUserClient::externalMethod(uint32_t selector, IOExternalMethodArguments *args,
-							 IOExternalMethodDispatch *dispatch, OSObject *target, void *reference)
+			     IOExternalMethodDispatch *dispatch, OSObject *target, void *reference)
 {
 	IOExternalMethodDispatch genericMethodDispatch;
 
@@ -33,7 +33,7 @@ PAUserClient::externalMethod(uint32_t selector, IOExternalMethodArguments *args,
 		target = this;
 
 	genericMethodDispatch.function = (IOExternalMethodAction) &PAUserClient::genericMethodDispatchAction;
-	genericMethodDispatch.checkScalarInputCount		= args->scalarInputCount;
+	genericMethodDispatch.checkScalarInputCount	= args->scalarInputCount;
 	genericMethodDispatch.checkStructureInputSize	= args->structureInputSize;
 	genericMethodDispatch.checkScalarOutputCount	= args->scalarOutputCount;
 	genericMethodDispatch.checkStructureOutputSize	= args->structureOutputSize;
@@ -153,8 +153,8 @@ PAUserClient::terminate(IOOptionBits options)
 
 IOReturn
 PAUserClient::genericMethodDispatchAction(PAUserClient *target,
-										  void *reference,
-										  IOExternalMethodArguments *args)
+					  void *reference,
+					  IOExternalMethodArguments *args)
 {
 	IOReturn status = kIOReturnBadArgument;
 
@@ -271,7 +271,7 @@ PAUserClient::readSamplePointer(IOExternalMethodArguments *args)
 	
 	samplePointerReadDescriptor =
 		IOMemoryDescriptor::withAddressRange((mach_vm_address_t) args->scalarInput[0],
-											 args->scalarInput[1], kIODirectionInOut, clientTask);
+						     args->scalarInput[1], kIODirectionInOut, clientTask);
 	if (!samplePointerReadDescriptor)
 		return kIOReturnBadArgument;
 
@@ -326,7 +326,7 @@ PAUserClient::readNotification(IOExternalMethodArguments *args)
 	
 	notificationReadDescriptor =
 		IOMemoryDescriptor::withAddressRange((mach_vm_address_t) args->scalarInput[0],
-											 args->scalarInput[1], kIODirectionInOut, clientTask);
+						     args->scalarInput[1], kIODirectionInOut, clientTask);
 	if (!notificationReadDescriptor)
 		return kIOReturnBadArgument;
 	
@@ -366,3 +366,4 @@ PAUserClient::sendNotification(UInt32 index, UInt32 notificationType, UInt32 val
 	
 	sendAsyncResult64(notificationReadReference, kIOReturnSuccess, NULL, 0);
 }
+

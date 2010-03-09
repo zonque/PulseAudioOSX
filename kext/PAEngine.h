@@ -31,7 +31,7 @@ public:
 	void						free();
 	bool						initHardware(IOService *provider);
 	bool						setDeviceInfo(struct PAVirtualDevice *info);
-	IOBufferMemoryDescriptor	*audioInBuf, *audioOutBuf;
+	IOBufferMemoryDescriptor			*audioInBuf, *audioOutBuf;
 
 	OSString					*getGlobalUniqueID();
 	IOReturn					performAudioEngineStart();
@@ -48,7 +48,7 @@ public:
 	void						setNewSampleRate(UInt32 sampleRate);
 
 private:
-	IOAudioStream				*createNewAudioStream(IOAudioStreamDirection direction, void *sampleBuffer);
+	IOAudioStream					*createNewAudioStream(IOAudioStreamDirection direction, void *sampleBuffer);
 	UInt32						channelsIn, channelsOut, nStreams;
 	UInt32						currentFrame, currentBlock;
 	UInt32						numBlocks;
@@ -57,11 +57,12 @@ private:
 	UInt64						ticksPerRingBuffer;
 	UInt64						startTime;
 
-    IOAudioStream				*audioStream[MAX_STREAMS];
-	IOTimerEventSource			*timerEventSource;
+	IOAudioStream					*audioStream[MAX_STREAMS];
+	IOTimerEventSource				*timerEventSource;
 
-	struct PAVirtualDevice		*info;
+	struct PAVirtualDevice				*info;
 	PADevice					*device;
 };
 
 #endif /* PAENGINE_H */
+

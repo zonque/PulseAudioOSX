@@ -18,8 +18,6 @@
 #include <IOKit/audio/IOAudioDefines.h>
 #include <IOKit/IOLib.h>
 
-//#include "PAEngine.h"
-
 class PADevice;
 class PAEngine;
 
@@ -40,7 +38,7 @@ public:
 	IOReturn		getAudioEngineInfo(struct PAVirtualDevice *info, UInt index);
 	IOReturn		setSamplerate(UInt index, UInt rate);
 
-	IOMemoryDescriptor *getAudioMemory(UInt index, bool output);
+	IOMemoryDescriptor	*getAudioMemory(UInt index, bool output);
 	void			reportSamplePointer(PADevice *device, UInt32 pointer);
 	void			sendNotification(PADevice *device, UInt32 notificationType, UInt32 value);
 	
@@ -49,3 +47,4 @@ private:
 };
 
 #endif /* PADRIVER_H */
+
