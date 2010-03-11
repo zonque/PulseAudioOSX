@@ -8,6 +8,28 @@ README for PulseAudioOSX
 PulseAudioOSX is a suite of Mac OS X specific software packages that aim
 to make PulseAudio fully supported on this platform.
 
+User will be able to use a configurable number of virtual audio devices,
+either as default system output or configured specifically for certain
+audio software only. Both playback and record is supported. The audio
+streams are caught by a userspace daemon and routed to a PulseAudio server
+instance, no matter whether locally or remotely. All this is configurable
+via a PulseAudio preference pane.
+
+A PulseAudio sound daemon can be run locally to take streams from local
+sources such as the audioDaemon that communicates with the kernel extenstion.
+Other local sources are of course also supported, like applications running
+in a X11 environment. Modules for CoreAudio devices already exist, so the
+locally attach sound hardware can be used for both playback and record.
+
+To control local and remote server instances, a Cocoa based tool named
+PulseConsole exists. It allows inspection of server details and control of
+individual volumes for sinks and sources.
+
+...
+
+
+The PulseAudioOSX package consists of the following components.
+
 
 1. PulseAudioKext - the kernel extension
 
@@ -48,6 +70,17 @@ channels and the PulseAudio instance to connect to.
 
 Another function is to configure the local PA daemon, if any.
 
+
+4. PulseConsole
+
+A Cocoa bases application that connects to a PulseAudio daemon (either
+local or remote) and that allows inspection of the sound server details.
+Another function is to control the volumes of the available sound sources
+and sinks.
+
+...
+
+[tbc]
 
 [See other READMEs in subdirs]
 
