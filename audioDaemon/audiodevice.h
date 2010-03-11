@@ -1,8 +1,14 @@
 #ifndef AUDIODEVICE_H
 #define AUDIODEVICE_H
 
-struct audiodevice;
+#include "../kext/PAUserClientTypes.h"
 
-struct audiodevice *audiodevice_create(io_connect_t port, int index);
+struct audioDevice;
+
+struct audioDevice *audioDeviceCreate(io_connect_t port, struct PAVirtualDevice *info);
+void audioDeviceRemove(struct audioDevice *dev);
+
+int audioDeviceGetIndex(struct audioDevice *dev);
+io_connect_t audioDeviceGetPort(struct audioDevice *dev);
 
 #endif /* AUDIODEVICE_H */
