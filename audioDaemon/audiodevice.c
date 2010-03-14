@@ -20,16 +20,15 @@ __BEGIN_DECLS
 __END_DECLS
 
 #include "audiodevice.h"
-#include "../kext/PAUserClientTypes.h"
 
 struct audioDevice {
-	struct PAVirtualDevice info;
+	struct PAVirtualDeviceInfo info;
 	vm_address_t audio_in_buf;
 	vm_address_t audio_out_buf;
 	io_connect_t port;
 };
 
-struct audioDevice *audioDevice_create(io_connect_t port, struct PAVirtualDevice *info)
+struct audioDevice *audioDeviceCreate(io_connect_t port, struct PAVirtualDeviceInfo *info)
 {
 	struct audioDevice *dev = malloc(sizeof(struct audioDevice));
 	size_t retsize;
@@ -46,7 +45,7 @@ struct audioDevice *audioDevice_create(io_connect_t port, struct PAVirtualDevice
 	
 	retsize = sizeof(dev->info);
 	ret = IOConnectCallStructMethod(port,				// an io_connect_t returned from IOServiceOpen().
-					kPAUserClientAddDevice,		// selector of the function to be called via the user client.
+					kPADriverUserClientAddDevice,	// selector of the function to be called via the user client.
 					info,				// pointer to the input struct parameter.
 					sizeof(*info),			// the size of the input structure parameter.
 					&dev->info,			// pointer to the output struct parameter.
@@ -94,7 +93,7 @@ void audioDeviceRemove(struct audioDevice *dev)
 
 	scalar = index;	
 	IOConnectCallScalarMethod(dev->port,			// an io_connect_t returned from IOServiceOpen().
-				  kPAUserClientRemoveDevice,	// selector of the function to be called via the user client.
+				  kPADriverUserClientRemoveDevice,	// selector of the function to be called via the user client.
 				  &scalar,			// array of scalar (64-bit) input values.
 				  1,				// the number of scalar input values.
 				  NULL,				// array of scalar (64-bit) output values.

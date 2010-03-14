@@ -20,9 +20,12 @@ __BEGIN_DECLS
 __END_DECLS
 
 #include "audioDevice.h"
-#include "../kext/PAUserClientTypes.h"
 
-#define PADriverClassName "org_pulseaudio_ioaudiodriver"
+#include "../kext/PADriverUserClientTypes.h"
+#include "../kext/PAUserClientCommonTypes.h"
+#include "../kext/PAVirtualDeviceUserClientTypes.h"
+
+#define PADriverClassName "org_pulseaudio_driver"
 
 static mach_port_t async_port;
 static io_connect_t data_port;
@@ -36,30 +39,29 @@ samplePointerUpdateCallback(void *refcon, IOReturn result, void **args, int numA
 	return;
 	
 	printf(">>> %08x.%08x  ... %08x (%d)\n",
-	       samplePointerUpdateEvent.timeStampSec,
-	       samplePointerUpdateEvent.timeStampNanoSec,
-	       samplePointerUpdateEvent.samplePointer,
-	       (int) samplePointerUpdateEvent.index);
+	       (int) samplePointerUpdateEvent.timeStampSec,
+	       (int) samplePointerUpdateEvent.timeStampNanoSec,
+	       (int) samplePointerUpdateEvent.samplePointer);
 }
 
-static char *notificationName[kPAUserClientNotificationMax] = {
-	"kPAUserClientNotificationEngineStarted",
-	"kPAUserClientNotificationEngineStopped",
-	"kPAUserClientNotificationSampleRateChanged",
+static char *notificationName[kPAVirtualDeviceUserClientNotificationMax] = {
+	"kPAVirtualDeviceInfoUserClientNotificationEngineStarted",
+	"kPAVirtualDeviceInfoUserClientNotificationEngineStopped",
+	"kPAVirtualDeviceInfoUserClientNotificationSampleRateChanged",
 };
 
 static void 
 notificationCallback(void *refcon, IOReturn result, void **args, int numArgs) 
 {
-	if (notificationBlock.notificationType >= kPAUserClientNotificationMax) {
+	if (notificationBlock.notificationType >= kPAVirtualDeviceUserClientNotificationMax) {
 		printf("%s(): bogus event %d\n", __func__, notificationBlock.notificationType);
 		return;
 	}
 
 	printf(">>> notification >%s<, %08x.%08x value %d\n",
-	       notificationName[notificationBlock.notificationType],
-	       notificationBlock.timeStampSec,
-	       notificationBlock.timeStampNanoSec,
+	       (int) notificationName[notificationBlock.notificationType],
+	       (int) notificationBlock.timeStampSec,
+	       (int) notificationBlock.timeStampNanoSec,
 	       (int) notificationBlock.value);
 }
 
@@ -78,7 +80,7 @@ triggerAsyncRead(void)
 	printf("%s(): &samplePointerUpdateEvent %p\n", __func__, &samplePointerUpdateEvent);
 	
 	ret = IOConnectCallAsyncScalarMethod(data_port,					// mach_port_t      connection,         // In
-					     kPAUserClientAsyncReadSamplePointer,	// uint32_t	    selector			// In
+					     kPAVirtualDeviceUserClientAsyncReadSamplePointer,	// uint32_t	    selector			// In
 					     async_port,				// mach_port_t      wake_port			// In
 					     asyncRef,					// uint64_t        *reference			// In
 					     kOSAsyncRef64Count,			// uint32_t         referenceCnt		// In
@@ -92,12 +94,12 @@ triggerAsyncRead(void)
 	return ret;
 }
 
-static IOReturn addDeviceFromInfo (struct PAVirtualDevice *info)
+static IOReturn addDeviceFromInfo (struct PAVirtualDeviceInfo *info)
 {
 	IOReturn ret;
 	
 	ret = IOConnectCallStructMethod(data_port,				// an io_connect_t returned from IOServiceOpen().
-					kPAUserClientAddDevice,			// selector of the function to be called via the user client.
+					kPADriverUserClientAddDevice,			// selector of the function to be called via the user client.
 					info,					// pointer to the input struct parameter.
 					sizeof(*info),				// the size of the input structure parameter.
 					NULL,					// pointer to the output struct parameter.
@@ -152,7 +154,7 @@ serviceMatched (void *refCon, io_iterator_t iterator)
 	CFRelease(cfPort);
 	CFRunLoopAddSource(CFRunLoopGetCurrent(), runLoopSource, kCFRunLoopDefaultMode);
 	
-	struct PAVirtualDevice info;
+	struct PAVirtualDeviceInfo info;
 	
 	memset(&info, 0, sizeof(info));
 	strcpy(info.name, "gaga.");
@@ -241,7 +243,8 @@ void sendDeviceList (CFNotificationCenterRef center,
 	unsigned int nDevices, n;
 	CFMutableArrayRef array;
 	CFMutableDictionaryRef userInfo;
-	
+
+#if 0
 	n = 1;
 	ret = IOConnectCallScalarMethod(data_port,				// an io_connect_t returned from IOServiceOpen().
 					kPAUserClientGetNumberOfDevices,	// selector of the function to be called via the user client.
@@ -257,10 +260,10 @@ void sendDeviceList (CFNotificationCenterRef center,
 	
 	nDevices = scalar;
 	array = CFArrayCreateMutable(kCFAllocatorDefault, nDevices, NULL);
-	
+
 	for (n = 0; n < nDevices; n++) {
 		CFMutableDictionaryRef dict;
-		struct PAVirtualDevice info;
+		struct PAVirtualDeviceInfo info;
 		size_t size = sizeof(info);
 		scalar = n;
 		
@@ -291,6 +294,7 @@ void sendDeviceList (CFNotificationCenterRef center,
 		CFArrayAppendValue(array, dict);
 		//CFRelease(dict);
 	}
+#endif
 	
 	userInfo = CFDictionaryCreateMutable(kCFAllocatorDefault, 1,
 					     &kCFCopyStringDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
@@ -313,7 +317,7 @@ void addDevice (CFNotificationCenterRef center,
 		const void *object,
 		CFDictionaryRef userInfo)
 {
-	struct PAVirtualDevice info;
+	struct PAVirtualDeviceInfo info;
 	CFNumberRef num;
 	CFStringRef str;
 	
@@ -347,7 +351,7 @@ void removeDevice (CFNotificationCenterRef center,
 	CFNumberGetValue(num, kCFNumberIntType, &scalar);
 	
 	IOConnectCallScalarMethod(data_port,					// an io_connect_t returned from IOServiceOpen().
-				  kPAUserClientRemoveDevice,	// selector of the function to be called via the user client.
+				  kPADriverUserClientRemoveDevice,	// selector of the function to be called via the user client.
 				  &scalar,						// array of scalar (64-bit) input values.
 				  1,							// the number of scalar input values.
 				  NULL,							// array of scalar (64-bit) output values.
