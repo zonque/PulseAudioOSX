@@ -25,15 +25,15 @@
 		<key>PAVirtualDriver</key>
 		<dict>
 			<key>IOUserClientClass</key>
-			<string>org_pulseaudio_iouserclient</string>
+			<string>org_pulseaudio_driver_userclient</string>
 			<key>IOProbeScore</key>
 			<string>1000</string>
 			<key>CFBundleIdentifier</key>
 			<string>org.pulseaudio.driver.PulseAudioKext</string>
 			<key>IOClass</key>
-			<string>org_pulseaudio_ioaudiodriver</string>
+			<string>org_pulseaudio_driver</string>
 			<key>IOMatchCategory</key>
-			<string>org_pulseaudio_ioaudiodriver</string>
+			<string>org_pulseaudio_driver</string>
 			<key>IOProviderClass</key>
 			<string>IOResources</string>
 			<key>IOResourceMatch</key>

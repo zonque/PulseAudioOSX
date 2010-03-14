@@ -1,0 +1,51 @@
+The concept of the driver model is to have one abstract IOService object
+(instance of PADriver) which is the root node for all other objects.
+Upon creation (at load time of the driver), the PADriver will be
+announced to the userspace to let the audioDaemon know.
+
+A IOUserClient class named PADriverUserClient can be instanciated by
+the user space, and commands can be issued to create new and delete 
+instances of PADevices. A PADevice is derived from IOAudioDevice and
+acts as a virtual audio device. To export audio functions, it has to
+have an PAEngine (derived from IOAudioEngine).
+
+Depending on the type of audio engine (one for the mixed audio stream or
+one for each individual user client), the PAEngine can have one or many
+references to PAVirtualDevices, respectively.
+
+Once a PAVirtualDevice is created, it is announced to the userspace,
+just like a PADriver. A userclient will create an object of type
+PAVirtualDeviceUserClient which can be used to issue commands specific
+to a PAVirtualDevice. See the header files for more details.
+
+
+
+      KERNEL SPACE                           USER SPACE
+
+_________________________              _________________________
+      (ROOT NODE)                           (exactly one)
+        PADriver             <======>     PADriverUserClient
+    public IOService                      public IOUserClient
+_________________________              _________________________
+          |||
+          |||
+__________+++____________
+         (many)
+        PADevice
+  public IOAudioDevice
+_________________________  
+           |
+           |
+___________+_____________
+      (exactly one)
+        PAEngine
+  public IOAudioEngine
+_________________________
+          |||
+          |||
+__________+++____________              _________________________
+         (many)                         (exactly one for each)
+     PAVirtualDevice         <======>  PAVirtualDeviceUserClient
+    public IOService                      public IOUserClient
+_________________________              _________________________
+

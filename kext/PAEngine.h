@@ -19,7 +19,7 @@
 #include <IOKit/IOTimerEventSource.h>
 
 #include "PADevice.h"
-#include "PAUserClientTypes.h"
+#include "PAUserClientCommonTypes.h"
 
 #define MAX_STREAMS		64
 
@@ -27,11 +27,33 @@ class PAEngine : public IOAudioEngine
 {
 	OSDeclareDefaultStructors(PAEngine)
 
+private:
+	IOAudioStream					*createNewAudioStream(IOAudioStreamDirection direction, void *sampleBuffer);
+	UInt32						channelsIn, channelsOut, nStreams;
+	UInt32						currentFrame, currentBlock;
+	UInt32						numBlocks;
+	
+	UInt64						blockTimeoutMicroseconds;
+	UInt64						ticksPerRingBuffer;
+	UInt64						startTime;
+	
+	IOAudioStream					*audioStream[MAX_STREAMS];
+	IOTimerEventSource				*timerEventSource;
+	
+	struct PAVirtualDeviceInfo			*info;
+	PADevice					*device;
+	IOBufferMemoryDescriptor			*audioInBuf, *audioOutBuf;
+
+	OSArray						*virtualDeviceArray;
+
+	IOReturn					addVirtualDevice(struct PAVirtualDeviceInfo *,
+									 IOMemoryDescriptor *inBuf,
+									 IOMemoryDescriptor *outBuf);
+
 public:
 	void						free();
 	bool						initHardware(IOService *provider);
-	bool						setDeviceInfo(struct PAVirtualDevice *info);
-	IOBufferMemoryDescriptor			*audioInBuf, *audioOutBuf;
+	bool						setDeviceInfo(struct PAVirtualDeviceInfo *);
 
 	OSString					*getGlobalUniqueID();
 	IOReturn					performAudioEngineStart();
@@ -45,23 +67,7 @@ public:
 	static void					timerFired(OSObject *inTarget, IOTimerEventSource *inSender);
 
 	UInt32						currentSampleRate;
-	void						setNewSampleRate(UInt32 sampleRate);
-
-private:
-	IOAudioStream					*createNewAudioStream(IOAudioStreamDirection direction, void *sampleBuffer);
-	UInt32						channelsIn, channelsOut, nStreams;
-	UInt32						currentFrame, currentBlock;
-	UInt32						numBlocks;
-
-	UInt64						blockTimeoutMicroseconds;
-	UInt64						ticksPerRingBuffer;
-	UInt64						startTime;
-
-	IOAudioStream					*audioStream[MAX_STREAMS];
-	IOTimerEventSource				*timerEventSource;
-
-	struct PAVirtualDevice				*info;
-	PADevice					*device;
+	IOReturn					setNewSampleRate(UInt32 sampleRate);
 };
 
 #endif /* PAENGINE_H */

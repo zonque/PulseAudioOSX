@@ -17,28 +17,19 @@
 #include <IOKit/audio/IOAudioDevice.h>
 
 #include "PADriver.h"
-#include "PAUserClientTypes.h"
+#include "PAUserClientCommonTypes.h"
 
 class PAEngine;
 class PAUserClient;
-struct PAVirtualDevice;
 
 class PADevice : public IOAudioDevice
 {
 	OSDeclareDefaultStructors(PADevice)
-	struct PAVirtualDevice deviceInfo;
-	PAEngine	*audioEngine;
+	struct PAVirtualDeviceInfo deviceInfo;
 
 public:
-	bool		 initHardware(IOService *provider);
-	void		 free(void);
-
-	void		 setInfo(const struct PAVirtualDevice *info);
-	IOReturn	 getInfo(struct PAVirtualDevice *info);
-	IOReturn	 setSamplerate(UInt rate);
-	
-	IOMemoryDescriptor *getAudioMemory(bool output);
-	PADriver	 *driver;
+	bool	initHardware(IOService *provider);
+	void	setInfo(const struct PAVirtualDeviceInfo *info);
 };
 
 #endif /* PADEVICE_H */

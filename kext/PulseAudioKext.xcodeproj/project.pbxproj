@@ -8,7 +8,16 @@
 
 /* Begin PBXBuildFile section */
 		32D94FC80562CBF700B6AF17 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C167DFE841241C02AAC07 /* InfoPlist.strings */; };
-		65291A38113D5872001BED4D /* PAUserClientTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 65291A37113D5872001BED4D /* PAUserClientTypes.h */; };
+		652081EB114A8E1300EE6D5A /* libPAFloatSupport.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 652E2B1B1145C9320019804F /* libPAFloatSupport.a */; };
+		65208210114A93DF00EE6D5A /* PAVirtualDeviceUserClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 6520820B114A93DF00EE6D5A /* PAVirtualDeviceUserClient.h */; };
+		65208211114A93DF00EE6D5A /* PAVirtualDeviceUserClientTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 6520820C114A93DF00EE6D5A /* PAVirtualDeviceUserClientTypes.h */; };
+		65208686114D440100EE6D5A /* PAVirtualDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65208208114A93DF00EE6D5A /* PAVirtualDevice.cpp */; };
+		65208687114D440300EE6D5A /* PAVirtualDeviceUserClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6520820A114A93DF00EE6D5A /* PAVirtualDeviceUserClient.cpp */; };
+		65208688114D440400EE6D5A /* PAVirtualDevice.h in Headers */ = {isa = PBXBuildFile; fileRef = 65208209114A93DF00EE6D5A /* PAVirtualDevice.h */; };
+		65208689114D440500EE6D5A /* PAUserClientCommonTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 6520822D114AAC4900EE6D5A /* PAUserClientCommonTypes.h */; };
+		6520868A114D440800EE6D5A /* PAVirtualDeviceUserClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 6520820B114A93DF00EE6D5A /* PAVirtualDeviceUserClient.h */; };
+		6520868B114D440900EE6D5A /* PAVirtualDeviceUserClientTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 6520820C114A93DF00EE6D5A /* PAVirtualDeviceUserClientTypes.h */; };
+		65291A38113D5872001BED4D /* PADriverUserClientTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 65291A37113D5872001BED4D /* PADriverUserClientTypes.h */; };
 		65291A77113D6314001BED4D /* PADriver.h in Headers */ = {isa = PBXBuildFile; fileRef = 65291A75113D6314001BED4D /* PADriver.h */; };
 		65291A78113D6314001BED4D /* PADriver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65291A76113D6314001BED4D /* PADriver.cpp */; };
 		652E2B241145C9980019804F /* PAClip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 652E2B221145C9980019804F /* PAClip.cpp */; };
@@ -17,16 +26,32 @@
 		65FE3F1A1010B89100B00791 /* PADevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65FE3F181010B89100B00791 /* PADevice.cpp */; };
 		65FE3F241010B8A800B00791 /* PAEngine.h in Headers */ = {isa = PBXBuildFile; fileRef = 65FE3F221010B8A800B00791 /* PAEngine.h */; };
 		65FE3F251010B8A800B00791 /* PAEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65FE3F231010B8A800B00791 /* PAEngine.cpp */; };
-		65FE3F281010B8B200B00791 /* PAUserClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 65FE3F261010B8B200B00791 /* PAUserClient.h */; };
-		65FE3F291010B8B200B00791 /* PAUserClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65FE3F271010B8B200B00791 /* PAUserClient.cpp */; };
+		65FE3F281010B8B200B00791 /* PADriverUserClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 65FE3F261010B8B200B00791 /* PADriverUserClient.h */; };
+		65FE3F291010B8B200B00791 /* PADriverUserClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65FE3F271010B8B200B00791 /* PADriverUserClient.cpp */; };
 		65FE3F6E1010CD9E00B00791 /* PALog.h in Headers */ = {isa = PBXBuildFile; fileRef = 65FE3F6D1010CD9E00B00791 /* PALog.h */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		652086AC114D47EA00EE6D5A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 089C1669FE841209C02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 652E2B1A1145C9320019804F;
+			remoteInfo = PAFloatSupport;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		089C167EFE841241C02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		32D94FCF0562CBF700B6AF17 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		32D94FD00562CBF700B6AF17 /* PulseAudioKext.kext */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PulseAudioKext.kext; sourceTree = BUILT_PRODUCTS_DIR; };
-		65291A37113D5872001BED4D /* PAUserClientTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PAUserClientTypes.h; sourceTree = "<group>"; };
+		65208208114A93DF00EE6D5A /* PAVirtualDevice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PAVirtualDevice.cpp; sourceTree = "<group>"; };
+		65208209114A93DF00EE6D5A /* PAVirtualDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PAVirtualDevice.h; sourceTree = "<group>"; };
+		6520820A114A93DF00EE6D5A /* PAVirtualDeviceUserClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PAVirtualDeviceUserClient.cpp; sourceTree = "<group>"; };
+		6520820B114A93DF00EE6D5A /* PAVirtualDeviceUserClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PAVirtualDeviceUserClient.h; sourceTree = "<group>"; };
+		6520820C114A93DF00EE6D5A /* PAVirtualDeviceUserClientTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PAVirtualDeviceUserClientTypes.h; sourceTree = "<group>"; };
+		6520822D114AAC4900EE6D5A /* PAUserClientCommonTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PAUserClientCommonTypes.h; sourceTree = "<group>"; };
+		65291A37113D5872001BED4D /* PADriverUserClientTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PADriverUserClientTypes.h; sourceTree = "<group>"; };
 		65291A75113D6314001BED4D /* PADriver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PADriver.h; sourceTree = "<group>"; };
 		65291A76113D6314001BED4D /* PADriver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PADriver.cpp; sourceTree = "<group>"; };
 		652E2B1B1145C9320019804F /* libPAFloatSupport.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPAFloatSupport.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -36,8 +61,8 @@
 		65FE3F181010B89100B00791 /* PADevice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PADevice.cpp; sourceTree = "<group>"; };
 		65FE3F221010B8A800B00791 /* PAEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PAEngine.h; sourceTree = "<group>"; };
 		65FE3F231010B8A800B00791 /* PAEngine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PAEngine.cpp; sourceTree = "<group>"; };
-		65FE3F261010B8B200B00791 /* PAUserClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PAUserClient.h; sourceTree = "<group>"; };
-		65FE3F271010B8B200B00791 /* PAUserClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PAUserClient.cpp; sourceTree = "<group>"; };
+		65FE3F261010B8B200B00791 /* PADriverUserClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PADriverUserClient.h; sourceTree = "<group>"; };
+		65FE3F271010B8B200B00791 /* PADriverUserClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PADriverUserClient.cpp; sourceTree = "<group>"; };
 		65FE3F6D1010CD9E00B00791 /* PALog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PALog.h; sourceTree = "<group>"; };
 		8DA8362C06AD9B9200E5AC22 /* Kernel.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Kernel.framework; path = /System/Library/Frameworks/Kernel.framework; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
@@ -47,6 +72,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				652081EB114A8E1300EE6D5A /* libPAFloatSupport.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -63,9 +89,15 @@
 		089C166AFE841209C02AAC07 /* PulseAudioKext */ = {
 			isa = PBXGroup;
 			children = (
+				6520822D114AAC4900EE6D5A /* PAUserClientCommonTypes.h */,
+				65208208114A93DF00EE6D5A /* PAVirtualDevice.cpp */,
+				65208209114A93DF00EE6D5A /* PAVirtualDevice.h */,
+				6520820A114A93DF00EE6D5A /* PAVirtualDeviceUserClient.cpp */,
+				6520820B114A93DF00EE6D5A /* PAVirtualDeviceUserClient.h */,
+				6520820C114A93DF00EE6D5A /* PAVirtualDeviceUserClientTypes.h */,
 				65291A75113D6314001BED4D /* PADriver.h */,
 				65291A76113D6314001BED4D /* PADriver.cpp */,
-				65291A37113D5872001BED4D /* PAUserClientTypes.h */,
+				65291A37113D5872001BED4D /* PADriverUserClientTypes.h */,
 				247142CAFF3F8F9811CA285C /* Source */,
 				8DA8362C06AD9B9200E5AC22 /* Kernel.framework */,
 				089C167CFE841241C02AAC07 /* Resources */,
@@ -74,8 +106,8 @@
 				65FE3F181010B89100B00791 /* PADevice.cpp */,
 				65FE3F221010B8A800B00791 /* PAEngine.h */,
 				65FE3F231010B8A800B00791 /* PAEngine.cpp */,
-				65FE3F261010B8B200B00791 /* PAUserClient.h */,
-				65FE3F271010B8B200B00791 /* PAUserClient.cpp */,
+				65FE3F261010B8B200B00791 /* PADriverUserClient.h */,
+				65FE3F271010B8B200B00791 /* PADriverUserClient.cpp */,
 				65FE3F6D1010CD9E00B00791 /* PALog.h */,
 				65BDAA04105E346600D15169 /* BuildNames.h */,
 				652E2B221145C9980019804F /* PAClip.cpp */,
@@ -117,11 +149,15 @@
 			files = (
 				65FE3F191010B89100B00791 /* PADevice.h in Headers */,
 				65FE3F241010B8A800B00791 /* PAEngine.h in Headers */,
-				65FE3F281010B8B200B00791 /* PAUserClient.h in Headers */,
+				65FE3F281010B8B200B00791 /* PADriverUserClient.h in Headers */,
 				65FE3F6E1010CD9E00B00791 /* PALog.h in Headers */,
 				65BDAA05105E346600D15169 /* BuildNames.h in Headers */,
-				65291A38113D5872001BED4D /* PAUserClientTypes.h in Headers */,
+				65291A38113D5872001BED4D /* PADriverUserClientTypes.h in Headers */,
 				65291A77113D6314001BED4D /* PADriver.h in Headers */,
+				65208688114D440400EE6D5A /* PAVirtualDevice.h in Headers */,
+				65208689114D440500EE6D5A /* PAUserClientCommonTypes.h in Headers */,
+				6520868A114D440800EE6D5A /* PAVirtualDeviceUserClient.h in Headers */,
+				6520868B114D440900EE6D5A /* PAVirtualDeviceUserClientTypes.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -129,6 +165,8 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				65208210114A93DF00EE6D5A /* PAVirtualDeviceUserClient.h in Headers */,
+				65208211114A93DF00EE6D5A /* PAVirtualDeviceUserClientTypes.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -148,6 +186,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				652086AD114D47EA00EE6D5A /* PBXTargetDependency */,
 			);
 			name = PulseAudioKext;
 			productInstallPath = "$(SYSTEM_LIBRARY_DIR)/Extensions";
@@ -218,8 +257,10 @@
 			files = (
 				65FE3F1A1010B89100B00791 /* PADevice.cpp in Sources */,
 				65FE3F251010B8A800B00791 /* PAEngine.cpp in Sources */,
-				65FE3F291010B8B200B00791 /* PAUserClient.cpp in Sources */,
+				65FE3F291010B8B200B00791 /* PADriverUserClient.cpp in Sources */,
 				65291A78113D6314001BED4D /* PADriver.cpp in Sources */,
+				65208686114D440100EE6D5A /* PAVirtualDevice.cpp in Sources */,
+				65208687114D440300EE6D5A /* PAVirtualDeviceUserClient.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -232,6 +273,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		652086AD114D47EA00EE6D5A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 652E2B1A1145C9320019804F /* PAFloatSupport */;
+			targetProxy = 652086AC114D47EA00EE6D5A /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		089C167DFE841241C02AAC07 /* InfoPlist.strings */ = {
@@ -322,10 +371,12 @@
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				COPY_PHASE_STRIP = YES;
 				GCC_ALTIVEC_EXTENSIONS = YES;
+				GCC_AUTO_VECTORIZATION = YES;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_CPP_EXCEPTIONS = NO;
 				GCC_ENABLE_CPP_RTTI = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_INPUT_FILETYPE = sourcecode.cpp.cpp;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 3;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
@@ -333,11 +384,11 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"KERNEL=1",
 					"KERNEL_PRIVATE=1",
-					"AR_Debug=1",
 				);
+				GCC_UNROLL_LOOPS = YES;
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
-				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = NO;
 				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
 				GCC_WARN_MISSING_PARENTHESES = YES;
 				HEADER_SEARCH_PATHS = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Kernel.framework/Headers";
@@ -348,6 +399,7 @@
 				MODULE_IOKIT = YES;
 				MODULE_NAME = org.pulseaudio.PulseAudioKext;
 				MODULE_VERSION = 1.0;
+				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
 					"-fno-schedule-insns",
 					"-fno-schedule-insns2",
@@ -356,10 +408,11 @@
 					"-mlong-branch",
 				);
 				OTHER_LDFLAGS = "";
-				PREBINDING = NO;
+				PREBINDING = YES;
 				PRODUCT_NAME = PAFloatSupport;
 				SDKROOT = macosx10.6;
 				SKIP_INSTALL = YES;
+				ZERO_LINK = NO;
 			};
 			name = Debug;
 		};

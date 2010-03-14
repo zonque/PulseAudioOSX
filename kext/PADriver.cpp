@@ -11,10 +11,12 @@
 
 #include <IOKit/IOTypes.h>
 
-#include "PAUserClient.h"
 #include "PADriver.h"
 #include "PADevice.h"
 #include "PALog.h"
+
+#include "PAUserClientCommonTypes.h"
+#include "PADriverUserClientTypes.h"
 
 #define super IOService
 
@@ -79,37 +81,30 @@ PADriver::numberOfDevices(void)
 }
 
 IOReturn
-PADriver::addAudioDevice(struct PAVirtualDevice *info)
+PADriver::addAudioDevice(const struct PAVirtualDeviceInfo *info)
 {
 	PADevice *device = new PADevice;
 
 	if (!device)
 		return kIOReturnNoMemory;
 
-	if (!device->init(NULL)) {
-		device->release();
-		return kIOReturnError;
-	}
-
-	if (!deviceArray->setObject(device)) {
+	if (!device->init(NULL) ||
+	    !deviceArray->setObject(device)) {
 		device->release();
 		return kIOReturnError;
 	}
 
 	/* find our new device in the array */
-	info->index = deviceArray->getNextIndexOfObject((OSMetaClassBase *) device, 0);
+	UInt index = deviceArray->getNextIndexOfObject((OSMetaClassBase *) device, 0);
+	device->attachToParent(this, gIOServicePlane);
 	device->setInfo(info);
 
 	if (!device->start(this)) {
-		deviceArray->removeObject(info->index);
+		deviceArray->removeObject(index);
 		device->release();
 		return kIOReturnError;
 	}
-
-	/* read back the deviceInfo struct - the Engine has filled its values now */
-	device->getInfo(info);
-	device->attachToParent(this, gIOServicePlane);
-
+	
 	return kIOReturnSuccess;
 }
 
@@ -148,61 +143,3 @@ PADriver::removeAllAudioDevices(void)
 	iter->release();
 	deviceArray->flushCollection();
 }
-
-IOReturn
-PADriver::getAudioEngineInfo(struct PAVirtualDevice *info, UInt index)
-{
-	PADevice *device = OSDynamicCast(PADevice, deviceArray->getObject(index));
-
-	if (!device)
-		return kIOReturnInvalid;
-
-	return device->getInfo(info);
-}
-
-IOReturn
-PADriver::setSamplerate(UInt index, UInt rate)
-{
-	PADevice *device = OSDynamicCast(PADevice, deviceArray->getObject(index));
-
-	if (!device)
-		return kIOReturnInvalid;
-
-	return device->setSamplerate(rate);
-}
-
-IOMemoryDescriptor *
-PADriver::getAudioMemory(UInt index, bool output)
-{
-	PADevice *device = OSDynamicCast(PADevice, deviceArray->getObject(index));
-
-	if (!device)
-		return NULL;
-
-	return device->getAudioMemory(output);
-}
-
-void
-PADriver::reportSamplePointer(PADevice *device, UInt32 pointer)
-{
-	UInt32 index = deviceArray->getNextIndexOfObject((OSMetaClassBase *) device, 0);
-	PAUserClient *client = OSDynamicCast(PAUserClient, getClient());
-
-	if (!client)
-		return;
-
-	client->reportSamplePointer(index, pointer);
-}
-
-void
-PADriver::sendNotification(PADevice *device, UInt32 notificationType, UInt32 value)
-{
-	UInt32 index = deviceArray->getNextIndexOfObject((OSMetaClassBase *) device, 0);
-	PAUserClient *client = OSDynamicCast(PAUserClient, getClient());
-	
-	if (!client)
-		return;
-	
-	client->sendNotification(index, notificationType, value);	
-}
-

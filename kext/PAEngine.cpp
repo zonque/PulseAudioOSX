@@ -9,9 +9,11 @@
  (at your option) any later version.
  ***/
 
-#include "PAEngine.h"
-#include "PAUserClientTypes.h"
 #include "PALog.h"
+#include "PAEngine.h"
+#include "PAVirtualDevice.h"
+#include "PAUserClientCommonTypes.h"
+#include "PAVirtualDeviceUserClientTypes.h"
 
 #include <libkern/sysctl.h>
 
@@ -20,11 +22,13 @@
 #include <IOKit/audio/IOAudioStream.h>
 #include <IOKit/IOWorkLoop.h>
 
-#define SAMPLERATES				{ 44100, 48000, 64000, 88200, 96000, 128000, 176400, 192000 }
-#define NUM_SAMPLE_FRAMES	   (1024*16*4)
-#define CHANNELS_PER_STREAM	 2
-#define BYTES_PER_SAMPLE		sizeof(float)
-#define AUDIO_BUFFER_SIZE	   (NUM_SAMPLE_FRAMES * BYTES_PER_SAMPLE * CHANNELS_PER_STREAM)
+#define SAMPLERATES		{ 44100, 48000, 64000, 88200, 96000, 128000, 176400, 192000 }
+#define NUM_SAMPLE_FRAMES	(1024*16*4)
+#define CHANNELS_PER_STREAM	2
+#define BYTES_PER_SAMPLE	sizeof(float)
+#define AUDIO_BUFFER_SIZE	(NUM_SAMPLE_FRAMES * BYTES_PER_SAMPLE * CHANNELS_PER_STREAM)
+
+#define ARRAY_SIZE(a)		(sizeof(a) / sizeof(a[0]))
 
 #define super IOAudioEngine
 
@@ -51,11 +55,17 @@ PAEngine::free()
 
 	if (timerEventSource) {
 		IOWorkLoop *workLoop = getWorkLoop();
-		if(workLoop)
+		if (workLoop)
 			workLoop->removeEventSource(timerEventSource);
 
 		timerEventSource->release();
 		timerEventSource = NULL;
+	}
+	
+	if (virtualDeviceArray) {
+		virtualDeviceArray->flushCollection();
+		virtualDeviceArray->release();
+		virtualDeviceArray = NULL;
 	}
 
 	super::free();
@@ -84,15 +94,15 @@ PAEngine::createNewAudioStream(IOAudioStreamDirection direction,
 
 	IOAudioStreamFormat format;
 
-	format.fNumChannels			  = CHANNELS_PER_STREAM;
-	format.fSampleFormat			 = kIOAudioStreamSampleFormatLinearPCM;
+	format.fNumChannels		= CHANNELS_PER_STREAM;
+	format.fSampleFormat		= kIOAudioStreamSampleFormatLinearPCM;
 	format.fNumericRepresentation	= kIOAudioStreamNumericRepresentationIEEE754Float;
-	format.fBitDepth				 = 32;
-	format.fBitWidth				 = 32;
-	format.fAlignment				= kIOAudioStreamAlignmentHighByte;
-	format.fByteOrder				= kIOAudioStreamByteOrderBigEndian;
-	format.fIsMixable				= true;
-	format.fDriverTag				= 0;
+	format.fBitDepth		= 32;
+	format.fBitWidth		= 32;
+	format.fAlignment		= kIOAudioStreamAlignmentHighByte;
+	format.fByteOrder		= kIOAudioStreamByteOrderBigEndian;
+	format.fIsMixable		= true;
+	format.fDriverTag		= 0;
 
 	for (UInt32 i = 0; i < sizeof(sampleRates) / sizeof(sampleRates[0]); i++) {
 		rate.whole = sampleRates[i];
@@ -102,6 +112,38 @@ PAEngine::createNewAudioStream(IOAudioStreamDirection direction,
 	audioStream->setFormat(&format);
 
 	return audioStream;
+}
+
+IOReturn
+PAEngine::addVirtualDevice(struct PAVirtualDeviceInfo *info,
+			   IOMemoryDescriptor *inBuf,
+			   IOMemoryDescriptor *outBuf)
+{
+	PAVirtualDevice *device = new PAVirtualDevice;
+	
+	if (!device)
+		return kIOReturnNoMemory;
+	
+	if (!device->init(NULL) ||
+	    !virtualDeviceArray->setObject(device)) {
+		device->release();
+		return kIOReturnError;
+	}
+	
+	/* find our new device in the array */
+	device->attachToParent(this, gIOServicePlane);
+	device->setInfo(info);
+	
+	if (!device->start(this)) {
+		virtualDeviceArray->removeObject(index);
+		device->release();
+		return kIOReturnError;
+	}
+	
+	device->audioInputBuf = inBuf;
+	device->audioInputBuf = outBuf;
+
+	return kIOReturnSuccess;
 }
 
 bool
@@ -119,6 +161,12 @@ PAEngine::initHardware(IOService *provider)
 	if (!super::initHardware(provider))
 		return false;
 
+	virtualDeviceArray = OSArray::withCapacity(1);
+	if (!virtualDeviceArray) {
+		IOLog("%s(%p)::%s unable to allocate memory\n", getName(), this, __func__);
+		return false;
+	}
+	
 	sampleRate.whole = sampleRates[0];
 	sampleRate.fraction = 0;
 	setSampleRate(&sampleRate);
@@ -171,6 +219,10 @@ PAEngine::initHardware(IOService *provider)
 		}
 	}
 
+	/* FIXME */
+	if (addVirtualDevice(info, audioInBuf, audioOutBuf) != kIOReturnSuccess)
+		return false;
+	
 	IOWorkLoop *workLoop = getWorkLoop();
 	if (!workLoop)
 		return false;
@@ -181,14 +233,14 @@ PAEngine::initHardware(IOService *provider)
 		IOLog("%s(%p)::%s failed to create timerEventSource\n", getName(), this, __func__);
 		return false;
 	}
-
+	
 	workLoop->addEventSource(timerEventSource);
 
 	return true;
 }
 
 bool
-PAEngine::setDeviceInfo(struct PAVirtualDevice *newInfo)
+PAEngine::setDeviceInfo(struct PAVirtualDeviceInfo *newInfo)
 {
 	debugFunctionEnter();
 
@@ -205,7 +257,7 @@ PAEngine::setDeviceInfo(struct PAVirtualDevice *newInfo)
 	nStreams = max(channelsIn, channelsOut) / CHANNELS_PER_STREAM;
 
 	if (nStreams == 0)
-			return false;
+		return false;
 
 	return true;
 }
@@ -233,7 +285,13 @@ PAEngine::performAudioEngineStart()
 		setClockIsStable(true);
 	}
 
-	device->driver->sendNotification(device, kPAUserClientNotificationEngineStarted, 0);
+	OSCollectionIterator *iter = OSCollectionIterator::withCollection(virtualDeviceArray);
+	PAVirtualDevice *dev;
+
+	while ((dev = OSDynamicCast(PAVirtualDevice, iter->getNextObject())))
+		dev->sendNotification(kPAVirtualDeviceUserClientNotificationEngineStarted, 0);
+	
+	iter->release();
 	
 	return kIOReturnSuccess;
 }
@@ -246,14 +304,31 @@ PAEngine::performAudioEngineStop()
 	if (info->clockDirection == kPADeviceClockFromKernel)
 		timerEventSource->cancelTimeout();
 
-	device->driver->sendNotification(device, kPAUserClientNotificationEngineStopped, 0);
+	OSCollectionIterator *iter = OSCollectionIterator::withCollection(virtualDeviceArray);
+	PAVirtualDevice *dev;
+	
+	while ((dev = OSDynamicCast(PAVirtualDevice, iter->getNextObject())))
+		dev->sendNotification(kPAVirtualDeviceUserClientNotificationEngineStopped, 0);
+	
+	iter->release();
 
 	return kIOReturnSuccess;
 }
 
-void
+IOReturn
 PAEngine::setNewSampleRate(UInt32 sampleRate)
 {
+	UInt i, validRates[] = SAMPLERATES;
+	
+	for (i = 0; i < ARRAY_SIZE(validRates); i++)
+		if (validRates[i] == sampleRate)
+			break;
+	
+	if (i == ARRAY_SIZE(validRates)) {
+		IOLog("%s(%p): Invalid sample rate %d\n", getName(), this, (int) sampleRate);
+		return kIOReturnInvalid;
+	}
+	
 	currentSampleRate = sampleRate;
 	
 	//	get the host time base info
@@ -277,7 +352,15 @@ PAEngine::setNewSampleRate(UInt32 sampleRate)
 	blockTimeoutMicroseconds = 1000000ULL * info->blockSize / currentSampleRate;
 	numBlocks = NUM_SAMPLE_FRAMES / info->blockSize;
 
-	device->driver->sendNotification(device, kPAUserClientNotificationSampleRateChanged, sampleRate);
+	OSCollectionIterator *iter = OSCollectionIterator::withCollection(virtualDeviceArray);
+	PAVirtualDevice *dev;
+	
+	while ((dev = OSDynamicCast(PAVirtualDevice, iter->getNextObject())))
+		dev->sendNotification(kPAVirtualDeviceUserClientNotificationSampleRateChanged, sampleRate);
+	
+	iter->release();
+	
+	return kIOReturnSuccess;
 }
 
 IOReturn
@@ -326,10 +409,16 @@ PAEngine::timerFired(OSObject *target, IOTimerEventSource *timerSource)
 	}
 
 //	IOLog(" ---- currentBlock %d\n", engine->currentBlock);
-	
+
 	timerSource->setTimeoutUS(engine->blockTimeoutMicroseconds);
-	engine->device->driver->reportSamplePointer(engine->device,
-						    engine->currentBlock * engine->info->blockSize);
+
+	OSCollectionIterator *iter = OSCollectionIterator::withCollection(engine->virtualDeviceArray);
+	PAVirtualDevice *dev;
+	
+	while ((dev = OSDynamicCast(PAVirtualDevice, iter->getNextObject())))
+		dev->reportSamplePointer(engine->currentBlock * engine->info->blockSize);
+	
+	iter->release();
 }
 
 void

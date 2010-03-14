@@ -9,8 +9,6 @@
  (at your option) any later version.
  ***/
 
-#include "PAUserClient.h"
-#include "PAUserClientTypes.h"
 #include "PAEngine.h"
 #include "PADevice.h"
 #include "PALog.h"
@@ -24,7 +22,7 @@ PADevice::initHardware(IOService *provider)
 {
 	debugFunctionEnter();
 
-	driver = OSDynamicCast(PADriver, provider);
+	PADriver *driver = OSDynamicCast(PADriver, provider);
 	if (!driver)
 		return false;
 
@@ -37,13 +35,13 @@ PADevice::initHardware(IOService *provider)
 	setDeviceModelName("virtual audio device");
 	setDeviceTransportType('virt');
 
-	audioEngine = new PAEngine;
+	PAEngine *audioEngine = new PAEngine;
 
 	if (!audioEngine)
 		return false;
 
 	if (!audioEngine->init(NULL) ||
-		!audioEngine->setDeviceInfo(&deviceInfo)) {
+	    !audioEngine->setDeviceInfo(&deviceInfo)) {
 		audioEngine->release();
 		audioEngine = NULL;
 		return false;
@@ -58,44 +56,8 @@ PADevice::initHardware(IOService *provider)
 }
 
 void
-PADevice::free(void)
-{
-	debugFunctionEnter();
-	super::free();
-}
-
-void
-PADevice::setInfo(const struct PAVirtualDevice *info)
+PADevice::setInfo(const struct PAVirtualDeviceInfo *info)
 {
 	debugFunctionEnter();
 	memcpy(&deviceInfo, info, sizeof(deviceInfo));
 }
-
-IOReturn
-PADevice::getInfo(struct PAVirtualDevice *info)
-{
-	debugFunctionEnter();
-	memcpy(info, &deviceInfo, sizeof(deviceInfo));
-
-	info->currentSamplerate = audioEngine->currentSampleRate;
-	info->audioBufferSize = audioEngine->audioOutBuf->getLength();
-
-	return kIOReturnSuccess;
-}
-
-IOReturn
-PADevice::setSamplerate(UInt rate)
-{
-	debugFunctionEnter();
-	return kIOReturnSuccess;
-}
-
-IOMemoryDescriptor *
-PADevice::getAudioMemory(bool output)
-{
-	if (output)
-		return audioEngine->audioOutBuf;
-	else
-		return audioEngine->audioInBuf;
-}
-
