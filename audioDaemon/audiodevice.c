@@ -20,13 +20,78 @@ __BEGIN_DECLS
 __END_DECLS
 
 #include "audiodevice.h"
+#include "driverClient.h"
 
 struct audioDevice {
 	struct PAVirtualDeviceInfo info;
 	vm_address_t audio_in_buf;
 	vm_address_t audio_out_buf;
 	io_connect_t port;
+	struct samplePointerUpdateEvent samplePointerUpdateEvent;
+	struct notificationBlock notificationBlock;
 };
+
+static void 
+samplePointerUpdateCallback(void *refcon, IOReturn result, void **args, int numArgs) 
+{
+	struct audioDevice *device = refcon;
+	return;
+	
+	printf(">>> %08x.%08x  ... %08x\n",
+	       (int) device->samplePointerUpdateEvent.timeStampSec,
+	       (int) device->samplePointerUpdateEvent.timeStampNanoSec,
+	       (int) device->samplePointerUpdateEvent.samplePointer);
+}
+
+static char *notificationName[kPAVirtualDeviceUserClientNotificationMax] = {
+	"kPAVirtualDeviceInfoUserClientNotificationEngineStarted",
+	"kPAVirtualDeviceInfoUserClientNotificationEngineStopped",
+	"kPAVirtualDeviceInfoUserClientNotificationSampleRateChanged",
+};
+
+static void 
+notificationCallback(void *refcon, IOReturn result, void **args, int numArgs) 
+{
+	struct audioDevice *device = (struct audioDevice *) refcon;
+
+	if (device->notificationBlock.notificationType >= kPAVirtualDeviceUserClientNotificationMax) {
+		printf("%s(): bogus event %d\n", __func__, device->notificationBlock.notificationType);
+		return;
+	}
+	
+	printf(">>> notification >%s<, %08x.%08x value %d\n",
+	       notificationName[device->notificationBlock.notificationType],
+	       (int) device->notificationBlock.timeStampSec,
+	       (int) device->notificationBlock.timeStampNanoSec,
+	       (int) device->notificationBlock.value);
+}
+
+static OSStatus
+triggerAsyncRead(struct audioDevice *device)
+{
+	OSStatus ret;
+	io_async_ref64_t asyncRef;
+	uint64_t scalarRefs[8];
+	
+	scalarRefs[0] = (uint64_t) &device->samplePointerUpdateEvent;
+	scalarRefs[1] = (uint64_t) sizeof(device->samplePointerUpdateEvent);
+	
+	asyncRef[kIOAsyncCalloutFuncIndex] = &samplePointerUpdateCallback;
+		
+	ret = IOConnectCallAsyncScalarMethod(driver_data_port,					// mach_port_t      connection,         // In
+					     kPAVirtualDeviceUserClientAsyncReadSamplePointer,	// uint32_t	    selector			// In
+					     driver_async_port,					// mach_port_t      wake_port			// In
+					     asyncRef,						// uint64_t        *reference			// In
+					     kOSAsyncRef64Count,				// uint32_t         referenceCnt		// In
+					     scalarRefs,					// const uint64_t  *input				// In
+					     2,							// uint32_t         inputCnt			// In
+					     NULL,						// uint64_t        *output				// Out
+					     NULL						// uint32_t        *outputCnt			// In/Out
+					     );
+	printf(" ret = %d\n", ret);
+	
+	return ret;
+}
 
 struct audioDevice *audioDeviceCreate(io_connect_t port, struct PAVirtualDeviceInfo *info)
 {

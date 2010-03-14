@@ -25,211 +25,21 @@ __END_DECLS
 #include "../kext/PAUserClientCommonTypes.h"
 #include "../kext/PAVirtualDeviceUserClientTypes.h"
 
-#define PADriverClassName "org_pulseaudio_driver"
-
-static mach_port_t async_port;
-static io_connect_t data_port;
-
-static struct samplePointerUpdateEvent samplePointerUpdateEvent;
-static struct notificationBlock notificationBlock;
-
-static void 
-samplePointerUpdateCallback(void *refcon, IOReturn result, void **args, int numArgs) 
-{
-	return;
-	
-	printf(">>> %08x.%08x  ... %08x (%d)\n",
-	       (int) samplePointerUpdateEvent.timeStampSec,
-	       (int) samplePointerUpdateEvent.timeStampNanoSec,
-	       (int) samplePointerUpdateEvent.samplePointer);
-}
-
-static char *notificationName[kPAVirtualDeviceUserClientNotificationMax] = {
-	"kPAVirtualDeviceInfoUserClientNotificationEngineStarted",
-	"kPAVirtualDeviceInfoUserClientNotificationEngineStopped",
-	"kPAVirtualDeviceInfoUserClientNotificationSampleRateChanged",
-};
-
-static void 
-notificationCallback(void *refcon, IOReturn result, void **args, int numArgs) 
-{
-	if (notificationBlock.notificationType >= kPAVirtualDeviceUserClientNotificationMax) {
-		printf("%s(): bogus event %d\n", __func__, notificationBlock.notificationType);
-		return;
-	}
-
-	printf(">>> notification >%s<, %08x.%08x value %d\n",
-	       (int) notificationName[notificationBlock.notificationType],
-	       (int) notificationBlock.timeStampSec,
-	       (int) notificationBlock.timeStampNanoSec,
-	       (int) notificationBlock.value);
-}
-
-static OSStatus
-triggerAsyncRead(void)
-{
-	OSStatus ret;
-	io_async_ref64_t asyncRef;
-	uint64_t scalarRefs[8];
-	
-	scalarRefs[0] = (uint64_t) &samplePointerUpdateEvent;
-	scalarRefs[1] = (uint64_t) sizeof(samplePointerUpdateEvent);
-	
-	asyncRef[kIOAsyncCalloutFuncIndex] = &samplePointerUpdateCallback;
-	
-	printf("%s(): &samplePointerUpdateEvent %p\n", __func__, &samplePointerUpdateEvent);
-	
-	ret = IOConnectCallAsyncScalarMethod(data_port,					// mach_port_t      connection,         // In
-					     kPAVirtualDeviceUserClientAsyncReadSamplePointer,	// uint32_t	    selector			// In
-					     async_port,				// mach_port_t      wake_port			// In
-					     asyncRef,					// uint64_t        *reference			// In
-					     kOSAsyncRef64Count,			// uint32_t         referenceCnt		// In
-					     scalarRefs,				// const uint64_t  *input				// In
-					     2,						// uint32_t         inputCnt			// In
-					     NULL,					// uint64_t        *output				// Out
-					     NULL					// uint32_t        *outputCnt			// In/Out
-					     );
-	printf(" ret = %d\n", ret);
-	
-	return ret;
-}
+#include "driverClient.h"
+#include "deviceClient.h"
 
 static IOReturn addDeviceFromInfo (struct PAVirtualDeviceInfo *info)
 {
 	IOReturn ret;
 	
-	ret = IOConnectCallStructMethod(data_port,				// an io_connect_t returned from IOServiceOpen().
-					kPADriverUserClientAddDevice,			// selector of the function to be called via the user client.
+	ret = IOConnectCallStructMethod(driver_data_port,			// an io_connect_t returned from IOServiceOpen().
+					kPADriverUserClientAddDevice,		// selector of the function to be called via the user client.
 					info,					// pointer to the input struct parameter.
 					sizeof(*info),				// the size of the input structure parameter.
 					NULL,					// pointer to the output struct parameter.
 					NULL					// pointer to the size of the output structure parameter.
 					);
 	return ret;
-}
-
-static void 
-serviceMatched (void *refCon, io_iterator_t iterator)
-{
-	io_service_t serviceObject;
-	IOReturn ret;
-	
-	serviceObject = IOIteratorNext(iterator);
-	if (!serviceObject)
-		return;
-	
-	if (data_port) {
-		printf ("%s(): Ooops - more than one driver instance!?\n", __func__);
-		return;
-	}
-	
-	ret = IOServiceOpen(serviceObject, mach_task_self(), 0, &data_port);
-	if (ret) {
-		printf ("%s(): IOServiceOpen() returned %08x\n", __func__, ret);
-		return;
-	}
-	
-	ret = IOCreateReceivePort(kOSAsyncCompleteMessageID, &async_port);
-	if (ret) {
-		printf ("%s(): IOCreateReceiverPort() returned %08x\n", __func__, ret);
-		return;
-	}
-	
-	CFRunLoopSourceRef      runLoopSource;
-	CFMachPortContext       context;
-	Boolean                 shouldFreeInfo;
-	CFMachPortRef           cfPort;
-	
-	context.version = 1;
-	//context.info = this;
-	context.retain = NULL;
-	context.release = NULL;
-	context.copyDescription = NULL;
-	
-	cfPort = CFMachPortCreateWithPort(NULL, async_port,
-					  (CFMachPortCallBack) IODispatchCalloutFromMessage,
-					  &context, &shouldFreeInfo);
-	
-	runLoopSource = CFMachPortCreateRunLoopSource(NULL, cfPort, 0);
-	CFRelease(cfPort);
-	CFRunLoopAddSource(CFRunLoopGetCurrent(), runLoopSource, kCFRunLoopDefaultMode);
-	
-	struct PAVirtualDeviceInfo info;
-	
-	memset(&info, 0, sizeof(info));
-	strcpy(info.name, "gaga.");
-	info.channelsIn = 2;
-	info.channelsOut = 2;
-	info.blockSize = 512;
-	
-	ret = addDeviceFromInfo(&info);
-	
-	printf ("%s(): %08x\n", __func__, ret);
-	
-	triggerAsyncRead();
-}
-
-static void 
-serviceTerminated (void *refCon, io_iterator_t iterator)
-{
-	io_service_t serviceObject;
-	
-	while ((serviceObject = IOIteratorNext(iterator))) {
-		// TODO
-	}
-}
-
-IOReturn listenToService(mach_port_t masterPort)
-{
-	OSStatus				ret;
-	CFMutableDictionaryRef	classToMatch;
-	IONotificationPortRef	gNotifyPort;
-	io_iterator_t			gNewDeviceAddedIter;
-	io_iterator_t			gNewDeviceRemovedIter;
-	CFRunLoopSourceRef		runLoopSource;
-	
-	classToMatch = IOServiceMatching(PADriverClassName);
-	if (!classToMatch) {
-		printf("%s(): IOServiceMatching returned a NULL dictionary.\n", __func__);
-		return kIOReturnError;
-	}
-	
-	// increase the reference count by 1 since the dict is used twice.
-	classToMatch = (CFMutableDictionaryRef) CFRetain(classToMatch);
-	
-	gNotifyPort = IONotificationPortCreate(masterPort);
-	runLoopSource = IONotificationPortGetRunLoopSource(gNotifyPort);
-	CFRunLoopAddSource(CFRunLoopGetCurrent(), runLoopSource, kCFRunLoopDefaultMode);
-	
-	ret = IOServiceAddMatchingNotification(gNotifyPort,
-					       kIOFirstMatchNotification,
-					       classToMatch,
-					       serviceMatched,
-					       NULL,
-					       &gNewDeviceAddedIter);
-	if (ret) {
-		printf("%s(): IOServiceAddMatchingNotification() returned %08x\n", __func__, (int) ret);
-		return ret;
-	}
-	
-	// Iterate once to get already-present devices and arm the notification
-	serviceMatched(NULL, gNewDeviceAddedIter);
-	
-	ret = IOServiceAddMatchingNotification(gNotifyPort,
-					       kIOTerminatedNotification,
-					       classToMatch,
-					       serviceTerminated,
-					       NULL,
-					       &gNewDeviceRemovedIter);
-	if (ret) {
-		printf("%s(): IOServiceAddMatchingNotification() returned %08x\n", __func__, (int) ret);
-		return ret;
-	}
-	
-	// Iterate once to get already-present devices and arm the notification
-	serviceTerminated(NULL, gNewDeviceRemovedIter);
-	
-	return kIOReturnSuccess;
 }
 
 void sendDeviceList (CFNotificationCenterRef center,
@@ -350,30 +160,31 @@ void removeDevice (CFNotificationCenterRef center,
 	
 	CFNumberGetValue(num, kCFNumberIntType, &scalar);
 	
-	IOConnectCallScalarMethod(data_port,					// an io_connect_t returned from IOServiceOpen().
+	IOConnectCallScalarMethod(driver_data_port,			// an io_connect_t returned from IOServiceOpen().
 				  kPADriverUserClientRemoveDevice,	// selector of the function to be called via the user client.
-				  &scalar,						// array of scalar (64-bit) input values.
-				  1,							// the number of scalar input values.
-				  NULL,							// array of scalar (64-bit) output values.
-				  NULL							// pointer to the number of scalar output values.
+				  &scalar,				// array of scalar (64-bit) input values.
+				  1,					// the number of scalar input values.
+				  NULL,					// array of scalar (64-bit) output values.
+				  NULL					// pointer to the number of scalar output values.
 				  );
 }
 
 int main (int argc, const char **argv) {
 	
-	mach_port_t		masterPort;
-	kern_return_t	kernResult;
-	
-	kernResult = IOMasterPort(MACH_PORT_NULL, &masterPort);
-	
-	if (kernResult != kIOReturnSuccess) {
-		printf("IOMasterPort returned %d\n", kernResult);
-		return false;
+	kern_return_t ret;
+
+	ret = driverClientStart();
+	if (ret) {
+		printf("driverClientStart() returned %d\n", ret);
+		return -1;
 	}
-	
-	listenToService(masterPort);
-	mach_port_deallocate(mach_task_self(), masterPort);
-	
+
+	ret = deviceClientStart();
+	if (ret) {
+		printf("deviceClientStart() returned %d\n", ret);
+		return -1;
+	}
+
 	CFNotificationCenterAddObserver (CFNotificationCenterGetDistributedCenter(),
 					 NULL, //const void *observer,
 					 sendDeviceList,
