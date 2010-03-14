@@ -129,14 +129,15 @@ PAEngine::addVirtualDevice(struct PAVirtualDeviceInfo *info,
 		device->release();
 		return kIOReturnError;
 	}
+
+	/* the OSArray holds a reference now */
+	device->release();
 	
-	/* find our new device in the array */
 	device->attachToParent(this, gIOServicePlane);
 	device->setInfo(info);
 	
 	if (!device->start(this)) {
-		virtualDeviceArray->removeObject(index);
-		device->release();
+		/* FIXME - leaking 'device' */
 		return kIOReturnError;
 	}
 	

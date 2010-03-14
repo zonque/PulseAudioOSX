@@ -200,12 +200,13 @@ IOReturn
 PAVirtualDeviceUserClient::getDeviceInfo(IOExternalMethodArguments *args)
 {
 	struct PAVirtualDeviceInfo *info = (struct PAVirtualDeviceInfo *) args->structureOutput;
-	//UInt index = args->scalarInput[0];
 
 	if (!info || args->structureOutputSize != sizeof(*info))
 		return kIOReturnInvalid;
 
-	return 0; //driver->getAudioEngineInfo(info, index);
+	device->getInfo(info);
+
+	return kIOReturnSuccess;
 }
 
 IOReturn
