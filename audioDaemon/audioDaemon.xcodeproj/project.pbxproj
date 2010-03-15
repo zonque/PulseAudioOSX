@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		23C48CF71011DD8300809978 /* audiodevice.c in Sources */ = {isa = PBXBuildFile; fileRef = 23C48CF61011DD8300809978 /* audiodevice.c */; };
 		23CED35F1011D7B200046253 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23CED35E1011D7B200046253 /* IOKit.framework */; };
+		65F4BE17114E3A900066A0F2 /* notificationCenter.c in Sources */ = {isa = PBXBuildFile; fileRef = 65F4BE16114E3A900066A0F2 /* notificationCenter.c */; };
 		65F66479114D8F2E00D17EEF /* driverClient.c in Sources */ = {isa = PBXBuildFile; fileRef = 65F66478114D8F2E00D17EEF /* driverClient.c */; };
 		65F66498114D921100D17EEF /* deviceClient.c in Sources */ = {isa = PBXBuildFile; fileRef = 65F66497114D921100D17EEF /* deviceClient.c */; };
 		8DD76F870486A9BA00D96B5E /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 08FB7796FE84155DC02AAC07 /* main.c */; settings = {ATTRIBUTES = (); }; };
@@ -32,9 +32,9 @@
 /* Begin PBXFileReference section */
 		08FB7796FE84155DC02AAC07 /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		097DBE83FE8419DDC02AAC07 /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = /System/Library/Frameworks/CoreServices.framework; sourceTree = "<absolute>"; };
-		23C48CF51011DD8300809978 /* audiodevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = audiodevice.h; sourceTree = "<group>"; };
-		23C48CF61011DD8300809978 /* audiodevice.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = audiodevice.c; sourceTree = "<group>"; };
 		23CED35E1011D7B200046253 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = /System/Library/Frameworks/IOKit.framework; sourceTree = "<absolute>"; };
+		65F4BE15114E3A900066A0F2 /* notificationCenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = notificationCenter.h; sourceTree = "<group>"; };
+		65F4BE16114E3A900066A0F2 /* notificationCenter.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = notificationCenter.c; sourceTree = "<group>"; };
 		65F66477114D8F2E00D17EEF /* driverClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = driverClient.h; sourceTree = "<group>"; };
 		65F66478114D8F2E00D17EEF /* driverClient.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = driverClient.c; sourceTree = "<group>"; };
 		65F66496114D921100D17EEF /* deviceClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = deviceClient.h; sourceTree = "<group>"; };
@@ -64,8 +64,6 @@
 				C6859E9C0290928B04C91782 /* Documentation */,
 				08FB779DFE84155DC02AAC07 /* External Frameworks and Libraries */,
 				1A8B4A8EFE9D542A11CA2CBB /* Products */,
-				23C48CF51011DD8300809978 /* audiodevice.h */,
-				23C48CF61011DD8300809978 /* audiodevice.c */,
 			);
 			name = audioDaemon;
 			sourceTree = "<group>";
@@ -78,6 +76,8 @@
 				65F66477114D8F2E00D17EEF /* driverClient.h */,
 				65F66478114D8F2E00D17EEF /* driverClient.c */,
 				08FB7796FE84155DC02AAC07 /* main.c */,
+				65F4BE15114E3A900066A0F2 /* notificationCenter.h */,
+				65F4BE16114E3A900066A0F2 /* notificationCenter.c */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -150,9 +150,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				8DD76F870486A9BA00D96B5E /* main.c in Sources */,
-				23C48CF71011DD8300809978 /* audiodevice.c in Sources */,
 				65F66479114D8F2E00D17EEF /* driverClient.c in Sources */,
 				65F66498114D921100D17EEF /* deviceClient.c in Sources */,
+				65F4BE17114E3A900066A0F2 /* notificationCenter.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

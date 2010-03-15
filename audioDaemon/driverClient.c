@@ -30,7 +30,7 @@ __END_DECLS
 mach_port_t driver_async_port;
 io_connect_t driver_data_port;
 
-static IOReturn addDeviceFromInfo (struct PAVirtualDeviceInfo *info)
+IOReturn addDeviceFromInfo (struct PAVirtualDeviceInfo *info)
 {
 	IOReturn ret;
 	
