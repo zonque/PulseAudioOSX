@@ -62,6 +62,13 @@ PAVirtualDevice::start(IOService *provider)
 	return true;
 }
 
+void
+PAVirtualDevice::stop(IOService *provider)
+{
+	debugFunctionEnter();
+	super::stop(provider);
+}
+
 bool
 PAVirtualDevice::terminate(IOOptionBits options)
 {

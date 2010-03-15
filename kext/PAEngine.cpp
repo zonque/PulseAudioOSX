@@ -115,39 +115,6 @@ PAEngine::createNewAudioStream(IOAudioStreamDirection direction,
 	return audioStream;
 }
 
-IOReturn
-PAEngine::addVirtualDevice(struct PAVirtualDeviceInfo *info,
-			   IOMemoryDescriptor *inBuf,
-			   IOMemoryDescriptor *outBuf)
-{
-	PAVirtualDevice *device = new PAVirtualDevice;
-	
-	if (!device)
-		return kIOReturnNoMemory;
-	
-	if (!device->init(NULL) ||
-	    !virtualDeviceArray->setObject(device)) {
-		device->release();
-		return kIOReturnError;
-	}
-
-	/* the OSArray holds a reference now */
-	device->release();
-	
-	device->attachToParent(this, gIOServicePlane);
-	device->setInfo(info);
-	
-	if (!device->start(this)) {
-		/* FIXME - leaking 'device' */
-		return kIOReturnError;
-	}
-	
-	device->audioInputBuf = inBuf;
-	device->audioInputBuf = outBuf;
-
-	return kIOReturnSuccess;
-}
-
 bool
 PAEngine::initHardware(IOService *provider)
 {
@@ -222,7 +189,7 @@ PAEngine::initHardware(IOService *provider)
 	}
 
 	/* FIXME */
-	if (addVirtualDevice(info, audioInBuf, audioOutBuf) != kIOReturnSuccess)
+	if (addVirtualDevice(info, audioInBuf, audioOutBuf, this) != kIOReturnSuccess)
 		return false;
 	
 	IOWorkLoop *workLoop = getWorkLoop();
@@ -428,15 +395,15 @@ PAEngine::getNextTimeStamp(UInt32 inLoopCount, AbsoluteTime *outTimeStamp)
 {
 	UInt64 timeStamp = startTime;
 
-	//	make sure we have a start time
+	// make sure we have a start time
 	if(!startTime) {
 		clock_get_uptime(&startTime);
 		timeStamp = startTime;
 	} else {
-		//	add in the number of loops through the ring buffer
+		// add in the number of loops through the ring buffer
 		timeStamp += inLoopCount * ticksPerRingBuffer;
 
-		//	compute the amount of jitter
+		// compute the amount of jitter
 		//UInt64 jitter = (UInt64) random() * (UInt64) maxJitter;
 		//jitter >>= 32;
 		//timeStamp += jitter;
@@ -446,3 +413,59 @@ PAEngine::getNextTimeStamp(UInt32 inLoopCount, AbsoluteTime *outTimeStamp)
 	*outTimeStamp = *((AbsoluteTime*) &timeStamp);
 }
 
+#pragma mark ########## virtual device handling ##########
+
+IOReturn
+PAEngine::addVirtualDevice(struct PAVirtualDeviceInfo *info,
+			   IOMemoryDescriptor *inBuf,
+			   IOMemoryDescriptor *outBuf,
+			   void *refCon)
+{
+	PAVirtualDevice *device = new PAVirtualDevice;
+
+	if (!device)
+		return kIOReturnNoMemory;
+
+	if (!device->init(NULL) ||
+	    !virtualDeviceArray->setObject(device)) {
+		device->release();
+		return kIOReturnError;
+	}
+
+	/* the OSArray holds a reference now */
+	device->release();
+
+	device->attachToParent(this, gIOServicePlane);
+	device->setInfo(info);
+
+	if (!device->start(this)) {
+		/* FIXME - leaking 'device' */
+		return kIOReturnError;
+	}
+
+	device->audioInputBuf = inBuf;
+	device->audioInputBuf = outBuf;
+	device->refCon = refCon;
+
+	return kIOReturnSuccess;
+}
+
+void
+PAEngine::removeVirtualDeviceWithRefcon(void *refCon)
+{
+	OSCollectionIterator *iter = OSCollectionIterator::withCollection(virtualDeviceArray);
+	PAVirtualDevice *dev;
+
+	while ((dev = OSDynamicCast(PAVirtualDevice, iter->getNextObject()))) {
+		UInt index = virtualDeviceArray->getNextIndexOfObject((OSMetaClassBase *) dev, 0);
+
+		if (dev->refCon == refCon) {
+			dev->detachFromParent(this, gIOServicePlane);
+			dev->stop(this);
+			dev->terminate(0);
+			virtualDeviceArray->removeObject(index);
+		}
+	}
+
+	iter->release();
+}

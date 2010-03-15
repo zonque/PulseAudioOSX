@@ -15,7 +15,7 @@
 #include "BuildNames.h"
 
 #include <IOKit/IOLib.h>
-#include <IOKit/audio/IOAudioDevice.h>
+#include <IOKit/audio/IOAudioStream.h>
 
 class PAStream : public IOAudioStream
 {

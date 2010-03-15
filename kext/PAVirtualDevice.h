@@ -32,6 +32,8 @@ class PAVirtualDevice : public IOService
 public:
 	bool			init(OSDictionary* dictionary);
 	bool			start(IOService *provider);
+	void			stop(IOService *provider);
+
 	bool			terminate(IOOptionBits options);
 
 	void			free(void);
@@ -45,6 +47,7 @@ public:
 
 	IOMemoryDescriptor	*audioInputBuf;
 	IOMemoryDescriptor	*audioOutputBuf;
+	void			*refCon;
 };
 
 #endif /* PA_VIRTUALDEVICE_H */
