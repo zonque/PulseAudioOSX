@@ -87,7 +87,8 @@ triggerAsyncRead(struct audioDevice *dev)
 	scalarRefs[1] = (uint64_t) sizeof(dev->samplePointerUpdateEvent);
 	
 	asyncRef[kIOAsyncCalloutFuncIndex] = &samplePointerUpdateCallback;
-	
+	asyncRef[kIOAsyncCalloutRefconIndex] = dev;
+
 	ret = IOConnectCallAsyncScalarMethod(dev->data_port,					// mach_port_t      connection,         // In
 					     kPAVirtualDeviceUserClientAsyncReadSamplePointer,	// uint32_t	    selector			// In
 					     dev->async_port,					// mach_port_t      wake_port			// In
@@ -98,9 +99,31 @@ triggerAsyncRead(struct audioDevice *dev)
 					     NULL,						// uint64_t        *output				// Out
 					     NULL						// uint32_t        *outputCnt			// In/Out
 					     );
-	printf(" ret = %d\n", (int) ret);
+
+	if (ret != kIOReturnSuccess)
+		printf("%s():%d IOConnectCallAsyncScalarMethod() returned %08x\n", __func__, __LINE__, (int) ret);
 	
-	return ret;
+	scalarRefs[0] = (uint64_t) &dev->notificationBlock;
+	scalarRefs[1] = (uint64_t) sizeof(dev->notificationBlock);
+	
+	asyncRef[kIOAsyncCalloutFuncIndex] = &notificationCallback;
+	asyncRef[kIOAsyncCalloutRefconIndex] = dev;
+
+	ret = IOConnectCallAsyncScalarMethod(dev->data_port,					// mach_port_t      connection,         // In
+					     kPAVirtualDeviceUserClientAsyncReadNotification,	// uint32_t	    selector			// In
+					     dev->async_port,					// mach_port_t      wake_port			// In
+					     asyncRef,						// uint64_t        *reference			// In
+					     kOSAsyncRef64Count,				// uint32_t         referenceCnt		// In
+					     scalarRefs,					// const uint64_t  *input				// In
+					     2,							// uint32_t         inputCnt			// In
+					     NULL,						// uint64_t        *output				// Out
+					     NULL						// uint32_t        *outputCnt			// In/Out
+					     );
+
+	if (ret != kIOReturnSuccess)
+		printf("%s():%d IOConnectCallAsyncScalarMethod() returned %08x\n", __func__, __LINE__, (int) ret);
+
+	return kIOReturnSuccess;
 }
 
 static IOReturn
@@ -163,7 +186,7 @@ addDevice(io_service_t serviceObject)
 	CFRunLoopAddSource(CFRunLoopGetCurrent(), runLoopSource, kCFRunLoopDefaultMode);
 
 	getDeviceInfo(dev);
-	printf(" XXXXX AUDIODEVICE ADDED: >%s<\n", dev->info.name);
+	printf(" XXXXX AUDIODEVICE ADDED: >%s< (%d)\n", dev->info.name, serviceObject);
 	
 	triggerAsyncRead(dev);
 }
@@ -183,7 +206,7 @@ serviceTerminated (void *refCon, io_iterator_t iterator)
 	io_service_t serviceObject;
 	
 	while ((serviceObject = IOIteratorNext(iterator))) {
-		// TODO
+		printf(" <<<<<<< DEVICE REMOVED %d\n", serviceObject);
 	}
 }
 
