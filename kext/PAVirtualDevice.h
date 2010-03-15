@@ -45,6 +45,8 @@ public:
 	void			getInfo(struct PAVirtualDeviceInfo *info);
 	IOReturn		setSamplerate(UInt rate);
 
+	IOAudioEngineState	engineState();
+	
 	IOMemoryDescriptor	*audioInputBuf;
 	IOMemoryDescriptor	*audioOutputBuf;
 	void			*refCon;

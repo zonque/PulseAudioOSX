@@ -290,7 +290,10 @@ PAVirtualDeviceUserClient::readNotification(IOExternalMethodArguments *args)
 	notificationReadDescriptor->map();
 	
 	bcopy(args->asyncReference, notificationReadReference, sizeof(OSAsyncReference64));
-	
+
+	if (device->engineState() == kIOAudioEngineRunning)
+		sendNotification(kPAVirtualDeviceUserClientNotificationEngineStarted, 0);	
+
 	return kIOReturnSuccess;
 }
 

@@ -254,13 +254,7 @@ PAEngine::performAudioEngineStart()
 		setClockIsStable(true);
 	}
 
-	OSCollectionIterator *iter = OSCollectionIterator::withCollection(virtualDeviceArray);
-	PAVirtualDevice *dev;
-
-	while ((dev = OSDynamicCast(PAVirtualDevice, iter->getNextObject())))
-		dev->sendNotification(kPAVirtualDeviceUserClientNotificationEngineStarted, 0);
-	
-	iter->release();
+	sendNotification(kPAVirtualDeviceUserClientNotificationEngineStarted, 0);
 	
 	return kIOReturnSuccess;
 }
@@ -273,13 +267,7 @@ PAEngine::performAudioEngineStop()
 	if (info->clockDirection == kPADeviceClockFromKernel)
 		timerEventSource->cancelTimeout();
 
-	OSCollectionIterator *iter = OSCollectionIterator::withCollection(virtualDeviceArray);
-	PAVirtualDevice *dev;
-	
-	while ((dev = OSDynamicCast(PAVirtualDevice, iter->getNextObject())))
-		dev->sendNotification(kPAVirtualDeviceUserClientNotificationEngineStopped, 0);
-	
-	iter->release();
+	sendNotification(kPAVirtualDeviceUserClientNotificationEngineStopped, 0);
 
 	return kIOReturnSuccess;
 }
@@ -321,14 +309,8 @@ PAEngine::setNewSampleRate(UInt32 sampleRate)
 	blockTimeoutMicroseconds = 1000000ULL * info->blockSize / currentSampleRate;
 	numBlocks = NUM_SAMPLE_FRAMES / info->blockSize;
 
-	OSCollectionIterator *iter = OSCollectionIterator::withCollection(virtualDeviceArray);
-	PAVirtualDevice *dev;
-	
-	while ((dev = OSDynamicCast(PAVirtualDevice, iter->getNextObject())))
-		dev->sendNotification(kPAVirtualDeviceUserClientNotificationSampleRateChanged, sampleRate);
-	
-	iter->release();
-	
+	sendNotification(kPAVirtualDeviceUserClientNotificationSampleRateChanged, sampleRate);
+
 	return kIOReturnSuccess;
 }
 
@@ -415,38 +397,50 @@ PAEngine::getNextTimeStamp(UInt32 inLoopCount, AbsoluteTime *outTimeStamp)
 
 #pragma mark ########## virtual device handling ##########
 
+void
+PAEngine::sendNotification(UInt32 notificationType, UInt32 value)
+{
+	OSCollectionIterator *iter = OSCollectionIterator::withCollection(virtualDeviceArray);
+	PAVirtualDevice *dev;
+	
+	while ((dev = OSDynamicCast(PAVirtualDevice, iter->getNextObject())))
+		dev->sendNotification(notificationType, value);
+	
+	iter->release();
+}
+
 IOReturn
 PAEngine::addVirtualDevice(struct PAVirtualDeviceInfo *info,
 			   IOMemoryDescriptor *inBuf,
 			   IOMemoryDescriptor *outBuf,
 			   void *refCon)
 {
-	PAVirtualDevice *device = new PAVirtualDevice;
+	PAVirtualDevice *dev = new PAVirtualDevice;
 
-	if (!device)
+	if (!dev)
 		return kIOReturnNoMemory;
 
-	if (!device->init(NULL) ||
-	    !virtualDeviceArray->setObject(device)) {
-		device->release();
+	if (!dev->init(NULL) ||
+	    !virtualDeviceArray->setObject(dev)) {
+		dev->release();
 		return kIOReturnError;
 	}
 
 	/* the OSArray holds a reference now */
-	device->release();
+	dev->release();
 
-	device->attachToParent(this, gIOServicePlane);
-	device->setInfo(info);
+	dev->attachToParent(this, gIOServicePlane);
+	dev->setInfo(info);
 
-	if (!device->start(this)) {
+	if (!dev->start(this)) {
 		/* FIXME - leaking 'device' */
 		return kIOReturnError;
 	}
 
-	device->audioInputBuf = inBuf;
-	device->audioInputBuf = outBuf;
-	device->refCon = refCon;
-
+	dev->audioInputBuf = inBuf;
+	dev->audioInputBuf = outBuf;
+	dev->refCon = refCon;
+	
 	return kIOReturnSuccess;
 }
 
@@ -460,6 +454,8 @@ PAEngine::removeVirtualDeviceWithRefcon(void *refCon)
 		UInt index = virtualDeviceArray->getNextIndexOfObject((OSMetaClassBase *) dev, 0);
 
 		if (dev->refCon == refCon) {
+			if (state == kIOAudioEngineRunning)
+				dev->sendNotification(kPAVirtualDeviceUserClientNotificationEngineStopped, 0);
 			dev->detachFromParent(this, gIOServicePlane);
 			dev->stop(this);
 			dev->terminate(0);

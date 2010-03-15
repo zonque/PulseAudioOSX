@@ -124,3 +124,9 @@ PAVirtualDevice::setSamplerate(UInt rate)
 {
 	return audioEngine->setNewSampleRate(rate);
 }
+
+IOAudioEngineState
+PAVirtualDevice::engineState()
+{
+	return audioEngine->state;
+}

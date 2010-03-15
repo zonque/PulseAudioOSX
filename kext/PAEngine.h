@@ -70,7 +70,9 @@ public:
 							 void *refCon);
 
 	void				removeVirtualDeviceWithRefcon(void *refCon);
-	
+
+	void				sendNotification(UInt32 notificationType, UInt32 value);
+
 	/* these two are implemented in PAClip.cpp */
 	IOReturn			clipOutputSamples(const void *inMixBuffer, void *outTargetBuffer,
 							  UInt32 inFirstFrame, UInt32 inNumberFrames,
