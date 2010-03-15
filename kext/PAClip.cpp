@@ -15,25 +15,28 @@
 #include <IOKit/audio/IOAudioStream.h>
 
 IOReturn
-PAEngine::clipOutputSamples(const void *inMixBuffer, void *outTargetBuffer,
-			    UInt32 inFirstFrame, UInt32 inNumberFrames,
-			    const IOAudioStreamFormat *inFormat, IOAudioStream *inStream)
+PAEngine::clipOutputSamples(const void *mixBuffer, void *targetBuffer,
+			    UInt32 firstSampleFrame, UInt32 numberFrames,
+			    const IOAudioStreamFormat *streamFormat, IOAudioStream *stream)
 {
-	memcpy((float *) outTargetBuffer + inFirstFrame,
-		(float *) inMixBuffer + inFirstFrame,
-		inNumberFrames * sizeof(float));
+	UInt32 sampleIndex = (firstSampleFrame * streamFormat->fNumChannels);
+
+	memcpy((float *) targetBuffer + sampleIndex,
+		(float *) mixBuffer + sampleIndex,
+		numberFrames * streamFormat->fNumChannels * sizeof(float));
 
 	return kIOReturnSuccess;
 }
 
 IOReturn
-PAEngine::convertInputSamples(const void *inSourceBuffer, void *outTargetBuffer,
-			      UInt32 inFirstFrame, UInt32 inNumberFrames,
-			      const IOAudioStreamFormat *inFormat, IOAudioStream *inStream)
+PAEngine::convertInputSamples(const void *sourceBuffer, void *targetBuffer,
+			      UInt32 firstSampleFrame, UInt32 numberFrames,
+			      const IOAudioStreamFormat *streamFormat, IOAudioStream *stream)
 {
-	memcpy((float *) outTargetBuffer + inFirstFrame,
-		(float *) inSourceBuffer + inFirstFrame,
-		inNumberFrames * sizeof(float));
+	UInt32 sampleIndex = (firstSampleFrame * streamFormat->fNumChannels);
+
+	memcpy(targetBuffer, (float *) sourceBuffer + sampleIndex,
+		numberFrames * streamFormat->fNumChannels * sizeof(float));
 
 	return kIOReturnSuccess;
 }
