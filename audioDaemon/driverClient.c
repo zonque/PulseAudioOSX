@@ -30,6 +30,9 @@ __END_DECLS
 mach_port_t driver_async_port;
 io_connect_t driver_data_port;
 
+CFArrayRef *deviceArray;
+
+
 IOReturn addDeviceFromInfo (struct PAVirtualDeviceInfo *info)
 {
 	IOReturn ret;
@@ -120,7 +123,7 @@ IOReturn driverClientStart(void)
 	io_iterator_t		gNewDeviceAddedIter;
 	io_iterator_t		gNewDeviceRemovedIter;
 	CFRunLoopSourceRef	runLoopSource;
-
+	
 	ret = IOMasterPort(MACH_PORT_NULL, &masterPort);
 	
 	if (ret != kIOReturnSuccess) {

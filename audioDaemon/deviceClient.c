@@ -27,6 +27,8 @@ __END_DECLS
 
 #define PAVirtualDeviceUserClass "org_pulseaudio_virtualdevice"
 
+CFMutableArrayRef deviceArray;
+
 struct audioDevice {
 	io_connect_t data_port;
 	mach_port_t async_port;
@@ -83,41 +85,41 @@ triggerAsyncRead(struct audioDevice *dev)
 	io_async_ref64_t asyncRef;
 	uint64_t scalarRefs[8];
 	
-	scalarRefs[0] = (uint64_t) &dev->samplePointerUpdateEvent;
+	scalarRefs[0] = CAST_USER_ADDR_T(&dev->samplePointerUpdateEvent);
 	scalarRefs[1] = (uint64_t) sizeof(dev->samplePointerUpdateEvent);
 	
-	asyncRef[kIOAsyncCalloutFuncIndex] = &samplePointerUpdateCallback;
-	asyncRef[kIOAsyncCalloutRefconIndex] = dev;
+	asyncRef[kIOAsyncCalloutFuncIndex] = CAST_USER_ADDR_T(&samplePointerUpdateCallback);
+	asyncRef[kIOAsyncCalloutRefconIndex] = CAST_USER_ADDR_T(dev);
 
-	ret = IOConnectCallAsyncScalarMethod(dev->data_port,					// mach_port_t      connection,         // In
-					     kPAVirtualDeviceUserClientAsyncReadSamplePointer,	// uint32_t	    selector			// In
-					     dev->async_port,					// mach_port_t      wake_port			// In
-					     asyncRef,						// uint64_t        *reference			// In
-					     kOSAsyncRef64Count,				// uint32_t         referenceCnt		// In
-					     scalarRefs,					// const uint64_t  *input				// In
-					     2,							// uint32_t         inputCnt			// In
-					     NULL,						// uint64_t        *output				// Out
-					     NULL						// uint32_t        *outputCnt			// In/Out
+	ret = IOConnectCallAsyncScalarMethod(dev->data_port,					// mach_port_t      connection
+					     kPAVirtualDeviceUserClientAsyncReadSamplePointer,	// uint32_t	    selector
+					     dev->async_port,					// mach_port_t      wake_port
+					     asyncRef,						// uint64_t        *reference
+					     kOSAsyncRef64Count,				// uint32_t         referenceCnt
+					     scalarRefs,					// const uint64_t  *input
+					     2,							// uint32_t         inputCnt
+					     NULL,						// uint64_t        *output
+					     NULL						// uint32_t        *outputCnt
 					     );
 
 	if (ret != kIOReturnSuccess)
 		printf("%s():%d IOConnectCallAsyncScalarMethod() returned %08x\n", __func__, __LINE__, (int) ret);
 	
-	scalarRefs[0] = (uint64_t) &dev->notificationBlock;
+	scalarRefs[0] = CAST_USER_ADDR_T(&dev->notificationBlock);
 	scalarRefs[1] = (uint64_t) sizeof(dev->notificationBlock);
 	
-	asyncRef[kIOAsyncCalloutFuncIndex] = &notificationCallback;
-	asyncRef[kIOAsyncCalloutRefconIndex] = dev;
+	asyncRef[kIOAsyncCalloutFuncIndex] = CAST_USER_ADDR_T(&notificationCallback);
+	asyncRef[kIOAsyncCalloutRefconIndex] = CAST_USER_ADDR_T(dev);
 
-	ret = IOConnectCallAsyncScalarMethod(dev->data_port,					// mach_port_t      connection,         // In
-					     kPAVirtualDeviceUserClientAsyncReadNotification,	// uint32_t	    selector			// In
-					     dev->async_port,					// mach_port_t      wake_port			// In
-					     asyncRef,						// uint64_t        *reference			// In
-					     kOSAsyncRef64Count,				// uint32_t         referenceCnt		// In
-					     scalarRefs,					// const uint64_t  *input				// In
-					     2,							// uint32_t         inputCnt			// In
-					     NULL,						// uint64_t        *output				// Out
-					     NULL						// uint32_t        *outputCnt			// In/Out
+	ret = IOConnectCallAsyncScalarMethod(dev->data_port,					// mach_port_t      connection
+					     kPAVirtualDeviceUserClientAsyncReadNotification,	// uint32_t	    selector
+					     dev->async_port,					// mach_port_t      wake_port
+					     asyncRef,						// uint64_t        *reference
+					     kOSAsyncRef64Count,				// uint32_t         referenceCnt
+					     scalarRefs,					// const uint64_t  *input
+					     2,							// uint32_t         inputCnt
+					     NULL,						// uint64_t        *output
+					     NULL						// uint32_t        *outputCnt
 					     );
 
 	if (ret != kIOReturnSuccess)
@@ -187,8 +189,22 @@ addDevice(io_service_t serviceObject)
 
 	getDeviceInfo(dev);
 	printf(" XXXXX AUDIODEVICE ADDED: >%s< (%d)\n", dev->info.name, serviceObject);
-	
+
 	triggerAsyncRead(dev);
+
+	/* FIXME */
+	if (dev->info.channelsIn != dev->info.channelsOut)
+		return;
+
+	CFMutableDictionaryRef dict = CFDictionaryCreateMutable(kCFAllocatorDefault, 1,
+								&kCFCopyStringDictionaryKeyCallBacks,
+								&kCFTypeDictionaryValueCallBacks);
+	
+	CFDictionarySetValue(dict, CFSTR("name"), CFStringCreateWithCString(kCFAllocatorDefault, dev->info.name, kCFStringEncodingUTF8));
+	CFDictionarySetValue(dict, CFSTR("channelsIn"), CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &dev->info.channelsIn));
+	CFDictionarySetValue(dict, CFSTR("channelsOut"), CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &dev->info.channelsOut));
+	CFDictionarySetValue(dict, CFSTR("serviceObject"), CFNumberCreate(kCFAllocatorDefault, kCFNumberLongType, &serviceObject));
+	CFArrayAppendValue(deviceArray, dict);	
 }
 
 static void 
@@ -206,7 +222,17 @@ serviceTerminated (void *refCon, io_iterator_t iterator)
 	io_service_t serviceObject;
 	
 	while ((serviceObject = IOIteratorNext(iterator))) {
-		printf(" <<<<<<< DEVICE REMOVED %d\n", serviceObject);
+		int i;
+		
+		for (i = 0; i < CFArrayGetCount(deviceArray); i++) {
+			io_service_t deviceServiceObject;
+			CFDictionaryRef dict = CFArrayGetValueAtIndex(deviceArray, i);
+			CFNumberRef number = CFDictionaryGetValue(dict, CFSTR("serviceObject"));
+			CFNumberGetValue(number, kCFNumberLongType, &deviceServiceObject);
+			
+			if (serviceObject == deviceServiceObject)
+				CFArrayRemoveValueAtIndex(deviceArray, i);
+		}
 	}
 }
 
@@ -219,7 +245,9 @@ IOReturn deviceClientStart(void)
 	io_iterator_t		gNewDeviceAddedIter;
 	io_iterator_t		gNewDeviceRemovedIter;
 	CFRunLoopSourceRef	runLoopSource;
-	
+
+	deviceArray = CFArrayCreateMutable(kCFAllocatorDefault, 0, NULL);
+
 	ret = IOMasterPort(MACH_PORT_NULL, &masterPort);
 	
 	if (ret != kIOReturnSuccess) {

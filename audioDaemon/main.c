@@ -10,23 +10,11 @@
  ***/
 
 #include <CoreServices/CoreServices.h>
-#include <CoreFoundation/CFMachPort.h>
-#include <CoreFoundation/CFNumber.h>
 #include <CoreFoundation/CoreFoundation.h>
-
-__BEGIN_DECLS
-#include <mach/mach.h>
-#include <IOKit/iokitmig.h>
-__END_DECLS
-
-#include "../kext/PADriverUserClientTypes.h"
-#include "../kext/PAUserClientCommonTypes.h"
-#include "../kext/PAVirtualDeviceUserClientTypes.h"
 
 #include "driverClient.h"
 #include "deviceClient.h"
 #include "notificationCenter.h"
-
 
 int main (int argc, const char **argv) {
 	
