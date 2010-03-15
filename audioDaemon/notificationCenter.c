@@ -25,6 +25,7 @@ __END_DECLS
 
 #include "driverClient.h"
 #include "deviceClient.h"
+#include "notificationCenter.h"
 
 void notificationCenterSendDeviceList (void)
 {

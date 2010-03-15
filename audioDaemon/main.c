@@ -12,6 +12,8 @@
 #include <CoreServices/CoreServices.h>
 #include <CoreFoundation/CoreFoundation.h>
 
+#include "../kext/PAUserClientCommonTypes.h"
+
 #include "driverClient.h"
 #include "deviceClient.h"
 #include "notificationCenter.h"

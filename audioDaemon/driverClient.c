@@ -19,11 +19,11 @@ __BEGIN_DECLS
 #include <IOKit/iokitmig.h>
 __END_DECLS
 
-#include "audioDevice.h"
-
 #include "../kext/PADriverUserClientTypes.h"
 #include "../kext/PAUserClientCommonTypes.h"
 #include "../kext/PAVirtualDeviceUserClientTypes.h"
+
+#include "driverClient.h"
 
 #define PADriverClassName "org_pulseaudio_driver"
 

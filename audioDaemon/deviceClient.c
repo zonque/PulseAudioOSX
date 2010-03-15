@@ -14,16 +14,21 @@
 #include <CoreFoundation/CFNumber.h>
 #include <CoreFoundation/CoreFoundation.h>
 
+#import <pulse/pulseaudio.h>
+#import <pulse/mainloop.h>
+#import <pulse/simple.h>
+
 __BEGIN_DECLS
 #include <mach/mach.h>
 #include <IOKit/iokitmig.h>
 __END_DECLS
 
-#include "audioDevice.h"
-
 #include "../kext/PADriverUserClientTypes.h"
 #include "../kext/PAUserClientCommonTypes.h"
 #include "../kext/PAVirtualDeviceUserClientTypes.h"
+
+#include "notificationCenter.h"
+#include "deviceClient.h"
 
 #define PAVirtualDeviceUserClass "org_pulseaudio_virtualdevice"
 
@@ -34,11 +39,14 @@ struct audioDevice {
 	mach_port_t async_port;
 
 	struct PAVirtualDeviceInfo info;
-	vm_address_t audio_in_buf;
-	vm_address_t audio_out_buf;
 	io_connect_t port;
 	struct samplePointerUpdateEvent samplePointerUpdateEvent;
 	struct notificationBlock notificationBlock;
+
+	vm_address_t audio_in_buf, audio_out_buf;
+	int in_pos, out_pos;	
+	
+	pa_simple *s;
 };
 
 static void 
@@ -46,6 +54,17 @@ samplePointerUpdateCallback(void *refcon, IOReturn result, void **args, int numA
 {
 	struct audioDevice *dev = refcon;
 	struct samplePointerUpdateEvent *ev = &dev->samplePointerUpdateEvent;
+	
+	int samplesPerFrame = sizeof(float) * dev->info.channelsIn;
+	int samples = dev->info.audioBufferSize / samplesPerFrame;
+	int delta = ((ev->samplePointer - dev->in_pos) + samples) % samples;
+	float *buf = (float *) dev->audio_in_buf + dev->in_pos * samplesPerFrame;
+	
+	pa_simple_write(dev->s, buf, delta, NULL);
+	
+	dev->in_pos += delta;
+	dev->in_pos %= dev->info.audioBufferSize;
+	
 	return;
 	
 	printf(">>> %08x.%08x  ... %08x\n",
@@ -156,6 +175,8 @@ addDevice(io_service_t serviceObject)
 		return;
 	}
 
+	memset(dev, 0, sizeof(*dev));			      
+	
 	ret = IOServiceOpen(serviceObject, mach_task_self(), 0, &dev->data_port);
 	if (ret) {
 		printf ("%s(): IOServiceOpen() returned %08x\n", __func__, (int) ret);
@@ -205,6 +226,45 @@ addDevice(io_service_t serviceObject)
 	CFDictionarySetValue(dict, CFSTR("channelsOut"), CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &dev->info.channelsOut));
 	CFDictionarySetValue(dict, CFSTR("serviceObject"), CFNumberCreate(kCFAllocatorDefault, kCFNumberLongType, &serviceObject));
 	CFArrayAppendValue(deviceArray, dict);	
+	notificationCenterSendDeviceList();
+	
+	vm_size_t memsize;
+
+	if (dev->info.channelsIn) {
+		memsize = dev->info.audioBufferSize;
+		IOConnectMapMemory(dev->data_port, kPAMemoryInputSampleData, mach_task_self(),
+				   &dev->audio_in_buf, &memsize, kIOMapAnywhere);
+		
+		if (!dev->audio_in_buf)
+			printf("%s(): unable to map virtual audio IN memory. (size %d)\n", __func__, (int) memsize);
+	}
+
+	if (dev->info.channelsOut) {
+		memsize = dev->info.audioBufferSize;
+		IOConnectMapMemory(dev->data_port, kPAMemoryOutputSampleData, mach_task_self(),
+				   &dev->audio_out_buf, &memsize, kIOMapAnywhere);
+		
+		if (!dev->audio_out_buf)
+			printf("%s(): unable to map virtual audio OUT memory. (size %d)\n", __func__, (int) memsize);
+
+	}	
+	
+	pa_sample_spec ss;
+	
+	ss.format = PA_SAMPLE_FLOAT32;
+	ss.channels = dev->info.channelsOut;
+	ss.rate = 44100;
+
+	dev->s = pa_simple_new(NULL,			// Use the default server.
+			       "audioDaemon",		// Our application's name.
+			       PA_STREAM_PLAYBACK,
+			       NULL,			// Use the default device.
+			       dev->info.name,		// Description of our stream.
+			       &ss,			// Our sample format.
+			       NULL,			// Use default channel map
+			       NULL,			// Use default buffering attributes.
+			       NULL			// Ignore error code.
+			       );	
 }
 
 static void 
