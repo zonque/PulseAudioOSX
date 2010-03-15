@@ -178,8 +178,8 @@ PAEngine::initHardware(IOService *provider)
 
 	info->audioBufferSize = AUDIO_BUFFER_SIZE * nStreams;
 
-	audioInBuf	= IOBufferMemoryDescriptor::withCapacity(info->audioBufferSize, kIODirectionInOut);
-	audioOutBuf	= IOBufferMemoryDescriptor::withCapacity(info->audioBufferSize, kIODirectionInOut);
+	audioInBuf  = IOBufferMemoryDescriptor::withCapacity(info->audioBufferSize, kIODirectionInOut);
+	audioOutBuf = IOBufferMemoryDescriptor::withCapacity(info->audioBufferSize, kIODirectionInOut);
 	
 	if (!audioInBuf || !audioOutBuf) {
 		IOLog("%s(%p)::%s unable to allocate memory\n", getName(), this, __func__);

@@ -107,9 +107,9 @@ PAVirtualDevice::setInfo(const struct PAVirtualDeviceInfo *newInfo)
 }
 
 void
-PAVirtualDevice::getInfo(struct PAVirtualDeviceInfo *newInfo)
+PAVirtualDevice::getInfo(struct PAVirtualDeviceInfo *info)
 {
-	memcpy(newInfo, &deviceInfo, sizeof(*newInfo));
+	memcpy(info, &deviceInfo, sizeof(*info));
 }
 
 IOReturn

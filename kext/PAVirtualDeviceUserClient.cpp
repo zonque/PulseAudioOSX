@@ -276,10 +276,10 @@ IOReturn
 PAVirtualDeviceUserClient::readNotification(IOExternalMethodArguments *args)
 {
 	if (args->scalarInput[0] == 0 ||
-		args->scalarInput[1] != sizeof(struct notificationBlock))
+	    args->scalarInput[1] != sizeof(struct notificationBlock))
 		return kIOReturnBadArgument;
 	
-	if (samplePointerReadDescriptor)
+	if (notificationReadDescriptor)
 		return kIOReturnBusy;
 	
 	notificationReadDescriptor = IOMemoryDescriptor::withAddressRange((mach_vm_address_t) args->scalarInput[0],
