@@ -44,6 +44,7 @@
 
 	[channelsInPopup removeAllItems];
 	[channelsOutPopup removeAllItems];
+	[blockSizePopup removeAllItems];
 	[clockingSourcePopup removeAllItems];
 	[clockingSourcePopup addItemWithTitle: @"kernel driver"];
 	[clockingSourcePopup addItemWithTitle: @"PulseAudio"];
@@ -54,6 +55,11 @@
 		[channelsOutPopup addItemWithTitle: s];
 	}
 
+	for (i = 0; i < 6; i++) {
+		NSString *s = [[NSNumber numberWithInt: 1UL << (i + 6)] stringValue];
+		[blockSizePopup addItemWithTitle: s];
+	}
+	
 	notificationCenter = [NSDistributedNotificationCenter defaultCenter];
 
 	[notificationCenter addObserver: self
@@ -103,15 +109,18 @@
 
 	NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithCapacity: 0];
 
-	NSInteger channelsIn = 1UL << ([channelsInPopup indexOfSelectedItem] + 1);
+	NSInteger channelsIn  = 1UL << ([channelsInPopup indexOfSelectedItem] + 1);
 	NSInteger channelsOut = 1UL << ([channelsOutPopup indexOfSelectedItem] + 1);
-	
+	NSInteger blockSize  = 1UL << ([blockSizePopup indexOfSelectedItem] + 5);
+
 	[dict setValue: [deviceNameField stringValue]
 			forKey: @"name"];
 	[dict setValue: [NSNumber numberWithInt: channelsIn]
 			forKey: @"channelsIn"];
 	[dict setValue: [NSNumber numberWithInt: channelsOut]
 			forKey: @"channelsOut"];
+	[dict setValue: [NSNumber numberWithInt: blockSize]
+			forKey: @"blockSize"];
 
 	[notificationCenter postNotificationName: @"addDevice"
 									  object: LOCAL_OBJECT
@@ -132,6 +141,8 @@
 
 - (IBAction) addDevice: (id) sender
 {
+	[deviceNameField setStringValue: @""];
+
 	NSWindow *window = [[self mainView] window];
 
 	[NSApp beginSheet: addDevicePanel

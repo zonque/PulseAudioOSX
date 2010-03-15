@@ -17,6 +17,7 @@
 	IBOutlet NSTableView	*deviceTableView;
 	IBOutlet NSPopUpButton	*channelsInPopup;
 	IBOutlet NSPopUpButton	*channelsOutPopup;
+	IBOutlet NSPopUpButton	*blockSizePopup;
 	IBOutlet NSPopUpButton	*clockingSourcePopup;
 	IBOutlet NSTextField	*deviceNameField;
 	IBOutlet NSPanel		*addDevicePanel;
