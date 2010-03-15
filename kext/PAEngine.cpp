@@ -11,6 +11,7 @@
 
 #include "PALog.h"
 #include "PAEngine.h"
+#include "PAStream.h"
 #include "PAVirtualDevice.h"
 #include "PAUserClientCommonTypes.h"
 #include "PAVirtualDeviceUserClientTypes.h"
@@ -77,7 +78,7 @@ PAEngine::createNewAudioStream(IOAudioStreamDirection direction,
 {
 	UInt32 sampleRates[] = SAMPLERATES;
 	IOAudioSampleRate rate;
-	IOAudioStream *audioStream = new IOAudioStream;
+	IOAudioStream *audioStream = new PAStream;
 
 	debugFunctionEnter();
 

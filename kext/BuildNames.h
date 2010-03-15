@@ -4,6 +4,7 @@
 #define PADriver		org_pulseaudio_driver
 #define PADevice		org_pulseaudio_device
 #define PAEngine		org_pulseaudio_audioengine
+#define PAStream		org_pulseaudio_stream
 #define PAVirtualDevice		org_pulseaudio_virtualdevice
 
 #define PADriverUserClient		org_pulseaudio_driver_userclient
