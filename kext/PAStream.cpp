@@ -42,15 +42,15 @@ PAStream::addClient(IOAudioClientBuffer *clientBuffer)
 
 	if (ret == kIOReturnSuccess) {
 		IOAudioStreamDirection dir = clientBuffer->audioStream->direction;
-		PAEngine *engine = OSDynamicCast(PAEngine, audioEngine);
+		//PAEngine *engine = OSDynamicCast(PAEngine, audioEngine);
 		strncpy(info.name, str->getCStringNoCopy(), sizeof(info.name) - 1);
 
 		if (dir == kIOAudioStreamDirectionInput) {
-			engine->addVirtualDevice(&info, clientBuffer->sourceBufferDescriptor, NULL, clientBuffer);
 			info.channelsIn = clientBuffer->numChannels;
+			//engine->addVirtualDevice(&info, clientBuffer->sourceBufferDescriptor, NULL, clientBuffer);
 		} else {
-			engine->addVirtualDevice(&info, NULL, clientBuffer->sourceBufferDescriptor, clientBuffer);
 			info.channelsOut = clientBuffer->numChannels;
+			//engine->addVirtualDevice(&info, NULL, clientBuffer->sourceBufferDescriptor, clientBuffer);
 		}
 	}
 

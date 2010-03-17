@@ -118,6 +118,7 @@ PADriver::removeAudioDevice(UInt index)
 
 	device->detachFromParent(this, gIOServicePlane);
 	device->stop(this);
+	device->terminate(0);
 	device->release();
 	deviceArray->removeObject(index);
 
@@ -136,6 +137,7 @@ PADriver::removeAllAudioDevices(void)
 		if (device) {
 			device->detachFromParent(this, gIOServicePlane);
 			device->stop(this);
+			device->terminate(0);
 			device->release();
 		}
 	}

@@ -14,13 +14,20 @@
 
 #include "../kext/PAUserClientCommonTypes.h"
 
+#include "pulseAudio.h"
 #include "driverClient.h"
 #include "deviceClient.h"
 #include "notificationCenter.h"
 
 int main (int argc, const char **argv) {
 	
-	kern_return_t ret;
+	int ret;
+
+	ret = pulseAudioClientStart();
+	if (ret) {
+		printf("pulseAudioClientStart() returned %d\n", ret);
+		return -1;
+	}
 
 	ret = driverClientStart();
 	if (ret) {
@@ -44,5 +51,7 @@ int main (int argc, const char **argv) {
 
 	printf("%s(): terminating ...\n", __func__);
 
+	pulseAudioClientStop();
+	
 	return 0;
 }

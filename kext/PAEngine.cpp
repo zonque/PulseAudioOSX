@@ -54,15 +54,6 @@ PAEngine::free()
 		audioInBuf = NULL;
 	}
 
-	if (timerEventSource) {
-		IOWorkLoop *workLoop = getWorkLoop();
-		if (workLoop)
-			workLoop->removeEventSource(timerEventSource);
-
-		timerEventSource->release();
-		timerEventSource = NULL;
-	}
-	
 	if (virtualDeviceArray) {
 		virtualDeviceArray->flushCollection();
 		virtualDeviceArray->release();
@@ -191,19 +182,6 @@ PAEngine::initHardware(IOService *provider)
 	/* FIXME */
 	if (addVirtualDevice(info, audioInBuf, audioOutBuf, this) != kIOReturnSuccess)
 		return false;
-	
-	IOWorkLoop *workLoop = getWorkLoop();
-	if (!workLoop)
-		return false;
-
-	timerEventSource = IOTimerEventSource::timerEventSource(this, timerFired);
-
-	if (!timerEventSource) {
-		IOLog("%s(%p)::%s failed to create timerEventSource\n", getName(), this, __func__);
-		return false;
-	}
-	
-	workLoop->addEventSource(timerEventSource);
 
 	return true;
 }
@@ -243,19 +221,10 @@ IOReturn
 PAEngine::performAudioEngineStart()
 {
 	debugFunctionEnter();
-	currentFrame = 0;
-	currentBlock = 0;
-	startTime = 0;
-
-	// if we're clocked from kernel side, start our timer.
-	// otherwise, we rely on the userspace to push the block counter forward.
-	if (info->clockDirection == kPADeviceClockFromKernel) {
-		timerEventSource->setTimeoutUS(blockTimeoutMicroseconds);
-		setClockIsStable(true);
-	}
+	samplePointer = 0;
 
 	sendNotification(kPAVirtualDeviceUserClientNotificationEngineStarted, 0);
-	
+
 	return kIOReturnSuccess;
 }
 
@@ -263,9 +232,6 @@ IOReturn
 PAEngine::performAudioEngineStop()
 {
 	debugFunctionEnter();
-
-	if (info->clockDirection == kPADeviceClockFromKernel)
-		timerEventSource->cancelTimeout();
 
 	sendNotification(kPAVirtualDeviceUserClientNotificationEngineStopped, 0);
 
@@ -287,27 +253,6 @@ PAEngine::setNewSampleRate(UInt32 sampleRate)
 	}
 	
 	currentSampleRate = sampleRate;
-	
-	//	get the host time base info
-	mach_timebase_info timeBaseInfo;
-	clock_timebase_info(&timeBaseInfo);
-	
-	//	compute the unscaled host ticks per ring buffer
-	//	computed in steps to make sure we don't overflow
-	//	note that we really don't care about fractional host ticks here
-	ticksPerRingBuffer = 1000000000ULL * NUM_SAMPLE_FRAMES;
-	ticksPerRingBuffer /= currentSampleRate;
-	ticksPerRingBuffer *= timeBaseInfo.denom;
-	ticksPerRingBuffer /= timeBaseInfo.numer;
-	
-	//	scale by the rate scalar
-	//	note that the rate scalar is stored as a 4.28 fixed point number which allows for a range of 0 to 8.
-	//	note also that we don't care about fractions here.
-	//ticksPerRingBuffer *= mRateScalar;
-	//ticksPerRingBuffer >>= 28;
-	
-	blockTimeoutMicroseconds = 1000000ULL * info->blockSize / currentSampleRate;
-	numBlocks = NUM_SAMPLE_FRAMES / info->blockSize;
 
 	sendNotification(kPAVirtualDeviceUserClientNotificationSampleRateChanged, sampleRate);
 
@@ -330,69 +275,17 @@ PAEngine::performFormatChange(IOAudioStream *stream,
 UInt32
 PAEngine::getCurrentSampleFrame()
 {
-	//	this keeps the the erase head one full block behind
-	UInt32 frame = currentBlock * info->blockSize;
-
-	if (currentBlock != 0)
-		frame--;
-
-	return frame;
-}
-
-#pragma mark ########## Timestamp factory ##########
-
-void
-PAEngine::timerFired(OSObject *target, IOTimerEventSource *timerSource)
-{
-	PAEngine *engine = OSDynamicCast(PAEngine, target);
-	if (!engine)
-		return;
-
-	engine->currentBlock++;
-
-	//	check to see if we have wrapped around
-	if (engine->currentBlock > engine->numBlocks) {
-		engine->currentBlock = 0;
-
-		AbsoluteTime timeStamp;
-		engine->getNextTimeStamp(engine->status->fCurrentLoopCount, &timeStamp);
-		engine->takeTimeStamp(true, &timeStamp);
-	}
-
-//	IOLog(" ---- currentBlock %d\n", engine->currentBlock);
-
-	timerSource->setTimeoutUS(engine->blockTimeoutMicroseconds);
-
-	OSCollectionIterator *iter = OSCollectionIterator::withCollection(engine->virtualDeviceArray);
-	PAVirtualDevice *dev;
-	
-	while ((dev = OSDynamicCast(PAVirtualDevice, iter->getNextObject())))
-		dev->reportSamplePointer(engine->currentBlock * engine->info->blockSize);
-	
-	iter->release();
+	return samplePointer;
 }
 
 void
-PAEngine::getNextTimeStamp(UInt32 inLoopCount, AbsoluteTime *outTimeStamp)
+PAEngine::writeSamplePointer(struct samplePointerUpdateEvent *ev)
 {
-	UInt64 timeStamp = startTime;
-
-	// make sure we have a start time
-	if(!startTime) {
-		clock_get_uptime(&startTime);
-		timeStamp = startTime;
-	} else {
-		// add in the number of loops through the ring buffer
-		timeStamp += inLoopCount * ticksPerRingBuffer;
-
-		// compute the amount of jitter
-		//UInt64 jitter = (UInt64) random() * (UInt64) maxJitter;
-		//jitter >>= 32;
-		//timeStamp += jitter;
+	samplePointer = ev->samplePointer;
+	if (samplePointer >= NUM_SAMPLE_FRAMES) {
+		samplePointer %= NUM_SAMPLE_FRAMES;
+		takeTimeStamp();
 	}
-
-	//	return the time stamp as an AbsoluteTime to make life easy on the driver
-	*outTimeStamp = *((AbsoluteTime*) &timeStamp);
 }
 
 #pragma mark ########## virtual device handling ##########

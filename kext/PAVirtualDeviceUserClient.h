@@ -37,9 +37,9 @@ private:
 	/* IOMethodDispatchers */
 	IOReturn	getDeviceInfo(IOExternalMethodArguments *args);
 	IOReturn	setSamplerate(IOExternalMethodArguments *args);
-	IOReturn	readSamplePointer(IOExternalMethodArguments *args);
+	IOReturn	writeSamplePointer(IOExternalMethodArguments *args);
 	IOReturn	readNotification(IOExternalMethodArguments *args);
-
+	
 	static IOReturn	genericMethodDispatchAction(PAVirtualDeviceUserClient *target,
 						    void *reference,
 						    IOExternalMethodArguments *args);

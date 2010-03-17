@@ -16,14 +16,14 @@
 
 /* synchronous functions */
 enum {
-	kPAVirtualDeviceUserClientGetDeviceInfo	= 0,
-	kPAVirtualDeviceUserClientSetSampleRate	= 1,
+	kPAVirtualDeviceUserClientGetDeviceInfo		= 0,
+	kPAVirtualDeviceUserClientSetSampleRate		= 1,
+	kPAVirtualDeviceUserClientWriteSamplePointer	= 2,	
 };
 
 /* asynchronous functions */
 enum {
-	kPAVirtualDeviceUserClientAsyncReadSamplePointer	= 0,
-	kPAVirtualDeviceUserClientAsyncReadNotification		= 1,
+	kPAVirtualDeviceUserClientAsyncReadNotification		= 0,
 };
 
 /* notification types */

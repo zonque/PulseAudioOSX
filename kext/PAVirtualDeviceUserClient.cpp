@@ -171,6 +171,9 @@ PAVirtualDeviceUserClient::genericMethodDispatchAction(PAVirtualDeviceUserClient
 			case kPAVirtualDeviceUserClientSetSampleRate:
 				status = target->setSamplerate(args);
 				break;
+			case kPAVirtualDeviceUserClientWriteSamplePointer:
+				status = target->writeSamplePointer(args);
+				break;
 			default:
 				IOLog("%s(%p): unknown selector %d!\n", __func__, target, target->currentDispatchSelector);
 				status = kIOReturnInvalid;
@@ -179,9 +182,6 @@ PAVirtualDeviceUserClient::genericMethodDispatchAction(PAVirtualDeviceUserClient
 		/* ASYNC METHODS */
 
 		switch (target->currentDispatchSelector) {
-			case kPAVirtualDeviceUserClientAsyncReadSamplePointer:
-				status = target->readSamplePointer(args);
-				break;
 			case kPAVirtualDeviceUserClientAsyncReadNotification:
 				status = target->readNotification(args);
 				break;
@@ -217,57 +217,17 @@ PAVirtualDeviceUserClient::setSamplerate(IOExternalMethodArguments *args)
 	return device->setSamplerate(rate);
 }
 
-#pragma mark ########## PAVirtualDeviceUserClient interface: sample pointer feedback ##########
-
 IOReturn
-PAVirtualDeviceUserClient::readSamplePointer(IOExternalMethodArguments *args)
+PAVirtualDeviceUserClient::writeSamplePointer(IOExternalMethodArguments *args)
 {
-	if (args->scalarInput[0] == 0 ||
-	    args->scalarInput[1] != sizeof(struct samplePointerUpdateEvent))
-		return kIOReturnBadArgument;
+	struct samplePointerUpdateEvent *ev = (struct samplePointerUpdateEvent *) args->structureInput;
 	
-	if (samplePointerReadDescriptor)
-		return kIOReturnBusy;
-	
-	samplePointerReadDescriptor = IOMemoryDescriptor::withAddressRange((mach_vm_address_t) args->scalarInput[0],
-									   args->scalarInput[1], kIODirectionInOut, clientTask);
-	if (!samplePointerReadDescriptor)
-		return kIOReturnBadArgument;
+	if (!ev || args->structureInputSize != sizeof(*ev))
+		return kIOReturnInvalid;
 
-	samplePointerReadDescriptor->map();
-
-	bcopy(args->asyncReference, samplePointerReadReference, sizeof(OSAsyncReference64));
+	device->writeSamplePointer(ev);
 	
 	return kIOReturnSuccess;
-}
-
-void
-PAVirtualDeviceUserClient::reportSamplePointer(UInt32 samplePointer)
-{
-	if (!samplePointerReadDescriptor)
-		return;
-
-	clock_sec_t secs;
-	clock_nsec_t nanosecs;
-	clock_get_system_nanotime (&secs, &nanosecs);
-
-	samplePointerUpdateEvent ev;
-
-	ev.timeStampSec = secs;
-	ev.timeStampNanoSec = nanosecs;
-	ev.samplePointer = samplePointer;
-
-	if (samplePointerReadDescriptor->prepare() != kIOReturnSuccess) {
-		IOLog("%s(%p): samplePointerReadDescriptor->prepare() failed!\n", getName(), this);
-		samplePointerReadDescriptor->release();
-		samplePointerReadDescriptor = NULL;
-		return;
-	}
-
-	samplePointerReadDescriptor->writeBytes(0, &ev, sizeof(ev));
-	samplePointerReadDescriptor->complete();
-
-	sendAsyncResult64(samplePointerReadReference, kIOReturnSuccess, NULL, 0);
 }
 
 #pragma mark ########## PAVirtualDeviceUserClient interface: notification feedback ##########

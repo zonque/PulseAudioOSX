@@ -125,6 +125,12 @@ PAVirtualDevice::setSamplerate(UInt rate)
 	return audioEngine->setNewSampleRate(rate);
 }
 
+void
+PAVirtualDevice::writeSamplePointer(struct samplePointerUpdateEvent *ev)
+{
+	audioEngine->writeSamplePointer(ev);
+}
+
 IOAudioEngineState
 PAVirtualDevice::engineState()
 {

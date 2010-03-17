@@ -16,7 +16,6 @@
 
 #include <IOKit/audio/IOAudioEngine.h>
 #include <IOKit/audio/IOAudioDefines.h>
-#include <IOKit/IOTimerEventSource.h>
 
 #include "PADevice.h"
 #include "PAUserClientCommonTypes.h"
@@ -29,16 +28,10 @@ class PAEngine : public IOAudioEngine
 
 private:
 	IOAudioStream			*createNewAudioStream(IOAudioStreamDirection direction, void *sampleBuffer);
-	UInt32				channelsIn, channelsOut, nStreams;
-	UInt32				currentFrame, currentBlock;
-	UInt32				numBlocks;
-	
-	UInt64				blockTimeoutMicroseconds;
-	UInt64				ticksPerRingBuffer;
-	UInt64				startTime;
-	
+	UInt32				channelsIn, channelsOut, nStreams, samplePointer;
+	UInt32				currentSampleRate;
+
 	IOAudioStream			*audioStream[MAX_STREAMS];
-	IOTimerEventSource		*timerEventSource;
 	
 	struct PAVirtualDeviceInfo	*info;
 	PADevice			*device;
@@ -61,8 +54,9 @@ public:
 	void				getNextTimeStamp(UInt32 inLoopCount, AbsoluteTime* outTimeStamp);
 	static void			timerFired(OSObject *inTarget, IOTimerEventSource *inSender);
 
-	UInt32				currentSampleRate;
 	IOReturn			setNewSampleRate(UInt32 sampleRate);
+
+	void				writeSamplePointer(struct samplePointerUpdateEvent *ev);
 
 	IOReturn			addVirtualDevice(struct PAVirtualDeviceInfo *,
 							 IOMemoryDescriptor *inBuf,

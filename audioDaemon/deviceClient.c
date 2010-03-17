@@ -40,7 +40,6 @@ struct audioDevice {
 
 	struct PAVirtualDeviceInfo info;
 	io_connect_t port;
-	struct samplePointerUpdateEvent samplePointerUpdateEvent;
 	struct notificationBlock notificationBlock;
 
 	vm_address_t audio_in_buf, audio_out_buf;
@@ -48,30 +47,6 @@ struct audioDevice {
 	
 	pa_simple *s;
 };
-
-static void 
-samplePointerUpdateCallback(void *refcon, IOReturn result, void **args, int numArgs) 
-{
-	struct audioDevice *dev = refcon;
-	struct samplePointerUpdateEvent *ev = &dev->samplePointerUpdateEvent;
-	
-	int samplesPerFrame = sizeof(float) * dev->info.channelsIn;
-	int samples = dev->info.audioBufferSize / samplesPerFrame;
-	int delta = ((ev->samplePointer - dev->in_pos) + samples) % samples;
-	float *buf = (float *) dev->audio_in_buf + dev->in_pos * samplesPerFrame;
-	
-	pa_simple_write(dev->s, buf, delta, NULL);
-	
-	dev->in_pos += delta;
-	dev->in_pos %= dev->info.audioBufferSize;
-	
-	return;
-	
-	printf(">>> %08x.%08x  ... %08x\n",
-	       (int) ev->timeStampSec,
-	       (int) ev->timeStampNanoSec,
-	       (int) ev->samplePointer);
-}
 
 static char *notificationName[kPAVirtualDeviceUserClientNotificationMax] = {
 	"kPAVirtualDeviceInfoUserClientNotificationEngineStarted",
@@ -103,26 +78,6 @@ triggerAsyncRead(struct audioDevice *dev)
 	OSStatus ret;
 	io_async_ref64_t asyncRef;
 	uint64_t scalarRefs[8];
-	
-	scalarRefs[0] = CAST_USER_ADDR_T(&dev->samplePointerUpdateEvent);
-	scalarRefs[1] = (uint64_t) sizeof(dev->samplePointerUpdateEvent);
-	
-	asyncRef[kIOAsyncCalloutFuncIndex] = CAST_USER_ADDR_T(&samplePointerUpdateCallback);
-	asyncRef[kIOAsyncCalloutRefconIndex] = CAST_USER_ADDR_T(dev);
-
-	ret = IOConnectCallAsyncScalarMethod(dev->data_port,					// mach_port_t      connection
-					     kPAVirtualDeviceUserClientAsyncReadSamplePointer,	// uint32_t	    selector
-					     dev->async_port,					// mach_port_t      wake_port
-					     asyncRef,						// uint64_t        *reference
-					     kOSAsyncRef64Count,				// uint32_t         referenceCnt
-					     scalarRefs,					// const uint64_t  *input
-					     2,							// uint32_t         inputCnt
-					     NULL,						// uint64_t        *output
-					     NULL						// uint32_t        *outputCnt
-					     );
-
-	if (ret != kIOReturnSuccess)
-		printf("%s():%d IOConnectCallAsyncScalarMethod() returned %08x\n", __func__, __LINE__, (int) ret);
 	
 	scalarRefs[0] = CAST_USER_ADDR_T(&dev->notificationBlock);
 	scalarRefs[1] = (uint64_t) sizeof(dev->notificationBlock);
