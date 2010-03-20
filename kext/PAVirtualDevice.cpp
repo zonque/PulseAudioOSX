@@ -84,18 +84,6 @@ PAVirtualDevice::free(void)
 }
 
 void
-PAVirtualDevice::reportSamplePointer(UInt32 pointer)
-{
-	OSIterator *iter = getClientIterator();
-	PAVirtualDeviceUserClient *client;
-	
-	while ((client = OSDynamicCast(PAVirtualDeviceUserClient, iter->getNextObject())))
-		client->reportSamplePointer(pointer);
-	
-	iter->release();
-}
-
-void
 PAVirtualDevice::sendNotification(UInt32 notificationType, UInt32 value)
 {
 	OSIterator *iter = getClientIterator();

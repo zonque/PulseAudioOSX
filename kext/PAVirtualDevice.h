@@ -44,7 +44,7 @@ public:
 	void			setInfo(const struct PAVirtualDeviceInfo *info);
 	void			getInfo(struct PAVirtualDeviceInfo *info);
 	IOReturn		setSamplerate(UInt rate);
-	void			writeSamplePointer(struct samplePointerUpdateEvent *);
+	void			writeSamplePointer(struct samplePointerUpdateEvent *ev);
 
 	IOAudioEngineState	engineState();
 	

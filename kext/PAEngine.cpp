@@ -281,11 +281,17 @@ PAEngine::getCurrentSampleFrame()
 void
 PAEngine::writeSamplePointer(struct samplePointerUpdateEvent *ev)
 {
+	if (ev->samplePointer >= NUM_SAMPLE_FRAMES)
+		return;
+
 	samplePointer = ev->samplePointer;
-	if (samplePointer >= NUM_SAMPLE_FRAMES) {
+
+	if (samplePointer < lastSamplePointer) {
 		samplePointer %= NUM_SAMPLE_FRAMES;
 		takeTimeStamp();
 	}
+	
+	lastSamplePointer = samplePointer;
 }
 
 #pragma mark ########## virtual device handling ##########
@@ -331,7 +337,7 @@ PAEngine::addVirtualDevice(struct PAVirtualDeviceInfo *info,
 	}
 
 	dev->audioInputBuf = inBuf;
-	dev->audioInputBuf = outBuf;
+	dev->audioOutputBuf = outBuf;
 	dev->refCon = refCon;
 	
 	return kIOReturnSuccess;

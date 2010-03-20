@@ -28,8 +28,9 @@ class PAEngine : public IOAudioEngine
 
 private:
 	IOAudioStream			*createNewAudioStream(IOAudioStreamDirection direction, void *sampleBuffer);
-	UInt32				channelsIn, channelsOut, nStreams, samplePointer;
+	UInt32				channelsIn, channelsOut, nStreams;
 	UInt32				currentSampleRate;
+	UInt32				samplePointer, lastSamplePointer;
 
 	IOAudioStream			*audioStream[MAX_STREAMS];
 	

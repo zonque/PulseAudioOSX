@@ -59,7 +59,6 @@ public:
 	bool		finalize(IOOptionBits options);
 	bool		terminate(IOOptionBits options);
 
-	void		reportSamplePointer(UInt32 samplePointer);
 	void		sendNotification(UInt32 notificationType, UInt32 value);
 };
 

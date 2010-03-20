@@ -14,4 +14,3 @@
 #define XStr(x) Str(x)
 
 #endif /* BUILDNAMES_H */
-

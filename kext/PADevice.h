@@ -19,9 +19,6 @@
 #include "PADriver.h"
 #include "PAUserClientCommonTypes.h"
 
-class PAEngine;
-class PAUserClient;
-
 class PADevice : public IOAudioDevice
 {
 	OSDeclareDefaultStructors(PADevice)
