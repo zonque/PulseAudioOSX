@@ -144,21 +144,22 @@ static void deviceWriteCallback(pa_stream *stream, size_t nbytes, void *userdata
 {
 	struct audioDevice *dev = userdata;
 	char *buf = (char *) dev->audio_out_buf;
+	int nSamples = dev->info.audioBufferSize / (2 * sizeof(float));
 	
 	//pa_stream_begin_write(stream, &dest, &nbytes);
-#if 1
-	if (dev->out_pos + nbytes > dev->info.audioBufferSize) {
+
+	if (dev->out_pos + nbytes > nSamples) {
 		/* wrap case */
 		pa_stream_write(stream, buf + dev->out_pos, dev->info.audioBufferSize - dev->out_pos, NULL, 0, 0);
 		dev->out_pos += nbytes;
-		dev->out_pos %= dev->info.audioBufferSize;
+		dev->out_pos %= nSamples;
 		pa_stream_write(stream, buf, dev->out_pos, NULL, 0, 0);
 	} else {
 		pa_stream_write(stream, buf + dev->out_pos, nbytes, NULL, 0, 0);
 		dev->out_pos += nbytes;
 	}
-#endif
-	printf(" >>>> in_pos %d\n", dev->out_pos);
+
+	//printf(" >>>> out_pos %d\n", dev->out_pos);
 	
 	struct samplePointerUpdateEvent ev;
 	ev.samplePointer = dev->out_pos;	
