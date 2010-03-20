@@ -160,7 +160,7 @@ PAVirtualDeviceUserClient::genericMethodDispatchAction(PAVirtualDeviceUserClient
 {
 	IOReturn status = kIOReturnBadArgument;
 
-	debugIOLog("%s(%p) -- currentDispatchSelector %d\n", __func__, target, target->currentDispatchSelector);
+	//debugIOLog("%s(%p) -- currentDispatchSelector %d\n", __func__, target, target->currentDispatchSelector);
 	//target->dumpIOExternalMethodArguments(args);
 
 	if (args->asyncReferenceCount == 0) {
