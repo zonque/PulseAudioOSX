@@ -10,13 +10,12 @@
  ***/
 
 #include <CoreServices/CoreServices.h>
-#include <CoreFoundation/CoreFoundation.h>
+#include <pulse/pulseaudio.h>
 
 #include "../kext/PAUserClientCommonTypes.h"
 
 #include "pulseAudio.h"
 #include "driverClient.h"
-#include "deviceClient.h"
 #include "notificationCenter.h"
 
 int main (int argc, const char **argv) {
@@ -35,18 +34,12 @@ int main (int argc, const char **argv) {
 		return -1;
 	}
 
-	ret = deviceClientStart();
-	if (ret) {
-		printf("deviceClientStart() returned %d\n", ret);
-		return -1;
-	}
-
 	ret = notificationCenterStart();
 	if (ret) {
 		printf("deviceClientStart() returned %d\n", ret);
 		return -1;
 	}
-	
+
 	CFRunLoopRun();
 
 	printf("%s(): terminating ...\n", __func__);

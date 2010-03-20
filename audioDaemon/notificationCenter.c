@@ -93,7 +93,7 @@ static void removeDeviceCallback (CFNotificationCenterRef center,
 	
 	CFNumberGetValue(num, kCFNumberIntType, &scalar);
 	
-	IOConnectCallScalarMethod(driver_data_port,			// an io_connect_t returned from IOServiceOpen().
+	IOConnectCallScalarMethod(driverDataPort,			// an io_connect_t returned from IOServiceOpen().
 				  kPADriverUserClientRemoveDevice,	// selector of the function to be called via the user client.
 				  &scalar,				// array of scalar (64-bit) input values.
 				  1,					// the number of scalar input values.

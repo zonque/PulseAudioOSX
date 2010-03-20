@@ -9,14 +9,13 @@
  (at your option) any later version.
  ***/
 
+#include <CoreFoundation/CoreFoundation.h>
 #include <CoreServices/CoreServices.h>
 #include <CoreFoundation/CFMachPort.h>
 #include <CoreFoundation/CFNumber.h>
-#include <CoreFoundation/CoreFoundation.h>
 
-#import <pulse/pulseaudio.h>
-#import <pulse/mainloop.h>
-#import <pulse/simple.h>
+#include <pulse/pulseaudio.h>
+#include <pulse/mainloop.h>
 
 __BEGIN_DECLS
 #include <mach/mach.h>
@@ -29,30 +28,40 @@ __END_DECLS
 
 #include "notificationCenter.h"
 #include "deviceClient.h"
+#include "pulseAudio.h"
 
 #define PAVirtualDeviceUserClass "org_pulseaudio_virtualdevice"
 
 CFMutableArrayRef deviceArray;
+io_iterator_t deviceAddedIter;
+io_iterator_t deviceRemovedIter;
+CFRunLoopSourceRef deviceClientRunLoopSource;
 
 struct audioDevice {
 	io_connect_t data_port;
 	mach_port_t async_port;
+	CFRunLoopSourceRef runLoopSource;
 
 	struct PAVirtualDeviceInfo info;
 	io_connect_t port;
 	struct notificationBlock notificationBlock;
 
 	vm_address_t audio_in_buf, audio_out_buf;
-	int in_pos, out_pos;	
+	int in_pos, out_pos;
+	int running;
 	
-	pa_simple *s;
+	pa_stream *s;
 };
 
 static char *notificationName[kPAVirtualDeviceUserClientNotificationMax] = {
-	"kPAVirtualDeviceInfoUserClientNotificationEngineStarted",
-	"kPAVirtualDeviceInfoUserClientNotificationEngineStopped",
-	"kPAVirtualDeviceInfoUserClientNotificationSampleRateChanged",
+	"kPAVirtualDeviceUserClientNotificationEngineStarted",
+	"kPAVirtualDeviceUserClientNotificationEngineStopped",
+	"kPAVirtualDeviceUserClientNotificationSampleRateChanged",
 };
+
+static void noop_cb (pa_stream  *s, int success, void *userdata)
+{
+}
 
 static void 
 notificationCallback(void *refcon, IOReturn result, void **args, int numArgs) 
@@ -70,6 +79,19 @@ notificationCallback(void *refcon, IOReturn result, void **args, int numArgs)
 	       (int) no->timeStampSec,
 	       (int) no->timeStampNanoSec,
 	       (int) no->value);
+	
+	switch (no->notificationType) {
+		case kPAVirtualDeviceUserClientNotificationEngineStarted:
+			dev->running = 1;
+			if (dev->s)
+				pa_stream_cork(dev->s, 0, noop_cb, dev);
+			break;
+		case kPAVirtualDeviceUserClientNotificationEngineStopped:
+			dev->running = 0;
+			if (dev->s)
+				pa_stream_cork(dev->s, 1, noop_cb, dev);
+			break;
+	}
 }
 
 static OSStatus
@@ -118,6 +140,85 @@ getDeviceInfo(struct audioDevice *dev)
 	return ret;
 }
 
+static void deviceWriteCallback(pa_stream *stream, size_t nbytes, void *userdata)
+{
+	struct audioDevice *dev = userdata;
+	char *buf = (char *) dev->audio_out_buf;
+	
+	//pa_stream_begin_write(stream, &dest, &nbytes);
+#if 1
+	if (dev->out_pos + nbytes > dev->info.audioBufferSize) {
+		/* wrap case */
+		pa_stream_write(stream, buf + dev->out_pos, dev->info.audioBufferSize - dev->out_pos, NULL, 0, 0);
+		dev->out_pos += nbytes;
+		dev->out_pos %= dev->info.audioBufferSize;
+		pa_stream_write(stream, buf, dev->out_pos, NULL, 0, 0);
+	} else {
+		pa_stream_write(stream, buf + dev->out_pos, nbytes, NULL, 0, 0);
+		dev->out_pos += nbytes;
+	}
+#endif
+	printf(" >>>> in_pos %d\n", dev->out_pos);
+	
+	struct samplePointerUpdateEvent ev;
+	ev.samplePointer = dev->out_pos;	
+	IOConnectCallStructMethod(dev->data_port, kPAVirtualDeviceUserClientWriteSamplePointer, &ev, sizeof(ev), NULL, NULL);
+}
+
+static void contextStateCallback(pa_context *c, void *userdata)
+{
+	struct audioDevice *dev = userdata;
+	vm_size_t memsize;
+
+	pa_sample_spec ss;
+	
+	ss.format = PA_SAMPLE_FLOAT32;
+	ss.rate = 44100;
+		
+	switch (pa_context_get_state(c)) {
+		case PA_CONTEXT_READY:
+			printf("Connection ready.\n");
+			
+			if (dev->info.channelsIn) {
+				memsize = dev->info.audioBufferSize;
+				IOConnectMapMemory(dev->data_port, kPAMemoryInputSampleData, mach_task_self(),
+						   &dev->audio_in_buf, &memsize, kIOMapAnywhere);
+				
+				if (!dev->audio_in_buf) {
+					printf("%s(): unable to map virtual audio IN memory. (size %d)\n", __func__, (int) memsize);
+					break;
+				}
+			}
+			
+			if (dev->info.channelsOut) {
+				memsize = dev->info.audioBufferSize;
+				ss.channels = dev->info.channelsOut;
+
+				IOConnectMapMemory(dev->data_port, kPAMemoryOutputSampleData, mach_task_self(),
+						   &dev->audio_out_buf, &memsize, kIOMapAnywhere);
+				
+				if (!dev->audio_out_buf) {
+					printf("%s(): unable to map virtual audio OUT memory. (size %d)\n", __func__, (int) memsize);
+					break;
+				}
+
+				//PA_STREAM_START_CORKED
+				dev->s = pa_stream_new(c, dev->info.name, &ss, NULL);
+				pa_stream_set_write_callback(dev->s, deviceWriteCallback, dev);
+				pa_stream_connect_playback(dev->s, NULL, NULL, !dev->running ? PA_STREAM_START_CORKED : 0, NULL, NULL);
+			}
+			
+			triggerAsyncRead(dev);
+			
+			break;
+		case PA_CONTEXT_TERMINATED:
+			break;
+		case PA_CONTEXT_FAILED:
+		default:
+			break;
+	}
+}
+
 static void
 addDevice(io_service_t serviceObject)
 {
@@ -144,7 +245,6 @@ addDevice(io_service_t serviceObject)
 		return;
 	}
 	
-	CFRunLoopSourceRef      runLoopSource;
 	CFMachPortContext       context;
 	Boolean                 shouldFreeInfo;
 	CFMachPortRef           cfPort;
@@ -159,14 +259,12 @@ addDevice(io_service_t serviceObject)
 					  (CFMachPortCallBack) IODispatchCalloutFromMessage,
 					  &context, &shouldFreeInfo);
 	
-	runLoopSource = CFMachPortCreateRunLoopSource(NULL, cfPort, 0);
+	dev->runLoopSource = CFMachPortCreateRunLoopSource(NULL, cfPort, 0);
 	CFRelease(cfPort);
-	CFRunLoopAddSource(CFRunLoopGetCurrent(), runLoopSource, kCFRunLoopDefaultMode);
+	CFRunLoopAddSource(CFRunLoopGetCurrent(), dev->runLoopSource, kCFRunLoopDefaultMode);
 
 	getDeviceInfo(dev);
 	printf(" XXXXX AUDIODEVICE ADDED: >%s< (%d)\n", dev->info.name, serviceObject);
-
-	triggerAsyncRead(dev);
 
 	/* FIXME */
 	if (dev->info.channelsIn != dev->info.channelsOut)
@@ -180,46 +278,37 @@ addDevice(io_service_t serviceObject)
 	CFDictionarySetValue(dict, CFSTR("channelsIn"), CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &dev->info.channelsIn));
 	CFDictionarySetValue(dict, CFSTR("channelsOut"), CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &dev->info.channelsOut));
 	CFDictionarySetValue(dict, CFSTR("serviceObject"), CFNumberCreate(kCFAllocatorDefault, kCFNumberLongType, &serviceObject));
+	CFDictionarySetValue(dict, CFSTR("dev"), CFNumberCreate(kCFAllocatorDefault, kCFNumberLongType, dev));
 	CFArrayAppendValue(deviceArray, dict);	
 	notificationCenterSendDeviceList();
-	
-	vm_size_t memsize;
 
-	if (dev->info.channelsIn) {
-		memsize = dev->info.audioBufferSize;
-		IOConnectMapMemory(dev->data_port, kPAMemoryInputSampleData, mach_task_self(),
-				   &dev->audio_in_buf, &memsize, kIOMapAnywhere);
-		
-		if (!dev->audio_in_buf)
-			printf("%s(): unable to map virtual audio IN memory. (size %d)\n", __func__, (int) memsize);
+	/* PA connection */
+	pa_context *pa_con = pa_context_new(pulseAudioAPI(), "audioDaemon");
+	pa_context_set_state_callback(pa_con, contextStateCallback, dev);
+	pa_context_connect(pa_con, NULL, 0, NULL);
+}
+
+static void deviceRemoved(struct audioDevice *dev)
+{
+	//pa_stream_disconnect
+	
+	if (dev->runLoopSource) {
+		CFRunLoopRemoveSource(CFRunLoopGetCurrent(), dev->runLoopSource, kCFRunLoopDefaultMode);
+		CFRelease(dev->runLoopSource);
+		dev->runLoopSource = NULL;
 	}
 
-	if (dev->info.channelsOut) {
-		memsize = dev->info.audioBufferSize;
-		IOConnectMapMemory(dev->data_port, kPAMemoryOutputSampleData, mach_task_self(),
-				   &dev->audio_out_buf, &memsize, kIOMapAnywhere);
-		
-		if (!dev->audio_out_buf)
-			printf("%s(): unable to map virtual audio OUT memory. (size %d)\n", __func__, (int) memsize);
-
-	}	
+	if (dev->async_port) {
+		mach_port_deallocate(mach_task_self(), dev->async_port);
+		dev->async_port = 0;
+	}
 	
-	pa_sample_spec ss;
+	if (dev->data_port) {
+		IOServiceClose(dev->data_port);
+		dev->data_port = 0;
+	}
 	
-	ss.format = PA_SAMPLE_FLOAT32;
-	ss.channels = dev->info.channelsOut;
-	ss.rate = 44100;
-
-	dev->s = pa_simple_new(NULL,			// Use the default server.
-			       "audioDaemon",		// Our application's name.
-			       PA_STREAM_PLAYBACK,
-			       NULL,			// Use the default device.
-			       dev->info.name,		// Description of our stream.
-			       &ss,			// Our sample format.
-			       NULL,			// Use default channel map
-			       NULL,			// Use default buffering attributes.
-			       NULL			// Ignore error code.
-			       );	
+	free(dev);
 }
 
 static void 
@@ -245,8 +334,13 @@ serviceTerminated (void *refCon, io_iterator_t iterator)
 			CFNumberRef number = CFDictionaryGetValue(dict, CFSTR("serviceObject"));
 			CFNumberGetValue(number, kCFNumberLongType, &deviceServiceObject);
 			
-			if (serviceObject == deviceServiceObject)
+			if (serviceObject == deviceServiceObject) {
+				struct audioDevice *dev;
+				CFNumberRef number = CFDictionaryGetValue(dict, CFSTR("dev"));
+				CFNumberGetValue(number, kCFNumberLongType, &dev);
+				deviceRemoved(dev);
 				CFArrayRemoveValueAtIndex(deviceArray, i);
+			}
 		}
 	}
 }
@@ -257,9 +351,6 @@ IOReturn deviceClientStart(void)
 	mach_port_t		masterPort;
 	CFMutableDictionaryRef	classToMatch;
 	IONotificationPortRef	gNotifyPort;
-	io_iterator_t		gNewDeviceAddedIter;
-	io_iterator_t		gNewDeviceRemovedIter;
-	CFRunLoopSourceRef	runLoopSource;
 
 	deviceArray = CFArrayCreateMutable(kCFAllocatorDefault, 0, NULL);
 
@@ -280,38 +371,57 @@ IOReturn deviceClientStart(void)
 	classToMatch = (CFMutableDictionaryRef) CFRetain(classToMatch);
 	
 	gNotifyPort = IONotificationPortCreate(masterPort);
-	runLoopSource = IONotificationPortGetRunLoopSource(gNotifyPort);
-	CFRunLoopAddSource(CFRunLoopGetCurrent(), runLoopSource, kCFRunLoopDefaultMode);
+	deviceClientRunLoopSource = IONotificationPortGetRunLoopSource(gNotifyPort);
+	CFRunLoopAddSource(CFRunLoopGetCurrent(), deviceClientRunLoopSource, kCFRunLoopDefaultMode);
 	
 	ret = IOServiceAddMatchingNotification(gNotifyPort,
 					       kIOFirstMatchNotification,
 					       classToMatch,
 					       serviceMatched,
 					       NULL,
-					       &gNewDeviceAddedIter);
+					       &deviceAddedIter);
 	if (ret) {
 		printf("%s(): IOServiceAddMatchingNotification() returned %08x\n", __func__, (int) ret);
 		return ret;
 	}
 	
 	// Iterate once to get already-present devices and arm the notification
-	serviceMatched(NULL, gNewDeviceAddedIter);
+	serviceMatched(NULL, deviceAddedIter);
 	
 	ret = IOServiceAddMatchingNotification(gNotifyPort,
 					       kIOTerminatedNotification,
 					       classToMatch,
 					       serviceTerminated,
 					       NULL,
-					       &gNewDeviceRemovedIter);
+					       &deviceRemovedIter);
 	if (ret) {
 		printf("%s(): IOServiceAddMatchingNotification() returned %08x\n", __func__, (int) ret);
 		return ret;
 	}
 	
 	// Iterate once to get already-present devices and arm the notification
-	serviceTerminated(NULL, gNewDeviceRemovedIter);
+	serviceTerminated(NULL, deviceRemovedIter);
 	
 	mach_port_deallocate(mach_task_self(), masterPort);
 	
-	return kIOReturnSuccess;
+	return 0;
+}
+
+void deviceClientStop(void)
+{
+	if (deviceAddedIter) {
+		IOObjectRelease(deviceAddedIter);
+		deviceAddedIter = 0;
+	}
+	
+	if (deviceRemovedIter) {
+		IOObjectRelease(deviceRemovedIter);
+		deviceRemovedIter = 0;
+	}
+	
+	if (deviceClientRunLoopSource) {
+		CFRunLoopRemoveSource(CFRunLoopGetCurrent(), deviceClientRunLoopSource, kCFRunLoopDefaultMode);
+		CFRelease(deviceClientRunLoopSource);
+		deviceClientRunLoopSource = NULL;
+	}
 }

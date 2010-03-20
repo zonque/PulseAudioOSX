@@ -4,5 +4,6 @@
 extern CFMutableArrayRef deviceArray;
 
 IOReturn deviceClientStart(void);
+void deviceClientStop(void);
 
 #endif /* DEVICE_CLIENT_H */

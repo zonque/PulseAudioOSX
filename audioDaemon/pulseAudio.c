@@ -19,6 +19,11 @@
 
 static pa_threaded_mainloop *loop;
 
+static void deviceWriteCallback(pa_stream *stream, size_t nbytes, void *userdata)
+{
+	printf(" >>>> n_bytes %d\n", nbytes);
+}
+
 int pulseAudioClientStart(void)
 {
 	int ret;
@@ -35,6 +40,24 @@ int pulseAudioClientStart(void)
 		return ret;
 	}
 
+#if 0
+	pa_context *pa_con = pa_context_new(pulseAudioAPI(), "audioDaemon");
+	pa_context_connect(pa_con, NULL, 0, NULL);
+	
+//	while (pa_context_get_state(pa_con) != PA_CONTEXT_READY)
+		sleep(3);
+	
+	pa_sample_spec ss;
+	
+	ss.format = PA_SAMPLE_FLOAT32;
+	ss.channels = 2;
+	ss.rate = 44100;
+
+	pa_stream *s = pa_stream_new(pa_con, "ficken", &ss, NULL);
+	pa_stream_connect_playback(s, NULL, NULL, 0, NULL, NULL);
+	pa_stream_set_write_callback(s, deviceWriteCallback, NULL);
+#endif
+
 	return 0;
 }
 
@@ -45,4 +68,9 @@ void pulseAudioClientStop(void)
 		pa_threaded_mainloop_free(loop);
 		loop = NULL;
 	}
+}
+
+pa_mainloop_api *pulseAudioAPI(void)
+{
+	return pa_threaded_mainloop_get_api(loop);
 }

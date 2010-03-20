@@ -24,21 +24,22 @@ __END_DECLS
 #include "../kext/PAVirtualDeviceUserClientTypes.h"
 
 #include "driverClient.h"
+#include "deviceClient.h"
 
 #define PADriverClassName "org_pulseaudio_driver"
 
-mach_port_t driver_async_port;
-io_connect_t driver_data_port;
-
-CFArrayRef *deviceArray;
+io_connect_t driverDataPort;
+CFRunLoopSourceRef runLoopSource;
+io_iterator_t driverAddedIter;
+io_iterator_t driverRemovedIter;
 
 
 IOReturn addDeviceFromInfo (struct PAVirtualDeviceInfo *info)
 {
 	IOReturn ret;
 	
-	ret = IOConnectCallStructMethod(driver_data_port,				// an io_connect_t returned from IOServiceOpen().
-					kPADriverUserClientAddDevice,			// selector of the function to be called via the user client.
+	ret = IOConnectCallStructMethod(driverDataPort,			// an io_connect_t returned from IOServiceOpen().
+					kPADriverUserClientAddDevice,		// selector of the function to be called via the user client.
 					info,					// pointer to the input struct parameter.
 					sizeof(*info),				// the size of the input structure parameter.
 					NULL,					// pointer to the output struct parameter.
@@ -57,42 +58,24 @@ serviceMatched (void *refCon, io_iterator_t iterator)
 	if (!serviceObject)
 		return;
 	
-	if (driver_data_port) {
+	if (driverDataPort) {
 		printf ("%s(): Ooops - more than one driver instance!?\n", __func__);
 		return;
 	}
 	
-	ret = IOServiceOpen(serviceObject, mach_task_self(), 0, &driver_data_port);
+	ret = IOServiceOpen(serviceObject, mach_task_self(), 0, &driverDataPort);
 	if (ret) {
 		printf ("%s(): IOServiceOpen() returned %08x\n", __func__, ret);
 		return;
 	}
 	
-	ret = IOCreateReceivePort(kOSAsyncCompleteMessageID, &driver_async_port);
+	ret = deviceClientStart();
 	if (ret) {
-		printf ("%s(): IOCreateReceiverPort() returned %08x\n", __func__, ret);
+		printf("deviceClientStart() returned %d\n", ret);
 		return;
 	}
-	
-	CFRunLoopSourceRef      runLoopSource;
-	CFMachPortContext       context;
-	Boolean                 shouldFreeInfo;
-	CFMachPortRef           cfPort;
-	
-	context.version = 1;
-	//context.info = this;
-	context.retain = NULL;
-	context.release = NULL;
-	context.copyDescription = NULL;
-	
-	cfPort = CFMachPortCreateWithPort(NULL, driver_async_port,
-					  (CFMachPortCallBack) IODispatchCalloutFromMessage,
-					  &context, &shouldFreeInfo);
-	
-	runLoopSource = CFMachPortCreateRunLoopSource(NULL, cfPort, 0);
-	CFRelease(cfPort);
-	CFRunLoopAddSource(CFRunLoopGetCurrent(), runLoopSource, kCFRunLoopDefaultMode);
-	
+
+	/* HACK */
 	struct PAVirtualDeviceInfo info;
 	
 	memset(&info, 0, sizeof(info));
@@ -108,9 +91,15 @@ static void
 serviceTerminated (void *refCon, io_iterator_t iterator)
 {
 	io_service_t serviceObject;
-	
-	while ((serviceObject = IOIteratorNext(iterator))) {
-		// TODO
+
+	if (!(serviceObject = IOIteratorNext(iterator)))
+		return;
+
+	deviceClientStop();
+
+	if (driverDataPort) {
+		IOServiceClose(driverDataPort);
+		driverDataPort = 0;
 	}
 }
 
@@ -120,9 +109,6 @@ IOReturn driverClientStart(void)
 	mach_port_t		masterPort;
 	CFMutableDictionaryRef	classToMatch;
 	IONotificationPortRef	gNotifyPort;
-	io_iterator_t		gNewDeviceAddedIter;
-	io_iterator_t		gNewDeviceRemovedIter;
-	CFRunLoopSourceRef	runLoopSource;
 	
 	ret = IOMasterPort(MACH_PORT_NULL, &masterPort);
 	
@@ -149,30 +135,49 @@ IOReturn driverClientStart(void)
 					       classToMatch,
 					       serviceMatched,
 					       NULL,
-					       &gNewDeviceAddedIter);
+					       &driverAddedIter);
 	if (ret) {
 		printf("%s(): IOServiceAddMatchingNotification() returned %08x\n", __func__, (int) ret);
 		return ret;
 	}
-	
+
 	// Iterate once to get already-present devices and arm the notification
-	serviceMatched(NULL, gNewDeviceAddedIter);
-	
+	serviceMatched(NULL, driverAddedIter);
+
 	ret = IOServiceAddMatchingNotification(gNotifyPort,
 					       kIOTerminatedNotification,
 					       classToMatch,
 					       serviceTerminated,
 					       NULL,
-					       &gNewDeviceRemovedIter);
+					       &driverRemovedIter);
 	if (ret) {
 		printf("%s(): IOServiceAddMatchingNotification() returned %08x\n", __func__, (int) ret);
 		return ret;
 	}
 	
 	// Iterate once to get already-present devices and arm the notification
-	serviceTerminated(NULL, gNewDeviceRemovedIter);
+	serviceTerminated(NULL, driverRemovedIter);
 
 	mach_port_deallocate(mach_task_self(), masterPort);
 
 	return kIOReturnSuccess;
+}
+
+void driverClientStop(void)
+{
+	if (runLoopSource) {
+		CFRunLoopRemoveSource(CFRunLoopGetCurrent(), runLoopSource, kCFRunLoopDefaultMode);
+		CFRelease(runLoopSource);
+		runLoopSource = NULL;
+	}
+	
+	if (driverAddedIter) {
+		IOObjectRelease(driverAddedIter);
+		driverAddedIter = 0;
+	}
+
+	if (driverRemovedIter) {
+		IOObjectRelease(driverRemovedIter);
+		driverRemovedIter = 0;
+	}
 }
