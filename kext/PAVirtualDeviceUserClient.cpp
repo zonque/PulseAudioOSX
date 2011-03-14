@@ -1,7 +1,7 @@
 /***
  This file is part of PulseAudioKext
 
- Copyright (c) 2010 Daniel Mack <daniel@caiaq.de>
+ Copyright (c) 2010,2011 Daniel Mack <pulseaudio@zonque.de>
 
  PulseAudioKext is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
