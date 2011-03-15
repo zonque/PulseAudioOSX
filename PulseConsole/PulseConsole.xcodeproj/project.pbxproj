@@ -66,6 +66,14 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				6545582C10D4FA9200E3839A /* BonjourListener.h */,
+				6545582D10D4FA9200E3839A /* BonjourListener.m */,
+				6528725F111EF7A600C40D7B /* MeterView.h */,
+				65287260111EF7A600C40D7B /* MeterView.m */,
+				65B0A812132F9D12009BA485 /* ServerConnection.h */,
+				65B0A813132F9D12009BA485 /* ServerConnection.m */,
+				6515ED1C10D13D930048DEB5 /* WindowController.h */,
+				6515ED1D10D13D930048DEB5 /* WindowController.m */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -99,8 +107,6 @@
 		29B97314FDCFA39411CA2CEA /* PulseConsole */ = {
 			isa = PBXGroup;
 			children = (
-				6528725F111EF7A600C40D7B /* MeterView.h */,
-				65287260111EF7A600C40D7B /* MeterView.m */,
 				654559E310D8CC1100E3839A /* pulse.framework */,
 				6515F1D810D397D60048DEB5 /* logo.icns */,
 				6515F1CB10D3926C0048DEB5 /* Credits.rtf */,
@@ -109,8 +115,6 @@
 				29B97317FDCFA39411CA2CEA /* Resources */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
-				6545582C10D4FA9200E3839A /* BonjourListener.h */,
-				6545582D10D4FA9200E3839A /* BonjourListener.m */,
 			);
 			name = PulseConsole;
 			sourceTree = "<group>";
@@ -118,10 +122,6 @@
 		29B97315FDCFA39411CA2CEA /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
-				65B0A812132F9D12009BA485 /* ServerConnection.h */,
-				65B0A813132F9D12009BA485 /* ServerConnection.m */,
-				6515ED1C10D13D930048DEB5 /* WindowController.h */,
-				6515ED1D10D13D930048DEB5 /* WindowController.m */,
 				32CA4F630368D1EE00C91783 /* PulseConsole_Prefix.pch */,
 				29B97316FDCFA39411CA2CEA /* main.m */,
 			);

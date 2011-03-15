@@ -65,7 +65,7 @@
 }
 
 #pragma mark ### fooo ###
-- (void) repaintViews
+- (void) repaintViews: (NSEvent *) event
 {
 	[outlineView reloadItem: nil
 		 reloadChildren: YES];
@@ -108,17 +108,12 @@
 	}
 }
 
-- (void) serverConnectionDetailsChanged: (NSEvent *) event
-{
-	[self repaintViews];
-}
-
 - (void) awakeFromNib
 {
 	serverConnection = [[ServerConnection alloc] init];
 
 	[[NSNotificationCenter defaultCenter] addObserver: self
-						 selector: @selector(serverConnectionDetailsChanged:)
+						 selector: @selector(repaintViews:)
 						     name: @"detailsChanged"
 						   object: serverConnection];
 	
@@ -293,7 +288,7 @@ objectValueForTableColumn:(NSTableColumn *)col
 	[outlineView setEnabled: NO];
 	[parameterTableView setEnabled: NO];
 	[propertyTableView setEnabled: NO];
-	[self repaintViews];
+	[self repaintViews: nil];
 	
 	[self connectToServer: [sender titleOfSelectedItem]];
 }
