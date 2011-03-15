@@ -15,6 +15,7 @@
 		654559E410D8CC1100E3839A /* pulse.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 654559E310D8CC1100E3839A /* pulse.framework */; };
 		65A09CC310F72B3300D07CF1 /* StreamView.m in Sources */ = {isa = PBXBuildFile; fileRef = 65A09CC210F72B3300D07CF1 /* StreamView.m */; };
 		65A09CE210F74DF300D07CF1 /* StreamListView.m in Sources */ = {isa = PBXBuildFile; fileRef = 65A09CE110F74DF300D07CF1 /* StreamListView.m */; };
+		65B0A814132F9D12009BA485 /* ServerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 65B0A813132F9D12009BA485 /* ServerConnection.m */; };
 		8D11072A0486CEB800E47090 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 29B97318FDCFA39411CA2CEA /* MainMenu.nib */; };
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		8D11072D0486CEB800E47090 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
@@ -43,6 +44,8 @@
 		65A09CC210F72B3300D07CF1 /* StreamView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StreamView.m; sourceTree = "<group>"; };
 		65A09CE010F74DF300D07CF1 /* StreamListView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StreamListView.h; sourceTree = "<group>"; };
 		65A09CE110F74DF300D07CF1 /* StreamListView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StreamListView.m; sourceTree = "<group>"; };
+		65B0A812132F9D12009BA485 /* ServerConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServerConnection.h; sourceTree = "<group>"; };
+		65B0A813132F9D12009BA485 /* ServerConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ServerConnection.m; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* PulseConsole.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PulseConsole.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -115,6 +118,8 @@
 		29B97315FDCFA39411CA2CEA /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
+				65B0A812132F9D12009BA485 /* ServerConnection.h */,
+				65B0A813132F9D12009BA485 /* ServerConnection.m */,
 				6515ED1C10D13D930048DEB5 /* WindowController.h */,
 				6515ED1D10D13D930048DEB5 /* WindowController.m */,
 				32CA4F630368D1EE00C91783 /* PulseConsole_Prefix.pch */,
@@ -174,7 +179,14 @@
 			isa = PBXProject;
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "PulseConsole" */;
 			compatibilityVersion = "Xcode 3.1";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* PulseConsole */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -209,6 +221,7 @@
 				65A09CC310F72B3300D07CF1 /* StreamView.m in Sources */,
 				65A09CE210F74DF300D07CF1 /* StreamListView.m in Sources */,
 				65287261111EF7A600C40D7B /* MeterView.m in Sources */,
+				65B0A814132F9D12009BA485 /* ServerConnection.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

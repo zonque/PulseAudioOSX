@@ -12,9 +12,9 @@
 		</object>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
+			<integer value="569"/>
 			<integer value="57"/>
 			<integer value="582"/>
-			<integer value="698"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -753,7 +753,7 @@
 								<object class="NSTabViewItem" id="483415844">
 									<string key="NSIdentifier">Item 3</string>
 									<object class="NSView" key="NSView" id="108992496">
-										<reference key="NSNextResponder" ref="685348213"/>
+										<nil key="NSNextResponder"/>
 										<int key="NSvFlags">256</int>
 										<object class="NSMutableArray" key="NSSubviews">
 											<bool key="EncodedWithXMLCoder">YES</bool>
@@ -813,7 +813,6 @@
 											</object>
 										</object>
 										<string key="NSFrame">{{10, 33}, {827, 372}}</string>
-										<reference key="NSSuperview" ref="685348213"/>
 									</object>
 									<string key="NSLabel">Sinks</string>
 									<reference key="NSColor" ref="995273467"/>
@@ -872,7 +871,7 @@
 														<double key="NSPercent">0.50602409999999998</double>
 													</object>
 												</object>
-												<string key="NSFrame">{{17, 10}, {793, 352}}</string>
+												<string key="NSFrame">{{17, 17}, {793, 352}}</string>
 												<reference key="NSSuperview" ref="728486375"/>
 												<reference key="NSNextKeyView" ref="62071020"/>
 												<int key="NSsFlags">18</int>
@@ -1008,7 +1007,7 @@
 														<double key="NSPercent">0.50602409999999998</double>
 													</object>
 												</object>
-												<string key="NSFrame">{{17, 10}, {793, 352}}</string>
+												<string key="NSFrame">{{17, 17}, {793, 352}}</string>
 												<reference key="NSSuperview" ref="622004002"/>
 												<reference key="NSNextKeyView" ref="330302154"/>
 												<int key="NSsFlags">18</int>
@@ -1026,7 +1025,7 @@
 								<object class="NSTabViewItem" id="1023805241">
 									<string key="NSIdentifier">1</string>
 									<object class="NSView" key="NSView" id="644099369">
-										<nil key="NSNextResponder"/>
+										<reference key="NSNextResponder" ref="685348213"/>
 										<int key="NSvFlags">256</int>
 										<object class="NSMutableArray" key="NSSubviews">
 											<bool key="EncodedWithXMLCoder">YES</bool>
@@ -1508,20 +1507,21 @@
 											</object>
 										</object>
 										<string key="NSFrame">{{10, 33}, {827, 372}}</string>
+										<reference key="NSSuperview" ref="685348213"/>
 									</object>
 									<string key="NSLabel">Server details</string>
 									<reference key="NSColor" ref="995273467"/>
 									<reference key="NSTabView" ref="685348213"/>
 								</object>
 							</object>
-							<reference key="NSSelectedTabViewItem" ref="483415844"/>
+							<reference key="NSSelectedTabViewItem" ref="1023805241"/>
 							<reference key="NSFont" ref="810174432"/>
 							<int key="NSTvFlags">0</int>
 							<bool key="NSAllowTruncatedLabels">YES</bool>
 							<bool key="NSDrawsBackground">YES</bool>
 							<object class="NSMutableArray" key="NSSubviews">
 								<bool key="EncodedWithXMLCoder">YES</bool>
-								<reference ref="108992496"/>
+								<reference ref="644099369"/>
 							</object>
 						</object>
 					</object>
@@ -3406,6 +3406,10 @@
 					<string>693.IBPluginDependency</string>
 					<string>694.IBPluginDependency</string>
 					<string>695.IBPluginDependency</string>
+					<string>698.IBPluginDependency</string>
+					<string>699.IBPluginDependency</string>
+					<string>700.IBPluginDependency</string>
+					<string>701.IBPluginDependency</string>
 					<string>702.IBPluginDependency</string>
 					<string>703.IBPluginDependency</string>
 					<string>704.IBPluginDependency</string>
@@ -3601,6 +3605,10 @@
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>{{412, 623}, {634, 147}}</string>
 					<integer value="0"/>
+					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
+					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
+					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
+					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
