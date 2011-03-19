@@ -33,7 +33,7 @@
 
 	switch (state) {
 		case PA_CONTEXT_CONNECTING:
-			[connectStatus setStringValue: [NSString stringWithFormat: @"Connection to %s ...", "xx"]];
+			[connectStatus setStringValue: [NSString stringWithFormat: @"Connecting to %s ...", "xx"]];
 			break;
 			
 		case PA_CONTEXT_AUTHORIZING:
@@ -82,7 +82,6 @@
 	[propertyTableView setEnabled: enabled];
 	[statisticsTableView setEnabled: enabled];
 }
-
 
 - (void) repaintViews: (NSNotification *) notification
 {

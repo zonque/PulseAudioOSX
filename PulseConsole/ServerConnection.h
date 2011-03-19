@@ -29,6 +29,7 @@
 	pa_mainloop *mainloop;
 	pa_context *context;
 	char *connectRequest;
+	NSThread *thread;
 	
 	NSMutableDictionary *statisticDict;    
 	NSMutableDictionary *serverinfo;

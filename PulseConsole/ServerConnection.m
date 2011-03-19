@@ -46,9 +46,12 @@ static void pa_sample_info_cb	(pa_context *c, const struct pa_sample_info *i, in
 
 - (void) detailsChanged
 {
-	[[NSNotificationCenter defaultCenter] postNotificationName:@"detailsChanged"
-							    object: self
-							  userInfo: nil];
+	NSNotification *notification = [NSNotification notificationWithName: @"detailsChanged"
+								     object: self];
+	
+	[[NSNotificationCenter defaultCenter] performSelectorOnMainThread: @selector(postNotification:)
+							       withObject: notification
+							    waitUntilDone: YES];
 }
 
 - (NSDictionary *) createDictionaryFromProplist: (pa_proplist *) plist
@@ -300,7 +303,7 @@ static void pa_sample_info_cb	(pa_context *c, const struct pa_sample_info *i, in
 	
 	[parameters setObject: info->lazy ? @"YES" : @"NO"
 		       forKey: @"Lazy"];
-	
+
 	NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity: 0];
 	[d setObject: [NSString stringWithCString: info->name
 					 encoding: NSUTF8StringEncoding]
@@ -381,15 +384,19 @@ static void pa_sample_info_cb	(pa_context *c, const struct pa_sample_info *i, in
 - (void) contextChangeCallback
 {
 	int state = pa_context_get_state(context);
-	NSMutableDictionary *userdata = [NSDictionary dictionaryWithObject: [NSNumber numberWithInt: state]
+	NSMutableDictionary *userInfo = [NSDictionary dictionaryWithObject: [NSNumber numberWithInt: state]
 								    forKey: @"state"];
 
 	//if (state == PA_CONTEXT_FAILED) ...
 	
-	[[NSNotificationCenter defaultCenter] postNotificationName: @"connectionStateChanged"
-							    object: self
-							  userInfo: userdata];
+	NSNotification *notification = [NSNotification notificationWithName: @"connectionStateChanged"
+								     object: self
+								   userInfo: userInfo];
 
+	[[NSNotificationCenter defaultCenter] performSelectorOnMainThread: @selector(postNotification:)
+							       withObject: notification
+							    waitUntilDone: YES];
+	
 	if (state == PA_CONTEXT_READY) {
 		pa_context_subscribe(context, PA_SUBSCRIPTION_MASK_ALL, NULL, NULL);
 		pa_context_set_subscribe_callback(context, subscribe_callback, self);
@@ -401,7 +408,7 @@ static void pa_sample_info_cb	(pa_context *c, const struct pa_sample_info *i, in
 		pa_context_unref(context);
 		context = NULL;
 	}
-	 */
+	*/
 }
 
 #pragma mark ### static wrappers ###
@@ -518,6 +525,7 @@ static void pa_sample_info_cb(pa_context *c, const struct pa_sample_info *i, int
 	int ret;
 	char *currentServer = NULL;
 	
+	thread = [NSThread currentThread];
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	mainloop = pa_mainloop_new();
 	
@@ -628,6 +636,11 @@ static void pa_sample_info_cb(pa_context *c, const struct pa_sample_info *i, int
 	return self;
 }
 
+- (void) wakeupThread
+{
+	pa_mainloop_wakeup(mainloop);	
+}
+
 - (void) connectToServer: (NSString *) server;
 {
 	[sinks removeAllObjects];
@@ -639,7 +652,11 @@ static void pa_sample_info_cb(pa_context *c, const struct pa_sample_info *i, int
 	[cards removeAllObjects];
 	
 	connectRequest = pa_xstrdup([server cStringUsingEncoding: NSASCIIStringEncoding]);
-	pa_mainloop_wakeup(mainloop);
+	[self wakeupThread];
+	//[self performSelector: @selector(wakeupThread)
+	//	     onThread: thread
+	//	   withObject: nil
+	//	waitUntilDone: YES];
 }
 
 - (void) dealloc
