@@ -26,9 +26,9 @@
 
 #pragma mark ### ServerConnection callbacks ###
 
-- (void) contextChangeCallback: (NSEvent *) event
+- (void) connectionStateChanged: (NSNotification *) notification
 {
-	NSDictionary *userdata = [event userData];
+	NSDictionary *userdata = [notification userInfo];
 	enum pa_subscription_event_type state = [[userdata valueForKey: @"state"] intValue];
 
 	switch (state) {
@@ -44,12 +44,10 @@
 			[connectStatus setStringValue: @"Setting name ..."];
 			break;
 			
-		case PA_CONTEXT_READY: {
+		case PA_CONTEXT_READY:
 			[connectStatus setStringValue: @"Connection established"];
-			[self enableGUI];
-			
+			[self enableGUI: YES];
 			break;
-		}
 			
 		case PA_CONTEXT_TERMINATED:
 			[connectStatus setStringValue: @"Connection terminated"];
@@ -65,7 +63,28 @@
 }
 
 #pragma mark ### fooo ###
-- (void) repaintViews: (NSEvent *) event
+- (void) stopProgressIndicator
+{
+	[connectionProgressIndicator stopAnimation: self];
+	[connectionProgressIndicator setHidden: YES];
+}
+
+- (void) enableGUI: (BOOL) enabled
+{
+	if (enabled)
+		[connectionProgressIndicator stopAnimation: self];
+	else
+		[connectionProgressIndicator startAnimation: self];
+
+	[connectionProgressIndicator setHidden: enabled];
+	[outlineView setEnabled: enabled];
+	[parameterTableView setEnabled: enabled];
+	[propertyTableView setEnabled: enabled];
+	[statisticsTableView setEnabled: enabled];
+}
+
+
+- (void) repaintViews: (NSNotification *) notification
 {
 	[outlineView reloadItem: nil
 		 reloadChildren: YES];
@@ -78,21 +97,6 @@
 	[window setTitle: [NSString stringWithFormat: @"%@@%@",
 			   [serverConnection.serverinfo valueForKey: @"Server Name"],
 			   [serverConnection.serverinfo valueForKey: @"Host Name"]]];
-}
-
-- (void) stopProgressIndicator
-{
-	[connectionProgressIndicator stopAnimation: self];
-	[connectionProgressIndicator setHidden: YES];
-}
-
-- (void) enableGUI
-{
-	[self stopProgressIndicator];
-	[outlineView setEnabled: YES];
-	[parameterTableView setEnabled: YES];
-	[propertyTableView setEnabled: YES];
-	[statisticsTableView setEnabled: YES];
 }
 
 - (void) bonjourServiceAdded: (NSNotification *) notification
@@ -116,7 +120,12 @@
 						 selector: @selector(repaintViews:)
 						     name: @"detailsChanged"
 						   object: serverConnection];
-	
+
+	[[NSNotificationCenter defaultCenter] addObserver: self
+						 selector: @selector(connectionStateChanged:)
+						     name: @"connectionStateChanged"
+						   object: serverConnection];
+
 	[outlineView setEnabled: NO];
 	[parameterTableView setEnabled: NO];
 	[propertyTableView setEnabled: NO];
@@ -124,15 +133,17 @@
 	
 	listener = [[BonjourListener alloc] initForService: "_pulse-server._tcp"];
 
-	[[NSNotificationCenter defaultCenter] addObserver:self
-						 selector:@selector(bonjourServiceAdded:)
-						     name:@"serviceAdded" object: listener];
+	[[NSNotificationCenter defaultCenter] addObserver: self
+						 selector: @selector(bonjourServiceAdded:)
+						     name: @"serviceAdded"
+						   object: listener];
 	
-	[NSThread detachNewThreadSelector: @selector(PAMainloopThread:) toTarget: self withObject: nil];
 	//    [serverSelector addItemWithTitle: @"daniel@ubuntu.local."];
 	//    [serverSelector addItemWithTitle: @"172.16.193.164"];
-	//[serverSelector addItemWithTitle: @"172.31.0.4"];
+	//[serverSelector addItemWithTitle: @"172.31.0.
 	
+	
+	[serverConnection connectToServer: @"localhost"];
 	[listener start];
 }
 
@@ -143,7 +154,7 @@
 	[super dealloc];
 }
 
-#pragma mark ### NSOutlineViewSource protocol ###
+#pragma mark ### NSOutlineViewDataSource protocol ###
 
 - (NSInteger) outlineView: (NSOutlineView *) outlineView numberOfChildrenOfItem: (id) item
 {
@@ -174,7 +185,7 @@
 	return d ? [d count] : 0;
 }
 
-- (BOOL) outlineView: (NSOutlineView *) outlineView isItemExpandable:(id)item
+- (BOOL) outlineView: (NSOutlineView *) outlineView isItemExpandable: (id)item
 {
 	if (item == nil)
 		return [serverConnection.outlineToplevel count] > 0;
@@ -183,7 +194,8 @@
 	return d ? [d count] > 0 : NO;
 }
 
-- (id) outlineView: (NSOutlineView *) outlineView child: (NSInteger)index ofItem:(id)item
+- (id) outlineView: (NSOutlineView *) outlineView child: (NSInteger)index
+						 ofItem: (id)item
 {
 	if (item == nil)
 		return [serverConnection.outlineToplevel objectAtIndex: index];
@@ -192,7 +204,8 @@
 	return [d objectAtIndex: index];
 }
 
-- (id) outlineView: (NSOutlineView *) outlineView objectValueForTableColumn: (NSTableColumn *) tableColumn byItem: (id)item
+- (id) outlineView: (NSOutlineView *) outlineView objectValueForTableColumn: (NSTableColumn *) tableColumn
+								     byItem: (id)item
 {
 	return [item valueForKey: @"label"];
 }
@@ -272,8 +285,8 @@ objectValueForTableColumn:(NSTableColumn *)col
 	[connectionProgressIndicator startAnimation: self];
 	[connectionProgressIndicator setHidden: NO];
 	
-	connectRequest = pa_xstrdup([server cStringUsingEncoding: NSASCIIStringEncoding]);
-	//pa_mainloop_wakeup(mainloop);
+	[serverConnection connectToServer: server];
+	//connectRequest = pa_xstrdup([server cStringUsingEncoding: NSASCIIStringEncoding]);
 }
 
 #pragma mark ### IBActions ###

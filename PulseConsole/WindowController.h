@@ -56,7 +56,7 @@
 }
 
 - (void) awakeFromNib;
-- (void) enableGUI;
+- (void) enableGUI: (BOOL) enabled;
 - (void) stopProgressIndicator;
 - (void) connectToServer: (NSString *) server;
 

@@ -29,18 +29,18 @@
 
 #pragma mark ### static forwards ###
 
-static void subscribe_callback(struct pa_context *c, pa_subscription_event_type_t t, uint32_t index, void *userdata);
-static void context_event_cb(pa_context *c, const char *name, pa_proplist *p, void *userdata);
-static void context_state_cb(pa_context *c, void *userdata);
-static void pa_stat_cb(pa_context *c, const pa_stat_info *i, void *userdata);
-static void pa_server_info_cb(struct pa_context *c, const struct pa_server_info *i, void *userdata);
-static void pa_sink_info_cb(pa_context *c, const pa_sink_info *i, int eol, void *userdata);
-static void pa_card_info_cb(pa_context *c, const pa_card_info *i, int eol, void *userdata);
-static void pa_source_info_cb(pa_context *c, const pa_source_info *i, int eol, void *userdata);
-static void client_info_callback(struct pa_context *c, const struct pa_client_info *i, int eol, void *userdata);
-static void pa_module_info_cb(struct pa_context *c, const struct pa_module_info *i, int eol, void *userdata);
-static void pa_client_info_cb(struct pa_context *c, const struct pa_client_info *i, int eol, void *userdata);
-static void pa_sample_info_cb(struct pa_context *c, const struct pa_sample_info *i, int eol, void *userdata);
+static void subscribe_callback	(pa_context *c, pa_subscription_event_type_t t, uint32_t index, void *userdata);
+static void context_event_cb	(pa_context *c, const char *name, pa_proplist *p, void *userdata);
+static void context_state_cb	(pa_context *c, void *userdata);
+static void pa_stat_cb		(pa_context *c, const pa_stat_info *i, void *userdata);
+static void pa_server_info_cb	(pa_context *c, const struct pa_server_info *i, void *userdata);
+static void pa_sink_info_cb	(pa_context *c, const pa_sink_info *i, int eol, void *userdata);
+static void pa_card_info_cb	(pa_context *c, const pa_card_info *i, int eol, void *userdata);
+static void pa_source_info_cb	(pa_context *c, const pa_source_info *i, int eol, void *userdata);
+static void client_info_callback(pa_context *c, const struct pa_client_info *i, int eol, void *userdata);
+static void pa_module_info_cb	(pa_context *c, const struct pa_module_info *i, int eol, void *userdata);
+static void pa_client_info_cb	(pa_context *c, const struct pa_client_info *i, int eol, void *userdata);
+static void pa_sample_info_cb	(pa_context *c, const struct pa_sample_info *i, int eol, void *userdata);
 
 #pragma mark ### helper methods ###
 
@@ -315,7 +315,8 @@ static void pa_sample_info_cb(struct pa_context *c, const struct pa_sample_info 
 
 #pragma mark ### PulseAudio event callbacks ###
 
-- (void) contextSubscriptionEventCallback: (enum pa_subscription_event_type) type index: (UInt) index
+- (void) contextSubscriptionEventCallback: (enum pa_subscription_event_type) type
+				    index: (UInt) index
 {
 	switch (type & ~PA_SUBSCRIPTION_EVENT_TYPE_MASK) {
 		case PA_SUBSCRIPTION_EVENT_SINK:
@@ -405,7 +406,7 @@ static void pa_sample_info_cb(struct pa_context *c, const struct pa_sample_info 
 
 #pragma mark ### static wrappers ###
 
-static void subscribe_callback(struct pa_context *c, pa_subscription_event_type_t t, uint32_t index, void *userdata)
+static void subscribe_callback(pa_context *c, pa_subscription_event_type_t t, uint32_t index, void *userdata)
 {
 	ServerConnection *sc = userdata;
 	[sc contextSubscriptionEventCallback: t index: index];
@@ -429,7 +430,7 @@ static void pa_stat_cb(pa_context *c, const pa_stat_info *i, void *userdata)
 	[sc statCallback: i];
 }
 
-static void pa_server_info_cb(struct pa_context *c, const struct pa_server_info *i, void *userdata)
+static void pa_server_info_cb(pa_context *c, const struct pa_server_info *i, void *userdata)
 {
 	ServerConnection *sc = userdata;
 	[sc addServerInfo: i];
@@ -462,7 +463,7 @@ static void pa_source_info_cb(pa_context *c, const pa_source_info *i, int eol, v
 		[sc addSourceInfo: i];
 }
 
-static void client_info_callback(struct pa_context *c, const struct pa_client_info *i, int eol, void *userdata)
+static void client_info_callback(pa_context *c, const struct pa_client_info *i, int eol, void *userdata)
 {
 	ServerConnection *sc = userdata;
 	if (eol)
@@ -471,7 +472,7 @@ static void client_info_callback(struct pa_context *c, const struct pa_client_in
 		[sc addClientInfo: i];
 }
 
-static void pa_module_info_cb(struct pa_context *c, const struct pa_module_info *i, int eol, void *userdata)
+static void pa_module_info_cb(pa_context *c, const struct pa_module_info *i, int eol, void *userdata)
 {
 	ServerConnection *sc = userdata;
 	if (eol)
@@ -480,7 +481,7 @@ static void pa_module_info_cb(struct pa_context *c, const struct pa_module_info 
 		[sc addModuleInfo: i];
 }
 
-static void pa_client_info_cb(struct pa_context *c, const struct pa_client_info *i, int eol, void *userdata)
+static void pa_client_info_cb(pa_context *c, const struct pa_client_info *i, int eol, void *userdata)
 {
 	ServerConnection *sc = userdata;
 	if (eol)
@@ -489,7 +490,7 @@ static void pa_client_info_cb(struct pa_context *c, const struct pa_client_info 
 		[sc addClientInfo: i];
 }
 
-static void pa_sample_info_cb(struct pa_context *c, const struct pa_sample_info *i, int eol, void *userdata)
+static void pa_sample_info_cb(pa_context *c, const struct pa_sample_info *i, int eol, void *userdata)
 {
 	ServerConnection *sc = userdata;
 	if (eol)
@@ -620,11 +621,23 @@ static void pa_sample_info_cb(struct pa_context *c, const struct pa_sample_info 
 	      forKey: @"children"];
 	[outlineToplevel addObject: d];
 
+	[NSThread detachNewThreadSelector: @selector(PAMainloopThread:)
+				 toTarget: self
+			       withObject: nil];
+
 	return self;
 }
 
 - (void) connectToServer: (NSString *) server;
 {
+	[sinks removeAllObjects];
+	[sources removeAllObjects];
+	[modules removeAllObjects];
+	[clients removeAllObjects];
+	[samplecache removeAllObjects];
+	[serverinfo removeAllObjects];
+	[cards removeAllObjects];
+	
 	connectRequest = pa_xstrdup([server cStringUsingEncoding: NSASCIIStringEncoding]);
 	pa_mainloop_wakeup(mainloop);
 }

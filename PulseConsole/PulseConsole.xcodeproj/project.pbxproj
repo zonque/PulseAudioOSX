@@ -12,10 +12,10 @@
 		6515F1D910D397D60048DEB5 /* logo.icns in Resources */ = {isa = PBXBuildFile; fileRef = 6515F1D810D397D60048DEB5 /* logo.icns */; };
 		65287261111EF7A600C40D7B /* MeterView.m in Sources */ = {isa = PBXBuildFile; fileRef = 65287260111EF7A600C40D7B /* MeterView.m */; };
 		6545582E10D4FA9200E3839A /* BonjourListener.m in Sources */ = {isa = PBXBuildFile; fileRef = 6545582D10D4FA9200E3839A /* BonjourListener.m */; };
-		654559E410D8CC1100E3839A /* pulse.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 654559E310D8CC1100E3839A /* pulse.framework */; };
 		65A09CC310F72B3300D07CF1 /* StreamView.m in Sources */ = {isa = PBXBuildFile; fileRef = 65A09CC210F72B3300D07CF1 /* StreamView.m */; };
 		65A09CE210F74DF300D07CF1 /* StreamListView.m in Sources */ = {isa = PBXBuildFile; fileRef = 65A09CE110F74DF300D07CF1 /* StreamListView.m */; };
 		65B0A814132F9D12009BA485 /* ServerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 65B0A813132F9D12009BA485 /* ServerConnection.m */; };
+		65B0A97C1332A2C7009BA485 /* pulse.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65B0A97B1332A2C7009BA485 /* pulse.framework */; };
 		8D11072A0486CEB800E47090 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 29B97318FDCFA39411CA2CEA /* MainMenu.nib */; };
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		8D11072D0486CEB800E47090 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
@@ -39,13 +39,13 @@
 		65287260111EF7A600C40D7B /* MeterView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MeterView.m; sourceTree = "<group>"; };
 		6545582C10D4FA9200E3839A /* BonjourListener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BonjourListener.h; sourceTree = "<group>"; };
 		6545582D10D4FA9200E3839A /* BonjourListener.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BonjourListener.m; sourceTree = "<group>"; };
-		654559E310D8CC1100E3839A /* pulse.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = pulse.framework; path = ../PulseAudio.framework/pulse.framework; sourceTree = SOURCE_ROOT; };
 		65A09CC110F72B3300D07CF1 /* StreamView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StreamView.h; sourceTree = "<group>"; };
 		65A09CC210F72B3300D07CF1 /* StreamView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StreamView.m; sourceTree = "<group>"; };
 		65A09CE010F74DF300D07CF1 /* StreamListView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StreamListView.h; sourceTree = "<group>"; };
 		65A09CE110F74DF300D07CF1 /* StreamListView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StreamListView.m; sourceTree = "<group>"; };
 		65B0A812132F9D12009BA485 /* ServerConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServerConnection.h; sourceTree = "<group>"; };
 		65B0A813132F9D12009BA485 /* ServerConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ServerConnection.m; sourceTree = "<group>"; };
+		65B0A97B1332A2C7009BA485 /* pulse.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = pulse.framework; path = /Library/Frameworks/pulse.framework; sourceTree = "<absolute>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* PulseConsole.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PulseConsole.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -56,7 +56,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */,
-				654559E410D8CC1100E3839A /* pulse.framework in Frameworks */,
+				65B0A97C1332A2C7009BA485 /* pulse.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -107,7 +107,6 @@
 		29B97314FDCFA39411CA2CEA /* PulseConsole */ = {
 			isa = PBXGroup;
 			children = (
-				654559E310D8CC1100E3839A /* pulse.framework */,
 				6515F1D810D397D60048DEB5 /* logo.icns */,
 				6515F1CB10D3926C0048DEB5 /* Credits.rtf */,
 				080E96DDFE201D6D7F000001 /* Classes */,
@@ -145,6 +144,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				65B0A97B1332A2C7009BA485 /* pulse.framework */,
 				1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */,
 				1058C7A2FEA54F0111CA2CBB /* Other Frameworks */,
 			);
@@ -252,11 +252,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../PulseAudioOSX/PulseAudio.framework\"",
-					"\"$(SRCROOT)/../PulseAudio.framework\"",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G5;
@@ -265,6 +261,7 @@
 				GCC_PREFIX_HEADER = PulseConsole_Prefix.pch;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
+				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = PulseConsole;
 			};
 			name = Debug;
@@ -274,16 +271,13 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../PulseAudioOSX/PulseAudio.framework\"",
-					"\"$(SRCROOT)/../PulseAudio.framework\"",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = PulseConsole_Prefix.pch;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
+				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = PulseConsole;
 			};
 			name = Release;
@@ -292,7 +286,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -307,7 +301,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
