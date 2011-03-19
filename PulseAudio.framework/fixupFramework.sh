@@ -1,5 +1,19 @@
 #!/bin/sh
 
+#
+# This script is intended to transform a freshly installed set of
+# PulseAudio resources into a full-fledged Mac OS X framework bundle
+# containing all the dependency libraries.
+#
+# Instructions of usage:
+#
+#  - configure and build the pulseaudio sources and set the prefix variable
+#    to "/Library/Frameworks/pulse.framework". The framework is shared amongst
+#    many users, so the path needs to be the same for all of them.
+#  - install the resources using 'make install'
+#  - run this script
+#
+
 set -e
 
 framework=/Library/Frameworks/pulse.framework
