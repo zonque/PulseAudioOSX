@@ -144,25 +144,25 @@ static void deviceWriteCallback(pa_stream *stream, size_t nbytes, void *userdata
 {
 	struct audioDevice *dev = userdata;
 	char *buf = (char *) dev->audio_out_buf;
-	int nSamples = dev->info.audioBufferSize / (2 * sizeof(float));
-	
-	//pa_stream_begin_write(stream, &dest, &nbytes);
+	int maxBytes = dev->info.audioBufferSize; 
 
-	if (dev->out_pos + nbytes > nSamples) {
+	//pa_stream_begin_write(stream, &userdata, &nbytes);
+
+	if (dev->out_pos + nbytes > maxBytes) {
 		/* wrap case */
-		pa_stream_write(stream, buf + dev->out_pos, dev->info.audioBufferSize - dev->out_pos, NULL, 0, 0);
+		pa_stream_write(stream, buf + dev->out_pos, maxBytes - dev->out_pos, NULL, 0, 0);
 		dev->out_pos += nbytes;
-		dev->out_pos %= nSamples;
+		dev->out_pos %= maxBytes;
 		pa_stream_write(stream, buf, dev->out_pos, NULL, 0, 0);
 	} else {
 		pa_stream_write(stream, buf + dev->out_pos, nbytes, NULL, 0, 0);
 		dev->out_pos += nbytes;
 	}
 
-	//printf(" >>>> out_pos %d\n", dev->out_pos);
+	//printf(" >>>> out_pos %d (+%d)\n", dev->out_pos, nbytes);
 	
 	struct samplePointerUpdateEvent ev;
-	ev.samplePointer = dev->out_pos;	
+	ev.samplePointer = dev->out_pos / (2 * sizeof(float));	
 	IOConnectCallStructMethod(dev->data_port, kPAVirtualDeviceUserClientWriteSamplePointer, &ev, sizeof(ev), NULL, NULL);
 }
 
@@ -172,10 +172,16 @@ static void contextStateCallback(pa_context *c, void *userdata)
 	vm_size_t memsize;
 
 	pa_sample_spec ss;
+	pa_buffer_attr buf_attr;
 	
 	ss.format = PA_SAMPLE_FLOAT32;
 	ss.rate = 44100;
-		
+
+	buf_attr.maxlength = 1024000; //dev->info.audioBufferSize / (8 * sizeof(float)); // fixme
+	buf_attr.minreq = 2048;
+	buf_attr.prebuf = 2048;
+	buf_attr.tlength = -1;
+
 	switch (pa_context_get_state(c)) {
 		case PA_CONTEXT_READY:
 			printf("Connection ready.\n");
@@ -206,7 +212,8 @@ static void contextStateCallback(pa_context *c, void *userdata)
 				//PA_STREAM_START_CORKED
 				dev->s = pa_stream_new(c, dev->info.name, &ss, NULL);
 				pa_stream_set_write_callback(dev->s, deviceWriteCallback, dev);
-				pa_stream_connect_playback(dev->s, NULL, NULL, !dev->running ? PA_STREAM_START_CORKED : 0, NULL, NULL);
+				pa_stream_connect_playback(dev->s, NULL, &buf_attr,
+							   !dev->running ? PA_STREAM_START_CORKED : 0, NULL, NULL);
 			}
 			
 			triggerAsyncRead(dev);
@@ -286,7 +293,7 @@ addDevice(io_service_t serviceObject)
 	/* PA connection */
 	pa_context *pa_con = pa_context_new(pulseAudioAPI(), "audioDaemon");
 	pa_context_set_state_callback(pa_con, contextStateCallback, dev);
-	pa_context_connect(pa_con, NULL, 0, NULL);
+	pa_context_connect(pa_con, "192.168.2.5", 0, NULL);
 }
 
 static void deviceRemoved(struct audioDevice *dev)

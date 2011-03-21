@@ -39,11 +39,11 @@ IOReturn addDeviceFromInfo (struct PAVirtualDeviceInfo *info)
 	IOReturn ret;
 	
 	ret = IOConnectCallStructMethod(driverDataPort,			// an io_connect_t returned from IOServiceOpen().
-					kPADriverUserClientAddDevice,		// selector of the function to be called via the user client.
-					info,					// pointer to the input struct parameter.
-					sizeof(*info),				// the size of the input structure parameter.
-					NULL,					// pointer to the output struct parameter.
-					NULL					// pointer to the size of the output structure parameter.
+					kPADriverUserClientAddDevice,	// selector of the function to be called via the user client.
+					info,				// pointer to the input struct parameter.
+					sizeof(*info),			// the size of the input structure parameter.
+					NULL,				// pointer to the output struct parameter.
+					NULL				// pointer to the size of the output structure parameter.
 					);
 	return ret;
 }
@@ -79,7 +79,7 @@ serviceMatched (void *refCon, io_iterator_t iterator)
 	struct PAVirtualDeviceInfo info;
 	
 	memset(&info, 0, sizeof(info));
-	strcpy(info.name, "gaga.");
+	strcpy(info.name, "gagax");
 	info.channelsIn = 2;
 	info.channelsOut = 2;
 	info.blockSize = 512;

@@ -8,9 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		23CED35F1011D7B200046253 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23CED35E1011D7B200046253 /* IOKit.framework */; };
-		65640717114EC95900B84107 /* pulse.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65640716114EC95900B84107 /* pulse.framework */; };
 		6564071E114EC99B00B84107 /* pulseAudio.c in Sources */ = {isa = PBXBuildFile; fileRef = 6564071D114EC99B00B84107 /* pulseAudio.c */; };
-		65640752114ECE3100B84107 /* libpulse-simple.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 65640751114ECE3100B84107 /* libpulse-simple.0.dylib */; };
+		65B0AACE13352CBA009BA485 /* pulse.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65B0AACD13352CBA009BA485 /* pulse.framework */; };
+		65B0AAD813352D1A009BA485 /* libpulse-simple.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 65B0AAD713352D1A009BA485 /* libpulse-simple.0.dylib */; };
 		65F4BE17114E3A900066A0F2 /* notificationCenter.c in Sources */ = {isa = PBXBuildFile; fileRef = 65F4BE16114E3A900066A0F2 /* notificationCenter.c */; };
 		65F66479114D8F2E00D17EEF /* driverClient.c in Sources */ = {isa = PBXBuildFile; fileRef = 65F66478114D8F2E00D17EEF /* driverClient.c */; };
 		65F66498114D921100D17EEF /* deviceClient.c in Sources */ = {isa = PBXBuildFile; fileRef = 65F66497114D921100D17EEF /* deviceClient.c */; };
@@ -36,10 +36,10 @@
 		08FB7796FE84155DC02AAC07 /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		097DBE83FE8419DDC02AAC07 /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = /System/Library/Frameworks/CoreServices.framework; sourceTree = "<absolute>"; };
 		23CED35E1011D7B200046253 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = /System/Library/Frameworks/IOKit.framework; sourceTree = "<absolute>"; };
-		65640716114EC95900B84107 /* pulse.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = pulse.framework; path = ../PulseAudio.framework/pulse.framework; sourceTree = SOURCE_ROOT; };
 		6564071C114EC99B00B84107 /* pulseAudio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pulseAudio.h; sourceTree = "<group>"; };
 		6564071D114EC99B00B84107 /* pulseAudio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pulseAudio.c; sourceTree = "<group>"; };
-		65640751114ECE3100B84107 /* libpulse-simple.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libpulse-simple.0.dylib"; path = "../PulseAudio.framework/pulse.framework/Versions/A/Resources/libpulse-simple.0.dylib"; sourceTree = SOURCE_ROOT; };
+		65B0AACD13352CBA009BA485 /* pulse.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = pulse.framework; path = /Library/Frameworks/pulse.framework; sourceTree = "<absolute>"; };
+		65B0AAD713352D1A009BA485 /* libpulse-simple.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libpulse-simple.0.dylib"; path = "/Library/Frameworks/pulse.framework/Resources/lib/libpulse-simple.0.dylib"; sourceTree = "<absolute>"; };
 		65F4BE15114E3A900066A0F2 /* notificationCenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = notificationCenter.h; sourceTree = "<group>"; };
 		65F4BE16114E3A900066A0F2 /* notificationCenter.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = notificationCenter.c; sourceTree = "<group>"; };
 		65F66477114D8F2E00D17EEF /* driverClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = driverClient.h; sourceTree = "<group>"; };
@@ -57,8 +57,8 @@
 			files = (
 				8DD76F890486A9BA00D96B5E /* CoreServices.framework in Frameworks */,
 				23CED35F1011D7B200046253 /* IOKit.framework in Frameworks */,
-				65640717114EC95900B84107 /* pulse.framework in Frameworks */,
-				65640752114ECE3100B84107 /* libpulse-simple.0.dylib in Frameworks */,
+				65B0AACE13352CBA009BA485 /* pulse.framework in Frameworks */,
+				65B0AAD813352D1A009BA485 /* libpulse-simple.0.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -68,15 +68,11 @@
 		08FB7794FE84155DC02AAC07 /* audioDaemon */ = {
 			isa = PBXGroup;
 			children = (
-				65640751114ECE3100B84107 /* libpulse-simple.0.dylib */,
-				65640716114EC95900B84107 /* pulse.framework */,
 				23CED35E1011D7B200046253 /* IOKit.framework */,
 				08FB7795FE84155DC02AAC07 /* Source */,
 				C6859E9C0290928B04C91782 /* Documentation */,
 				08FB779DFE84155DC02AAC07 /* External Frameworks and Libraries */,
 				1A8B4A8EFE9D542A11CA2CBB /* Products */,
-				6564071C114EC99B00B84107 /* pulseAudio.h */,
-				6564071D114EC99B00B84107 /* pulseAudio.c */,
 			);
 			name = audioDaemon;
 			sourceTree = "<group>";
@@ -91,6 +87,8 @@
 				08FB7796FE84155DC02AAC07 /* main.c */,
 				65F4BE15114E3A900066A0F2 /* notificationCenter.h */,
 				65F4BE16114E3A900066A0F2 /* notificationCenter.c */,
+				6564071C114EC99B00B84107 /* pulseAudio.h */,
+				6564071D114EC99B00B84107 /* pulseAudio.c */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -98,6 +96,8 @@
 		08FB779DFE84155DC02AAC07 /* External Frameworks and Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				65B0AAD713352D1A009BA485 /* libpulse-simple.0.dylib */,
+				65B0AACD13352CBA009BA485 /* pulse.framework */,
 				097DBE83FE8419DDC02AAC07 /* CoreServices.framework */,
 			);
 			name = "External Frameworks and Libraries";
@@ -147,7 +147,14 @@
 			isa = PBXProject;
 			buildConfigurationList = 1DEB926208733DCF0010E9CD /* Build configuration list for PBXProject "audioDaemon" */;
 			compatibilityVersion = "Xcode 3.1";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+			);
 			mainGroup = 08FB7794FE84155DC02AAC07 /* audioDaemon */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -186,7 +193,7 @@
 				INSTALL_PATH = /usr/local/bin;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/../PulseAudio.framework/pulse.framework/Versions/A/Resources\"",
+					/Library/Frameworks/pulse.framework/Resources/lib/,
 				);
 				OTHER_LDFLAGS = "-lpulse-simple";
 				PRODUCT_NAME = audioDaemon;
@@ -206,7 +213,7 @@
 				INSTALL_PATH = /usr/local/bin;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/../PulseAudio.framework/pulse.framework/Versions/A/Resources\"",
+					/Library/Frameworks/pulse.framework/Resources/lib/,
 				);
 				PRODUCT_NAME = audioDaemon;
 			};
