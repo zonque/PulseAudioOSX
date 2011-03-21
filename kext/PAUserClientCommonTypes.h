@@ -18,7 +18,6 @@ struct PAVirtualDeviceInfo {
 	/* to be provided upon creation */
 	char name[DEVICENAME_MAX];
 	UInt32 channelsIn, channelsOut;
-	UInt32 clockDirection;
 	UInt32 blockSize;
 
 	/* fields to read back from virtual device */
@@ -26,7 +25,6 @@ struct PAVirtualDeviceInfo {
 	UInt32 currentSamplerate;
 	UInt32 nUsers;
 	UInt32 audioBufferSize;
-	
 };
 
 /* clockDirection values */

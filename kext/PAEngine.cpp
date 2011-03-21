@@ -242,21 +242,16 @@ IOReturn
 PAEngine::setNewSampleRate(UInt32 sampleRate)
 {
 	UInt i, validRates[] = SAMPLERATES;
-	
+
 	for (i = 0; i < ARRAY_SIZE(validRates); i++)
-		if (validRates[i] == sampleRate)
-			break;
-	
-	if (i == ARRAY_SIZE(validRates)) {
-		IOLog("%s(%p): Invalid sample rate %d\n", getName(), this, (int) sampleRate);
-		return kIOReturnInvalid;
-	}
-	
-	currentSampleRate = sampleRate;
+		if (validRates[i] == sampleRate) {
+			currentSampleRate = sampleRate;
+			sendNotification(kPAVirtualDeviceUserClientNotificationSampleRateChanged, sampleRate);			
+			return kIOReturnSuccess;
+		}
 
-	sendNotification(kPAVirtualDeviceUserClientNotificationSampleRateChanged, sampleRate);
-
-	return kIOReturnSuccess;
+	IOLog("%s(%p): Invalid sample rate %d\n", getName(), this, (int) sampleRate);
+	return kIOReturnInvalid;
 }
 
 IOReturn
@@ -281,8 +276,12 @@ PAEngine::getCurrentSampleFrame()
 void
 PAEngine::writeSamplePointer(struct samplePointerUpdateEvent *ev)
 {
-	if (ev->samplePointer >= NUM_SAMPLE_FRAMES)
+	if (ev->samplePointer >= NUM_SAMPLE_FRAMES) {
+		debugIOLog("%s(%p)::%s bogus sample pointer (%d >= %d).\n",
+			   getName(), this, __func__,
+			   (int) ev->samplePointer, NUM_SAMPLE_FRAMES);
 		return;
+	}
 
 	samplePointer = ev->samplePointer;
 
