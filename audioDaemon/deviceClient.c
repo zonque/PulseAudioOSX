@@ -50,6 +50,7 @@ struct audioDevice {
 	int in_pos, out_pos;
 	int running;
 	
+	pa_context *pa_context;
 	pa_stream *s;
 };
 
@@ -83,13 +84,17 @@ notificationCallback(void *refcon, IOReturn result, void **args, int numArgs)
 	switch (no->notificationType) {
 		case kPAVirtualDeviceUserClientNotificationEngineStarted:
 			dev->running = 1;
-			if (dev->s)
+			if (pa_context_get_state(dev->pa_context) != PA_CONTEXT_READY)
+				pa_context_connect(dev->pa_context, dev->info.server, 0, NULL);
+			else if (dev->s)
 				pa_stream_cork(dev->s, 0, noop_cb, dev);
 			break;
 		case kPAVirtualDeviceUserClientNotificationEngineStopped:
 			dev->running = 0;
 			if (dev->s)
 				pa_stream_cork(dev->s, 1, noop_cb, dev);
+			if (dev->info.streamCreationType == kPADeviceStreamCreationOnDemand)
+				pa_context_disconnect(dev->pa_context);
 			break;
 	}
 }
@@ -218,6 +223,9 @@ static void contextStateCallback(pa_context *c, void *userdata)
 			
 			triggerAsyncRead(dev);
 			
+			if (dev->running)
+				pa_stream_cork(dev->s, 0, noop_cb, dev);
+			
 			break;
 		case PA_CONTEXT_TERMINATED:
 			break;
@@ -294,11 +302,11 @@ addDevice(io_service_t serviceObject)
 	notificationCenterSendDeviceList();
 
 	/* PA connection */
-	pa_context *pa_con = pa_context_new(pulseAudioAPI(), "audioDaemon");
-	pa_context_set_state_callback(pa_con, contextStateCallback, dev);
+	dev->pa_context = pa_context_new(pulseAudioAPI(), "audioDaemon");
+	pa_context_set_state_callback(dev->pa_context, contextStateCallback, dev);
 
 	if (dev->info.streamCreationType == kPADeviceStreamCreationPermanent)
-		pa_context_connect(pa_con, dev->info.server, 0, NULL);
+		pa_context_connect(dev->pa_context, dev->info.server, 0, NULL);
 }
 
 static void deviceRemoved(struct audioDevice *dev)

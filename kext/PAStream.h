@@ -13,6 +13,7 @@
 #define PASTREAM_H
 
 #include "BuildNames.h"
+#include "PAUserClientCommonTypes.h"
 
 #include <IOKit/IOLib.h>
 #include <IOKit/audio/IOAudioStream.h>
@@ -20,8 +21,10 @@
 class PAStream : public IOAudioStream
 {
 	OSDeclareDefaultStructors(PAStream)
-	
+	struct PAVirtualDeviceInfo *infoTemplate;
+
 public:
+	void setInfoTemplate(struct PAVirtualDeviceInfo	*i) { infoTemplate = i; };
 	IOReturn addClient(IOAudioClientBuffer *clientBuffer);
 	void removeClient(IOAudioClientBuffer *clientBuffer);
 };

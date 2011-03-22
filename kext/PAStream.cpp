@@ -23,10 +23,11 @@ OSDefineMetaClassAndStructors(PAStream, IOAudioStream)
 IOReturn
 PAStream::addClient(IOAudioClientBuffer *clientBuffer)
 {
-	struct PAVirtualDeviceInfo info;
-
 	debugFunctionEnter();
 
+	struct PAVirtualDeviceInfo info;
+	memcpy(&info, infoTemplate, sizeof(info));
+	
 	IOReturn ret = super::addClient(clientBuffer);
 	
 	IOAudioEngineUserClient *client = clientBuffer->userClient;
@@ -42,15 +43,17 @@ PAStream::addClient(IOAudioClientBuffer *clientBuffer)
 
 	if (ret == kIOReturnSuccess) {
 		IOAudioStreamDirection dir = clientBuffer->audioStream->direction;
-		//PAEngine *engine = OSDynamicCast(PAEngine, audioEngine);
+		PAEngine *engine = OSDynamicCast(PAEngine, audioEngine);
 		strncpy(info.name, str->getCStringNoCopy(), sizeof(info.name) - 1);
 
 		if (dir == kIOAudioStreamDirectionInput) {
 			info.channelsIn = clientBuffer->numChannels;
-			//engine->addVirtualDevice(&info, clientBuffer->sourceBufferDescriptor, NULL, clientBuffer);
+			if (info.audioContentType == kPADeviceAudioContentIndividual)
+				engine->addVirtualDevice(&info, clientBuffer->sourceBufferDescriptor, NULL, clientBuffer);
 		} else {
 			info.channelsOut = clientBuffer->numChannels;
-			//engine->addVirtualDevice(&info, NULL, clientBuffer->sourceBufferDescriptor, clientBuffer);
+			if (info.audioContentType == kPADeviceAudioContentIndividual)
+				engine->addVirtualDevice(&info, NULL, clientBuffer->sourceBufferDescriptor, clientBuffer);
 		}
 	}
 

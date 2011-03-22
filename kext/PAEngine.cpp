@@ -65,11 +65,11 @@ PAEngine::free()
 
 IOAudioStream *
 PAEngine::createNewAudioStream(IOAudioStreamDirection direction,
-							   void *sampleBuffer)
+			       void *sampleBuffer)
 {
 	UInt32 sampleRates[] = SAMPLERATES;
 	IOAudioSampleRate rate;
-	IOAudioStream *audioStream = new PAStream;
+	PAStream *audioStream = new PAStream;
 
 	debugFunctionEnter();
 
@@ -81,6 +81,8 @@ PAEngine::createNewAudioStream(IOAudioStreamDirection direction,
 		return NULL;
 	}
 
+	audioStream->setInfoTemplate(info);
+	
 	audioStream->setSampleBuffer(sampleBuffer, AUDIO_BUFFER_SIZE);
 	rate.fraction = 0;
 
@@ -179,9 +181,8 @@ PAEngine::initHardware(IOService *provider)
 		}
 	}
 
-	/* FIXME */
-	if (addVirtualDevice(info, audioInBuf, audioOutBuf, this) != kIOReturnSuccess)
-		return false;
+	if (info->audioContentType == kPADeviceAudioContentMixdown)
+		return addVirtualDevice(info, audioInBuf, audioOutBuf, this) == kIOReturnSuccess;
 
 	return true;
 }

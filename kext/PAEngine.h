@@ -49,7 +49,8 @@ public:
 	IOReturn			performAudioEngineStart();
 	IOReturn			performAudioEngineStop();
 	UInt32				getCurrentSampleFrame();
-	IOReturn			performFormatChange(IOAudioStream *inStream, const IOAudioStreamFormat *inNewFormat,
+	IOReturn			performFormatChange(IOAudioStream *inStream,
+							    const IOAudioStreamFormat *inNewFormat,
 							    const IOAudioSampleRate *inNewSampleRate);
 
 	void				getNextTimeStamp(UInt32 inLoopCount, AbsoluteTime* outTimeStamp);
