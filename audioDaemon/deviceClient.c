@@ -1,7 +1,7 @@
 /***
  This file is part of PulseAudioOSX
  
- Copyright 2010 Daniel Mack <daniel@caiaq.de>
+ Copyright 2010 Daniel Mack <pulseaudio@zonque.org>
  
  PulseAudioOSX is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -243,19 +243,19 @@ addDevice(io_service_t serviceObject)
 	
 	ret = IOServiceOpen(serviceObject, mach_task_self(), 0, &dev->data_port);
 	if (ret) {
-		printf ("%s(): IOServiceOpen() returned %08x\n", __func__, (int) ret);
+		printf("%s(): IOServiceOpen() returned %08x\n", __func__, (int) ret);
 		return;
 	}
 	
 	ret = IOCreateReceivePort(kOSAsyncCompleteMessageID, &dev->async_port);
 	if (ret) {
-		printf ("%s(): IOCreateReceiverPort() returned %08x\n", __func__, (int) ret);
+		printf("%s(): IOCreateReceiverPort() returned %08x\n", __func__, (int) ret);
 		return;
 	}
 	
-	CFMachPortContext       context;
-	Boolean                 shouldFreeInfo;
-	CFMachPortRef           cfPort;
+	CFMachPortContext context;
+	Boolean shouldFreeInfo;
+	CFMachPortRef cfPort;
 	
 	context.version = 1;
 	context.info = dev;
@@ -283,8 +283,11 @@ addDevice(io_service_t serviceObject)
 								&kCFTypeDictionaryValueCallBacks);
 	
 	CFDictionarySetValue(dict, CFSTR("name"), CFStringCreateWithCString(kCFAllocatorDefault, dev->info.name, kCFStringEncodingUTF8));
+	CFDictionarySetValue(dict, CFSTR("server"), CFStringCreateWithCString(kCFAllocatorDefault, dev->info.server, kCFStringEncodingUTF8));
 	CFDictionarySetValue(dict, CFSTR("channelsIn"), CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &dev->info.channelsIn));
 	CFDictionarySetValue(dict, CFSTR("channelsOut"), CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &dev->info.channelsOut));
+	CFDictionarySetValue(dict, CFSTR("audioContentType"), CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &dev->info.audioContentType));
+	CFDictionarySetValue(dict, CFSTR("streamCreationType"), CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &dev->info.streamCreationType));
 	CFDictionarySetValue(dict, CFSTR("serviceObject"), CFNumberCreate(kCFAllocatorDefault, kCFNumberLongType, &serviceObject));
 	CFDictionarySetValue(dict, CFSTR("dev"), CFNumberCreate(kCFAllocatorDefault, kCFNumberLongType, dev));
 	CFArrayAppendValue(deviceArray, dict);	
@@ -293,7 +296,9 @@ addDevice(io_service_t serviceObject)
 	/* PA connection */
 	pa_context *pa_con = pa_context_new(pulseAudioAPI(), "audioDaemon");
 	pa_context_set_state_callback(pa_con, contextStateCallback, dev);
-	pa_context_connect(pa_con, "192.168.2.5", 0, NULL);
+
+	if (dev->info.streamCreationType == kPADeviceStreamCreationPermanent)
+		pa_context_connect(pa_con, dev->info.server, 0, NULL);
 }
 
 static void deviceRemoved(struct audioDevice *dev)

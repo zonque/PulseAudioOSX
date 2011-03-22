@@ -1,7 +1,7 @@
 /***
  This file is part of PulseAudioOSX
  
- Copyright 2010 Daniel Mack <daniel@caiaq.de>
+ Copyright 2010,2011 Daniel Mack <pulseaudio@zonque.de>
  
  PulseAudioOSX is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -11,25 +11,29 @@
 
 #import <PreferencePanes/PreferencePanes.h>
 
-
 @interface PAPreferencePane : NSPreferencePane 
 {
 	IBOutlet NSTableView	*deviceTableView;
+	IBOutlet NSPopUpButton	*serverNamePopup;
 	IBOutlet NSPopUpButton	*channelsInPopup;
 	IBOutlet NSPopUpButton	*channelsOutPopup;
 	IBOutlet NSPopUpButton	*blockSizePopup;
-	IBOutlet NSPopUpButton	*clockingSourcePopup;
+	IBOutlet NSPopUpButton	*audioContentTypePopup;
+	IBOutlet NSPopUpButton	*streamCreationTypePopup;
 	IBOutlet NSTextField	*deviceNameField;
-	IBOutlet NSPanel		*addDevicePanel;
+	IBOutlet NSPanel	*addDevicePanel;
+	IBOutlet NSTextField	*serverNameLabel;
 	IBOutlet NSTextField	*channelsInLabel;
 	IBOutlet NSTextField	*channelsOutLabel;
-	IBOutlet NSTextField	*clockingSourceLabel;
+	IBOutlet NSTextField	*audioContentTypeLabel;
+	IBOutlet NSTextField	*streamCreationTypeLabel;
 
 	NSDistributedNotificationCenter *notificationCenter;
 	NSArray *deviceList;
+	
+	NSMutableArray *audioContentTypeStrings;
+	NSMutableArray *streamCreationTypeStrings;
 }
-
-- (void) mainViewDidLoad;
 
 - (IBAction) addDevice: (id) sender;
 - (IBAction) removeDevice: (id) sender;

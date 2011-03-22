@@ -1,7 +1,7 @@
 /***
  This file is part of PulseAudioOSX
  
- Copyright 2010 Daniel Mack <daniel@caiaq.de>
+ Copyright 2010 Daniel Mack <pulseaudio@zonque.org>
  
  PulseAudioOSX is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -59,13 +59,13 @@ serviceMatched (void *refCon, io_iterator_t iterator)
 		return;
 	
 	if (driverDataPort) {
-		printf ("%s(): Ooops - more than one driver instance!?\n", __func__);
+		printf("%s(): Ooops - more than one driver instance!?\n", __func__);
 		return;
 	}
 	
 	ret = IOServiceOpen(serviceObject, mach_task_self(), 0, &driverDataPort);
 	if (ret) {
-		printf ("%s(): IOServiceOpen() returned %08x\n", __func__, ret);
+		printf("%s(): IOServiceOpen() returned %08x\n", __func__, ret);
 		return;
 	}
 	
@@ -79,11 +79,14 @@ serviceMatched (void *refCon, io_iterator_t iterator)
 	struct PAVirtualDeviceInfo info;
 	
 	memset(&info, 0, sizeof(info));
-	strcpy(info.name, "gagax");
+	strlcpy(info.name, "gagax", sizeof(info.name));
+	strlcpy(info.server, "localhost", sizeof(info.server));	
 	info.channelsIn = 2;
 	info.channelsOut = 2;
 	info.blockSize = 512;
-	
+	info.streamCreationType = kPADeviceStreamCreationPermanent;
+	info.audioContentType = kPADeviceAudioContentMixdown;
+
 	ret = addDeviceFromInfo(&info);
 }
 
