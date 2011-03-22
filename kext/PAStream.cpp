@@ -30,6 +30,9 @@ PAStream::addClient(IOAudioClientBuffer *clientBuffer)
 	
 	IOReturn ret = super::addClient(clientBuffer);
 	
+	if (info.audioContentType == kPADeviceAudioContentMixdown)
+		return ret;
+
 	IOAudioEngineUserClient *client = clientBuffer->userClient;
 	OSObject *prop = client->copyProperty("IOUserClientCreator");
 	if (!prop)
@@ -48,12 +51,12 @@ PAStream::addClient(IOAudioClientBuffer *clientBuffer)
 
 		if (dir == kIOAudioStreamDirectionInput) {
 			info.channelsIn = clientBuffer->numChannels;
-			if (info.audioContentType == kPADeviceAudioContentIndividual)
-				engine->addVirtualDevice(&info, clientBuffer->sourceBufferDescriptor, NULL, clientBuffer);
+			info.channelsOut = 0;
+			engine->addVirtualDevice(&info, clientBuffer->sourceBufferDescriptor, NULL, clientBuffer);
 		} else {
+			info.channelsIn = 0;
 			info.channelsOut = clientBuffer->numChannels;
-			if (info.audioContentType == kPADeviceAudioContentIndividual)
-				engine->addVirtualDevice(&info, NULL, clientBuffer->sourceBufferDescriptor, clientBuffer);
+			engine->addVirtualDevice(&info, NULL, clientBuffer->sourceBufferDescriptor, clientBuffer);
 		}
 	}
 

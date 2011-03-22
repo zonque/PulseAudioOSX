@@ -192,6 +192,8 @@ static void contextStateCallback(pa_context *c, void *userdata)
 			
 			if (dev->info.channelsIn) {
 				memsize = dev->info.audioBufferSize;
+				ss.channels = dev->info.channelsIn;
+
 				IOConnectMapMemory(dev->data_port, kPAMemoryInputSampleData, mach_task_self(),
 						   &dev->audio_in_buf, &memsize, kIOMapAnywhere);
 				
@@ -212,6 +214,11 @@ static void contextStateCallback(pa_context *c, void *userdata)
 					printf("%s(): unable to map virtual audio OUT memory. (size %d)\n", __func__, (int) memsize);
 					break;
 				}
+				
+				dev->info.audioBufferSize = memsize;
+				
+				printf("mapped %d bytes @%p memsize %d\n", dev->info.audioBufferSize, dev->audio_out_buf, memsize);
+				memset(dev->audio_out_buf, 0, dev->info.audioBufferSize);
 
 				//PA_STREAM_START_CORKED
 				dev->s = pa_stream_new(c, dev->info.name, &ss, NULL);
@@ -222,7 +229,7 @@ static void contextStateCallback(pa_context *c, void *userdata)
 			
 			triggerAsyncRead(dev);
 			
-			if (dev->running)
+			if (dev->running && dev->s)
 				pa_stream_cork(dev->s, 0, noop_cb, dev);
 			
 			break;
@@ -282,7 +289,10 @@ addDevice(io_service_t serviceObject)
 	printf(" XXXXX VIRTUAL AUDIODEVICE ADDED: >%s< (%d)  @%p\n", dev->info.name, serviceObject, dev);
 
 	/* FIXME */
-	if (dev->info.channelsIn != dev->info.channelsOut)
+//	if (dev->info.channelsIn != dev->info.channelsOut)
+//		return;
+
+	if (dev->info.channelsOut == 0)
 		return;
 
 	CFMutableDictionaryRef dict = CFDictionaryCreateMutable(kCFAllocatorDefault, 1,
@@ -291,12 +301,6 @@ addDevice(io_service_t serviceObject)
 	
 	unsigned long devn = (unsigned long) dev;
 	
-	CFDictionarySetValue(dict, CFSTR("name"), CFStringCreateWithCString(kCFAllocatorDefault, dev->info.name, kCFStringEncodingUTF8));
-	CFDictionarySetValue(dict, CFSTR("server"), CFStringCreateWithCString(kCFAllocatorDefault, dev->info.server, kCFStringEncodingUTF8));
-	CFDictionarySetValue(dict, CFSTR("channelsIn"), CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &dev->info.channelsIn));
-	CFDictionarySetValue(dict, CFSTR("channelsOut"), CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &dev->info.channelsOut));
-	CFDictionarySetValue(dict, CFSTR("audioContentType"), CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &dev->info.audioContentType));
-	CFDictionarySetValue(dict, CFSTR("streamCreationType"), CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &dev->info.streamCreationType));
 	CFDictionarySetValue(dict, CFSTR("serviceObject"), CFNumberCreate(kCFAllocatorDefault, kCFNumberLongType, &serviceObject));
 	CFDictionarySetValue(dict, CFSTR("dev"), CFNumberCreate(kCFAllocatorDefault, kCFNumberLongLongType, &devn));
 	CFArrayAppendValue(virtualDeviceArray, dict);	
@@ -305,18 +309,35 @@ addDevice(io_service_t serviceObject)
 	dev->pa_context = pa_context_new(pulseAudioAPI(), "audioDaemon");
 	pa_context_set_state_callback(dev->pa_context, contextStateCallback, dev);
 
-	if (dev->info.streamCreationType == kPADeviceStreamCreationPermanent)
-		pa_context_connect(dev->pa_context, dev->info.server, 0, NULL);
+	if (dev->info.audioContentType == kPADeviceAudioContentIndividual)
+		dev->running = true;
+
+	if (dev->info.streamCreationType == kPADeviceStreamCreationPermanent ||
+	    dev->info.audioContentType == kPADeviceAudioContentIndividual)
+		pa_context_connect(dev->pa_context, NULL /* dev->info.server */, 0, NULL);
 }
 
 static void deviceRemoved(struct audioDevice *dev)
 {
 	//pa_stream_disconnect
-	
+	printf(" XXXXX VIRTUAL AUDIODEVICE REMOVED: >%s<  @%p\n", dev->info.name, dev);
+
 	if (dev->runLoopSource) {
 		CFRunLoopRemoveSource(CFRunLoopGetCurrent(), dev->runLoopSource, kCFRunLoopDefaultMode);
 		CFRelease(dev->runLoopSource);
 		dev->runLoopSource = NULL;
+	}
+
+	if (dev->audio_out_buf) {
+		IOConnectUnmapMemory(dev->data_port, kPAMemoryOutputSampleData,
+				     mach_task_self(), dev->audio_out_buf);
+		dev->audio_out_buf = 0;
+	}
+
+	if (dev->audio_in_buf) {
+		IOConnectUnmapMemory(dev->data_port, kPAMemoryInputSampleData,
+				     mach_task_self(), dev->audio_in_buf);
+		dev->audio_in_buf = 0;
 	}
 
 	if (dev->async_port) {

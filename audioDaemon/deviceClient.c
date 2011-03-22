@@ -45,52 +45,48 @@ struct audioDevice {
 	io_connect_t port;
 };
 
-static void
-addDevice(io_service_t serviceObject)
-{
-	OSStatus ret;
-	io_connect_t data_port;
-	struct PAVirtualDeviceInfo info;
-	size_t size = sizeof(info);
-
-	ret = IOServiceOpen(serviceObject, mach_task_self(), 0, &data_port);
-	if (ret) {
-		printf("%s(): IOServiceOpen() returned %08x\n", __func__, (int) ret);
-		return;
-	}
-		
-	ret = IOConnectCallStructMethod(data_port,				// an io_connect_t returned from IOServiceOpen().
-					kPADeviceUserClientGetDeviceInfo,	// selector of the function to be called via the user client.
-					NULL,					// pointer to the input struct parameter.
-					0,					// the size of the input structure parameter.
-					&info,					// pointer to the output struct parameter.
-					&size					// pointer to the size of the output structure parameter.
-					);
-
-	printf(" XXXXX AUDIODEVICE ADDED: >%s< (%d)\n", info.name, serviceObject);
-
-	CFMutableDictionaryRef dict = CFDictionaryCreateMutable(kCFAllocatorDefault, 1,
-								&kCFCopyStringDictionaryKeyCallBacks,
-								&kCFTypeDictionaryValueCallBacks);
-	
-	CFDictionarySetValue(dict, CFSTR("name"), CFStringCreateWithCString(kCFAllocatorDefault, info.name, kCFStringEncodingUTF8));
-	CFDictionarySetValue(dict, CFSTR("server"), CFStringCreateWithCString(kCFAllocatorDefault, info.server, kCFStringEncodingUTF8));
-	CFDictionarySetValue(dict, CFSTR("channelsIn"), CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &info.channelsIn));
-	CFDictionarySetValue(dict, CFSTR("channelsOut"), CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &info.channelsOut));
-	CFDictionarySetValue(dict, CFSTR("audioContentType"), CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &info.audioContentType));
-	CFDictionarySetValue(dict, CFSTR("streamCreationType"), CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &info.streamCreationType));
-	CFDictionarySetValue(dict, CFSTR("serviceObject"), CFNumberCreate(kCFAllocatorDefault, kCFNumberLongType, &serviceObject));
-	CFArrayAppendValue(deviceArray, dict);	
-	notificationCenterSendDeviceList();
-}
-
 static void 
 serviceMatched (void *refCon, io_iterator_t iterator)
 {
 	io_service_t serviceObject;
 	
-	while ((serviceObject = IOIteratorNext(iterator)))
-		addDevice(serviceObject);
+	while ((serviceObject = IOIteratorNext(iterator))) {
+		OSStatus ret;
+		io_connect_t data_port;
+		struct PAVirtualDeviceInfo info;
+		size_t size = sizeof(info);
+		
+		ret = IOServiceOpen(serviceObject, mach_task_self(), 0, &data_port);
+		if (ret) {
+			printf("%s(): IOServiceOpen() returned %08x\n", __func__, (int) ret);
+			return;
+		}
+		
+		ret = IOConnectCallStructMethod(data_port,				// an io_connect_t returned from IOServiceOpen().
+						kPADeviceUserClientGetDeviceInfo,	// selector of the function to be called via the user client.
+						NULL,					// pointer to the input struct parameter.
+						0,					// the size of the input structure parameter.
+						&info,					// pointer to the output struct parameter.
+						&size					// pointer to the size of the output structure parameter.
+						);
+		
+		printf(" XXXXX AUDIODEVICE ADDED: >%s< (%d)\n", info.name, serviceObject);
+		
+		CFMutableDictionaryRef dict = CFDictionaryCreateMutable(kCFAllocatorDefault, 1,
+									&kCFCopyStringDictionaryKeyCallBacks,
+									&kCFTypeDictionaryValueCallBacks);
+		
+		CFDictionarySetValue(dict, CFSTR("name"), CFStringCreateWithCString(kCFAllocatorDefault, info.name, kCFStringEncodingUTF8));
+		CFDictionarySetValue(dict, CFSTR("server"), CFStringCreateWithCString(kCFAllocatorDefault, info.server, kCFStringEncodingUTF8));
+		CFDictionarySetValue(dict, CFSTR("channelsIn"), CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &info.channelsIn));
+		CFDictionarySetValue(dict, CFSTR("channelsOut"), CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &info.channelsOut));
+		CFDictionarySetValue(dict, CFSTR("audioContentType"), CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &info.audioContentType));
+		CFDictionarySetValue(dict, CFSTR("streamCreationType"), CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &info.streamCreationType));
+		CFDictionarySetValue(dict, CFSTR("serviceObject"), CFNumberCreate(kCFAllocatorDefault, kCFNumberLongType, &serviceObject));
+		CFArrayAppendValue(deviceArray, dict);
+	}
+	
+	notificationCenterSendDeviceList();
 }
 
 static void 

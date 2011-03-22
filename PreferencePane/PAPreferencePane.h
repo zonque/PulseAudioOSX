@@ -9,6 +9,7 @@
  (at your option) any later version.
  ***/
 
+#import "BonjourListener.h"
 #import <PreferencePanes/PreferencePanes.h>
 
 @interface PAPreferencePane : NSPreferencePane 
@@ -33,6 +34,8 @@
 	
 	NSMutableArray *audioContentTypeStrings;
 	NSMutableArray *streamCreationTypeStrings;
+	
+	BonjourListener *listener;
 }
 
 - (IBAction) addDevice: (id) sender;

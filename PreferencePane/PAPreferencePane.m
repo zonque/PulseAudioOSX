@@ -38,10 +38,19 @@
 			      deliverImmediately: YES];	
 }
 
+- (void) bonjourServiceAdded: (NSNotification *) notification
+{
+	NSDictionary *userInfo = [notification userInfo];
+	[serverNamePopup addItemWithTitle: [userInfo objectForKey: @"name"]];
+}
+
 - (void) mainViewDidLoad
 {
 	NSInteger i;
 
+	[serverNamePopup removeAllItems];
+	[serverNamePopup addItemWithTitle: @"localhost"];
+	
 	audioContentTypeStrings = [[NSMutableArray arrayWithCapacity: 0] retain];
 	[audioContentTypeStrings addObject: @"Mixdown"];
 	[audioContentTypeStrings addObject: @"Individual clients"];
@@ -77,6 +86,8 @@
 	for (NSString *str in streamCreationTypeStrings)
 		[streamCreationTypePopup addItemWithTitle: str];
 
+	[self selectDevice: nil];
+
 	notificationCenter = [NSDistributedNotificationCenter defaultCenter];
 
 	[notificationCenter addObserver: self
@@ -84,7 +95,13 @@
 				   name: @"updateDeviceList"
 				 object: REMOTE_OBJECT];
 	[self requestDeviceList];
-	[self selectDevice: nil];
+	
+	listener = [[BonjourListener alloc] initForService: "_pulse-server._tcp"];
+	[[NSNotificationCenter defaultCenter] addObserver: self
+						 selector: @selector(bonjourServiceAdded:)
+						     name: @"serviceAdded"
+						   object: listener];
+	[listener start];	
 }
 
 #pragma mark ### NSTableViewSource protocol ###
@@ -92,7 +109,7 @@
 - (void)tableView:(NSTableView *)aTableView
    setObjectValue:obj
    forTableColumn:(NSTableColumn *)col
-			  row:(int)rowIndex
+	      row:(int)rowIndex
 {
 }
 
@@ -132,7 +149,7 @@
 
 	[dict setValue: [deviceNameField stringValue]
 		forKey: @"name"];
-	[dict setValue: [serverNamePopup stringValue]
+	[dict setValue: [serverNamePopup titleOfSelectedItem]
 		forKey: @"server"];
 	[dict setValue: [NSNumber numberWithInt: channelsIn]
 		forKey: @"channelsIn"];

@@ -51,6 +51,7 @@ static void sendDeviceListCallback (CFNotificationCenterRef center,
 				    const void *object,
 				    CFDictionaryRef _userInfo)
 {
+	printf("%s()\n", __func__);
 	notificationCenterSendDeviceList();
 }
 
@@ -73,9 +74,18 @@ static void addDeviceCallback (CFNotificationCenterRef center,
 	num = CFDictionaryGetValue(userInfo, CFSTR("blockSize"));
 	CFNumberGetValue(num, kCFNumberIntType, &info.blockSize);
 	
+	num = CFDictionaryGetValue(userInfo, CFSTR("audioContentType"));
+	CFNumberGetValue(num, kCFNumberIntType, &info.audioContentType);
+	
+	num = CFDictionaryGetValue(userInfo, CFSTR("streamCreationType"));
+	CFNumberGetValue(num, kCFNumberIntType, &info.streamCreationType);
+	
 	str = CFDictionaryGetValue(userInfo, CFSTR("name"));
 	CFStringGetCString(str, info.name, sizeof(info.name), kCFStringEncodingUTF8);
-	
+
+	str = CFDictionaryGetValue(userInfo, CFSTR("server"));
+	CFStringGetCString(str, info.server, sizeof(info.server), kCFStringEncodingUTF8);
+
 	addDeviceFromInfo(&info);
 }
 
@@ -104,25 +114,28 @@ static void removeDeviceCallback (CFNotificationCenterRef center,
 
 IOReturn notificationCenterStart(void)
 {
-	CFNotificationCenterAddObserver (CFNotificationCenterGetDistributedCenter(),
-					 NULL, //const void *observer,
-					 sendDeviceListCallback,
-					 CFSTR("sendDeviceList"),
-					 CFSTR("PAPreferencePane"),
-					 CFNotificationSuspensionBehaviorDeliverImmediately);
+	printf("%s()\n", __func__);
+
+	CFNotificationCenterAddObserver(CFNotificationCenterGetDistributedCenter(),
+					NULL, //const void *observer,
+					sendDeviceListCallback,
+					CFSTR("sendDeviceList"),
+					CFSTR("PAPreferencePane"),
+					CFNotificationSuspensionBehaviorDeliverImmediately);
 	
-	CFNotificationCenterAddObserver (CFNotificationCenterGetDistributedCenter(),
-					 NULL, //const void *observer,
-					 addDeviceCallback,
-					 CFSTR("addDevice"),
-					 CFSTR("PAPreferencePane"),
-					 CFNotificationSuspensionBehaviorDeliverImmediately);
+	CFNotificationCenterAddObserver(CFNotificationCenterGetDistributedCenter(),
+					NULL, //const void *observer,
+					addDeviceCallback,
+					CFSTR("addDevice"),
+					CFSTR("PAPreferencePane"),
+					CFNotificationSuspensionBehaviorDeliverImmediately);
 	
-	CFNotificationCenterAddObserver (CFNotificationCenterGetDistributedCenter(),
-					 NULL, //const void *observer,
-					 removeDeviceCallback,
-					 CFSTR("removeDevice"),
-					 CFSTR("PAPreferencePane"),
-					 CFNotificationSuspensionBehaviorDeliverImmediately);
+	CFNotificationCenterAddObserver(CFNotificationCenterGetDistributedCenter(),
+					NULL, //const void *observer,
+					removeDeviceCallback,
+					CFSTR("removeDevice"),
+					CFSTR("PAPreferencePane"),
+					CFNotificationSuspensionBehaviorDeliverImmediately);
+
 	return 0;
 }

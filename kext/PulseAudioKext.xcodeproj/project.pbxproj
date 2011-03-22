@@ -128,31 +128,79 @@
 		247142CAFF3F8F9811CA285C /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				6503DFEF133929E500B58125 /* PADriver */,
+				6503DFF113392A1900B58125 /* PAEngine */,
+				6503DFF013392A0400B58125 /* PADevice */,
+				6503DFF213392A2A00B58125 /* PAVirtualDevice */,
+				6503DFF313392A3E00B58125 /* PAStream */,
+				6503DFF413392A5000B58125 /* Floating Point Support */,
 				6520822D114AAC4900EE6D5A /* PAUserClientCommonTypes.h */,
+				65FE3F6D1010CD9E00B00791 /* PALog.h */,
+				65BDAA04105E346600D15169 /* BuildNames.h */,
+			);
+			name = Source;
+			sourceTree = "<group>";
+		};
+		6503DFEF133929E500B58125 /* PADriver */ = {
+			isa = PBXGroup;
+			children = (
+				65291A75113D6314001BED4D /* PADriver.h */,
+				65291A76113D6314001BED4D /* PADriver.cpp */,
+				65291A37113D5872001BED4D /* PADriverUserClientTypes.h */,
+				65FE3F261010B8B200B00791 /* PADriverUserClient.h */,
+				65FE3F271010B8B200B00791 /* PADriverUserClient.cpp */,
+			);
+			name = PADriver;
+			sourceTree = "<group>";
+		};
+		6503DFF013392A0400B58125 /* PADevice */ = {
+			isa = PBXGroup;
+			children = (
+				65FE3F171010B89100B00791 /* PADevice.h */,
+				65FE3F181010B89100B00791 /* PADevice.cpp */,
+				650E30C31338EAD3009ACF12 /* PADeviceUserClient.h */,
+				650E30C41338EAD3009ACF12 /* PADeviceUserClient.cpp */,
+				650E30C71338EB9F009ACF12 /* PADeviceUserClientTypes.h */,
+			);
+			name = PADevice;
+			sourceTree = "<group>";
+		};
+		6503DFF113392A1900B58125 /* PAEngine */ = {
+			isa = PBXGroup;
+			children = (
+				65FE3F221010B8A800B00791 /* PAEngine.h */,
+				65FE3F231010B8A800B00791 /* PAEngine.cpp */,
+			);
+			name = PAEngine;
+			sourceTree = "<group>";
+		};
+		6503DFF213392A2A00B58125 /* PAVirtualDevice */ = {
+			isa = PBXGroup;
+			children = (
 				65208208114A93DF00EE6D5A /* PAVirtualDevice.cpp */,
 				65208209114A93DF00EE6D5A /* PAVirtualDevice.h */,
 				6520820A114A93DF00EE6D5A /* PAVirtualDeviceUserClient.cpp */,
 				6520820B114A93DF00EE6D5A /* PAVirtualDeviceUserClient.h */,
 				6520820C114A93DF00EE6D5A /* PAVirtualDeviceUserClientTypes.h */,
-				65291A75113D6314001BED4D /* PADriver.h */,
-				65291A76113D6314001BED4D /* PADriver.cpp */,
-				65291A37113D5872001BED4D /* PADriverUserClientTypes.h */,
-				65FE3F171010B89100B00791 /* PADevice.h */,
-				65FE3F181010B89100B00791 /* PADevice.cpp */,
-				65FE3F221010B8A800B00791 /* PAEngine.h */,
-				65FE3F231010B8A800B00791 /* PAEngine.cpp */,
-				65FE3F261010B8B200B00791 /* PADriverUserClient.h */,
-				65FE3F271010B8B200B00791 /* PADriverUserClient.cpp */,
-				65FE3F6D1010CD9E00B00791 /* PALog.h */,
-				65BDAA04105E346600D15169 /* BuildNames.h */,
-				652E2B221145C9980019804F /* PAClip.cpp */,
+			);
+			name = PAVirtualDevice;
+			sourceTree = "<group>";
+		};
+		6503DFF313392A3E00B58125 /* PAStream */ = {
+			isa = PBXGroup;
+			children = (
 				65F4BEB8114E4A300066A0F2 /* PAStream.h */,
 				65F4BEB9114E4A300066A0F2 /* PAStream.cpp */,
-				650E30C31338EAD3009ACF12 /* PADeviceUserClient.h */,
-				650E30C41338EAD3009ACF12 /* PADeviceUserClient.cpp */,
-				650E30C71338EB9F009ACF12 /* PADeviceUserClientTypes.h */,
 			);
-			name = Source;
+			name = PAStream;
+			sourceTree = "<group>";
+		};
+		6503DFF413392A5000B58125 /* Floating Point Support */ = {
+			isa = PBXGroup;
+			children = (
+				652E2B221145C9980019804F /* PAClip.cpp */,
+			);
+			name = "Floating Point Support";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
