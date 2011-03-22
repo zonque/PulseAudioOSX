@@ -25,8 +25,10 @@ class PADevice : public IOAudioDevice
 	struct PAVirtualDeviceInfo deviceInfo;
 
 public:
+	bool	init(OSDictionary *dictionary);
 	bool	initHardware(IOService *provider);
 	void	setInfo(const struct PAVirtualDeviceInfo *info);
+	void	getInfo(struct PAVirtualDeviceInfo *info);
 };
 
 #endif /* PADEVICE_H */

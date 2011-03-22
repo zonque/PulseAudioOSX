@@ -25,6 +25,7 @@ __END_DECLS
 
 #include "driverClient.h"
 #include "deviceClient.h"
+#include "virtualDeviceClient.h"
 
 #define PADriverClassName "org_pulseaudio_driver"
 
@@ -68,10 +69,16 @@ serviceMatched (void *refCon, io_iterator_t iterator)
 		printf("%s(): IOServiceOpen() returned %08x\n", __func__, ret);
 		return;
 	}
-	
+
 	ret = deviceClientStart();
 	if (ret) {
-		printf("deviceClientStart() returned %d\n", ret);
+		printf("virtualDeviceClientStart() returned %d\n", ret);
+		return;
+	}
+	
+	ret = virtualDeviceClientStart();
+	if (ret) {
+		printf("virtualDeviceClientStart() returned %d\n", ret);
 		return;
 	}
 
@@ -99,6 +106,7 @@ serviceTerminated (void *refCon, io_iterator_t iterator)
 		return;
 
 	deviceClientStop();
+	virtualDeviceClientStop();
 
 	if (driverDataPort) {
 		IOServiceClose(driverDataPort);

@@ -36,11 +36,11 @@ void notificationCenterSendDeviceList (void)
 					     &kCFTypeDictionaryValueCallBacks);
 	CFDictionarySetValue(userInfo, CFSTR("array"), deviceArray);
 
-	CFNotificationCenterPostNotification (CFNotificationCenterGetDistributedCenter(),
-					      CFSTR("updateDeviceList"),
-					      CFSTR("PADaemon"),
-					      userInfo,
-					      true);
+	CFNotificationCenterPostNotification(CFNotificationCenterGetDistributedCenter(),
+					     CFSTR("updateDeviceList"),
+					     CFSTR("PADaemon"),
+					     userInfo,
+					     true);
 	CFRelease(userInfo);
 }
 

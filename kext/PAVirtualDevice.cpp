@@ -32,18 +32,12 @@ PAVirtualDevice::init(OSDictionary *dictionary)
 	
 	dictionary->setObject("IOUserClientClass", OSString::withCString(XStr(PAVirtualDeviceUserClient)));
 
-	if (!super::init(dictionary)) {
-		if (newDict)
-			newDict->release();
-			
-		return false;
-	}
+	bool ret = super::init(dictionary);
 
 	if (newDict)
 		newDict->release();
 
-	debugFunctionEnter();
-	return true;
+	return ret;
 }
 
 bool

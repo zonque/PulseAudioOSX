@@ -18,6 +18,24 @@
 OSDefineMetaClassAndStructors(PADevice, IOAudioDevice)
 
 bool
+PADevice::init(OSDictionary *dictionary)
+{
+	OSDictionary *newDict = NULL;
+	
+	if (!dictionary)
+		newDict = dictionary = OSDictionary::withCapacity(1);
+	
+	dictionary->setObject("IOUserClientClass", OSString::withCString(XStr(PADeviceUserClient)));
+	
+	bool ret = super::init(dictionary);
+	
+	if (newDict)
+		newDict->release();
+	
+	return ret;
+}
+
+bool
 PADevice::initHardware(IOService *provider)
 {
 	debugFunctionEnter();
@@ -60,4 +78,11 @@ PADevice::setInfo(const struct PAVirtualDeviceInfo *info)
 {
 	debugFunctionEnter();
 	memcpy(&deviceInfo, info, sizeof(deviceInfo));
+}
+
+void
+PADevice::getInfo(struct PAVirtualDeviceInfo *info)
+{
+	debugFunctionEnter();
+	memcpy(info, &deviceInfo, sizeof(deviceInfo));
 }

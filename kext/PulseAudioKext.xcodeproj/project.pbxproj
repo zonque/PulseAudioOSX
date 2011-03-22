@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		32D94FC80562CBF700B6AF17 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C167DFE841241C02AAC07 /* InfoPlist.strings */; };
+		650E30C51338EAD3009ACF12 /* PADeviceUserClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 650E30C31338EAD3009ACF12 /* PADeviceUserClient.h */; };
+		650E30C61338EAD3009ACF12 /* PADeviceUserClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 650E30C41338EAD3009ACF12 /* PADeviceUserClient.cpp */; };
+		650E30C81338EB9F009ACF12 /* PADeviceUserClientTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 650E30C71338EB9F009ACF12 /* PADeviceUserClientTypes.h */; };
 		652081EB114A8E1300EE6D5A /* libPAFloatSupport.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 652E2B1B1145C9320019804F /* libPAFloatSupport.a */; };
 		65208210114A93DF00EE6D5A /* PAVirtualDeviceUserClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 6520820B114A93DF00EE6D5A /* PAVirtualDeviceUserClient.h */; };
 		65208211114A93DF00EE6D5A /* PAVirtualDeviceUserClientTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 6520820C114A93DF00EE6D5A /* PAVirtualDeviceUserClientTypes.h */; };
@@ -47,6 +50,9 @@
 		089C167EFE841241C02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		32D94FCF0562CBF700B6AF17 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		32D94FD00562CBF700B6AF17 /* PulseAudioKext.kext */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PulseAudioKext.kext; sourceTree = BUILT_PRODUCTS_DIR; };
+		650E30C31338EAD3009ACF12 /* PADeviceUserClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PADeviceUserClient.h; sourceTree = "<group>"; };
+		650E30C41338EAD3009ACF12 /* PADeviceUserClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PADeviceUserClient.cpp; sourceTree = "<group>"; };
+		650E30C71338EB9F009ACF12 /* PADeviceUserClientTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PADeviceUserClientTypes.h; sourceTree = "<group>"; };
 		65208208114A93DF00EE6D5A /* PAVirtualDevice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PAVirtualDevice.cpp; sourceTree = "<group>"; };
 		65208209114A93DF00EE6D5A /* PAVirtualDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PAVirtualDevice.h; sourceTree = "<group>"; };
 		6520820A114A93DF00EE6D5A /* PAVirtualDeviceUserClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PAVirtualDeviceUserClient.cpp; sourceTree = "<group>"; };
@@ -142,6 +148,9 @@
 				652E2B221145C9980019804F /* PAClip.cpp */,
 				65F4BEB8114E4A300066A0F2 /* PAStream.h */,
 				65F4BEB9114E4A300066A0F2 /* PAStream.cpp */,
+				650E30C31338EAD3009ACF12 /* PADeviceUserClient.h */,
+				650E30C41338EAD3009ACF12 /* PADeviceUserClient.cpp */,
+				650E30C71338EB9F009ACF12 /* PADeviceUserClientTypes.h */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -165,6 +174,8 @@
 				6520868A114D440800EE6D5A /* PAVirtualDeviceUserClient.h in Headers */,
 				6520868B114D440900EE6D5A /* PAVirtualDeviceUserClientTypes.h in Headers */,
 				65F4BEBA114E4A300066A0F2 /* PAStream.h in Headers */,
+				650E30C51338EAD3009ACF12 /* PADeviceUserClient.h in Headers */,
+				650E30C81338EB9F009ACF12 /* PADeviceUserClientTypes.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -276,6 +287,7 @@
 				65208686114D440100EE6D5A /* PAVirtualDevice.cpp in Sources */,
 				65208687114D440300EE6D5A /* PAVirtualDeviceUserClient.cpp in Sources */,
 				65F4BEBB114E4A300066A0F2 /* PAStream.cpp in Sources */,
+				650E30C61338EAD3009ACF12 /* PADeviceUserClient.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
