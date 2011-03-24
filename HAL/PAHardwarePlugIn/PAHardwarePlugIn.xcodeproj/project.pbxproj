@@ -1,0 +1,727 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 42;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		2D73F6AF08E0BEDC00EB0F54 /* HP_HardwarePlugIn.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2D73F6AA08E0BEDC00EB0F54 /* HP_HardwarePlugIn.cpp */; };
+		2D73F6B008E0BEDC00EB0F54 /* HP_HardwarePlugIn.h in Headers */ = {isa = PBXBuildFile; fileRef = 2D73F6AB08E0BEDC00EB0F54 /* HP_HardwarePlugIn.h */; };
+		2D73F6B108E0BEDC00EB0F54 /* HP_HardwarePlugInInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2D73F6AC08E0BEDC00EB0F54 /* HP_HardwarePlugInInterface.cpp */; };
+		2D73FA1008E3641800EB0F54 /* PAHP_Control.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2D73FA0708E3641800EB0F54 /* PAHP_Control.cpp */; };
+		2D73FA1108E3641800EB0F54 /* PAHP_Control.h in Headers */ = {isa = PBXBuildFile; fileRef = 2D73FA0808E3641800EB0F54 /* PAHP_Control.h */; };
+		2D73FA1208E3641800EB0F54 /* PAHP_Device.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2D73FA0908E3641800EB0F54 /* PAHP_Device.cpp */; };
+		2D73FA1308E3641800EB0F54 /* PAHP_Device.h in Headers */ = {isa = PBXBuildFile; fileRef = 2D73FA0A08E3641800EB0F54 /* PAHP_Device.h */; };
+		2D73FA1408E3641800EB0F54 /* PAHP_PlugIn.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2D73FA0B08E3641800EB0F54 /* PAHP_PlugIn.cpp */; };
+		2D73FA1508E3641800EB0F54 /* PAHP_PlugIn.h in Headers */ = {isa = PBXBuildFile; fileRef = 2D73FA0C08E3641800EB0F54 /* PAHP_PlugIn.h */; };
+		2D73FA1608E3641800EB0F54 /* PAHP_Prefix.h in Headers */ = {isa = PBXBuildFile; fileRef = 2D73FA0D08E3641800EB0F54 /* PAHP_Prefix.h */; };
+		2D73FA1708E3641800EB0F54 /* PAHP_Stream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2D73FA0E08E3641800EB0F54 /* PAHP_Stream.cpp */; };
+		2D73FA1808E3641800EB0F54 /* PAHP_Stream.h in Headers */ = {isa = PBXBuildFile; fileRef = 2D73FA0F08E3641800EB0F54 /* PAHP_Stream.h */; };
+		2DBF1BD00C48011700FB5F74 /* HP_DeviceInfoList.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DBF1BCB0C48011700FB5F74 /* HP_DeviceInfoList.h */; };
+		2DBF1BD10C48011700FB5F74 /* HP_ReferenceCounted.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DBF1BCC0C48011700FB5F74 /* HP_ReferenceCounted.cpp */; };
+		2DBF1BD20C48011700FB5F74 /* HP_ReferenceCounted.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DBF1BCD0C48011700FB5F74 /* HP_ReferenceCounted.h */; };
+		2DBF1BD30C48011700FB5F74 /* HP_SystemInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DBF1BCE0C48011700FB5F74 /* HP_SystemInfo.cpp */; };
+		2DBF1BD40C48011700FB5F74 /* HP_SystemInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DBF1BCF0C48011700FB5F74 /* HP_SystemInfo.h */; };
+		2DE2145208E38A52008DCE9D /* CAProcess.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DE2145008E38A52008DCE9D /* CAProcess.cpp */; };
+		2DE2145308E38A52008DCE9D /* CAProcess.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DE2145108E38A52008DCE9D /* CAProcess.h */; };
+		2DF7BC1D08DA4A3A00EE5510 /* HP_Command.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BBFC08DA4A3A00EE5510 /* HP_Command.cpp */; };
+		2DF7BC1E08DA4A3A00EE5510 /* HP_Control.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BBFE08DA4A3A00EE5510 /* HP_Control.cpp */; };
+		2DF7BC1F08DA4A3A00EE5510 /* HP_Device.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BC0008DA4A3A00EE5510 /* HP_Device.cpp */; };
+		2DF7BC2008DA4A3A00EE5510 /* HP_DeviceCommands.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BC0208DA4A3A00EE5510 /* HP_DeviceCommands.cpp */; };
+		2DF7BC2108DA4A3A00EE5510 /* HP_DeviceSettings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BC0408DA4A3A00EE5510 /* HP_DeviceSettings.cpp */; };
+		2DF7BC2208DA4A3A00EE5510 /* HP_FormatList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BC0608DA4A3A00EE5510 /* HP_FormatList.cpp */; };
+		2DF7BC2308DA4A3A00EE5510 /* HP_HogMode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BC0808DA4A3A00EE5510 /* HP_HogMode.cpp */; };
+		2DF7BC2408DA4A3A00EE5510 /* HP_IOCycleTelemetry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BC0A08DA4A3A00EE5510 /* HP_IOCycleTelemetry.cpp */; };
+		2DF7BC2508DA4A3A00EE5510 /* HP_IOProcList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BC0C08DA4A3A00EE5510 /* HP_IOProcList.cpp */; };
+		2DF7BC2608DA4A3A00EE5510 /* HP_IOThread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BC0E08DA4A3A00EE5510 /* HP_IOThread.cpp */; };
+		2DF7BC2708DA4A3A00EE5510 /* HP_Object.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BC1008DA4A3A00EE5510 /* HP_Object.cpp */; };
+		2DF7BC2A08DA4A3A00EE5510 /* HP_PreferredChannels.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BC1508DA4A3A00EE5510 /* HP_PreferredChannels.cpp */; };
+		2DF7BC2B08DA4A3A00EE5510 /* HP_Property.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BC1708DA4A3A00EE5510 /* HP_Property.cpp */; };
+		2DF7BC2C08DA4A3A00EE5510 /* HP_Stream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BC1908DA4A3A00EE5510 /* HP_Stream.cpp */; };
+		2DF7BC2D08DA4A3A00EE5510 /* HP_TelemetryServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BC1B08DA4A3A00EE5510 /* HP_TelemetryServer.cpp */; };
+		2DF7BC5408DA4CCA00EE5510 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2DF7BC5308DA4CCA00EE5510 /* CoreAudio.framework */; };
+		2DF7BC8B08DA4F0F00EE5510 /* HP_Command.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BBFD08DA4A3A00EE5510 /* HP_Command.h */; };
+		2DF7BC8C08DA4F1100EE5510 /* HP_Control.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BBFF08DA4A3A00EE5510 /* HP_Control.h */; };
+		2DF7BC8D08DA4F1200EE5510 /* HP_Device.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BC0108DA4A3A00EE5510 /* HP_Device.h */; };
+		2DF7BC8E08DA4F1500EE5510 /* HP_DeviceCommands.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BC0308DA4A3A00EE5510 /* HP_DeviceCommands.h */; };
+		2DF7BC8F08DA4F1700EE5510 /* HP_DeviceSettings.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BC0508DA4A3A00EE5510 /* HP_DeviceSettings.h */; };
+		2DF7BC9008DA4F1900EE5510 /* HP_FormatList.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BC0708DA4A3A00EE5510 /* HP_FormatList.h */; };
+		2DF7BC9108DA4F1C00EE5510 /* HP_HogMode.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BC0908DA4A3A00EE5510 /* HP_HogMode.h */; };
+		2DF7BC9208DA4F1D00EE5510 /* HP_IOCycleTelemetry.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BC0B08DA4A3A00EE5510 /* HP_IOCycleTelemetry.h */; };
+		2DF7BC9308DA4F2000EE5510 /* HP_IOProcList.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BC0D08DA4A3A00EE5510 /* HP_IOProcList.h */; };
+		2DF7BC9408DA4F2100EE5510 /* HP_IOThread.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BC0F08DA4A3A00EE5510 /* HP_IOThread.h */; };
+		2DF7BC9508DA4F2300EE5510 /* HP_Object.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BC1108DA4A3A00EE5510 /* HP_Object.h */; };
+		2DF7BC9708DA4F2700EE5510 /* HP_PreferredChannels.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BC1608DA4A3A00EE5510 /* HP_PreferredChannels.h */; };
+		2DF7BC9808DA4F2900EE5510 /* HP_Property.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BC1808DA4A3A00EE5510 /* HP_Property.h */; };
+		2DF7BC9908DA4F2B00EE5510 /* HP_Stream.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BC1A08DA4A3A00EE5510 /* HP_Stream.h */; };
+		2DF7BC9A08DA4F2D00EE5510 /* HP_TelemetryServer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BC1C08DA4A3A00EE5510 /* HP_TelemetryServer.h */; };
+		2DF7BCE408DA584F00EE5510 /* CAAudioBufferList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BCA908DA584F00EE5510 /* CAAudioBufferList.cpp */; };
+		2DF7BCE508DA584F00EE5510 /* CAAudioBufferList.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCAA08DA584F00EE5510 /* CAAudioBufferList.h */; };
+		2DF7BCE608DA584F00EE5510 /* CAAudioChannelLayout.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BCAB08DA584F00EE5510 /* CAAudioChannelLayout.cpp */; };
+		2DF7BCE708DA584F00EE5510 /* CAAudioChannelLayout.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCAC08DA584F00EE5510 /* CAAudioChannelLayout.h */; };
+		2DF7BCE808DA584F00EE5510 /* CAAudioTimeStamp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BCAD08DA584F00EE5510 /* CAAudioTimeStamp.cpp */; };
+		2DF7BCE908DA584F00EE5510 /* CAAudioTimeStamp.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCAE08DA584F00EE5510 /* CAAudioTimeStamp.h */; };
+		2DF7BCEA08DA584F00EE5510 /* CAAudioValueRange.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BCAF08DA584F00EE5510 /* CAAudioValueRange.cpp */; };
+		2DF7BCEB08DA584F00EE5510 /* CAAudioValueRange.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCB008DA584F00EE5510 /* CAAudioValueRange.h */; };
+		2DF7BCEC08DA584F00EE5510 /* CAAutoDisposer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCB108DA584F00EE5510 /* CAAutoDisposer.h */; };
+		2DF7BCED08DA584F00EE5510 /* CABool.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCB208DA584F00EE5510 /* CABool.h */; };
+		2DF7BCEE08DA584F00EE5510 /* CACFArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BCB308DA584F00EE5510 /* CACFArray.cpp */; };
+		2DF7BCEF08DA584F00EE5510 /* CACFArray.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCB408DA584F00EE5510 /* CACFArray.h */; };
+		2DF7BCF008DA584F00EE5510 /* CACFData.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCB508DA584F00EE5510 /* CACFData.h */; };
+		2DF7BCF108DA584F00EE5510 /* CACFDictionary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BCB608DA584F00EE5510 /* CACFDictionary.cpp */; };
+		2DF7BCF208DA584F00EE5510 /* CACFDictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCB708DA584F00EE5510 /* CACFDictionary.h */; };
+		2DF7BCF308DA584F00EE5510 /* CACFMachPort.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BCB808DA584F00EE5510 /* CACFMachPort.cpp */; };
+		2DF7BCF408DA584F00EE5510 /* CACFMachPort.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCB908DA584F00EE5510 /* CACFMachPort.h */; };
+		2DF7BCF508DA584F00EE5510 /* CACFMessagePort.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BCBA08DA584F00EE5510 /* CACFMessagePort.cpp */; };
+		2DF7BCF608DA584F00EE5510 /* CACFMessagePort.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCBB08DA584F00EE5510 /* CACFMessagePort.h */; };
+		2DF7BCF708DA584F00EE5510 /* CACFNumber.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BCBC08DA584F00EE5510 /* CACFNumber.cpp */; };
+		2DF7BCF808DA584F00EE5510 /* CACFNumber.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCBD08DA584F00EE5510 /* CACFNumber.h */; };
+		2DF7BCF908DA584F00EE5510 /* CACFObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCBE08DA584F00EE5510 /* CACFObject.h */; };
+		2DF7BCFA08DA584F00EE5510 /* CACFPlugIn.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCBF08DA584F00EE5510 /* CACFPlugIn.h */; };
+		2DF7BCFB08DA584F00EE5510 /* CACFPreferences.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BCC008DA584F00EE5510 /* CACFPreferences.cpp */; };
+		2DF7BCFC08DA584F00EE5510 /* CACFPreferences.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCC108DA584F00EE5510 /* CACFPreferences.h */; };
+		2DF7BCFF08DA584F00EE5510 /* CACFString.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BCC408DA584F00EE5510 /* CACFString.cpp */; };
+		2DF7BD0008DA584F00EE5510 /* CACFString.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCC508DA584F00EE5510 /* CACFString.h */; };
+		2DF7BD0208DA584F00EE5510 /* CADebugger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BCC708DA584F00EE5510 /* CADebugger.cpp */; };
+		2DF7BD0308DA584F00EE5510 /* CADebugger.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCC808DA584F00EE5510 /* CADebugger.h */; };
+		2DF7BD0408DA584F00EE5510 /* CADebugMacros.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BCC908DA584F00EE5510 /* CADebugMacros.cpp */; };
+		2DF7BD0508DA584F00EE5510 /* CADebugMacros.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCCA08DA584F00EE5510 /* CADebugMacros.h */; };
+		2DF7BD0608DA584F00EE5510 /* CADebugPrintf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BCCB08DA584F00EE5510 /* CADebugPrintf.cpp */; };
+		2DF7BD0708DA584F00EE5510 /* CADebugPrintf.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCCC08DA584F00EE5510 /* CADebugPrintf.h */; };
+		2DF7BD0808DA584F00EE5510 /* CAException.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCCD08DA584F00EE5510 /* CAException.h */; };
+		2DF7BD0908DA584F00EE5510 /* CAGuard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BCCE08DA584F00EE5510 /* CAGuard.cpp */; };
+		2DF7BD0A08DA584F00EE5510 /* CAGuard.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCCF08DA584F00EE5510 /* CAGuard.h */; };
+		2DF7BD0B08DA584F00EE5510 /* CAHALTelemetry.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCD008DA584F00EE5510 /* CAHALTelemetry.h */; };
+		2DF7BD0C08DA584F00EE5510 /* CAHostTimeBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BCD108DA584F00EE5510 /* CAHostTimeBase.cpp */; };
+		2DF7BD0D08DA584F00EE5510 /* CAHostTimeBase.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCD208DA584F00EE5510 /* CAHostTimeBase.h */; };
+		2DF7BD0E08DA584F00EE5510 /* CALogMacros.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCD308DA584F00EE5510 /* CALogMacros.h */; };
+		2DF7BD0F08DA584F00EE5510 /* CAMutex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BCD408DA584F00EE5510 /* CAMutex.cpp */; };
+		2DF7BD1008DA584F00EE5510 /* CAMutex.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCD508DA584F00EE5510 /* CAMutex.h */; };
+		2DF7BD1108DA584F00EE5510 /* CAPropertyAddress.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCD608DA584F00EE5510 /* CAPropertyAddress.h */; };
+		2DF7BD1208DA584F00EE5510 /* CAPThread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BCD708DA584F00EE5510 /* CAPThread.cpp */; };
+		2DF7BD1308DA584F00EE5510 /* CAPThread.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCD808DA584F00EE5510 /* CAPThread.h */; };
+		2DF7BD1408DA584F00EE5510 /* CASettingsStorage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BCD908DA584F00EE5510 /* CASettingsStorage.cpp */; };
+		2DF7BD1508DA584F00EE5510 /* CASettingsStorage.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCDA08DA584F00EE5510 /* CASettingsStorage.h */; };
+		2DF7BD1608DA584F00EE5510 /* CASharedLibrary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BCDB08DA584F00EE5510 /* CASharedLibrary.cpp */; };
+		2DF7BD1708DA584F00EE5510 /* CASharedLibrary.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCDC08DA584F00EE5510 /* CASharedLibrary.h */; };
+		2DF7BD1808DA584F00EE5510 /* CAStreamBasicDescription.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BCDD08DA584F00EE5510 /* CAStreamBasicDescription.cpp */; };
+		2DF7BD1908DA584F00EE5510 /* CAStreamBasicDescription.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCDE08DA584F00EE5510 /* CAStreamBasicDescription.h */; };
+		2DF7BD1A08DA584F00EE5510 /* CAStreamRangedDescription.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BCDF08DA584F00EE5510 /* CAStreamRangedDescription.cpp */; };
+		2DF7BD1B08DA584F00EE5510 /* CAStreamRangedDescription.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCE008DA584F00EE5510 /* CAStreamRangedDescription.h */; };
+		2DF7BD1C08DA584F00EE5510 /* CATokenMap.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCE108DA584F00EE5510 /* CATokenMap.h */; };
+		2DF7BD1D08DA584F00EE5510 /* CAVolumeCurve.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BCE208DA584F00EE5510 /* CAVolumeCurve.cpp */; };
+		2DF7BD1E08DA584F00EE5510 /* CAVolumeCurve.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCE308DA584F00EE5510 /* CAVolumeCurve.h */; };
+		65F4FCDB133BCFAE00E72096 /* pulse.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65F4FCDA133BCFAE00E72096 /* pulse.framework */; };
+		8D576314048677EA00EA77CD /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0AA1909FFE8422F4C02AAC07 /* CoreFoundation.framework */; };
+		F7630E7F0E28101E0066580C /* CACFDistributedNotification.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F7630E7D0E28101E0066580C /* CACFDistributedNotification.cpp */; };
+		F7630E800E28101E0066580C /* CACFDistributedNotification.h in Headers */ = {isa = PBXBuildFile; fileRef = F7630E7E0E28101E0066580C /* CACFDistributedNotification.h */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0AA1909FFE8422F4C02AAC07 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = /System/Library/Frameworks/CoreFoundation.framework; sourceTree = "<absolute>"; };
+		2D73F6AA08E0BEDC00EB0F54 /* HP_HardwarePlugIn.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = HP_HardwarePlugIn.cpp; sourceTree = "<group>"; };
+		2D73F6AB08E0BEDC00EB0F54 /* HP_HardwarePlugIn.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = HP_HardwarePlugIn.h; sourceTree = "<group>"; };
+		2D73F6AC08E0BEDC00EB0F54 /* HP_HardwarePlugInInterface.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = HP_HardwarePlugInInterface.cpp; sourceTree = "<group>"; };
+		2D73FA0708E3641800EB0F54 /* PAHP_Control.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = PAHP_Control.cpp; sourceTree = "<group>"; };
+		2D73FA0808E3641800EB0F54 /* PAHP_Control.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = PAHP_Control.h; sourceTree = "<group>"; };
+		2D73FA0908E3641800EB0F54 /* PAHP_Device.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = PAHP_Device.cpp; sourceTree = "<group>"; };
+		2D73FA0A08E3641800EB0F54 /* PAHP_Device.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = PAHP_Device.h; sourceTree = "<group>"; };
+		2D73FA0B08E3641800EB0F54 /* PAHP_PlugIn.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = PAHP_PlugIn.cpp; sourceTree = "<group>"; };
+		2D73FA0C08E3641800EB0F54 /* PAHP_PlugIn.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = PAHP_PlugIn.h; sourceTree = "<group>"; };
+		2D73FA0D08E3641800EB0F54 /* PAHP_Prefix.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = PAHP_Prefix.h; sourceTree = "<group>"; };
+		2D73FA0E08E3641800EB0F54 /* PAHP_Stream.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = PAHP_Stream.cpp; sourceTree = "<group>"; };
+		2D73FA0F08E3641800EB0F54 /* PAHP_Stream.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = PAHP_Stream.h; sourceTree = "<group>"; };
+		2DBF1BCB0C48011700FB5F74 /* HP_DeviceInfoList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HP_DeviceInfoList.h; sourceTree = "<group>"; };
+		2DBF1BCC0C48011700FB5F74 /* HP_ReferenceCounted.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HP_ReferenceCounted.cpp; sourceTree = "<group>"; };
+		2DBF1BCD0C48011700FB5F74 /* HP_ReferenceCounted.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HP_ReferenceCounted.h; sourceTree = "<group>"; };
+		2DBF1BCE0C48011700FB5F74 /* HP_SystemInfo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HP_SystemInfo.cpp; sourceTree = "<group>"; };
+		2DBF1BCF0C48011700FB5F74 /* HP_SystemInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HP_SystemInfo.h; sourceTree = "<group>"; };
+		2DE2145008E38A52008DCE9D /* CAProcess.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = CAProcess.cpp; sourceTree = "<group>"; };
+		2DE2145108E38A52008DCE9D /* CAProcess.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CAProcess.h; sourceTree = "<group>"; };
+		2DF7BBFC08DA4A3A00EE5510 /* HP_Command.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = HP_Command.cpp; sourceTree = "<group>"; };
+		2DF7BBFD08DA4A3A00EE5510 /* HP_Command.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = HP_Command.h; sourceTree = "<group>"; };
+		2DF7BBFE08DA4A3A00EE5510 /* HP_Control.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = HP_Control.cpp; sourceTree = "<group>"; };
+		2DF7BBFF08DA4A3A00EE5510 /* HP_Control.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = HP_Control.h; sourceTree = "<group>"; };
+		2DF7BC0008DA4A3A00EE5510 /* HP_Device.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = HP_Device.cpp; sourceTree = "<group>"; };
+		2DF7BC0108DA4A3A00EE5510 /* HP_Device.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = HP_Device.h; sourceTree = "<group>"; };
+		2DF7BC0208DA4A3A00EE5510 /* HP_DeviceCommands.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = HP_DeviceCommands.cpp; sourceTree = "<group>"; };
+		2DF7BC0308DA4A3A00EE5510 /* HP_DeviceCommands.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = HP_DeviceCommands.h; sourceTree = "<group>"; };
+		2DF7BC0408DA4A3A00EE5510 /* HP_DeviceSettings.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = HP_DeviceSettings.cpp; sourceTree = "<group>"; };
+		2DF7BC0508DA4A3A00EE5510 /* HP_DeviceSettings.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = HP_DeviceSettings.h; sourceTree = "<group>"; };
+		2DF7BC0608DA4A3A00EE5510 /* HP_FormatList.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = HP_FormatList.cpp; sourceTree = "<group>"; };
+		2DF7BC0708DA4A3A00EE5510 /* HP_FormatList.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = HP_FormatList.h; sourceTree = "<group>"; };
+		2DF7BC0808DA4A3A00EE5510 /* HP_HogMode.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = HP_HogMode.cpp; sourceTree = "<group>"; };
+		2DF7BC0908DA4A3A00EE5510 /* HP_HogMode.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = HP_HogMode.h; sourceTree = "<group>"; };
+		2DF7BC0A08DA4A3A00EE5510 /* HP_IOCycleTelemetry.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = HP_IOCycleTelemetry.cpp; sourceTree = "<group>"; };
+		2DF7BC0B08DA4A3A00EE5510 /* HP_IOCycleTelemetry.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = HP_IOCycleTelemetry.h; sourceTree = "<group>"; };
+		2DF7BC0C08DA4A3A00EE5510 /* HP_IOProcList.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = HP_IOProcList.cpp; sourceTree = "<group>"; };
+		2DF7BC0D08DA4A3A00EE5510 /* HP_IOProcList.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = HP_IOProcList.h; sourceTree = "<group>"; };
+		2DF7BC0E08DA4A3A00EE5510 /* HP_IOThread.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = HP_IOThread.cpp; sourceTree = "<group>"; };
+		2DF7BC0F08DA4A3A00EE5510 /* HP_IOThread.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = HP_IOThread.h; sourceTree = "<group>"; };
+		2DF7BC1008DA4A3A00EE5510 /* HP_Object.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = HP_Object.cpp; sourceTree = "<group>"; };
+		2DF7BC1108DA4A3A00EE5510 /* HP_Object.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = HP_Object.h; sourceTree = "<group>"; };
+		2DF7BC1508DA4A3A00EE5510 /* HP_PreferredChannels.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = HP_PreferredChannels.cpp; sourceTree = "<group>"; };
+		2DF7BC1608DA4A3A00EE5510 /* HP_PreferredChannels.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = HP_PreferredChannels.h; sourceTree = "<group>"; };
+		2DF7BC1708DA4A3A00EE5510 /* HP_Property.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = HP_Property.cpp; sourceTree = "<group>"; };
+		2DF7BC1808DA4A3A00EE5510 /* HP_Property.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = HP_Property.h; sourceTree = "<group>"; };
+		2DF7BC1908DA4A3A00EE5510 /* HP_Stream.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = HP_Stream.cpp; sourceTree = "<group>"; };
+		2DF7BC1A08DA4A3A00EE5510 /* HP_Stream.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = HP_Stream.h; sourceTree = "<group>"; };
+		2DF7BC1B08DA4A3A00EE5510 /* HP_TelemetryServer.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = HP_TelemetryServer.cpp; sourceTree = "<group>"; };
+		2DF7BC1C08DA4A3A00EE5510 /* HP_TelemetryServer.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = HP_TelemetryServer.h; sourceTree = "<group>"; };
+		2DF7BC5308DA4CCA00EE5510 /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = /System/Library/Frameworks/CoreAudio.framework; sourceTree = "<absolute>"; };
+		2DF7BC7D08DA4E0700EE5510 /* PAHardwarePlugIn.exp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.exports; path = PAHardwarePlugIn.exp; sourceTree = "<group>"; };
+		2DF7BCA908DA584F00EE5510 /* CAAudioBufferList.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = CAAudioBufferList.cpp; sourceTree = "<group>"; };
+		2DF7BCAA08DA584F00EE5510 /* CAAudioBufferList.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CAAudioBufferList.h; sourceTree = "<group>"; };
+		2DF7BCAB08DA584F00EE5510 /* CAAudioChannelLayout.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = CAAudioChannelLayout.cpp; sourceTree = "<group>"; };
+		2DF7BCAC08DA584F00EE5510 /* CAAudioChannelLayout.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CAAudioChannelLayout.h; sourceTree = "<group>"; };
+		2DF7BCAD08DA584F00EE5510 /* CAAudioTimeStamp.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = CAAudioTimeStamp.cpp; sourceTree = "<group>"; };
+		2DF7BCAE08DA584F00EE5510 /* CAAudioTimeStamp.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CAAudioTimeStamp.h; sourceTree = "<group>"; };
+		2DF7BCAF08DA584F00EE5510 /* CAAudioValueRange.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = CAAudioValueRange.cpp; sourceTree = "<group>"; };
+		2DF7BCB008DA584F00EE5510 /* CAAudioValueRange.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CAAudioValueRange.h; sourceTree = "<group>"; };
+		2DF7BCB108DA584F00EE5510 /* CAAutoDisposer.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CAAutoDisposer.h; sourceTree = "<group>"; };
+		2DF7BCB208DA584F00EE5510 /* CABool.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CABool.h; sourceTree = "<group>"; };
+		2DF7BCB308DA584F00EE5510 /* CACFArray.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = CACFArray.cpp; sourceTree = "<group>"; };
+		2DF7BCB408DA584F00EE5510 /* CACFArray.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CACFArray.h; sourceTree = "<group>"; };
+		2DF7BCB508DA584F00EE5510 /* CACFData.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CACFData.h; sourceTree = "<group>"; };
+		2DF7BCB608DA584F00EE5510 /* CACFDictionary.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = CACFDictionary.cpp; sourceTree = "<group>"; };
+		2DF7BCB708DA584F00EE5510 /* CACFDictionary.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CACFDictionary.h; sourceTree = "<group>"; };
+		2DF7BCB808DA584F00EE5510 /* CACFMachPort.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = CACFMachPort.cpp; sourceTree = "<group>"; };
+		2DF7BCB908DA584F00EE5510 /* CACFMachPort.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CACFMachPort.h; sourceTree = "<group>"; };
+		2DF7BCBA08DA584F00EE5510 /* CACFMessagePort.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = CACFMessagePort.cpp; sourceTree = "<group>"; };
+		2DF7BCBB08DA584F00EE5510 /* CACFMessagePort.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CACFMessagePort.h; sourceTree = "<group>"; };
+		2DF7BCBC08DA584F00EE5510 /* CACFNumber.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = CACFNumber.cpp; sourceTree = "<group>"; };
+		2DF7BCBD08DA584F00EE5510 /* CACFNumber.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CACFNumber.h; sourceTree = "<group>"; };
+		2DF7BCBE08DA584F00EE5510 /* CACFObject.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CACFObject.h; sourceTree = "<group>"; };
+		2DF7BCBF08DA584F00EE5510 /* CACFPlugIn.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CACFPlugIn.h; sourceTree = "<group>"; };
+		2DF7BCC008DA584F00EE5510 /* CACFPreferences.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = CACFPreferences.cpp; sourceTree = "<group>"; };
+		2DF7BCC108DA584F00EE5510 /* CACFPreferences.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CACFPreferences.h; sourceTree = "<group>"; };
+		2DF7BCC408DA584F00EE5510 /* CACFString.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = CACFString.cpp; sourceTree = "<group>"; };
+		2DF7BCC508DA584F00EE5510 /* CACFString.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CACFString.h; sourceTree = "<group>"; };
+		2DF7BCC708DA584F00EE5510 /* CADebugger.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = CADebugger.cpp; sourceTree = "<group>"; };
+		2DF7BCC808DA584F00EE5510 /* CADebugger.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CADebugger.h; sourceTree = "<group>"; };
+		2DF7BCC908DA584F00EE5510 /* CADebugMacros.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = CADebugMacros.cpp; sourceTree = "<group>"; };
+		2DF7BCCA08DA584F00EE5510 /* CADebugMacros.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CADebugMacros.h; sourceTree = "<group>"; };
+		2DF7BCCB08DA584F00EE5510 /* CADebugPrintf.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = CADebugPrintf.cpp; sourceTree = "<group>"; };
+		2DF7BCCC08DA584F00EE5510 /* CADebugPrintf.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CADebugPrintf.h; sourceTree = "<group>"; };
+		2DF7BCCD08DA584F00EE5510 /* CAException.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CAException.h; sourceTree = "<group>"; };
+		2DF7BCCE08DA584F00EE5510 /* CAGuard.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = CAGuard.cpp; sourceTree = "<group>"; };
+		2DF7BCCF08DA584F00EE5510 /* CAGuard.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CAGuard.h; sourceTree = "<group>"; };
+		2DF7BCD008DA584F00EE5510 /* CAHALTelemetry.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CAHALTelemetry.h; sourceTree = "<group>"; };
+		2DF7BCD108DA584F00EE5510 /* CAHostTimeBase.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = CAHostTimeBase.cpp; sourceTree = "<group>"; };
+		2DF7BCD208DA584F00EE5510 /* CAHostTimeBase.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CAHostTimeBase.h; sourceTree = "<group>"; };
+		2DF7BCD308DA584F00EE5510 /* CALogMacros.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CALogMacros.h; sourceTree = "<group>"; };
+		2DF7BCD408DA584F00EE5510 /* CAMutex.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = CAMutex.cpp; sourceTree = "<group>"; };
+		2DF7BCD508DA584F00EE5510 /* CAMutex.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CAMutex.h; sourceTree = "<group>"; };
+		2DF7BCD608DA584F00EE5510 /* CAPropertyAddress.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CAPropertyAddress.h; sourceTree = "<group>"; };
+		2DF7BCD708DA584F00EE5510 /* CAPThread.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = CAPThread.cpp; sourceTree = "<group>"; };
+		2DF7BCD808DA584F00EE5510 /* CAPThread.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CAPThread.h; sourceTree = "<group>"; };
+		2DF7BCD908DA584F00EE5510 /* CASettingsStorage.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = CASettingsStorage.cpp; sourceTree = "<group>"; };
+		2DF7BCDA08DA584F00EE5510 /* CASettingsStorage.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CASettingsStorage.h; sourceTree = "<group>"; };
+		2DF7BCDB08DA584F00EE5510 /* CASharedLibrary.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = CASharedLibrary.cpp; sourceTree = "<group>"; };
+		2DF7BCDC08DA584F00EE5510 /* CASharedLibrary.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CASharedLibrary.h; sourceTree = "<group>"; };
+		2DF7BCDD08DA584F00EE5510 /* CAStreamBasicDescription.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = CAStreamBasicDescription.cpp; sourceTree = "<group>"; };
+		2DF7BCDE08DA584F00EE5510 /* CAStreamBasicDescription.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CAStreamBasicDescription.h; sourceTree = "<group>"; };
+		2DF7BCDF08DA584F00EE5510 /* CAStreamRangedDescription.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = CAStreamRangedDescription.cpp; sourceTree = "<group>"; };
+		2DF7BCE008DA584F00EE5510 /* CAStreamRangedDescription.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CAStreamRangedDescription.h; sourceTree = "<group>"; };
+		2DF7BCE108DA584F00EE5510 /* CATokenMap.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CATokenMap.h; sourceTree = "<group>"; };
+		2DF7BCE208DA584F00EE5510 /* CAVolumeCurve.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = CAVolumeCurve.cpp; sourceTree = "<group>"; };
+		2DF7BCE308DA584F00EE5510 /* CAVolumeCurve.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CAVolumeCurve.h; sourceTree = "<group>"; };
+		65F4FCDA133BCFAE00E72096 /* pulse.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = pulse.framework; path = /Library/Frameworks/pulse.framework; sourceTree = "<absolute>"; };
+		8D576316048677EA00EA77CD /* PAHardwarePlugIn.plugin */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PAHardwarePlugIn.plugin; sourceTree = BUILT_PRODUCTS_DIR; };
+		8D576317048677EA00EA77CD /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		F7630E7D0E28101E0066580C /* CACFDistributedNotification.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CACFDistributedNotification.cpp; sourceTree = "<group>"; };
+		F7630E7E0E28101E0066580C /* CACFDistributedNotification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CACFDistributedNotification.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		8D576313048677EA00EA77CD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8D576314048677EA00EA77CD /* CoreFoundation.framework in Frameworks */,
+				2DF7BC5408DA4CCA00EE5510 /* CoreAudio.framework in Frameworks */,
+				65F4FCDB133BCFAE00E72096 /* pulse.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		089C166AFE841209C02AAC07 /* PAHardwarePlugIn */ = {
+			isa = PBXGroup;
+			children = (
+				08FB77AFFE84173DC02AAC07 /* Source */,
+				2DF7BBD608DA498D00EE5510 /* HPBase */,
+				2DF7BC3008DA4A5400EE5510 /* PublicUtility */,
+				2DF7BC7008DA4D5100EE5510 /* Resources */,
+				089C1671FE841209C02AAC07 /* Frameworks */,
+				19C28FB6FE9D52B211CA2CBB /* Products */,
+			);
+			name = PAHardwarePlugIn;
+			sourceTree = "<group>";
+		};
+		089C1671FE841209C02AAC07 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				65F4FCDA133BCFAE00E72096 /* pulse.framework */,
+				2DF7BC5308DA4CCA00EE5510 /* CoreAudio.framework */,
+				0AA1909FFE8422F4C02AAC07 /* CoreFoundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		08FB77AFFE84173DC02AAC07 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				2DF7BC7D08DA4E0700EE5510 /* PAHardwarePlugIn.exp */,
+				2D73FA0708E3641800EB0F54 /* PAHP_Control.cpp */,
+				2D73FA0808E3641800EB0F54 /* PAHP_Control.h */,
+				2D73FA0908E3641800EB0F54 /* PAHP_Device.cpp */,
+				2D73FA0A08E3641800EB0F54 /* PAHP_Device.h */,
+				2D73FA0B08E3641800EB0F54 /* PAHP_PlugIn.cpp */,
+				2D73FA0C08E3641800EB0F54 /* PAHP_PlugIn.h */,
+				2D73FA0D08E3641800EB0F54 /* PAHP_Prefix.h */,
+				2D73FA0E08E3641800EB0F54 /* PAHP_Stream.cpp */,
+				2D73FA0F08E3641800EB0F54 /* PAHP_Stream.h */,
+			);
+			path = Source;
+			sourceTree = SOURCE_ROOT;
+		};
+		19C28FB6FE9D52B211CA2CBB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8D576316048677EA00EA77CD /* PAHardwarePlugIn.plugin */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		2DF7BBD608DA498D00EE5510 /* HPBase */ = {
+			isa = PBXGroup;
+			children = (
+				2DF7BCD008DA584F00EE5510 /* CAHALTelemetry.h */,
+				2DF7BBFC08DA4A3A00EE5510 /* HP_Command.cpp */,
+				2DF7BBFD08DA4A3A00EE5510 /* HP_Command.h */,
+				2DF7BBFE08DA4A3A00EE5510 /* HP_Control.cpp */,
+				2DF7BBFF08DA4A3A00EE5510 /* HP_Control.h */,
+				2DF7BC0008DA4A3A00EE5510 /* HP_Device.cpp */,
+				2DF7BC0108DA4A3A00EE5510 /* HP_Device.h */,
+				2DF7BC0208DA4A3A00EE5510 /* HP_DeviceCommands.cpp */,
+				2DF7BC0308DA4A3A00EE5510 /* HP_DeviceCommands.h */,
+				2DBF1BCB0C48011700FB5F74 /* HP_DeviceInfoList.h */,
+				2DF7BC0408DA4A3A00EE5510 /* HP_DeviceSettings.cpp */,
+				2DF7BC0508DA4A3A00EE5510 /* HP_DeviceSettings.h */,
+				2DF7BC0608DA4A3A00EE5510 /* HP_FormatList.cpp */,
+				2DF7BC0708DA4A3A00EE5510 /* HP_FormatList.h */,
+				2D73F6AA08E0BEDC00EB0F54 /* HP_HardwarePlugIn.cpp */,
+				2D73F6AB08E0BEDC00EB0F54 /* HP_HardwarePlugIn.h */,
+				2D73F6AC08E0BEDC00EB0F54 /* HP_HardwarePlugInInterface.cpp */,
+				2DF7BC0808DA4A3A00EE5510 /* HP_HogMode.cpp */,
+				2DF7BC0908DA4A3A00EE5510 /* HP_HogMode.h */,
+				2DF7BC0A08DA4A3A00EE5510 /* HP_IOCycleTelemetry.cpp */,
+				2DF7BC0B08DA4A3A00EE5510 /* HP_IOCycleTelemetry.h */,
+				2DF7BC0C08DA4A3A00EE5510 /* HP_IOProcList.cpp */,
+				2DF7BC0D08DA4A3A00EE5510 /* HP_IOProcList.h */,
+				2DF7BC0E08DA4A3A00EE5510 /* HP_IOThread.cpp */,
+				2DF7BC0F08DA4A3A00EE5510 /* HP_IOThread.h */,
+				2DF7BC1008DA4A3A00EE5510 /* HP_Object.cpp */,
+				2DF7BC1108DA4A3A00EE5510 /* HP_Object.h */,
+				2DF7BC1508DA4A3A00EE5510 /* HP_PreferredChannels.cpp */,
+				2DF7BC1608DA4A3A00EE5510 /* HP_PreferredChannels.h */,
+				2DF7BC1708DA4A3A00EE5510 /* HP_Property.cpp */,
+				2DF7BC1808DA4A3A00EE5510 /* HP_Property.h */,
+				2DBF1BCC0C48011700FB5F74 /* HP_ReferenceCounted.cpp */,
+				2DBF1BCD0C48011700FB5F74 /* HP_ReferenceCounted.h */,
+				2DF7BC1908DA4A3A00EE5510 /* HP_Stream.cpp */,
+				2DF7BC1A08DA4A3A00EE5510 /* HP_Stream.h */,
+				2DBF1BCE0C48011700FB5F74 /* HP_SystemInfo.cpp */,
+				2DBF1BCF0C48011700FB5F74 /* HP_SystemInfo.h */,
+				2DF7BC1B08DA4A3A00EE5510 /* HP_TelemetryServer.cpp */,
+				2DF7BC1C08DA4A3A00EE5510 /* HP_TelemetryServer.h */,
+			);
+			name = HPBase;
+			path = Extras/CoreAudio/HAL/HPBase;
+			sourceTree = SYSTEM_DEVELOPER_DIR;
+		};
+		2DF7BC3008DA4A5400EE5510 /* PublicUtility */ = {
+			isa = PBXGroup;
+			children = (
+				2DF7BCA908DA584F00EE5510 /* CAAudioBufferList.cpp */,
+				2DF7BCAA08DA584F00EE5510 /* CAAudioBufferList.h */,
+				2DF7BCAB08DA584F00EE5510 /* CAAudioChannelLayout.cpp */,
+				2DF7BCAC08DA584F00EE5510 /* CAAudioChannelLayout.h */,
+				2DF7BCAD08DA584F00EE5510 /* CAAudioTimeStamp.cpp */,
+				2DF7BCAE08DA584F00EE5510 /* CAAudioTimeStamp.h */,
+				2DF7BCAF08DA584F00EE5510 /* CAAudioValueRange.cpp */,
+				2DF7BCB008DA584F00EE5510 /* CAAudioValueRange.h */,
+				2DF7BCB108DA584F00EE5510 /* CAAutoDisposer.h */,
+				2DF7BCB208DA584F00EE5510 /* CABool.h */,
+				2DF7BCB308DA584F00EE5510 /* CACFArray.cpp */,
+				2DF7BCB408DA584F00EE5510 /* CACFArray.h */,
+				2DF7BCB508DA584F00EE5510 /* CACFData.h */,
+				2DF7BCB608DA584F00EE5510 /* CACFDictionary.cpp */,
+				2DF7BCB708DA584F00EE5510 /* CACFDictionary.h */,
+				F7630E7D0E28101E0066580C /* CACFDistributedNotification.cpp */,
+				F7630E7E0E28101E0066580C /* CACFDistributedNotification.h */,
+				2DF7BCB808DA584F00EE5510 /* CACFMachPort.cpp */,
+				2DF7BCB908DA584F00EE5510 /* CACFMachPort.h */,
+				2DF7BCBA08DA584F00EE5510 /* CACFMessagePort.cpp */,
+				2DF7BCBB08DA584F00EE5510 /* CACFMessagePort.h */,
+				2DF7BCBC08DA584F00EE5510 /* CACFNumber.cpp */,
+				2DF7BCBD08DA584F00EE5510 /* CACFNumber.h */,
+				2DF7BCBE08DA584F00EE5510 /* CACFObject.h */,
+				2DF7BCBF08DA584F00EE5510 /* CACFPlugIn.h */,
+				2DF7BCC008DA584F00EE5510 /* CACFPreferences.cpp */,
+				2DF7BCC108DA584F00EE5510 /* CACFPreferences.h */,
+				2DF7BCC408DA584F00EE5510 /* CACFString.cpp */,
+				2DF7BCC508DA584F00EE5510 /* CACFString.h */,
+				2DF7BCC708DA584F00EE5510 /* CADebugger.cpp */,
+				2DF7BCC808DA584F00EE5510 /* CADebugger.h */,
+				2DF7BCC908DA584F00EE5510 /* CADebugMacros.cpp */,
+				2DF7BCCA08DA584F00EE5510 /* CADebugMacros.h */,
+				2DF7BCCB08DA584F00EE5510 /* CADebugPrintf.cpp */,
+				2DF7BCCC08DA584F00EE5510 /* CADebugPrintf.h */,
+				2DF7BCCD08DA584F00EE5510 /* CAException.h */,
+				2DF7BCCE08DA584F00EE5510 /* CAGuard.cpp */,
+				2DF7BCCF08DA584F00EE5510 /* CAGuard.h */,
+				2DF7BCD108DA584F00EE5510 /* CAHostTimeBase.cpp */,
+				2DF7BCD208DA584F00EE5510 /* CAHostTimeBase.h */,
+				2DF7BCD308DA584F00EE5510 /* CALogMacros.h */,
+				2DF7BCD408DA584F00EE5510 /* CAMutex.cpp */,
+				2DF7BCD508DA584F00EE5510 /* CAMutex.h */,
+				2DE2145008E38A52008DCE9D /* CAProcess.cpp */,
+				2DE2145108E38A52008DCE9D /* CAProcess.h */,
+				2DF7BCD608DA584F00EE5510 /* CAPropertyAddress.h */,
+				2DF7BCD708DA584F00EE5510 /* CAPThread.cpp */,
+				2DF7BCD808DA584F00EE5510 /* CAPThread.h */,
+				2DF7BCD908DA584F00EE5510 /* CASettingsStorage.cpp */,
+				2DF7BCDA08DA584F00EE5510 /* CASettingsStorage.h */,
+				2DF7BCDB08DA584F00EE5510 /* CASharedLibrary.cpp */,
+				2DF7BCDC08DA584F00EE5510 /* CASharedLibrary.h */,
+				2DF7BCDD08DA584F00EE5510 /* CAStreamBasicDescription.cpp */,
+				2DF7BCDE08DA584F00EE5510 /* CAStreamBasicDescription.h */,
+				2DF7BCDF08DA584F00EE5510 /* CAStreamRangedDescription.cpp */,
+				2DF7BCE008DA584F00EE5510 /* CAStreamRangedDescription.h */,
+				2DF7BCE108DA584F00EE5510 /* CATokenMap.h */,
+				2DF7BCE208DA584F00EE5510 /* CAVolumeCurve.cpp */,
+				2DF7BCE308DA584F00EE5510 /* CAVolumeCurve.h */,
+			);
+			name = PublicUtility;
+			path = Extras/CoreAudio/PublicUtility;
+			sourceTree = SYSTEM_DEVELOPER_DIR;
+		};
+		2DF7BC7008DA4D5100EE5510 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				8D576317048677EA00EA77CD /* Info.plist */,
+			);
+			path = Resources;
+			sourceTree = SOURCE_ROOT;
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		2DF7BC8708DA4ED400EE5510 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2D73FA1108E3641800EB0F54 /* PAHP_Control.h in Headers */,
+				2D73FA1308E3641800EB0F54 /* PAHP_Device.h in Headers */,
+				2D73FA1508E3641800EB0F54 /* PAHP_PlugIn.h in Headers */,
+				2D73FA1608E3641800EB0F54 /* PAHP_Prefix.h in Headers */,
+				2D73FA1808E3641800EB0F54 /* PAHP_Stream.h in Headers */,
+				2DF7BC8B08DA4F0F00EE5510 /* HP_Command.h in Headers */,
+				2DF7BC8C08DA4F1100EE5510 /* HP_Control.h in Headers */,
+				2DF7BC8D08DA4F1200EE5510 /* HP_Device.h in Headers */,
+				2DF7BC8E08DA4F1500EE5510 /* HP_DeviceCommands.h in Headers */,
+				2DF7BC8F08DA4F1700EE5510 /* HP_DeviceSettings.h in Headers */,
+				2DF7BC9008DA4F1900EE5510 /* HP_FormatList.h in Headers */,
+				2D73F6B008E0BEDC00EB0F54 /* HP_HardwarePlugIn.h in Headers */,
+				2DF7BC9108DA4F1C00EE5510 /* HP_HogMode.h in Headers */,
+				2DF7BC9208DA4F1D00EE5510 /* HP_IOCycleTelemetry.h in Headers */,
+				2DF7BC9308DA4F2000EE5510 /* HP_IOProcList.h in Headers */,
+				2DF7BC9408DA4F2100EE5510 /* HP_IOThread.h in Headers */,
+				2DF7BC9508DA4F2300EE5510 /* HP_Object.h in Headers */,
+				2DF7BC9708DA4F2700EE5510 /* HP_PreferredChannels.h in Headers */,
+				2DF7BC9808DA4F2900EE5510 /* HP_Property.h in Headers */,
+				2DF7BC9908DA4F2B00EE5510 /* HP_Stream.h in Headers */,
+				2DF7BC9A08DA4F2D00EE5510 /* HP_TelemetryServer.h in Headers */,
+				2DF7BCE508DA584F00EE5510 /* CAAudioBufferList.h in Headers */,
+				2DF7BCE708DA584F00EE5510 /* CAAudioChannelLayout.h in Headers */,
+				2DF7BCE908DA584F00EE5510 /* CAAudioTimeStamp.h in Headers */,
+				2DF7BCEB08DA584F00EE5510 /* CAAudioValueRange.h in Headers */,
+				2DF7BCEC08DA584F00EE5510 /* CAAutoDisposer.h in Headers */,
+				2DF7BCED08DA584F00EE5510 /* CABool.h in Headers */,
+				2DF7BCEF08DA584F00EE5510 /* CACFArray.h in Headers */,
+				2DF7BCF008DA584F00EE5510 /* CACFData.h in Headers */,
+				2DF7BCF208DA584F00EE5510 /* CACFDictionary.h in Headers */,
+				2DF7BCF408DA584F00EE5510 /* CACFMachPort.h in Headers */,
+				2DF7BCF608DA584F00EE5510 /* CACFMessagePort.h in Headers */,
+				2DF7BCF808DA584F00EE5510 /* CACFNumber.h in Headers */,
+				2DF7BCF908DA584F00EE5510 /* CACFObject.h in Headers */,
+				2DF7BCFA08DA584F00EE5510 /* CACFPlugIn.h in Headers */,
+				2DF7BCFC08DA584F00EE5510 /* CACFPreferences.h in Headers */,
+				2DF7BD0008DA584F00EE5510 /* CACFString.h in Headers */,
+				2DF7BD0308DA584F00EE5510 /* CADebugger.h in Headers */,
+				2DF7BD0508DA584F00EE5510 /* CADebugMacros.h in Headers */,
+				2DF7BD0708DA584F00EE5510 /* CADebugPrintf.h in Headers */,
+				2DF7BD0808DA584F00EE5510 /* CAException.h in Headers */,
+				2DF7BD0A08DA584F00EE5510 /* CAGuard.h in Headers */,
+				2DF7BD0B08DA584F00EE5510 /* CAHALTelemetry.h in Headers */,
+				2DF7BD0D08DA584F00EE5510 /* CAHostTimeBase.h in Headers */,
+				2DF7BD0E08DA584F00EE5510 /* CALogMacros.h in Headers */,
+				2DF7BD1008DA584F00EE5510 /* CAMutex.h in Headers */,
+				2DE2145308E38A52008DCE9D /* CAProcess.h in Headers */,
+				2DF7BD1108DA584F00EE5510 /* CAPropertyAddress.h in Headers */,
+				2DF7BD1308DA584F00EE5510 /* CAPThread.h in Headers */,
+				2DF7BD1508DA584F00EE5510 /* CASettingsStorage.h in Headers */,
+				2DF7BD1708DA584F00EE5510 /* CASharedLibrary.h in Headers */,
+				2DF7BD1908DA584F00EE5510 /* CAStreamBasicDescription.h in Headers */,
+				2DF7BD1B08DA584F00EE5510 /* CAStreamRangedDescription.h in Headers */,
+				2DF7BD1C08DA584F00EE5510 /* CATokenMap.h in Headers */,
+				2DF7BD1E08DA584F00EE5510 /* CAVolumeCurve.h in Headers */,
+				2DBF1BD00C48011700FB5F74 /* HP_DeviceInfoList.h in Headers */,
+				2DBF1BD20C48011700FB5F74 /* HP_ReferenceCounted.h in Headers */,
+				2DBF1BD40C48011700FB5F74 /* HP_SystemInfo.h in Headers */,
+				F7630E800E28101E0066580C /* CACFDistributedNotification.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		8D57630D048677EA00EA77CD /* PAHardwarePlugIn */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2D926CF708DA3A5A00AB1DB7 /* Build configuration list for PBXNativeTarget "PAHardwarePlugIn" */;
+			buildPhases = (
+				2DF7BC8708DA4ED400EE5510 /* Headers */,
+				8D576311048677EA00EA77CD /* Sources */,
+				8D576313048677EA00EA77CD /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PAHardwarePlugIn;
+			productInstallPath = "$(HOME)/Library/Bundles";
+			productName = PAHardwarePlugIn;
+			productReference = 8D576316048677EA00EA77CD /* PAHardwarePlugIn.plugin */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		089C1669FE841209C02AAC07 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = 2D926CFB08DA3A5A00AB1DB7 /* Build configuration list for PBXProject "PAHardwarePlugIn" */;
+			compatibilityVersion = "Xcode 2.4";
+			developmentRegion = English;
+			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+			);
+			mainGroup = 089C166AFE841209C02AAC07 /* PAHardwarePlugIn */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				8D57630D048677EA00EA77CD /* PAHardwarePlugIn */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		8D576311048677EA00EA77CD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2D73FA1008E3641800EB0F54 /* PAHP_Control.cpp in Sources */,
+				2D73FA1208E3641800EB0F54 /* PAHP_Device.cpp in Sources */,
+				2D73FA1408E3641800EB0F54 /* PAHP_PlugIn.cpp in Sources */,
+				2D73FA1708E3641800EB0F54 /* PAHP_Stream.cpp in Sources */,
+				2DF7BC1D08DA4A3A00EE5510 /* HP_Command.cpp in Sources */,
+				2DF7BC1E08DA4A3A00EE5510 /* HP_Control.cpp in Sources */,
+				2DF7BC1F08DA4A3A00EE5510 /* HP_Device.cpp in Sources */,
+				2DF7BC2008DA4A3A00EE5510 /* HP_DeviceCommands.cpp in Sources */,
+				2DF7BC2108DA4A3A00EE5510 /* HP_DeviceSettings.cpp in Sources */,
+				2DF7BC2208DA4A3A00EE5510 /* HP_FormatList.cpp in Sources */,
+				2D73F6AF08E0BEDC00EB0F54 /* HP_HardwarePlugIn.cpp in Sources */,
+				2D73F6B108E0BEDC00EB0F54 /* HP_HardwarePlugInInterface.cpp in Sources */,
+				2DF7BC2308DA4A3A00EE5510 /* HP_HogMode.cpp in Sources */,
+				2DF7BC2408DA4A3A00EE5510 /* HP_IOCycleTelemetry.cpp in Sources */,
+				2DF7BC2508DA4A3A00EE5510 /* HP_IOProcList.cpp in Sources */,
+				2DF7BC2608DA4A3A00EE5510 /* HP_IOThread.cpp in Sources */,
+				2DF7BC2708DA4A3A00EE5510 /* HP_Object.cpp in Sources */,
+				2DF7BC2A08DA4A3A00EE5510 /* HP_PreferredChannels.cpp in Sources */,
+				2DF7BC2B08DA4A3A00EE5510 /* HP_Property.cpp in Sources */,
+				2DF7BC2C08DA4A3A00EE5510 /* HP_Stream.cpp in Sources */,
+				2DF7BC2D08DA4A3A00EE5510 /* HP_TelemetryServer.cpp in Sources */,
+				2DF7BCE408DA584F00EE5510 /* CAAudioBufferList.cpp in Sources */,
+				2DF7BCE608DA584F00EE5510 /* CAAudioChannelLayout.cpp in Sources */,
+				2DF7BCE808DA584F00EE5510 /* CAAudioTimeStamp.cpp in Sources */,
+				2DF7BCEA08DA584F00EE5510 /* CAAudioValueRange.cpp in Sources */,
+				2DF7BCEE08DA584F00EE5510 /* CACFArray.cpp in Sources */,
+				2DF7BCF108DA584F00EE5510 /* CACFDictionary.cpp in Sources */,
+				2DF7BCF308DA584F00EE5510 /* CACFMachPort.cpp in Sources */,
+				2DF7BCF508DA584F00EE5510 /* CACFMessagePort.cpp in Sources */,
+				2DF7BCF708DA584F00EE5510 /* CACFNumber.cpp in Sources */,
+				2DF7BCFB08DA584F00EE5510 /* CACFPreferences.cpp in Sources */,
+				2DF7BCFF08DA584F00EE5510 /* CACFString.cpp in Sources */,
+				2DF7BD0208DA584F00EE5510 /* CADebugger.cpp in Sources */,
+				2DF7BD0408DA584F00EE5510 /* CADebugMacros.cpp in Sources */,
+				2DF7BD0608DA584F00EE5510 /* CADebugPrintf.cpp in Sources */,
+				2DF7BD0908DA584F00EE5510 /* CAGuard.cpp in Sources */,
+				2DF7BD0C08DA584F00EE5510 /* CAHostTimeBase.cpp in Sources */,
+				2DF7BD0F08DA584F00EE5510 /* CAMutex.cpp in Sources */,
+				2DE2145208E38A52008DCE9D /* CAProcess.cpp in Sources */,
+				2DF7BD1208DA584F00EE5510 /* CAPThread.cpp in Sources */,
+				2DF7BD1408DA584F00EE5510 /* CASettingsStorage.cpp in Sources */,
+				2DF7BD1608DA584F00EE5510 /* CASharedLibrary.cpp in Sources */,
+				2DF7BD1808DA584F00EE5510 /* CAStreamBasicDescription.cpp in Sources */,
+				2DF7BD1A08DA584F00EE5510 /* CAStreamRangedDescription.cpp in Sources */,
+				2DF7BD1D08DA584F00EE5510 /* CAVolumeCurve.cpp in Sources */,
+				2DBF1BD10C48011700FB5F74 /* HP_ReferenceCounted.cpp in Sources */,
+				2DBF1BD30C48011700FB5F74 /* HP_SystemInfo.cpp in Sources */,
+				F7630E7F0E28101E0066580C /* CACFDistributedNotification.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		2D926CF808DA3A5A00AB1DB7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1)";
+				ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1 = "x86_64 i386 ppc";
+				COPY_PHASE_STRIP = YES;
+				DEAD_CODE_STRIPPING = YES;
+				EXPORTED_SYMBOLS_FILE = Source/PAHardwarePlugIn.exp;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DEBUGGING_SYMBOLS = full;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_PFE_FILE_C_DIALECTS = "c++";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = Source/PAHP_Prefix.h;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"HAL_Build=1",
+					"Use_HAL_Telemetry=1",
+				);
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_SHADOW = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNKNOWN_PRAGMAS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_LABEL = YES;
+				GCC_WARN_UNUSED_PARAMETER = YES;
+				GCC_WARN_UNUSED_VALUE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = Resources/Info.plist;
+				INSTALL_PATH = "/Library/Audio/Plug-Ins/HAL";
+				LIBRARY_STYLE = BUNDLE;
+				OTHER_CFLAGS = "-fconstant-cfstrings";
+				PRODUCT_NAME = PAHardwarePlugIn;
+				SDKROOT = /Developer/SDKs/MacOSX10.5.sdk;
+				VALID_ARCHS = "i386 x86_64";
+				WRAPPER_EXTENSION = plugin;
+			};
+			name = Release;
+		};
+		2D926CF908DA3A5A00AB1DB7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1)";
+				ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1 = "x86_64 i386 ppc";
+				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
+				EXPORTED_SYMBOLS_FILE = Source/PAHardwarePlugIn.exp;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DEBUGGING_SYMBOLS = full;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PFE_FILE_C_DIALECTS = "c++";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = Source/PAHP_Prefix.h;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"HAL_Build=1",
+					"Use_HAL_Telemetry=1",
+					"CoreAudio_Debug=1",
+				);
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_SHADOW = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = NO;
+				GCC_WARN_UNKNOWN_PRAGMAS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_LABEL = YES;
+				GCC_WARN_UNUSED_PARAMETER = YES;
+				GCC_WARN_UNUSED_VALUE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = Resources/Info.plist;
+				INSTALL_PATH = "/Library/Audio/Plug-Ins/HAL";
+				LIBRARY_STYLE = BUNDLE;
+				OTHER_CFLAGS = "-fconstant-cfstrings";
+				PRODUCT_NAME = PAHardwarePlugIn;
+				SDKROOT = /Developer/SDKs/MacOSX10.5.sdk;
+				VALID_ARCHS = "i386 x86_64";
+				WRAPPER_EXTENSION = plugin;
+			};
+			name = Debug;
+		};
+		2D926CFC08DA3A5A00AB1DB7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				MACOSX_DEPLOYMENT_TARGET = 10.5;
+			};
+			name = Release;
+		};
+		2D926CFD08DA3A5A00AB1DB7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		2D926CF708DA3A5A00AB1DB7 /* Build configuration list for PBXNativeTarget "PAHardwarePlugIn" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2D926CF808DA3A5A00AB1DB7 /* Release */,
+				2D926CF908DA3A5A00AB1DB7 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2D926CFB08DA3A5A00AB1DB7 /* Build configuration list for PBXProject "PAHardwarePlugIn" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2D926CFC08DA3A5A00AB1DB7 /* Release */,
+				2D926CFD08DA3A5A00AB1DB7 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 089C1669FE841209C02AAC07 /* Project object */;
+}
