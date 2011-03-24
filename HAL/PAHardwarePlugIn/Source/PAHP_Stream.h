@@ -3,6 +3,7 @@
 
 #include "HP_Stream.h"
 #include <IOKit/IOKitLib.h>
+#include <pulse/pulseaudio.h>
 
 class PAHP_Device;
 class PAHP_PlugIn;
@@ -11,8 +12,8 @@ class PAHP_Stream : public HP_Stream
 {
 public:
 				PAHP_Stream(AudioStreamID inAudioStreamID,
-					    PAHP_PlugIn* inPlugIn,
-					    PAHP_Device* inOwningDevice,
+					    PAHP_PlugIn *inPlugIn,
+					    PAHP_Device *inOwningDevice,
 					    bool inIsInput,
 					    UInt32 inStartingDeviceChannelNumber);
 	virtual			~PAHP_Stream();
@@ -26,9 +27,9 @@ private:
 	PAHP_Device *		owningDevice;
 
 public:
-	virtual bool		HasProperty(const AudioObjectPropertyAddress& inAddress) const;
-	virtual bool		IsPropertySettable(const AudioObjectPropertyAddress& inAddress) const;
-	virtual UInt32		GetPropertyDataSize(const AudioObjectPropertyAddress& inAddress,
+	virtual bool		HasProperty(const AudioObjectPropertyAddress &inAddress) const;
+	virtual bool		IsPropertySettable(const AudioObjectPropertyAddress &inAddress) const;
+	virtual UInt32		GetPropertyDataSize(const AudioObjectPropertyAddress &inAddress,
 						    UInt32 inQualifierDataSize,
 						    const void *inQualifierData) const;
 	virtual void		GetPropertyData(const AudioObjectPropertyAddress &inAddress,

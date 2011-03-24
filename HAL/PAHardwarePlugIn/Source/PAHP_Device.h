@@ -3,6 +3,7 @@
 
 #include "HP_Device.h"
 #include <IOKit/IOKitLib.h>
+#include <pulse/pulseaudio.h>
 
 class HP_DeviceControlProperty;
 class HP_HogMode;
@@ -16,7 +17,7 @@ class PAHP_Stream;
 class PAHP_Device : public HP_Device
 {
 public:
-						PAHP_Device(AudioDeviceID inAudioDeviceID, PAHP_PlugIn* inPlugIn);
+						PAHP_Device(AudioDeviceID inAudioDeviceID, PAHP_PlugIn *inPlugIn);
 	virtual					~PAHP_Device();
 
 	virtual void				Initialize();
@@ -35,15 +36,27 @@ public:
 	virtual bool				HogModeIsOwnedBySelfOrIsFree() const;
 	virtual void				HogModeStateChanged();
 
+
 private:
 	HP_HogMode *				hogMode;
 
 public:
-	virtual bool				HasProperty(const AudioObjectPropertyAddress& inAddress) const;
-	virtual bool				IsPropertySettable(const AudioObjectPropertyAddress& inAddress) const;
-	virtual UInt32				GetPropertyDataSize(const AudioObjectPropertyAddress& inAddress, UInt32 inQualifierDataSize, const void* inQualifierData) const;
-	virtual void				GetPropertyData(const AudioObjectPropertyAddress& inAddress, UInt32 inQualifierDataSize, const void* inQualifierData, UInt32& ioDataSize, void* outData) const;
-	virtual void				SetPropertyData(const AudioObjectPropertyAddress& inAddress, UInt32 inQualifierDataSize, const void* inQualifierData, UInt32 inDataSize, const void* inData, const AudioTimeStamp* inWhen);
+	virtual bool				HasProperty(const AudioObjectPropertyAddress &inAddress) const;
+	virtual bool				IsPropertySettable(const AudioObjectPropertyAddress &inAddress) const;
+	virtual UInt32				GetPropertyDataSize(const AudioObjectPropertyAddress &inAddress,
+								    UInt32 inQualifierDataSize,
+								    const void *inQualifierData) const;
+	virtual void				GetPropertyData(const AudioObjectPropertyAddress &inAddress,
+								UInt32 inQualifierDataSize,
+								const void *inQualifierData,
+								UInt32 &ioDataSize,
+								void *outData) const;
+	virtual void				SetPropertyData(const AudioObjectPropertyAddress &inAddress,
+								UInt32 inQualifierDataSize,
+								const void *inQualifierData,
+								UInt32 inDataSize,
+								const void *inData,
+								const AudioTimeStamp *inWhen);
 
 protected:
 	virtual void				PropertyListenerAdded(const AudioObjectPropertyAddress& inAddress);
@@ -55,11 +68,15 @@ protected:
 
 public:
 	virtual void				Do_StartIOProc(AudioDeviceIOProc inProc);
-	virtual void				Do_StartIOProcAtTime(AudioDeviceIOProc inProc, AudioTimeStamp& ioStartTime, UInt32 inStartTimeFlags);
+	virtual void				Do_StartIOProcAtTime(AudioDeviceIOProc inProc,
+								     AudioTimeStamp &ioStartTime,
+								     UInt32 inStartTimeFlags);
 
 public:
 	virtual CAGuard *			GetIOGuard();
-	virtual bool				CallIOProcs(const AudioTimeStamp& inCurrentTime, const AudioTimeStamp& inInputTime, const AudioTimeStamp& inOutputTime);
+	virtual bool				CallIOProcs(const AudioTimeStamp &inCurrentTime,
+							    const AudioTimeStamp &inInputTime,
+							    const AudioTimeStamp &inOutputTime);
 
 protected:
 	virtual void				StartIOEngine();
@@ -109,6 +126,29 @@ protected:
 private:
 	bool					controlsInitialized;
 	HP_DeviceControlProperty *		controlProperty;
+
+	char					procname[MAXCOMLEN+1];
+
+	pa_context *				PAContext;
+	pa_stream *				PAInputStream;
+	pa_stream *				PAOutputStream;
+	
+	unsigned char *				inputBuffer;
+	unsigned char *				outputBuffer;
+
+	unsigned int				inputBufferReadPos;
+	unsigned int				inputBufferWritePos;
+	unsigned int				outputBufferReadPos;
+	unsigned int				outputBufferWritePos;
+	
+public:
+	void					ContextStateCallback(pa_context *c);
+	void					DeviceReadCallback(pa_stream *stream, size_t nbytes);
+	void					DeviceWriteCallback(pa_stream *stream, size_t nbytes);
+	int					GetProcessName();
+
+public:
+	
 
 };
 

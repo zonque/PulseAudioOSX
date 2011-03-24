@@ -163,9 +163,7 @@ private:
 
 };
 
-//==================================================================================================
-//	PAHP_StereoPanControl
-//==================================================================================================
+#pragma mark ### PAHP_StereoPanControl ###
 
 class PAHP_StereoPanControl : public HP_StereoPanControl
 {
@@ -204,7 +202,6 @@ private:
 	SInt32					centerRawValue;
 	SInt32					fullRightRawValue;
 	SInt32					currentRawValue;
-
 };
 
 #endif /* _PAHP_CONTROL_H_ */

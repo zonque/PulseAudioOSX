@@ -8,6 +8,8 @@
 #include "CADebugMacros.h"
 #include "CAException.h"
 
+#pragma mark ### PAHP_Stream ###
+
 PAHP_Stream::PAHP_Stream(AudioStreamID inAudioStreamID,
 			 PAHP_PlugIn *inPlugIn,
 			 PAHP_Device *inOwningDevice,
@@ -34,14 +36,16 @@ PAHP_Stream::Initialize()
 	AudioStreamBasicDescription physicalFormat;
 	physicalFormat.mSampleRate = 44100;
 	physicalFormat.mFormatID = kAudioFormatLinearPCM;
-	physicalFormat.mFormatFlags = kLinearPCMFormatFlagIsSignedInteger	|
+	physicalFormat.mFormatFlags = kLinearPCMFormatFlagIsFloat		|
 					 kAudioFormatFlagsNativeEndian		|
 					 kAudioFormatFlagIsPacked;
-	physicalFormat.mBytesPerPacket = 4;
 	physicalFormat.mFramesPerPacket = 1;
-	physicalFormat.mBytesPerFrame = 4;
 	physicalFormat.mChannelsPerFrame = 2;
-	physicalFormat.mBitsPerChannel = 16;
+	physicalFormat.mBitsPerChannel = 32;
+	physicalFormat.mBytesPerPacket = (physicalFormat.mBitsPerChannel
+				       *  physicalFormat.mChannelsPerFrame) / 8;
+	physicalFormat.mBytesPerFrame = physicalFormat.mBytesPerPacket
+				      * physicalFormat.mFramesPerPacket;
 	mFormatList->SetCurrentPhysicalFormat(physicalFormat, false);
 }
 
