@@ -3,6 +3,7 @@
 
 #include "HP_Device.h"
 #include <IOKit/IOKitLib.h>
+#include <CarbonCore/Multiprocessing.h>
 #include <pulse/pulseaudio.h>
 
 class HP_DeviceControlProperty;
@@ -130,21 +131,27 @@ private:
 	char					procname[MAXCOMLEN+1];
 
 	pa_context *				PAContext;
-	pa_stream *				PAInputStream;
-	pa_stream *				PAOutputStream;
+	pa_stream *				PARecordStream;
+	pa_stream *				PAPlaybackStream;
 	
 	unsigned char *				inputBuffer;
 	unsigned char *				outputBuffer;
 
-	unsigned int				inputBufferReadPos;
-	unsigned int				inputBufferWritePos;
+	unsigned int				recordBufferReadPos;
+	unsigned int				recordBufferWritePos;
 	unsigned int				outputBufferReadPos;
-	unsigned int				outputBufferWritePos;
+	unsigned int				playbackBufferWritePos;
+	bool					ioCylceRunning;
+	bool					PAConnected;
+	MPSemaphoreID				PAContextSemaphore;
 	
 public:
 	void					ContextStateCallback(pa_context *c);
 	void					DeviceReadCallback(pa_stream *stream, size_t nbytes);
 	void					DeviceWriteCallback(pa_stream *stream, size_t nbytes);
+	void					StreamOverflowCallback(pa_stream *stream);
+	void					StreamUnderflowCallback(pa_stream *stream);	
+	
 	int					GetProcessName();
 
 public:

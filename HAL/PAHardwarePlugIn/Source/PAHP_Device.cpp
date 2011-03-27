@@ -46,26 +46,39 @@ static void staticContextStateCallback(pa_context *c, void *userdata)
 	dev->ContextStateCallback(c);
 }
 
-static void staticDeviceWriteCallback(pa_stream *s, size_t nbytes, void *userdata)
+static void staticDeviceWriteCallback(pa_stream *stream, size_t nbytes, void *userdata)
 {
 	PAHP_Device *dev = (PAHP_Device *) userdata;
-	dev->DeviceWriteCallback(s, nbytes);
+	dev->DeviceWriteCallback(stream, nbytes);
 }
 
-static void staticDeviceReadCallback(pa_stream *s, size_t nbytes, void *userdata)
+static void staticDeviceReadCallback(pa_stream *stream, size_t nbytes, void *userdata)
 {
 	PAHP_Device *dev = (PAHP_Device *) userdata;
-	dev->DeviceReadCallback(s, nbytes);
+	dev->DeviceReadCallback(stream, nbytes);
+}
+
+static void staticStreamOverflowCallback(pa_stream *stream, void *userdata)
+{
+	PAHP_Device *dev = (PAHP_Device *) userdata;
+	dev->StreamOverflowCallback(stream);	
+}
+
+static void staticStreamUnderflowCallback(pa_stream *stream, void *userdata)
+{
+	PAHP_Device *dev = (PAHP_Device *) userdata;
+	dev->StreamUnderflowCallback(stream);	
 }
 
 int
 PAHP_Device::GetProcessName()
 {
         int name[] = { CTL_KERN, KERN_PROC, KERN_PROC_ALL, 0 };
-        int nnames = sizeof(name) / sizeof(name[0]) - 1;
+        unsigned int nnames = sizeof(name) / sizeof(name[0]) - 1;
         struct kinfo_proc *result;
-        int err, count, i;
+	unsigned int i;
         size_t length = 0;
+        int err;
 	
 	snprintf(procname, sizeof(procname), "UNKNOWN");
 
@@ -74,13 +87,16 @@ PAHP_Device::GetProcessName()
                 return err;
 	
         result = (kinfo_proc *) malloc(length);
-        if (result == NULL)
+        if (!result)
                 return -ENOMEM;
 	
         err = sysctl(name, nnames, result, &length, NULL, 0);
-        count = length / sizeof(*result);
-	
-        for (i = 0; i < count; i++)
+	if (err < 0) {
+		free(result);
+		return err;
+	}
+
+        for (i = 0; i < length / sizeof(*result); i++)
                 if (result[i].kp_proc.p_pid == getpid())
                         strncpy(procname, result[i].kp_proc.p_comm, sizeof(procname));
 	
@@ -92,8 +108,22 @@ PAHP_Device::GetProcessName()
 void
 PAHP_Device::DeviceWriteCallback(pa_stream *stream, size_t nbytes)
 {
-	Assert(stream == PAOutputStream, "bogus stream pointer in DeviceWriteCallback");
+	Assert(stream == PAPlaybackStream, "bogus stream pointer in DeviceWriteCallback");
+#if 0
+	if (!ioCylceRunning) {
+		char silence[8192];
+		
+		memset(silence, 0, sizeof(silence));
 
+		while (nbytes) {
+			int n = MIN(sizeof(silence), nbytes);
+			pa_stream_write(stream, silence, n, NULL, 0, (pa_seek_mode_t) 0);
+			nbytes -= n;			
+		}
+		
+		return;
+	}
+	
 	if (outputBufferReadPos + nbytes > PA_BUFFER_SIZE) {
 		/* wrap case */
 		pa_stream_write(stream, outputBuffer + outputBufferReadPos,
@@ -107,23 +137,36 @@ PAHP_Device::DeviceWriteCallback(pa_stream *stream, size_t nbytes)
 				NULL, 0, (pa_seek_mode_t) 0);
 		outputBufferReadPos += nbytes;
 	}
+#endif
 }
 
 void
 PAHP_Device::DeviceReadCallback(pa_stream *stream, size_t nbytes)
 {
-	Assert(stream == PAInputStream, "bogus stream pointer in DeviceReadCallback");
+	Assert(stream == PARecordStream, "bogus stream pointer in DeviceReadCallback");
 	
-	if (inputBufferReadPos + nbytes > PA_BUFFER_SIZE) {
+	if (recordBufferReadPos + nbytes > PA_BUFFER_SIZE) {
 		/* wrap case */
-		//pa_stream_peek(stream, inputBuffer + inputBufferReadPos, PA_BUFFER_SIZE - inputBufferReadPos);
-		inputBufferReadPos += nbytes;
-		inputBufferReadPos %= PA_BUFFER_SIZE;
-		//pa_stream_peek(stream, inputBuffer, inputBufferReadPos);
+		//pa_stream_peek(stream, inputBuffer + recordBufferReadPos, PA_BUFFER_SIZE - recordBufferReadPos);
+		recordBufferReadPos += nbytes;
+		recordBufferReadPos %= PA_BUFFER_SIZE;
+		//pa_stream_peek(stream, inputBuffer, recordBufferReadPos);
 	} else {
-		//pa_stream_peek(stream, inputBuffer + inputBufferReadPos, nbytes);
-		inputBufferReadPos += nbytes;
+		//pa_stream_peek(stream, inputBuffer + recordBufferReadPos, nbytes);
+		recordBufferReadPos += nbytes;
 	}	
+}
+
+void
+PAHP_Device::StreamOverflowCallback(pa_stream *stream)
+{
+	printf("%s() %s\n", __func__, stream == PARecordStream ? "input" : "output");
+}
+
+void
+PAHP_Device::StreamUnderflowCallback(pa_stream *stream)
+{
+	printf("%s() %s\n", __func__, stream == PARecordStream ? "input" : "output");
 }
 
 void
@@ -133,23 +176,6 @@ PAHP_Device::ContextStateCallback(pa_context *c)
 		case PA_CONTEXT_READY:
 			{
 				printf("%s(): Connection ready.\n", __func__);
-				CreateStreams();
-				
-				// set the default buffer size
-				mIOBufferFrameSize = 512;
-				mIOBufferFrameSize = DetermineIOBufferFrameSize();
-				
-				// allocate the property object that maps device control properties onto control objects
-				controlProperty = new HP_DeviceControlProperty(this);
-				AddProperty(controlProperty);
-				
-				// make sure that the controls are always instantiated in the master process so that they can be saved later
-				UInt32 isMaster = 0;
-				UInt32 size = sizeof(UInt32);
-				AudioHardwareGetProperty(kAudioHardwarePropertyProcessIsMaster, &size, &isMaster);
-				if (isMaster)
-					CreateControls();
-				
 				pa_sample_spec ss;
 				pa_buffer_attr buf_attr;
 				
@@ -163,16 +189,25 @@ PAHP_Device::ContextStateCallback(pa_context *c)
 				buf_attr.tlength = -1;
 				
 				char tmp[sizeof(procname) + 10];
+				ioCylceRunning = false;
 				
 				snprintf(tmp, sizeof(tmp), "%s playback", procname);
-				PAOutputStream = pa_stream_new(PAContext, tmp, &ss, NULL);
-				pa_stream_set_write_callback(PAOutputStream, staticDeviceWriteCallback, this);
-				pa_stream_connect_playback(PAOutputStream, NULL, &buf_attr, (pa_stream_flags_t) 0, NULL, NULL);
+				PAPlaybackStream = pa_stream_new(PAContext, tmp, &ss, NULL);
+				pa_stream_set_write_callback(PAPlaybackStream, staticDeviceWriteCallback, this);
+				pa_stream_set_overflow_callback(PAPlaybackStream, staticStreamOverflowCallback, this);
+				pa_stream_set_underflow_callback(PAPlaybackStream, staticStreamUnderflowCallback, this);
+				pa_stream_connect_playback(PAPlaybackStream, NULL, &buf_attr,
+							   (pa_stream_flags_t)  (PA_STREAM_INTERPOLATE_TIMING |
+										 PA_STREAM_AUTO_TIMING_UPDATE),
+							   NULL, NULL);
 
 				snprintf(tmp, sizeof(tmp), "%s record", procname);
-				PAInputStream = pa_stream_new(PAContext, tmp, &ss, NULL);
-				pa_stream_set_read_callback(PAOutputStream, staticDeviceReadCallback, this);
-				pa_stream_connect_record(PAInputStream, NULL, &buf_attr, (pa_stream_flags_t) 0);
+				PARecordStream = pa_stream_new(PAContext, tmp, &ss, NULL);
+				pa_stream_set_read_callback(PAPlaybackStream, staticDeviceReadCallback, this);
+				pa_stream_set_overflow_callback(PARecordStream, staticStreamOverflowCallback, this);
+				pa_stream_set_underflow_callback(PARecordStream, staticStreamUnderflowCallback, this);
+				pa_stream_connect_record(PARecordStream, NULL, &buf_attr, (pa_stream_flags_t) 0);
+				MPSignalSemaphore(PAContextSemaphore);
 			}
 			break;
 		case PA_CONTEXT_TERMINATED:
@@ -180,6 +215,7 @@ PAHP_Device::ContextStateCallback(pa_context *c)
 			break;
 		case PA_CONTEXT_FAILED:
 			printf("%s(): Connection failed.\n", __func__);
+			MPSignalSemaphore(PAContextSemaphore);
 			break;
 		default:
 			break;
@@ -208,24 +244,37 @@ PAHP_Device::Initialize()
 {
 	HP_Device::Initialize();
 
-	// PulseAudio
-	
-	inputBuffer = (unsigned char *) pa_xmalloc0(PA_BUFFER_SIZE);
-	outputBuffer = (unsigned char *) pa_xmalloc0(PA_BUFFER_SIZE);
-	
-	inputBufferReadPos = 0;
-	inputBufferWritePos = 0;
-	outputBufferReadPos = 0;
-	outputBufferWritePos = 0;
-	
 	int ret = GetProcessName();
 	if (ret < 0) {
 		printf("Unable to get process name!? ret = %d\n", ret);
 	}
+
+	ret = MPCreateSemaphore(UINT_MAX, 0, &PAContextSemaphore);
+	if (ret != 0) {
+		printf("MPCreateSemaphore() failed\n");
+	}
 	
-	PAContext = pa_context_new(plugin->GetPulseAudioAPI(), procname);
-	pa_context_set_state_callback(PAContext, staticContextStateCallback, this);
-	pa_context_connect(PAContext, NULL /* dev->info.server */, (pa_context_flags_t) 0, NULL);
+	CreateStreams();
+	
+	// set the default buffer size
+	mIOBufferFrameSize = 512;
+	mIOBufferFrameSize = DetermineIOBufferFrameSize();
+	
+	// allocate the property object that maps device control properties onto control objects
+	controlProperty = new HP_DeviceControlProperty(this);
+	AddProperty(controlProperty);
+	
+	// make sure that the controls are always instantiated in the master process so that they can be saved later
+	UInt32 isMaster = 0;
+	UInt32 size = sizeof(UInt32);
+	AudioHardwareGetProperty(kAudioHardwarePropertyProcessIsMaster, &size, &isMaster);
+	if (isMaster)
+		CreateControls();
+	
+	// PulseAudio
+	
+	inputBuffer = (unsigned char *) pa_xmalloc0(PA_BUFFER_SIZE);
+	outputBuffer = (unsigned char *) pa_xmalloc0(PA_BUFFER_SIZE);
 	
 	hogMode = new HP_HogMode(this);
 	hogMode->Initialize();
@@ -269,6 +318,8 @@ PAHP_Device::Teardown()
 		pa_xfree(outputBuffer);
 		outputBuffer = NULL;
 	}
+	
+	MPDeleteSemaphore(PAContextSemaphore);
 }
 
 void
@@ -476,10 +527,10 @@ PAHP_Device::SetPropertyData(const AudioObjectPropertyAddress	&inAddress,
 			     const void				*inData,
 			     const AudioTimeStamp		*inWhen)
 {
-	//	take and hold the state mutex
+	// take and hold the state mutex
 	CAMutex::Locker stateMutex(GetDeviceStateMutex());
 
-	//  create the controls if necessary
+	// create the controls if necessary
 	if (IsControlRelatedProperty(inAddress.mSelector))
 		CreateControls();
 
@@ -714,6 +765,28 @@ PAHP_Device::StartHardware()
 	#if Log_HardwareStartStop
 		DebugMessage("PAHP_Device::StartHardware: starting the hardware");
 	#endif
+
+	// PulseAudio
+	
+	recordBufferReadPos = 0;
+	recordBufferWritePos = 0;
+	outputBufferReadPos = 0;
+	playbackBufferWritePos = 0;
+
+	PAConnected = false;
+
+	PAContext = pa_context_new(plugin->GetPulseAudioAPI(), procname);
+	pa_context_set_state_callback(PAContext, staticContextStateCallback, this);
+	
+	pa_context_connect(PAContext, NULL, 
+			   (pa_context_flags_t) (PA_CONTEXT_NOFAIL | PA_CONTEXT_NOAUTOSPAWN),
+			   NULL);
+	printf("%s(): WAITING\n", __func__);
+	OSStatus ret = MPWaitOnSemaphore(PAContextSemaphore, kDurationForever);
+	printf("%s(): DONE (%08x)\n", __func__, ret);
+	if (ret != 0) {
+		printf("%s(): MPWaitOnSemaphore failed (ret %08x)\n", __func__, (int) ret);
+	}
 }
 
 void
@@ -722,6 +795,12 @@ PAHP_Device::StopHardware()
 	#if Log_HardwareStartStop
 		DebugMessage("PAHP_Device::StopHardware: stopping the hardware");
 	#endif
+	
+	if (PAContext) {
+		pa_context_disconnect(PAContext);
+		pa_context_unref(PAContext);
+		PAContext = NULL;
+	}
 }
 
 void
@@ -742,7 +821,7 @@ PAHP_Device::ReadInputData(const AudioTimeStamp& /*inStartTime*/, UInt32 /* inBu
 	// this method is called to read the input data
 	// it returns true if the read completed successfully
 
-	if (!PAInputStream)
+	if (!PARecordStream)
 		return true;
 	
 	AudioBufferList *inputBufferList = mIOProcList->GetSharedAudioBufferList(true);
@@ -752,7 +831,7 @@ PAHP_Device::ReadInputData(const AudioTimeStamp& /*inStartTime*/, UInt32 /* inBu
 	
 	for (UInt32 b = 0; b < inputBufferList->mNumberBuffers; b++) {
 		AudioBuffer *buffer = inputBufferList->mBuffers + b;
-		//pa_stream_read(PAInputStream, buffer->mData, buffer->mDataByteSize, NULL, 0, (pa_seek_mode_t) 0);	
+		//pa_stream_read(PARecordStream, buffer->mData, buffer->mDataByteSize, NULL, 0, (pa_seek_mode_t) 0);	
 	}
 	
 	return true;
@@ -772,7 +851,7 @@ PAHP_Device::PostProcessInputData(const AudioTimeStamp& /*inInputTime*/)
 }
 
 void
-PAHP_Device::PreProcessOutputData(const AudioTimeStamp& /*inOuputTime*/, HP_IOProc& inIOProc)
+PAHP_Device::PreProcessOutputData(const AudioTimeStamp& /*inOuputTime*/, HP_IOProc &inIOProc)
 {
 	if (!inIOProc.BufferListHasData(false))
 		return;
@@ -781,32 +860,33 @@ PAHP_Device::PreProcessOutputData(const AudioTimeStamp& /*inOuputTime*/, HP_IOPr
 	if (mIOCycleTelemetry->IsCapturing())
 		mIOCycleTelemetry->OutputDataPresent(GetIOCycleNumber());
 
-	if (!PAOutputStream)
-		return;
-
 	AudioBufferList *outputBufferList = inIOProc.GetAudioBufferList(false);
 	
-	if (!outputBufferList)
+	if (!outputBufferList || !PAPlaybackStream)
 		return;
-	
-	//AudioBufferList *bufferList = inputBufferList + inBufferSetID;
-	UInt32 b;
-	
-	for (b = 0; b < outputBufferList->mNumberBuffers; b++) {
-		AudioBuffer *buffer = outputBufferList->mBuffers + b;
 		
-		if (outputBufferWritePos + buffer->mDataByteSize > PA_BUFFER_SIZE) {
+	for (UInt32 b = 0; b < outputBufferList->mNumberBuffers; b++) {
+		AudioBuffer *buffer = outputBufferList->mBuffers + b;
+#if 0		
+		if (playbackBufferWritePos + buffer->mDataByteSize > PA_BUFFER_SIZE) {
 			// wrap case
 			unsigned int nbytes = buffer->mDataByteSize;
-			memcpy(outputBuffer + outputBufferWritePos, buffer->mData, PA_BUFFER_SIZE - outputBufferWritePos);
-			nbytes -= PA_BUFFER_SIZE - outputBufferWritePos;
+			memcpy(outputBuffer + playbackBufferWritePos, buffer->mData, PA_BUFFER_SIZE - playbackBufferWritePos);
+			nbytes -= PA_BUFFER_SIZE - playbackBufferWritePos;
 			memcpy(outputBuffer, (unsigned char *) buffer->mData + nbytes, buffer->mDataByteSize - nbytes);
-			outputBufferWritePos = nbytes;
+			playbackBufferWritePos = nbytes;
 		} else {
-			memcpy(outputBuffer + outputBufferWritePos, buffer->mData, buffer->mDataByteSize);
-			outputBufferWritePos += buffer->mDataByteSize;
+			memcpy(outputBuffer + playbackBufferWritePos, buffer->mData, buffer->mDataByteSize);
+			playbackBufferWritePos += buffer->mDataByteSize;
 		}
+#endif
+		pa_stream_write(PAPlaybackStream, buffer->mData, buffer->mDataByteSize,
+				NULL, 0, (pa_seek_mode_t) 0);
 	}
+
+	
+	
+//	ioCylceRunning = true;
 }
 
 bool
@@ -837,13 +917,27 @@ PAHP_Device::GetCurrentTime(AudioTimeStamp &outTime)
 		CAException(kAudioHardwareNotRunningError),
 		"PAHP_Device::GetCurrentTime: can't because the engine isn't running");
 
+	outTime = CAAudioTimeStamp::kZero;
+	if (!PAPlaybackStream)
+		return;
+	
+	const pa_timing_info *ti = pa_stream_get_timing_info(PAPlaybackStream);
+
+	if (!ti)
+		return;
+	
+	outTime.mHostTime = ((UInt64) ti->timestamp.tv_sec << 32) | ti->timestamp.tv_usec;
+	outTime.mSampleTime = ti->write_index / 8;
+	outTime.mRateScalar = 1.0;
+	outTime.mFlags = kAudioTimeStampSampleTimeValid |
+			 kAudioTimeStampHostTimeValid	|
+			 kAudioTimeStampRateScalarValid;
+
+	//////////////////////
+	return;
+	
 	// compute the host ticks pere frame
 	Float64 actualHostTicksPerFrame = CAHostTimeBase::GetFrequency() / GetCurrentNominalSampleRate();
-
-	// clear the output time stamp
-	outTime = CAAudioTimeStamp::kZero;
-
-	outTime.mHostTime = CAHostTimeBase::GetTheCurrentTime();
 
 	// calculate how many host ticks away from the anchor time stamp the current host time is
 	Float64 sampleOffset = 0.0;
@@ -858,10 +952,7 @@ PAHP_Device::GetCurrentTime(AudioTimeStamp &outTime)
 	sampleOffset /= actualHostTicksPerFrame;
 	sampleOffset = floor(sampleOffset);
 	outTime.mSampleTime = sampleOffset;
-	outTime.mRateScalar = 1.0;
-	outTime.mFlags = kAudioTimeStampSampleTimeValid |
-			 kAudioTimeStampHostTimeValid	|
-			 kAudioTimeStampRateScalarValid;
+	
 }
 
 void

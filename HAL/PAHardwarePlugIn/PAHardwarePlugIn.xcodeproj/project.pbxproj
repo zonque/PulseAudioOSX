@@ -228,6 +228,7 @@
 		2DF7BCE108DA584F00EE5510 /* CATokenMap.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CATokenMap.h; sourceTree = "<group>"; };
 		2DF7BCE208DA584F00EE5510 /* CAVolumeCurve.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = CAVolumeCurve.cpp; sourceTree = "<group>"; };
 		2DF7BCE308DA584F00EE5510 /* CAVolumeCurve.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CAVolumeCurve.h; sourceTree = "<group>"; };
+		65F40146133F7B7A00E72096 /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = folder; name = CoreServices.framework; sourceTree = SDKROOT; };
 		65F4FCDA133BCFAE00E72096 /* pulse.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = pulse.framework; path = /Library/Frameworks/pulse.framework; sourceTree = "<absolute>"; };
 		8D576316048677EA00EA77CD /* PAHardwarePlugIn.plugin */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PAHardwarePlugIn.plugin; sourceTree = BUILT_PRODUCTS_DIR; };
 		8D576317048677EA00EA77CD /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -265,6 +266,7 @@
 		089C1671FE841209C02AAC07 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				65F40146133F7B7A00E72096 /* CoreServices.framework */,
 				65F4FCDA133BCFAE00E72096 /* pulse.framework */,
 				2DF7BC5308DA4CCA00EE5510 /* CoreAudio.framework */,
 				0AA1909FFE8422F4C02AAC07 /* CoreFoundation.framework */,
@@ -600,6 +602,11 @@
 				COPY_PHASE_STRIP = YES;
 				DEAD_CODE_STRIPPING = YES;
 				EXPORTED_SYMBOLS_FILE = Source/PAHardwarePlugIn.exp;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+				);
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SYSTEM_LIBRARY_DIR)/Frameworks/CoreServices.framework/Versions/A/Frameworks\"";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DEBUGGING_SYMBOLS = full;
 				GCC_ENABLE_CPP_RTTI = NO;
@@ -632,6 +639,10 @@
 				INSTALL_PATH = "/Library/Audio/Plug-Ins/HAL";
 				LIBRARY_STYLE = BUNDLE;
 				OTHER_CFLAGS = "-fconstant-cfstrings";
+				OTHER_LDFLAGS = (
+					"-framework",
+					CoreServices,
+				);
 				PRODUCT_NAME = PAHardwarePlugIn;
 				SDKROOT = /Developer/SDKs/MacOSX10.5.sdk;
 				VALID_ARCHS = "i386 x86_64";
@@ -647,6 +658,11 @@
 				COPY_PHASE_STRIP = NO;
 				DEAD_CODE_STRIPPING = YES;
 				EXPORTED_SYMBOLS_FILE = Source/PAHardwarePlugIn.exp;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+				);
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SYSTEM_LIBRARY_DIR)/Frameworks/CoreServices.framework/Versions/A/Frameworks\"";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DEBUGGING_SYMBOLS = full;
 				GCC_ENABLE_CPP_RTTI = NO;
@@ -680,6 +696,10 @@
 				INSTALL_PATH = "/Library/Audio/Plug-Ins/HAL";
 				LIBRARY_STYLE = BUNDLE;
 				OTHER_CFLAGS = "-fconstant-cfstrings";
+				OTHER_LDFLAGS = (
+					"-framework",
+					CoreServices,
+				);
 				PRODUCT_NAME = PAHardwarePlugIn;
 				SDKROOT = /Developer/SDKs/MacOSX10.5.sdk;
 				VALID_ARCHS = "i386 x86_64";
