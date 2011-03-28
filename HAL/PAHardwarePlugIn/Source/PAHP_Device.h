@@ -151,7 +151,9 @@ public:
 	void					DeviceWriteCallback(pa_stream *stream, size_t nbytes);
 	void					StreamOverflowCallback(pa_stream *stream);
 	void					StreamUnderflowCallback(pa_stream *stream);	
-	
+	void					StreamVolumeChanged(CFStringRef name, CFDictionaryRef userInfo);
+	void					StreamMuteChanged(CFStringRef name, CFDictionaryRef userInfo);
+
 	int					GetProcessName();
 
 public:

@@ -70,6 +70,62 @@ static void staticStreamUnderflowCallback(pa_stream *stream, void *userdata)
 	dev->StreamUnderflowCallback(stream);	
 }
 
+static void staticStreamVolumeChanged(CFNotificationCenterRef /* center */,
+				      void *observer,
+				      CFStringRef name,
+				      const void * /* object */,
+				      CFDictionaryRef userInfo)
+{
+	PAHP_Device *dev = (PAHP_Device *) observer;
+	dev->StreamVolumeChanged(name, userInfo);
+}
+
+static void staticStreamMuteChanged(CFNotificationCenterRef /* center */,
+				    void *observer,
+				    CFStringRef name,
+				    const void * /* object */,
+				    CFDictionaryRef userInfo)
+{
+	PAHP_Device *dev = (PAHP_Device *) observer;
+	dev->StreamMuteChanged(name, userInfo);
+}
+
+void
+PAHP_Device::StreamVolumeChanged(CFStringRef /* name */, CFDictionaryRef userInfo)
+{
+	Float32 value;
+	CFNumberRef number = (CFNumberRef) CFDictionaryGetValue(userInfo, CFSTR("value"));
+
+	CFNumberGetValue(number, kCFNumberFloatType, &value);
+	
+	if (!PAContext)
+		return;
+	
+	int ival = value * 0x10000;
+	
+	pa_cvolume volume;
+	volume.channels = 2;
+	volume.values[0] = ival;
+	volume.values[1] = ival;
+
+	//printf("%s() %f -> %05x!\n", __func__, value, ival);
+	pa_context_set_sink_volume_by_index(PAContext, 0, &volume, NULL, NULL);
+}
+
+void
+PAHP_Device::StreamMuteChanged(CFStringRef /* name */, CFDictionaryRef userInfo)
+{
+	bool value;
+	CFNumberRef number = (CFNumberRef) CFDictionaryGetValue(userInfo, CFSTR("value"));
+
+	CFNumberGetValue(number, kCFNumberIntType, &value);
+
+	if (!PAContext)
+		return;
+	
+	pa_context_set_sink_mute_by_index(PAContext, 0, value, NULL, NULL);
+}
+
 int
 PAHP_Device::GetProcessName()
 {
@@ -207,6 +263,7 @@ PAHP_Device::ContextStateCallback(pa_context *c)
 				pa_stream_set_overflow_callback(PARecordStream, staticStreamOverflowCallback, this);
 				pa_stream_set_underflow_callback(PARecordStream, staticStreamUnderflowCallback, this);
 				pa_stream_connect_record(PARecordStream, NULL, &buf_attr, (pa_stream_flags_t) 0);
+				PAConnected = true;
 				MPSignalSemaphore(PAContextSemaphore);
 			}
 			break;
@@ -231,7 +288,8 @@ PAHP_Device::PAHP_Device(AudioDeviceID	 inAudioDeviceID,
 	IOThread(NULL),
 	anchorHostTime(0),
 	controlsInitialized(false),
-	controlProperty(NULL)
+	controlProperty(NULL),
+	PAContext(NULL)
 {
 }
 
@@ -253,6 +311,20 @@ PAHP_Device::Initialize()
 	if (ret != 0) {
 		printf("MPCreateSemaphore() failed\n");
 	}
+	
+	CFNotificationCenterAddObserver(CFNotificationCenterGetDistributedCenter(),
+					this,
+					staticStreamVolumeChanged,
+					CFSTR("updateStreamVolume"),
+					CFSTR("PAHP_LevelControl"),
+					CFNotificationSuspensionBehaviorDeliverImmediately);
+
+	CFNotificationCenterAddObserver(CFNotificationCenterGetDistributedCenter(),
+					this,
+					staticStreamMuteChanged,
+					CFSTR("updateMuteVolume"),
+					CFSTR("PAHP_BooleanControl"),
+					CFNotificationSuspensionBehaviorDeliverImmediately);
 	
 	CreateStreams();
 	
@@ -775,17 +847,19 @@ PAHP_Device::StartHardware()
 
 	PAConnected = false;
 
-	PAContext = pa_context_new(plugin->GetPulseAudioAPI(), procname);
-	pa_context_set_state_callback(PAContext, staticContextStateCallback, this);
-	
-	pa_context_connect(PAContext, NULL, 
-			   (pa_context_flags_t) (PA_CONTEXT_NOFAIL | PA_CONTEXT_NOAUTOSPAWN),
-			   NULL);
-	printf("%s(): WAITING\n", __func__);
-	OSStatus ret = MPWaitOnSemaphore(PAContextSemaphore, kDurationForever);
-	printf("%s(): DONE (%08x)\n", __func__, ret);
-	if (ret != 0) {
-		printf("%s(): MPWaitOnSemaphore failed (ret %08x)\n", __func__, (int) ret);
+	if (!PAContext) {
+		PAContext = pa_context_new(plugin->GetPulseAudioAPI(), procname);
+		pa_context_set_state_callback(PAContext, staticContextStateCallback, this);
+
+		pa_context_connect(PAContext, NULL, 
+				   (pa_context_flags_t) (PA_CONTEXT_NOFAIL | PA_CONTEXT_NOAUTOSPAWN),
+				   NULL);
+		printf("%s(): WAITING\n", __func__);
+		OSStatus ret = MPWaitOnSemaphore(PAContextSemaphore, kDurationForever);
+		printf("%s(): DONE (%08x)\n", __func__, (int) ret);
+		if (ret != 0) {
+			printf("%s(): MPWaitOnSemaphore failed (ret %08x)\n", __func__, (int) ret);
+		}
 	}
 }
 
@@ -795,12 +869,14 @@ PAHP_Device::StopHardware()
 	#if Log_HardwareStartStop
 		DebugMessage("PAHP_Device::StopHardware: stopping the hardware");
 	#endif
-	
+
+#if 0
 	if (PAContext) {
 		pa_context_disconnect(PAContext);
 		pa_context_unref(PAContext);
 		PAContext = NULL;
 	}
+#endif
 }
 
 void
@@ -830,7 +906,7 @@ PAHP_Device::ReadInputData(const AudioTimeStamp& /*inStartTime*/, UInt32 /* inBu
 		return true;
 	
 	for (UInt32 b = 0; b < inputBufferList->mNumberBuffers; b++) {
-		AudioBuffer *buffer = inputBufferList->mBuffers + b;
+		//AudioBuffer *buffer = inputBufferList->mBuffers + b;
 		//pa_stream_read(PARecordStream, buffer->mData, buffer->mDataByteSize, NULL, 0, (pa_seek_mode_t) 0);	
 	}
 	
@@ -862,7 +938,7 @@ PAHP_Device::PreProcessOutputData(const AudioTimeStamp& /*inOuputTime*/, HP_IOPr
 
 	AudioBufferList *outputBufferList = inIOProc.GetAudioBufferList(false);
 	
-	if (!outputBufferList || !PAPlaybackStream)
+	if (!PAPlaybackStream || !PAConnected)
 		return;
 		
 	for (UInt32 b = 0; b < outputBufferList->mNumberBuffers; b++) {
@@ -918,6 +994,7 @@ PAHP_Device::GetCurrentTime(AudioTimeStamp &outTime)
 		"PAHP_Device::GetCurrentTime: can't because the engine isn't running");
 
 	outTime = CAAudioTimeStamp::kZero;
+#if 0
 	if (!PAPlaybackStream)
 		return;
 	
@@ -926,7 +1003,7 @@ PAHP_Device::GetCurrentTime(AudioTimeStamp &outTime)
 	if (!ti)
 		return;
 	
-	outTime.mHostTime = ((UInt64) ti->timestamp.tv_sec << 32) | ti->timestamp.tv_usec;
+	outTime.mHostTime = ((UInt64) ti->timestamp.tv_sec * 1000000ULL) + ti->timestamp.tv_usec;
 	outTime.mSampleTime = ti->write_index / 8;
 	outTime.mRateScalar = 1.0;
 	outTime.mFlags = kAudioTimeStampSampleTimeValid |
@@ -935,9 +1012,12 @@ PAHP_Device::GetCurrentTime(AudioTimeStamp &outTime)
 
 	//////////////////////
 	return;
+#endif
 	
 	// compute the host ticks pere frame
 	Float64 actualHostTicksPerFrame = CAHostTimeBase::GetFrequency() / GetCurrentNominalSampleRate();
+
+	outTime.mHostTime = CAHostTimeBase::GetCurrentTime();
 
 	// calculate how many host ticks away from the anchor time stamp the current host time is
 	Float64 sampleOffset = 0.0;
@@ -952,6 +1032,10 @@ PAHP_Device::GetCurrentTime(AudioTimeStamp &outTime)
 	sampleOffset /= actualHostTicksPerFrame;
 	sampleOffset = floor(sampleOffset);
 	outTime.mSampleTime = sampleOffset;
+	outTime.mRateScalar = 1.0;
+	outTime.mFlags = kAudioTimeStampSampleTimeValid |
+			 kAudioTimeStampHostTimeValid	|
+			 kAudioTimeStampRateScalarValid;
 	
 }
 

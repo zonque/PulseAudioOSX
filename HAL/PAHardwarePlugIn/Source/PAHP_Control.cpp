@@ -81,7 +81,7 @@ PAHP_LevelControl::GetDBValue() const
 
 void
 PAHP_LevelControl::SetDBValue(Float32 inDBValue)
-{
+{	
 	SetRawValue(volumeCurve.ConvertDBToRaw(inDBValue));
 }
 
@@ -95,6 +95,20 @@ void
 PAHP_LevelControl::SetScalarValue(Float32 inScalarValue)
 {
 	SetRawValue(volumeCurve.ConvertScalarToRaw(inScalarValue));
+
+	CFMutableDictionaryRef userInfo = CFDictionaryCreateMutable(kCFAllocatorDefault, 1,
+								    &kCFCopyStringDictionaryKeyCallBacks,
+								    &kCFTypeDictionaryValueCallBacks);
+	CFNumberRef value = CFNumberCreate(NULL, kCFNumberFloatType, &inScalarValue);
+	CFDictionarySetValue(userInfo, CFSTR("value"), value);
+	CFRelease(value);
+
+	CFNotificationCenterPostNotification(CFNotificationCenterGetDistributedCenter(),
+					     CFSTR("updateStreamVolume"),
+					     CFSTR("PAHP_LevelControl"),
+					     userInfo,
+					     true);
+	CFRelease(userInfo);
 }
 
 Float32
@@ -201,8 +215,23 @@ PAHP_BooleanControl::SetValue(bool inValue)
 	if (inValue != mCurrentValue) {
 		mCurrentValue = inValue;
 		
-		//	we also have to send the change notification
+		// we also have to send the change notification
 		ValueChanged();
+		
+		CFMutableDictionaryRef userInfo = CFDictionaryCreateMutable(kCFAllocatorDefault, 1,
+									    &kCFCopyStringDictionaryKeyCallBacks,
+									    &kCFTypeDictionaryValueCallBacks);
+		CFNumberRef value = CFNumberCreate(NULL, kCFNumberIntType, &inValue);
+		CFDictionarySetValue(userInfo, CFSTR("value"), value);
+		CFRelease(value);
+		
+		CFNotificationCenterPostNotification(CFNotificationCenterGetDistributedCenter(),
+						     CFSTR("updateStreamMute"),
+						     CFSTR("PAHP_BooleanControl"),
+						     userInfo,
+						     true);
+		CFRelease(userInfo);
+		
 	}
 }
 
