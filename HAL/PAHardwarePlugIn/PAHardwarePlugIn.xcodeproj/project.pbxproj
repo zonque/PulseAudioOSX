@@ -228,7 +228,7 @@
 		2DF7BCE108DA584F00EE5510 /* CATokenMap.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CATokenMap.h; sourceTree = "<group>"; };
 		2DF7BCE208DA584F00EE5510 /* CAVolumeCurve.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = CAVolumeCurve.cpp; sourceTree = "<group>"; };
 		2DF7BCE308DA584F00EE5510 /* CAVolumeCurve.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CAVolumeCurve.h; sourceTree = "<group>"; };
-		65F40146133F7B7A00E72096 /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = folder; name = CoreServices.framework; sourceTree = SDKROOT; };
+		65F40146133F7B7A00E72096 /* CoreServices.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; name = CoreServices.framework; sourceTree = SDKROOT; };
 		65F4FCDA133BCFAE00E72096 /* pulse.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = pulse.framework; path = /Library/Frameworks/pulse.framework; sourceTree = "<absolute>"; };
 		8D576316048677EA00EA77CD /* PAHardwarePlugIn.plugin */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PAHardwarePlugIn.plugin; sourceTree = BUILT_PRODUCTS_DIR; };
 		8D576317048677EA00EA77CD /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };

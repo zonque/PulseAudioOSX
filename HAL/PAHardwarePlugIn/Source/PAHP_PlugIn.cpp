@@ -12,34 +12,10 @@ PAHP_PlugIn::PAHP_PlugIn(CFUUIDRef inFactoryUUID) :
 	HP_HardwarePlugIn(inFactoryUUID),
 	device(NULL)
 {
-	int ret;
-	
-	loop = pa_threaded_mainloop_new();
-	if (!loop) {
-		printf("%s(): pa_threaded_mainloop_new() failed\n", __func__);
-		return;
-	}
-	
-	ret = pa_threaded_mainloop_start(loop);
-	if (ret) {
-		printf("%s(): pa_threaded_mainloop_start() returned %d\n", __func__, ret);
-		return;
-	}
 }
 
 PAHP_PlugIn::~PAHP_PlugIn()
 {
-	if (loop) {
-		pa_threaded_mainloop_stop(loop);
-		pa_threaded_mainloop_free(loop);
-		loop = NULL;
-	}	
-}
-
-pa_mainloop_api *
-PAHP_PlugIn::GetPulseAudioAPI(void)
-{
-	return pa_threaded_mainloop_get_api(loop);
 }
 
 void

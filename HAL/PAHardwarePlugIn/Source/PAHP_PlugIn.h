@@ -3,9 +3,6 @@
 
 #include "HP_HardwarePlugIn.h"
 
-#include <pulse/pulseaudio.h>
-#include <pulse/mainloop.h>
-
 class PAHP_Device;
 
 class PAHP_PlugIn : public HP_HardwarePlugIn
@@ -34,12 +31,9 @@ public:
 						UInt32 inDataSize,
 						const void *inData,
 						const AudioTimeStamp *inWhen);
-	
-	pa_mainloop_api *			GetPulseAudioAPI(void);
 
 private:
 	PAHP_Device		*device;
-	pa_threaded_mainloop	*loop;
 };
 
 #endif /* _PAHP_PLUGIN_H_ */

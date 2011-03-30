@@ -5,6 +5,7 @@
 #include <IOKit/IOKitLib.h>
 #include <CarbonCore/Multiprocessing.h>
 #include <pulse/pulseaudio.h>
+#include <pulse/mainloop.h>
 
 class HP_DeviceControlProperty;
 class HP_HogMode;
@@ -12,6 +13,11 @@ class HP_IOProc;
 class HP_IOThread;
 class PAHP_PlugIn;
 class PAHP_Stream;
+
+typedef struct AudioPosition {
+	UInt32 bytePos;
+	UInt64 cycleCount;
+} AudioPosition;
 
 #pragma mark ### PAHP_Device ###
 
@@ -137,16 +143,20 @@ private:
 	unsigned char *				inputBuffer;
 	unsigned char *				outputBuffer;
 
-	unsigned int				recordBufferReadPos;
-	unsigned int				recordBufferWritePos;
-	unsigned int				outputBufferReadPos;
-	unsigned int				playbackBufferWritePos;
-	bool					ioCylceRunning;
+	AudioPosition				recordBufferReadPos;
+	AudioPosition				recordBufferWritePos;
+	AudioPosition				playbackBufferReadPos;
+	AudioPosition				playbackBufferWritePos;
+	
 	bool					PAConnected;
 	MPSemaphoreID				PAContextSemaphore;
 	
+	pa_threaded_mainloop *			PAMainLoop;
+	
 public:
-	void					ContextStateCallback(pa_context *c);
+	void					ContextStateCallback();
+	void					StreamStartedCallback(pa_stream *stream);
+
 	void					DeviceReadCallback(pa_stream *stream, size_t nbytes);
 	void					DeviceWriteCallback(pa_stream *stream, size_t nbytes);
 	void					StreamOverflowCallback(pa_stream *stream);
@@ -155,7 +165,12 @@ public:
 	void					StreamMuteChanged(CFStringRef name, CFDictionaryRef userInfo);
 
 	int					GetProcessName();
-
+	
+	void					IncAudioPosition(AudioPosition *a, UInt32 bytes) const;
+	int					DiffAudioPositions(const AudioPosition *a,
+								      const AudioPosition *b,
+								      UInt32 extraBytesForB) const;
+	
 public:
 	
 
