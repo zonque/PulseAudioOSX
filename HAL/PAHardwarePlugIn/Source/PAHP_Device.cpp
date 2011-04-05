@@ -38,9 +38,7 @@
 
 #define PA_BUFFER_SIZE	(1024 * 256)
 
-#pragma mark ### PAHP_Device ###
-
-#pragma mark ## PulseAudio related ##
+#pragma mark ### PulseAudio related ###
 
 static void staticContextStateCallback(pa_context *, void *userdata)
 {
@@ -98,6 +96,21 @@ static void staticStreamMuteChanged(CFNotificationCenterRef /* center */,
 	dev->StreamMuteChanged(name, userInfo);
 }
 
+static void staticDebugTimerCallback (CFRunLoopTimerRef /* timer */,
+				      void *info)
+{
+	PAHP_Device *dev = static_cast<PAHP_Device *> (info);
+	dev->debugTimer();
+}
+
+void
+PAHP_Device::debugTimer()
+{
+	printf("== DIFF %lld   actualSampleRate %f rate %f underrunCount %llu\n",
+	       DiffAudioPositions(&playbackBufferWritePos, &playbackBufferReadPos),
+	       actualSampleRate, rateScalar, underrunCount);
+}
+
 int
 PAHP_Device::GetProcessName()
 {
@@ -134,49 +147,151 @@ PAHP_Device::GetProcessName()
 }
 
 void
-PAHP_Device::IncAudioPosition(AudioPosition *a, UInt32 bytes) const
+PAHP_Device::IncAudioPosition(AudioPosition *a, UInt32 bytes)
 {
+	a->mutex->Lock();
 	a->bytePos += bytes;
-	
-	if (a->bytePos >= PA_BUFFER_SIZE) {
-		a->cycleCount += a->bytePos / PA_BUFFER_SIZE;
-		a->bytePos %= PA_BUFFER_SIZE;
-	}
+	a->cycleCount += a->bytePos / PA_BUFFER_SIZE;
+	a->bytePos %= PA_BUFFER_SIZE;
+	a->mutex->Unlock();
 }
 
 // returns > 0  if   A > B
 // returns < 0  if   A < B
 // returns   0  if  A == B
-int
+SInt64
 PAHP_Device::DiffAudioPositions(const AudioPosition *a,
-				const AudioPosition *b,
-				UInt32 extraBytesForB) const
+				const AudioPosition *b) const
 {
-	AudioPosition b2;
+	SInt64 diff;
+
+	a->mutex->Lock();
+	b->mutex->Lock();
 	
-	b2.cycleCount = b->cycleCount;
-	b2.bytePos = b->bytePos;
-	IncAudioPosition(&b2, extraBytesForB);
+	if (!b)
+		diff = (a->cycleCount * PA_BUFFER_SIZE) + a->bytePos;
+	else
+		diff = (((SInt64) a->cycleCount - (SInt64) b->cycleCount) * PA_BUFFER_SIZE) +
+			((SInt64) a->bytePos - (SInt64) b->bytePos);
+
+	a->mutex->Unlock();
+	b->mutex->Unlock();
+
+	return diff;
+}
+
+void
+PAHP_Device::ZeroAudioPosition(AudioPosition *p)
+{
+	p->bytePos = p->cycleCount = 0;
+}
+
+Float64
+PAHP_Device::UpdateKalman(Float64 value)
+{
+	k1.x_next = k1.x;
+
+	k1.P_next = k1.P + k1.Q;
+	k1.K = k1.P_next / (k1.P_next + k1.R);
+	k1.x = k1.x_next + k1.K * (value - k1.x_next);
+	k1.P = (1 - k1.K) * k1.P_next;
 	
-	return  (a->cycleCount - b2.cycleCount) * PA_BUFFER_SIZE +
-		(a->bytePos - b2.bytePos);
+	return k1.x;
+}
+
+void
+PAHP_Device::InitKalman(Float64 startValue)
+{
+        k1.x = startValue;
+        k1.P = 1.0;
+	k1.P_next = 0.0;
+        k1.Q = 1.0 / 100.0;
+        k1.R = 0.1 * 0.1;
+	k1.x_next = 0.0;
+	k1.K = 0.0;
+}
+
+void
+PAHP_Device::UpdateTiming()
+{
+	const pa_timing_info *timingInfo = pa_stream_get_timing_info(PAPlaybackStream);
+
+	/*
+	rateScalar -= 0.001f;
+	actualSampleRate =  44100.0f / rateScalar;
+	return;
+	*/
+	
+	if (!timingInfo)
+		return;
+	
+	if (lastTimingInfo.timestamp.tv_sec == 0) {
+		memcpy(&lastTimingInfo, timingInfo, sizeof(lastTimingInfo));
+		return;
+	}
+	
+	UInt64 framesReceived = timingInfo->write_index - lastTimingInfo.write_index;
+	UInt64 timeA = (timingInfo->timestamp.tv_sec * 1000000) + timingInfo->timestamp.tv_usec;
+	UInt64 timeB = (lastTimingInfo.timestamp.tv_sec * 1000000) + lastTimingInfo.timestamp.tv_usec;
+	UInt64 timePassed = timeA - timeB;
+	Float64 newVal = actualSampleRate;
+	
+	framesReceived /= 16;
+
+	if ((timePassed > 0) && (framesReceived > 0)) {
+		newVal = ((Float64) framesReceived * 1000000) / ((Float64) timePassed);
+
+#if 0
+		printf("framesReceived %lld  timePassed %llu newVal %f actual %f rateScalar %f\n",
+		       framesReceived, timePassed, newVal, actualSampleRate, rateScalar);
+#endif
+
+		memcpy(&lastTimingInfo, timingInfo, sizeof(lastTimingInfo));
+	}
+	
+	
+	
+	SInt64 frames = DiffAudioPositions(&playbackBufferWritePos, &playbackBufferReadPos) - underrunCount;
+	underrunCount = 0;
+	
+	frames /= 16;
+	frames -= 256;
+
+#if 0
+	printf(" +++ underrunCount %16lld diff %16lld actualSampleRate %f rate %f\n",
+	       underrunCount, DiffAudioPositions(&playbackBufferWritePos, &playbackBufferReadPos), actualSampleRate, rateScalar);
+#endif
+
+	Float64 diff = 0; //actualSampleRate - newVal;
+	//diff /= 10.0;
+	
+	newVal = actualSampleRate - diff;
+	newVal -= (Float64) frames / (actualSampleRate  / 5.0);
+	
+	actualSampleRate = newVal; //UpdateKalman(newVal);	
+	rateScalar = actualSampleRate / 44100.0;
+}
+
+Float64
+PAHP_Device::GetCurrentActualSampleRate() const
+{
+	return actualSampleRate;
 }
 
 void
 PAHP_Device::DeviceWriteCallback(pa_stream *stream, size_t nbytes)
 {
 	Assert(stream == PAPlaybackStream, "bogus stream pointer in DeviceWriteCallback");
-	
-#if 0
-/*
-	if (DiffAudioPositions(&playbackBufferReadPos,
-			       &playbackBufferWritePos, nbytes) > 0) {
+
+	SInt64 gap = DiffAudioPositions(&playbackBufferWritePos, &playbackBufferReadPos);
+
+	if ((gap < 0) || ((UInt64) gap < nbytes)) {
 		char silence[8192];
 		size_t rest = nbytes;
 
 		memset(silence, 0, sizeof(silence));
 
-		printf("streaming silence for %d bytes\n", (int) nbytes);
+		//printf("streaming silence for %d bytes\n", (int) nbytes);
 
 		while (rest) {
 			int n = MIN(sizeof(silence), rest);
@@ -184,53 +299,47 @@ PAHP_Device::DeviceWriteCallback(pa_stream *stream, size_t nbytes)
 			rest -= n;			
 		}
 
-		IncAudioPosition(&playbackBufferReadPos, nbytes);
+		underrunCount += nbytes;
+		UpdateTiming();
 
 		return;
 	}
-*/
-	
+
 	if (playbackBufferReadPos.bytePos + nbytes >= PA_BUFFER_SIZE) {
 		/* wrap case */
-		
-		UInt32 lengthA = PA_BUFFER_SIZE - playbackBufferReadPos.bytePos;
-		UInt32 lengthB = nbytes - lengthA;
-		
-		pa_stream_write(stream, outputBuffer + playbackBufferReadPos.bytePos, lengthA,
-				NULL, 0, (pa_seek_mode_t) 0);
-		//memset(outputBuffer + playbackBufferReadPos.bytePos, lengthA, 0);
-
-		pa_stream_write(stream, outputBuffer, lengthB,
-				NULL, 0, (pa_seek_mode_t) 0);
-		//memset(outputBuffer, lengthB, 0);
-	} else {
-		pa_stream_write(stream, outputBuffer + playbackBufferReadPos.bytePos, nbytes,
-				NULL, 0, (pa_seek_mode_t) 0);
-		//memset(outputBuffer + playbackBufferReadPos.bytePos, nbytes, 0);
-	}
+		UInt32 slice = PA_BUFFER_SIZE - playbackBufferReadPos.bytePos;
+		pa_stream_write(stream, outputBuffer + playbackBufferReadPos.bytePos, slice, NULL, 0, (pa_seek_mode_t) 0);
+		pa_stream_write(stream, outputBuffer, nbytes - slice, NULL, 0, (pa_seek_mode_t) 0);
+	} else
+		pa_stream_write(stream, outputBuffer + playbackBufferReadPos.bytePos, nbytes, NULL, 0, (pa_seek_mode_t) 0);
 
 	IncAudioPosition(&playbackBufferReadPos, nbytes);
-#endif
+	UpdateTiming();
 }
 
 void
 PAHP_Device::DeviceReadCallback(pa_stream *stream, size_t nbytes)
 {
 	Assert(stream == PARecordStream, "bogus stream pointer in DeviceReadCallback");
-	
-
 #if 0
-	if (recordBufferReadPos + nbytes > PA_BUFFER_SIZE) {
+	const unsigned char *buf;
+
+	pa_stream_peek(stream, (const void **) &buf, &nbytes);
+
+	if (recordBufferReadPos.bytePos + nbytes >= PA_BUFFER_SIZE) {
 		/* wrap case */
-		//pa_stream_peek(stream, inputBuffer + recordBufferReadPos, PA_BUFFER_SIZE - recordBufferReadPos);
-		recordBufferReadPos += nbytes;
-		recordBufferReadPos %= PA_BUFFER_SIZE;
-		//pa_stream_peek(stream, inputBuffer, recordBufferReadPos);
-	} else {
-		//pa_stream_peek(stream, inputBuffer + recordBufferReadPos, nbytes);
-		recordBufferReadPos += nbytes;
-	}
+		
+		UInt32 lengthA = PA_BUFFER_SIZE - recordBufferReadPos.bytePos;
+		UInt32 lengthB = nbytes - lengthA;
+
+		memcpy(inputBuffer + recordBufferReadPos.bytePos, buf, lengthA);
+		memcpy(inputBuffer, buf + lengthA, lengthB);
+	} else
+		memcpy(inputBuffer, buf, nbytes);
+
+	pa_stream_drop(stream);
 #endif
+	IncAudioPosition(&recordBufferReadPos, nbytes);
 }
 
 void
@@ -253,16 +362,15 @@ PAHP_Device::ContextStateCallback()
 			{
 				printf("%s(): Connection ready.\n", __func__);
 				pa_sample_spec ss;
-				pa_buffer_attr buf_attr;
 				
 				ss.format = PA_SAMPLE_FLOAT32;
 				ss.rate = 44100;
 				ss.channels = 2;
 				
-				buf_attr.maxlength = 1024000; //dev->info.audioBufferSize / (8 * sizeof(float)); // fixme
-				buf_attr.minreq = 2048;
-				buf_attr.prebuf = 2048;
-				buf_attr.tlength = -1;
+				buf_attr.tlength = 8192 / 4;
+				buf_attr.maxlength = -1;
+				buf_attr.minreq = -1;
+				buf_attr.prebuf = -1;
 				
 				char tmp[sizeof(procname) + 10];
 				
@@ -283,18 +391,23 @@ PAHP_Device::ContextStateCallback()
 				pa_stream_set_overflow_callback(PARecordStream, staticStreamOverflowCallback, this);
 				pa_stream_set_underflow_callback(PARecordStream, staticStreamUnderflowCallback, this);
 				pa_stream_connect_record(PARecordStream, NULL, &buf_attr, (pa_stream_flags_t) 0);
+
 				PAConnected = true;
 				MPSignalSemaphore(PAContextSemaphore);
 			}
 			break;
 		case PA_CONTEXT_TERMINATED:
 			printf("%s(): Connection terminated.\n", __func__);
+			PAConnected = false;
+			MPSignalSemaphore(PAContextSemaphore);
 			break;
 		case PA_CONTEXT_FAILED:
 			printf("%s(): Connection failed.\n", __func__);
+			PAConnected = false;
 			MPSignalSemaphore(PAContextSemaphore);
 			break;
 		default:
+			PAConnected = false;
 			break;
 	}
 }
@@ -351,6 +464,7 @@ PAHP_Device::StreamMuteChanged(CFStringRef /* name */, CFDictionaryRef userInfo)
 	pa_threaded_mainloop_unlock(PAMainLoop);
 }
 
+#pragma mark ### Construct / Deconstruct ###
 
 PAHP_Device::PAHP_Device(AudioDeviceID	 inAudioDeviceID,
 			 PAHP_PlugIn	*inPlugIn) :
@@ -374,15 +488,18 @@ PAHP_Device::Initialize()
 {
 	HP_Device::Initialize();
 
+	recordBufferReadPos.mutex = new CAMutex("recordBufferReadPos");
+	recordBufferWritePos.mutex = new CAMutex("recordBufferWritePos");
+	playbackBufferReadPos.mutex = new CAMutex("playbackBufferReadPos");
+	playbackBufferWritePos.mutex = new CAMutex("playbackBufferWritePos");
+		
 	int ret = GetProcessName();
-	if (ret < 0) {
+	if (ret < 0)
 		printf("Unable to get process name!? ret = %d\n", ret);
-	}
 
 	ret = MPCreateSemaphore(UINT_MAX, 0, &PAContextSemaphore);
-	if (ret != 0) {
+	if (ret != 0)
 		printf("MPCreateSemaphore() failed\n");
-	}
 	
 	CFNotificationCenterAddObserver(CFNotificationCenterGetDistributedCenter(),
 					this,
@@ -397,6 +514,13 @@ PAHP_Device::Initialize()
 					CFSTR("updateMuteVolume"),
 					CFSTR("PAHP_BooleanControl"),
 					CFNotificationSuspensionBehaviorDeliverImmediately);
+
+	CFRunLoopTimerContext context;
+	memset(&context, 0, sizeof(context));
+	context.info = this;
+	
+	timer = CFRunLoopTimerCreate(kCFAllocatorDefault, 0, 1, 0, 0, staticDebugTimerCallback, &context);
+	CFRunLoopAddTimer(CFRunLoopGetCurrent(), timer, kCFRunLoopCommonModes);
 	
 	CreateStreams();
 	
@@ -429,6 +553,8 @@ PAHP_Device::Initialize()
 void
 PAHP_Device::Teardown()
 {
+	CFRunLoopTimerInvalidate(timer);
+	
 	Do_StopAllIOProcs();
 
 	if (hogMode) {
@@ -463,6 +589,11 @@ PAHP_Device::Teardown()
 		outputBuffer = NULL;
 	}
 	
+	delete recordBufferReadPos.mutex;
+	delete recordBufferWritePos.mutex;
+	delete playbackBufferReadPos.mutex;
+	delete playbackBufferWritePos.mutex;
+
 	MPDeleteSemaphore(PAContextSemaphore);
 }
 
@@ -491,6 +622,8 @@ PAHP_Device::Finalize()
 		hogMode->Release();
 }
 
+#pragma mark ### Name strings ###
+
 CFStringRef
 PAHP_Device::CopyDeviceName() const
 {
@@ -502,7 +635,7 @@ PAHP_Device::CopyDeviceName() const
 CFStringRef
 PAHP_Device::CopyDeviceManufacturerName() const
 {
-	CFStringRef str = CFSTR("The PulseAudio community");
+	CFStringRef str = CFSTR("pulseaudio.org");
 	CFRetain(str);
 	return str;
 }
@@ -514,6 +647,8 @@ PAHP_Device::CopyDeviceUID() const
 	CFRetain(str);
 	return str;
 }
+
+#pragma mark ### Hog Mode ###
 
 bool
 PAHP_Device::HogModeIsOwnedBySelf() const
@@ -543,12 +678,14 @@ PAHP_Device::HogModeStateChanged()
 	RefreshAvailableStreamFormats();
 
 	// unlock the locks so that re-entry can happen
-	if(doUnlockIOThreadGuard)
+	if (doUnlockIOThreadGuard)
 		IOThread->GetIOGuard().Unlock();
 
-	if(doUnlockDeviceStateGuard)
+	if (doUnlockDeviceStateGuard)
 		GetDeviceStateMutex().Unlock();
 }
+
+#pragma mark ### Properties ###
 
 bool
 PAHP_Device::HasProperty(const AudioObjectPropertyAddress &inAddress) const
@@ -710,7 +847,7 @@ PAHP_Device::SetPropertyData(const AudioObjectPropertyAddress	&inAddress,
 		default:
 			HP_Device::SetPropertyData(inAddress, inQualifierDataSize, inQualifierData, inDataSize, inData, inWhen);
 			break;
-	};
+	}
 }
 
 void
@@ -749,6 +886,8 @@ PAHP_Device::FinishCommandExecution(void *inSavedCommandState)
 	if (IOThread && inSavedCommandState)
 		IOThread->GetIOGuard().Unlock();
 }
+
+#pragma mark ### IOProc ###
 
 void
 PAHP_Device::Do_StartIOProc(AudioDeviceIOProc inProc)
@@ -851,6 +990,12 @@ PAHP_Device::CallIOProcs(const AudioTimeStamp &inCurrentTime,
 void
 PAHP_Device::StartIOEngine()
 {
+	HP_Stream *stream = GetStreamByIndex(true, 0);	
+	actualSampleRate = 44100.0; //stream->GetCurrentNominalSampleRate();
+	rateScalar = 1.0;
+	underrunCount = 0;
+	InitKalman(actualSampleRate);
+
 	// the IOGuard should already be held prior to calling this routine
 	if (!IsIOEngineRunning()) {
 		StartHardware();
@@ -911,43 +1056,34 @@ PAHP_Device::StartHardware()
 	#endif
 
 	// PulseAudio
-	
-	recordBufferReadPos.bytePos = 0;
-	recordBufferReadPos.cycleCount = 0;
 
-	recordBufferWritePos.bytePos = 0;
-	recordBufferWritePos.cycleCount = 0;
+	ZeroAudioPosition(&recordBufferReadPos);
+	ZeroAudioPosition(&recordBufferWritePos);
+	ZeroAudioPosition(&playbackBufferReadPos);
+	ZeroAudioPosition(&playbackBufferWritePos);
 
-	playbackBufferReadPos.bytePos = 0;
-	playbackBufferReadPos.cycleCount = 0;
-
-	playbackBufferWritePos.bytePos = 0;
-	playbackBufferWritePos.cycleCount = 0;
-
-	PAMainLoop = pa_threaded_mainloop_new();
-	if (!PAMainLoop) {
-		printf("%s(): pa_threaded_mainloop_new() failed\n", __func__);
+	if (PAContext)
 		return;
-	}
 	
-	PAContext = pa_context_new(pa_threaded_mainloop_get_api(PAMainLoop), procname);
+	PAMainLoop = pa_threaded_mainloop_new();
+	Assert(PAMainLoop, "pa_threaded_mainloop_new() failed");
+	pa_mainloop_api *api = pa_threaded_mainloop_get_api(PAMainLoop);
+	Assert(api, "pa_threaded_mainloop_get_api() failed");
+
+	PAContext = pa_context_new(api, procname);
+	Assert(PAContext, "pa_context_new() failed");
+
 	pa_context_set_state_callback(PAContext, staticContextStateCallback, this);
-	pa_context_connect(PAContext, NULL, 
+	pa_context_connect(PAContext, "127.0.0.1", 
 			   (pa_context_flags_t) (PA_CONTEXT_NOFAIL | PA_CONTEXT_NOAUTOSPAWN),
 			   NULL);
 
 	int ret = pa_threaded_mainloop_start(PAMainLoop);
-	if (ret) {
-		printf("%s(): pa_threaded_mainloop_start() returned %d\n", __func__, ret);
-		return;
-	}
-	
+	Assert(ret >= 0, "pa_threaded_mainloop_start() failed\n");
+
 	printf("%s(): WAITING\n", __func__);
-	ret = MPWaitOnSemaphore(PAContextSemaphore, kDurationForever);
-	printf("%s(): DONE (%08x)\n", __func__, ret);
-	if (ret != 0) {
-		printf("%s(): MPWaitOnSemaphore failed (ret %08x)\n", __func__, (int) ret);
-	}
+	MPWaitOnSemaphore(PAContextSemaphore, kDurationForever);
+	printf("%s(): DONE\n", __func__);
 }
 
 void
@@ -957,19 +1093,43 @@ PAHP_Device::StopHardware()
 		DebugMessage("PAHP_Device::StopHardware: stopping the hardware");
 	#endif
 
+	if (!PAMainLoop)
+		return;
+
+	pa_threaded_mainloop_lock(PAMainLoop);
+
+	if (PAPlaybackStream) {
+		pa_stream_flush(PAPlaybackStream, NULL, NULL);
+		pa_stream_disconnect(PAPlaybackStream);
+		pa_stream_unref(PAPlaybackStream);
+		PAPlaybackStream = NULL;
+	}
+
+	if (PARecordStream) {
+		pa_stream_disconnect(PARecordStream);
+		pa_stream_unref(PARecordStream);
+		PARecordStream = NULL;
+	}
+
 	if (PAContext) {
-		pa_threaded_mainloop_lock(PAMainLoop);
 		pa_context_disconnect(PAContext);
-		//pa_context_unref(PAContext);
-		PAContext = NULL;
 		pa_threaded_mainloop_unlock(PAMainLoop);
+
+		printf("%s(): WAITING\n", __func__);
+		MPWaitOnSemaphore(PAContextSemaphore, kDurationForever);
+		printf("%s(): DONE\n", __func__);
+
+		pa_threaded_mainloop_lock(PAMainLoop);
+		pa_context_unref(PAContext);
+		PAContext = NULL;
 	}
-	
-	if (PAMainLoop) {
-		pa_threaded_mainloop_stop(PAMainLoop);
-		pa_threaded_mainloop_free(PAMainLoop);	
-		PAMainLoop = NULL;
-	}
+
+	pa_threaded_mainloop *loop = PAMainLoop;
+	PAMainLoop = NULL;
+
+	pa_threaded_mainloop_unlock(loop);
+	pa_threaded_mainloop_stop(loop);
+	pa_threaded_mainloop_free(loop);	
 }
 
 void
@@ -990,19 +1150,34 @@ PAHP_Device::ReadInputData(const AudioTimeStamp& /*inStartTime*/, UInt32 /* inBu
 	// this method is called to read the input data
 	// it returns true if the read completed successfully
 
-	if (!PARecordStream)
-		return true;
-	
 	AudioBufferList *inputBufferList = mIOProcList->GetSharedAudioBufferList(true);
 
-	if (!inputBufferList)
-		return true;
-	
+	if (!inputBufferList || !PARecordStream || !PAConnected || !inputBuffer)
+		return false;
+
 	for (UInt32 b = 0; b < inputBufferList->mNumberBuffers; b++) {
-		//AudioBuffer *buffer = inputBufferList->mBuffers + b;
-		//pa_stream_read(PARecordStream, buffer->mData, buffer->mDataByteSize, NULL, 0, (pa_seek_mode_t) 0);	
+		AudioBuffer *buffer = inputBufferList->mBuffers + b;
+		
+		if (!buffer)
+			continue;
+		
+		unsigned char *data = (unsigned char *) buffer->mData;
+		size_t size = buffer->mDataByteSize;
+		
+		if ((data == NULL) || (size == 0))
+			continue;
+
+		if (recordBufferReadPos.bytePos + size > PA_BUFFER_SIZE) {
+			// wrap case
+			UInt32 slice = PA_BUFFER_SIZE - recordBufferReadPos.bytePos;
+			memcpy(inputBuffer + recordBufferReadPos.bytePos, data, slice);
+			memcpy(inputBuffer, data + slice, size - slice);
+		} else
+			memcpy(inputBuffer + recordBufferReadPos.bytePos, data, size);
+		
+		IncAudioPosition(&recordBufferReadPos, size);
 	}
-	
+
 	return true;
 }
 
@@ -1029,35 +1204,32 @@ PAHP_Device::PreProcessOutputData(const AudioTimeStamp& /*inOuputTime*/, HP_IOPr
 	if (mIOCycleTelemetry->IsCapturing())
 		mIOCycleTelemetry->OutputDataPresent(GetIOCycleNumber());
 
-	AudioBufferList *outputBufferList = inIOProc.GetAudioBufferList(false);
-	
 	if (!PAPlaybackStream || !PAConnected)
 		return;
-		
+	
+	AudioBufferList *outputBufferList = inIOProc.GetAudioBufferList(false);
+
 	for (UInt32 b = 0; b < outputBufferList->mNumberBuffers; b++) {
 		AudioBuffer *buffer = outputBufferList->mBuffers + b;
 		
-		if (playbackBufferWritePos.bytePos + buffer->mDataByteSize > PA_BUFFER_SIZE) {
+		if (!buffer)
+			continue;
+
+		unsigned char *data = (unsigned char *) buffer->mData;
+		size_t size = buffer->mDataByteSize;
+
+		if ((data == NULL) || (size == 0))
+			continue;
+
+		if (playbackBufferWritePos.bytePos + size > PA_BUFFER_SIZE) {
 			// wrap case
 			UInt32 slice = PA_BUFFER_SIZE - playbackBufferWritePos.bytePos;
+			memcpy(outputBuffer + playbackBufferWritePos.bytePos, data, slice);
+			memcpy(outputBuffer, data + slice, size - slice);
+		} else
+			memcpy(outputBuffer + playbackBufferWritePos.bytePos, data, size);
 
-			memcpy(outputBuffer + playbackBufferWritePos.bytePos,
-			       buffer->mData,
-			       slice);
-			
-			memcpy(outputBuffer,
-			       (unsigned char *) buffer->mData + slice,
-			       buffer->mDataByteSize - slice);
-		} else {
-			memcpy(outputBuffer + playbackBufferWritePos.bytePos,
-			       buffer->mData,
-			       buffer->mDataByteSize);
-		}
-		
-		IncAudioPosition(&playbackBufferWritePos, buffer->mDataByteSize);
-		
-		//pa_stream_write(PAPlaybackStream, buffer->mData, buffer->mDataByteSize,
-		//		NULL, 0, (pa_seek_mode_t) 0);
+		IncAudioPosition(&playbackBufferWritePos, size);
 	}
 }
 
@@ -1082,6 +1254,18 @@ PAHP_Device::GetIOCycleNumber() const
 	return IOThread->GetIOCycleNumber();
 }
 
+
+#pragma mark ### Timing related ###
+
+
+static inline UInt64
+TimeValToAbsolute(const struct timeval *tv)
+{
+	UInt64 nanos = (tv->tv_usec * 1000ULL) +
+			(tv->tv_sec * 1000000000ULL);
+	return UnsignedWideToUInt64(NanosecondsToAbsolute(UInt64ToUnsignedWide(nanos)));
+}
+
 void
 PAHP_Device::GetCurrentTime(AudioTimeStamp &outTime)
 {
@@ -1090,32 +1274,39 @@ PAHP_Device::GetCurrentTime(AudioTimeStamp &outTime)
 		"PAHP_Device::GetCurrentTime: can't because the engine isn't running");
 
 	outTime = CAAudioTimeStamp::kZero;
-#if 0
-	if (!PAPlaybackStream)
-		return;
-	
-	const pa_timing_info *ti = pa_stream_get_timing_info(PAPlaybackStream);
-
-	if (!ti)
-		return;
-	
-	outTime.mHostTime = ((UInt64) ti->timestamp.tv_sec * 1000000ULL) + ti->timestamp.tv_usec;
-	outTime.mSampleTime = ti->write_index / 8;
-	outTime.mRateScalar = 1.0;
-	outTime.mFlags = kAudioTimeStampSampleTimeValid |
-			 kAudioTimeStampHostTimeValid	|
-			 kAudioTimeStampRateScalarValid;
-
-	//////////////////////
-	return;
-	
-#endif
 
 #if 1
+	
+	// compute the host ticks pere frame
+	Float64 actualHostTicksPerFrame = CAHostTimeBase::GetFrequency() / actualSampleRate;
+
+	Float64 sampleOffset = 0.0;	
+
+	outTime.mHostTime = CAHostTimeBase::GetTheCurrentTime();
+
+	if(outTime.mHostTime >= anchorHostTime) {
+		sampleOffset = outTime.mHostTime - anchorHostTime;
+	} else {
+		sampleOffset = anchorHostTime - outTime.mHostTime;
+		sampleOffset *= -1.0;
+	}
+
+	sampleOffset /= actualHostTicksPerFrame;
+	sampleOffset = floor(sampleOffset);
+	outTime.mSampleTime = sampleOffset;
+	outTime.mRateScalar = rateScalar;
+	outTime.mFlags = kAudioTimeStampSampleTimeValid | kAudioTimeStampHostTimeValid | kAudioTimeStampRateScalarValid;
+
+	return;
+
+#endif
+	
+	
+#if 0
 	/*
 	SInt64 safety = 10000;	
 	SInt64 delta = DiffAudioPositions(&playbackBufferWritePos,
-					  &playbackBufferReadPos, 0) + safety;
+					  &playbackBufferReadPos) + safety;
 	
 	Float64 rate;
 	rate = 1.0 - (delta / 10000000.0);
@@ -1125,22 +1316,35 @@ PAHP_Device::GetCurrentTime(AudioTimeStamp &outTime)
 	
 	//printf(" -- delta %8lld  rate %f\n", delta, rate); 
 
-	// compute the host ticks pere frame
-	Float64 actualHostTicksPerFrame = (CAHostTimeBase::GetFrequency() * rate) / GetCurrentNominalSampleRate();
 
-	outTime.mHostTime = CAHostTimeBase::GetCurrentTime();
+	
+	if (!lastTimingInfo)
+		return;
+	
+	struct timeval now, diff;
+	gettimeofday(&now, NULL);
+
+	timersub(&now, &lastTimingInfo->timestamp, &diff);
+
+	//outTime.mHostTime = CAHostTimeBase::GetCurrentTime();
+	//outTime.mHostTime = TimeValToAbsolute(&diff);
+
+	diff.tv_usec += lastTimingInfo->sink_usec;
+	diff.tv_sec  += diff.tv_usec / 1000000;
+	diff.tv_usec %= 1000000;
 
 	// calculate how many host ticks away from the anchor time stamp the current host time is
-	Float64 sampleOffset = 0.0;
-	if (outTime.mHostTime >= anchorHostTime) {
-		sampleOffset = outTime.mHostTime - anchorHostTime;
+	Float64 sampleOffset = 0.0;	
+//	sampleOffset = TimeValToAbsolute(&diff);
+	if(outTime.mHostTime >= mAnchorHostTime) {
+		sampleOffset = outTime.mHostTime - mAnchorHostTime;
 	} else {
-		// do it this way to avoid overflow problems with the unsigned numbers
-		sampleOffset = anchorHostTime - outTime.mHostTime;
+		sampleOffset = mAnchorHostTime - outTime.mHostTime;
 		sampleOffset *= -1.0;
 	}
-
-	sampleOffset /= actualHostTicksPerFrame;
+	
+	
+//	sampleOffset /= actualHostTicksPerFrame;
 	sampleOffset = floor(sampleOffset);
 	outTime.mSampleTime = sampleOffset;
 	outTime.mRateScalar = 1.0;
@@ -1149,7 +1353,7 @@ PAHP_Device::GetCurrentTime(AudioTimeStamp &outTime)
 /*
 	
 	UInt64 delta = DiffAudioPositions(&playbackBufferReadPos,
-					  &playbackBufferWritePos, 0);
+					  &playbackBufferWritePos);
 	
 	SInt64 safety = 10000;
 	if (delta < safety)
@@ -1158,70 +1362,15 @@ PAHP_Device::GetCurrentTime(AudioTimeStamp &outTime)
 		outTime.mRateScalar += pow(abs(delta), 0.1) / 2;
 	
 */	
-	outTime.mRateScalar = 1.0;
 	
 //	outTime.mRateScalar += ((Float32) delta / (Float32) safety) / 10;
 
 
-	
-#if 0
-	if (PAConnected && PAPlaybackStream &&
-	    (ti = pa_stream_get_timing_info(PAPlaybackStream))) {
-		SInt64 safety = 10000;
-		SInt64 delta = ti->write_index - (ti->read_index + safety);
-		
-/*		if (delta > safety)
-			outTime.mRateScalar -= pow(abs(delta), 0.1) / 2;
-		else
-			outTime.mRateScalar += pow(abs(delta), 0.1) / 2;
-*/
-//		outTime.mRateScalar += ((Float32) delta / (Float32) safety) / 10;
-		
-		printf(" -- wridx %8llu rdidx %8llu delta %8lld  rate %f\n", ti->write_index, ti->read_index, delta, outTime.mRateScalar); 
-	}
-#endif
-
 	outTime.mFlags = kAudioTimeStampSampleTimeValid |
 			 kAudioTimeStampHostTimeValid	|
 			 kAudioTimeStampRateScalarValid;
 #endif
 
-#if 0
-	if (!PAConnected || !PAPlaybackStream)
-		return;
-
-	const pa_timing_info *ti = pa_stream_get_timing_info(PAPlaybackStream);
-	if (!ti)
-		return;	
-
-	UInt64 nano;
-	AbsoluteTime absolute;
-
-	UInt64 mHostTime, mSampleTime;
-	
-	nano = ti->read_index / 4;
-	nano *= ti->sink_usec;
-mHostTime = nano;
-	nano *= 1000ULL;
-	absolute = NanosecondsToAbsolute(UInt64ToUnsignedWide(nano));
-	outTime.mHostTime = *(UInt64 *) &absolute;
-
-	nano = ti->write_index / 4;
-	nano *= ti->sink_usec;
-mSampleTime = nano;
-	nano *= 1000ULL;
-	absolute = NanosecondsToAbsolute(UInt64ToUnsignedWide(nano));
-	outTime.mSampleTime = *(UInt64 *) &absolute;
-
-	
-	printf(" -- mHostTime %llu   mSampleTime %llu   read_index %llu  write_index %llu  sink_usec %llu\n",
-	       mHostTime, mSampleTime, ti->read_index, ti->write_index, ti->sink_usec);
-	
-	outTime.mRateScalar = 1.0;
-	outTime.mFlags = kAudioTimeStampSampleTimeValid |
-			 kAudioTimeStampHostTimeValid	|
-			 kAudioTimeStampRateScalarValid;
-#endif
 }
 
 void
@@ -1249,10 +1398,9 @@ PAHP_Device::TranslateTime(const AudioTimeStamp &inTime, AudioTimeStamp &outTime
 	ThrowIf(!IsIOEngineRunning(),
 		CAException(kAudioHardwareNotRunningError),
 		"PAHP_Device::TranslateTime: can't because the engine isn't running");
-
 	// compute the host ticks pere frame
-	Float64 actualHostTicksPerFrame = CAHostTimeBase::GetFrequency() / GetCurrentNominalSampleRate();
-
+	Float64 actualHostTicksPerFrame = CAHostTimeBase::GetFrequency() / actualSampleRate;
+	
 	// calculate the sample time
 	Float64 offset = 0.0;
 	if (outTime.mFlags & kAudioTimeStampSampleTimeValid) {
@@ -1306,7 +1454,7 @@ PAHP_Device::TranslateTime(const AudioTimeStamp &inTime, AudioTimeStamp &outTime
 	// calculate the rate scalar
 	if (outTime.mFlags & kAudioTimeStampRateScalarValid)
 		// the sample device has perfect timing
-		outTime.mRateScalar = 1.0;
+		outTime.mRateScalar = rateScalar;
 }
 
 void
@@ -1402,11 +1550,11 @@ PAHP_Device::GetNearestStartTime(AudioTimeStamp &ioRequestedStartTime, UInt32 in
 	if (trueRequestedStartTime.mSampleTime != requestedStartTime.mSampleTime)
 		TranslateTime(trueRequestedStartTime, requestedStartTime);
 
-	//	now filter it through the hardware, unless told not to
+	// now filter it through the hardware, unless told not to
 	if (mIOProcList->IsOnlyNULLEnabled() && isConsultingDevice) {
 	}
 
-	//	assign the return value
+	// assign the return value
 	ioRequestedStartTime = requestedStartTime;
 }
 
@@ -1421,6 +1569,7 @@ PAHP_Device::StartIOCycleTimingServices()
 
 	// in this sample driver, we base our timing on the CPU clock and assume a perfect sample rate
 	anchorHostTime = CAHostTimeBase::GetCurrentTime();
+	memset(&lastTimingInfo, 0, sizeof(lastTimingInfo));
 }
 
 bool
@@ -1437,6 +1586,8 @@ PAHP_Device::StopIOCycleTimingServices()
 	anchorHostTime = 0;
 }
 
+#pragma mark ### Streams and Controls
+
 void
 PAHP_Device::CreateStreams()
 {
@@ -1446,11 +1597,8 @@ PAHP_Device::CreateStreams()
 
 	std::vector<AudioStreamID> streamIDs;
 
-	// in this sample device there is only one input stream and one output stream
-
 	// instantiate an AudioStream
 	ret = AudioObjectCreate(plugin->GetInterface(), GetObjectID(), kAudioStreamClassID, &newStreamID);
-
 	if (ret == 0) {
 		stream = new PAHP_Stream(newStreamID, plugin, this, true, 1);
 		stream->Initialize();
@@ -1459,7 +1607,6 @@ PAHP_Device::CreateStreams()
 	}
 
 	ret = AudioObjectCreate(plugin->GetInterface(), GetObjectID(), kAudioStreamClassID, &newStreamID);
-
 	if (ret == 0) {
 		stream = new PAHP_Stream(newStreamID, plugin, this, false, 1);
 		stream->Initialize();

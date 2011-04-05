@@ -17,6 +17,7 @@ class PAHP_Stream;
 typedef struct AudioPosition {
 	UInt32 bytePos;
 	UInt64 cycleCount;
+	CAMutex *mutex;
 } AudioPosition;
 
 #pragma mark ### PAHP_Device ###
@@ -152,6 +153,21 @@ private:
 	MPSemaphoreID				PAContextSemaphore;
 	
 	pa_threaded_mainloop *			PAMainLoop;
+	pa_buffer_attr				buf_attr;
+	
+	CFRunLoopTimerRef			timer;
+	Float64					actualSampleRate;
+	UInt64					lastTime;
+	pa_timing_info				lastTimingInfo;
+		
+	struct {
+		Float64 x_next, x;
+		Float64 P_next, P;
+		Float64 K, Q, R, z;
+	} k1;
+	
+	Float64 rateScalar;
+	UInt64 underrunCount;
 	
 public:
 	void					ContextStateCallback();
@@ -166,11 +182,17 @@ public:
 
 	int					GetProcessName();
 	
-	void					IncAudioPosition(AudioPosition *a, UInt32 bytes) const;
-	int					DiffAudioPositions(const AudioPosition *a,
-								      const AudioPosition *b,
-								      UInt32 extraBytesForB) const;
+	void					ZeroAudioPosition(AudioPosition *p);
+	void					IncAudioPosition(AudioPosition *a, UInt32 bytes);
+	SInt64					DiffAudioPositions(const AudioPosition *a,
+								   const AudioPosition *b) const;
+	void					debugTimer();
+	void					InitKalman(Float64 startValue);
+	Float64					UpdateKalman(Float64);
+	void					UpdateTiming();
 	
+	Float64					GetCurrentActualSampleRate() const;
+
 public:
 	
 
