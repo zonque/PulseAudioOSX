@@ -15,19 +15,26 @@
 
 @interface PAPreferencePane : NSPreferencePane 
 {
-	IBOutlet NSTableView	*clientTableView;
-	IBOutlet IKImageView    *imageView;
-	IBOutlet NSTabView	*clientDetailsBox;
-	IBOutlet NSTextField	*audioDeviceLabel;
-	IBOutlet NSTextField	*PIDLabel;
+	IBOutlet NSTableView		*clientTableView;
+	IBOutlet IKImageView		*imageView;
+	IBOutlet NSTabView		*clientDetailsBox;
+	IBOutlet NSTextField		*clientNameLabel;
+	IBOutlet NSTextField		*audioDeviceLabel;
+	IBOutlet NSTextField		*PIDLabel;
+	IBOutlet NSTextField		*IOBufferSizeLabel;
+	IBOutlet NSPopUpButton		*serverSelectButton;
+	IBOutlet NSTextField		*userNameField;
+	IBOutlet NSSecureTextField	*passwordField;
+	IBOutlet NSTextField		*connectionStatusTextField;
+	IBOutlet NSButton		*persistenCheckButton;
 
 	NSDistributedNotificationCenter *notificationCenter;
 	NSMutableArray *clientList;
-	
-	BonjourListener *listener;
 	NSTimer *timer;
+	BonjourListener *listener;
 }
 
 - (IBAction) selectClient: (id) sender;
+- (IBAction) connectClient: (id) sender;
 
 @end

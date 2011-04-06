@@ -15,7 +15,10 @@
 
 - (void) bonjourServiceAdded: (NSNotification *) notification
 {
-	//NSDictionary *userInfo = [notification userInfo];
+	NSDictionary *userInfo = [notification userInfo];
+	NSString *name = [userInfo objectForKey: @"name"];
+
+	[serverSelectButton addItemWithTitle: name];
 }
 
 - (void) scanClients: (NSTimer *) t
@@ -113,6 +116,9 @@
 				       repeats: YES];
 	[[NSRunLoop currentRunLoop] addTimer: timer
 				     forMode: NSDefaultRunLoopMode];
+	
+	[serverSelectButton removeAllItems];
+	[serverSelectButton addItemWithTitle: @"localhost"];
 	listener = [[BonjourListener alloc] initForService: "_pulse-server._tcp"];
 	[[NSNotificationCenter defaultCenter] addObserver: self
 						 selector: @selector(bonjourServiceAdded:)
@@ -174,23 +180,54 @@
 
 #pragma mark ### IBActions ###
 
+enum {
+	kClientDetailBoxEnabledTab = 0,
+	kClientDetailBoxDisabledTab = 1,
+};
+
 - (IBAction) selectClient: (id) sender
 {
 	NSInteger selected = [clientTableView selectedRow];
 	NSDictionary *client = nil;
+	NSArray *connectionStatusStrings = [NSArray arrayWithObjects:
+						    @"Unconnected",
+						    @"Connecting",
+						    @"Authorizing",
+						    @"Setting name",
+						    @"Connected",
+						    @"Failed",
+						    @"Terminated",
+						    nil];
 
 	if (selected >= 0)
 		client = [clientList objectAtIndex: selected];
 
-	if (client) {
-		[clientDetailsBox selectTabViewItemAtIndex: 0];
-		NSRunningApplication *app = [client objectForKey: @"application"];
-		[imageView setImage: app.icon];
-		[audioDeviceLabel setStringValue: [client objectForKey: @"audioDevice"]];
-		[PIDLabel setStringValue: [[NSNumber numberWithInt: app.processIdentifier] stringValue]];
-	} else {
-		[clientDetailsBox selectTabViewItemAtIndex: 1];
+	if (!client) {
+		[clientDetailsBox selectTabViewItemAtIndex: kClientDetailBoxDisabledTab];
+		return;
 	}
+
+	NSRunningApplication *app = [client objectForKey: @"application"];
+
+	[clientDetailsBox selectTabViewItemAtIndex: kClientDetailBoxEnabledTab];
+	[imageView setImage: app.icon];
+	[clientNameLabel setStringValue: app.localizedName];
+	[audioDeviceLabel setStringValue: [client objectForKey: @"audioDevice"]];
+	[PIDLabel setStringValue: [[NSNumber numberWithInt: app.processIdentifier] stringValue]];
+	[IOBufferSizeLabel setStringValue: [[client objectForKey: @"IOBufferFrameSize"] stringValue]];
+	[serverSelectButton selectItemWithTitle: [client objectForKey: @"serverName"]];
+
+	NSInteger connectionStatus = [[client objectForKey: @"connectionStatus"] intValue];
+	[connectionStatusTextField setStringValue: [connectionStatusStrings objectAtIndex: connectionStatus]];
+	
+	[persistenCheckButton setTitle: [NSString stringWithFormat:
+			@"Always use these parameters for %@", app.localizedName]];		
+}
+
+- (IBAction) connectClient: (id) sender
+{
+	printf(" --- SELECTING SERVER: \n");
+	CFShow([serverSelectButton titleOfSelectedItem]);
 
 }
 
