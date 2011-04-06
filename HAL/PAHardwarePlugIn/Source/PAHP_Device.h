@@ -131,13 +131,16 @@ protected:
 	
 	static bool				IsControlRelatedProperty(AudioObjectPropertySelector inSelector);
 
+public:
+	pa_context *				PAContext;
+	CFMachPortRef				mach_port;
+	
 private:
 	bool					controlsInitialized;
 	HP_DeviceControlProperty *		controlProperty;
 
 	char					procname[MAXCOMLEN+1];
 
-	pa_context *				PAContext;
 	pa_stream *				PARecordStream;
 	pa_stream *				PAPlaybackStream;
 	
@@ -159,7 +162,7 @@ private:
 	Float64					actualSampleRate;
 	UInt64					lastTime;
 	pa_timing_info				lastTimingInfo;
-		
+			
 	struct {
 		Float64 x_next, x;
 		Float64 P_next, P;
@@ -167,7 +170,9 @@ private:
 	} k1;
 	
 	Float64 rateScalar;
-	UInt64 underrunCount;
+	SInt64 underrunCount;
+	Float64 pulseRate;
+	Float64 driftCompensation;
 	
 public:
 	void					ContextStateCallback();
@@ -192,6 +197,9 @@ public:
 	void					UpdateTiming();
 	
 	Float64					GetCurrentActualSampleRate() const;
+	
+	void					AnnounceDevice();
+	void					UnannounceDevice();
 
 public:
 	

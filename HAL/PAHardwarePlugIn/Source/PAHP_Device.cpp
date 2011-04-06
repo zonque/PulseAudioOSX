@@ -38,7 +38,7 @@
 
 #define PA_BUFFER_SIZE	(1024 * 256)
 
-#pragma mark ### PulseAudio related ###
+#pragma mark ### static wrappers ###
 
 static void staticContextStateCallback(pa_context *, void *userdata)
 {
@@ -76,6 +76,17 @@ static void staticStreamUnderflowCallback(pa_stream *stream, void *userdata)
 	dev->StreamUnderflowCallback(stream);	
 }
 
+static void staticScanDevices(CFNotificationCenterRef /* center */,
+			      void *observer,
+			      CFStringRef /* name */,
+			      const void * /* object */,
+			      CFDictionaryRef /* userInfo */)
+{
+	PAHP_Device *dev = static_cast<PAHP_Device *>(observer);
+	if (dev->PAContext)
+		dev->AnnounceDevice();
+}
+
 static void staticStreamVolumeChanged(CFNotificationCenterRef /* center */,
 				      void *observer,
 				      CFStringRef name,
@@ -102,6 +113,8 @@ static void staticDebugTimerCallback (CFRunLoopTimerRef /* timer */,
 	PAHP_Device *dev = static_cast<PAHP_Device *> (info);
 	dev->debugTimer();
 }
+
+#pragma mark ### PulseAudio related ###
 
 void
 PAHP_Device::debugTimer()
@@ -147,6 +160,74 @@ PAHP_Device::GetProcessName()
 }
 
 void
+PAHP_Device::AnnounceDevice()
+{
+	CFMutableDictionaryRef userInfo = CFDictionaryCreateMutable(kCFAllocatorDefault, 1,
+								    &kCFCopyStringDictionaryKeyCallBacks,
+								    &kCFTypeDictionaryValueCallBacks);
+	CFNumberRef number;
+	CFStringRef str;
+
+	UInt32 n = getpid();
+	number = CFNumberCreate(NULL, kCFNumberIntType, &n);
+	CFDictionarySetValue(userInfo, CFSTR("pid"), number);
+	CFRelease(number);
+
+	str = CFStringCreateWithCString(NULL, procname, kCFStringEncodingASCII);
+	CFDictionarySetValue(userInfo, CFSTR("procname"), str);
+	CFRelease(str);
+
+	str = CopyDeviceName();
+	CFDictionarySetValue(userInfo, CFSTR("audioDevice"), str);
+	CFRelease(str);
+	
+	n = GetIOBufferFrameSize();
+	number = CFNumberCreate(NULL, kCFNumberIntType, &n);
+	CFDictionarySetValue(userInfo, CFSTR("IOBufferFrameSize"), number);
+	CFRelease(number);
+	
+	CFDictionarySetValue(userInfo, CFSTR("serverName"), CFSTR("localhost"));
+
+	pa_threaded_mainloop_lock(PAMainLoop);
+	n = pa_context_get_state(PAContext);
+	pa_threaded_mainloop_unlock(PAMainLoop);
+	number = CFNumberCreate(NULL, kCFNumberIntType, &n);
+	CFDictionarySetValue(userInfo, CFSTR("connectionStatus"), number);
+	CFRelease(number);
+	
+	
+	
+	CFNotificationCenterPostNotification(CFNotificationCenterGetDistributedCenter(),
+					     CFSTR("announceDevice"),
+					     CFSTR("PAHP_Device"),
+					     userInfo,
+					     true);
+	CFRelease(userInfo);
+}
+
+void
+PAHP_Device::UnannounceDevice()
+{
+	CFMutableDictionaryRef userInfo = CFDictionaryCreateMutable(kCFAllocatorDefault, 1,
+								    &kCFCopyStringDictionaryKeyCallBacks,
+								    &kCFTypeDictionaryValueCallBacks);
+	CFNumberRef number;
+	CFStringRef str;
+	
+	UInt32 pid = getpid();
+	number = CFNumberCreate(NULL, kCFNumberIntType, &pid);
+	CFDictionarySetValue(userInfo, CFSTR("pid"), number);
+	CFRelease(number);
+	
+	CFNotificationCenterPostNotification(CFNotificationCenterGetDistributedCenter(),
+					     CFSTR("unannounceDevice"),
+					     CFSTR("PAHP_Device"),
+					     userInfo,
+					     true);
+	CFRelease(userInfo);
+}
+
+void
 PAHP_Device::IncAudioPosition(AudioPosition *a, UInt32 bytes)
 {
 	a->mutex->Lock();
@@ -171,8 +252,8 @@ PAHP_Device::DiffAudioPositions(const AudioPosition *a,
 	if (!b)
 		diff = (a->cycleCount * PA_BUFFER_SIZE) + a->bytePos;
 	else
-		diff = (((SInt64) a->cycleCount - (SInt64) b->cycleCount) * PA_BUFFER_SIZE) +
-			((SInt64) a->bytePos - (SInt64) b->bytePos);
+		diff = ((SInt64) ((SInt64) a->cycleCount - (SInt64) b->cycleCount) * PA_BUFFER_SIZE) +
+			(SInt64) ((SInt64) a->bytePos - (SInt64) b->bytePos);
 
 	a->mutex->Unlock();
 	b->mutex->Unlock();
@@ -214,62 +295,82 @@ PAHP_Device::InitKalman(Float64 startValue)
 void
 PAHP_Device::UpdateTiming()
 {
+	//
+	// This is where we do our timing adoptions.
+	// The CoreAudio part of this driver expects us to report the approximate sample rate
+	// of the PulseAudio part by updating 'actualSampleRate' and 'rateScalar' (which is
+	// nothing more than a factor to translate between the nominal and the actual sample
+	// frame rate.
+	//
+
+	const pa_sample_spec *spec = pa_stream_get_sample_spec(PAPlaybackStream);
+	size_t frameSize = pa_frame_size(spec);
+	
+	// First, let's check if PulseAudio would provide us any stream timing information
+
+#if 0
 	const pa_timing_info *timingInfo = pa_stream_get_timing_info(PAPlaybackStream);
 
+	if (timingInfo) {
+		if (lastTimingInfo.timestamp.tv_sec != 0) {
+
+			// We got timing information, and we've seen one before.
+			// So we can now look at the delta and see how many frames we consumed over time.
+
+			UInt64 timeA = (timingInfo->timestamp.tv_sec * USEC_PER_SEC) +
+					timingInfo->timestamp.tv_usec;
+			UInt64 timeB = (lastTimingInfo.timestamp.tv_sec * USEC_PER_SEC) +
+					lastTimingInfo.timestamp.tv_usec;
+			UInt64 timePassed = timeA - timeB;
+			UInt64 framesReceived = (timingInfo->write_index -
+						 lastTimingInfo.write_index) / frameSize;
+
+			if (timePassed && framesReceived) {
+				// The calculated framerate from PulseAudio goes to pulseRate ...
+				pulseRate = ((Float64) framesReceived * USEC_PER_SEC) / ((Float64) timePassed);
+				printf("NEW PULSE RATE %f\n", pulseRate);
+				memcpy(&lastTimingInfo, timingInfo, sizeof(lastTimingInfo));
+			}
+		} else {
+			// Never seen a timing information before, just copy ...
+			memcpy(&lastTimingInfo, timingInfo, sizeof(lastTimingInfo));
+		}
+	}
+
+#endif
+
+	// Taking into account the number of counted underrun bytes and the current diff between the two
+	// playbackBuffer pointers, we can calculate how many sample frames we have to compensate.
+	// Positive numbers of 'frames' means that we need to slow down the CoreAudio IOProc,
+	// Negative numbers mean we're getting too less data.
+	SInt64 frames;
+	
+	frames = DiffAudioPositions(&playbackBufferWritePos, &playbackBufferReadPos) - underrunCount;
+	frames /= frameSize;
+	underrunCount = 0;
+
+	UInt64 target = 10000;
+	SInt64 diff = (SInt64) frames - target; // frames = 90000 -> diff = -10000
+	Float64 foo = diff / 10.0;
+	
+	//printf(" diff %lld ... -> %f\n", diff, foo);
+	
+	actualSampleRate -= foo;
+	
+	
 	/*
-	rateScalar -= 0.001f;
-	actualSampleRate =  44100.0f / rateScalar;
-	return;
+	
+	// weight in the information we calculated from PulseAudio
+	Float64 newVal = actualSampleRate; // + ((pulseRate - actualSampleRate) / 10.0);
+
+	newVal -= driftCompensation;
+	//printf("pulserate %16f newVal %16f  frames %lld\n", pulseRate, newVal, frames);
 	*/
 	
-	if (!timingInfo)
-		return;
+	//actualSampleRate = newVal; //UpdateKalman(newVal);	
+	rateScalar = actualSampleRate / 44100.0; //GetCurrentNominalSampleRate();
 	
-	if (lastTimingInfo.timestamp.tv_sec == 0) {
-		memcpy(&lastTimingInfo, timingInfo, sizeof(lastTimingInfo));
-		return;
-	}
-	
-	UInt64 framesReceived = timingInfo->write_index - lastTimingInfo.write_index;
-	UInt64 timeA = (timingInfo->timestamp.tv_sec * 1000000) + timingInfo->timestamp.tv_usec;
-	UInt64 timeB = (lastTimingInfo.timestamp.tv_sec * 1000000) + lastTimingInfo.timestamp.tv_usec;
-	UInt64 timePassed = timeA - timeB;
-	Float64 newVal = actualSampleRate;
-	
-	framesReceived /= 16;
-
-	if ((timePassed > 0) && (framesReceived > 0)) {
-		newVal = ((Float64) framesReceived * 1000000) / ((Float64) timePassed);
-
-#if 0
-		printf("framesReceived %lld  timePassed %llu newVal %f actual %f rateScalar %f\n",
-		       framesReceived, timePassed, newVal, actualSampleRate, rateScalar);
-#endif
-
-		memcpy(&lastTimingInfo, timingInfo, sizeof(lastTimingInfo));
-	}
-	
-	
-	
-	SInt64 frames = DiffAudioPositions(&playbackBufferWritePos, &playbackBufferReadPos) - underrunCount;
-	underrunCount = 0;
-	
-	frames /= 16;
-	frames -= 256;
-
-#if 0
-	printf(" +++ underrunCount %16lld diff %16lld actualSampleRate %f rate %f\n",
-	       underrunCount, DiffAudioPositions(&playbackBufferWritePos, &playbackBufferReadPos), actualSampleRate, rateScalar);
-#endif
-
-	Float64 diff = 0; //actualSampleRate - newVal;
-	//diff /= 10.0;
-	
-	newVal = actualSampleRate - diff;
-	newVal -= (Float64) frames / (actualSampleRate  / 5.0);
-	
-	actualSampleRate = newVal; //UpdateKalman(newVal);	
-	rateScalar = actualSampleRate / 44100.0;
+	driftCompensation /= 4.0;
 }
 
 Float64
@@ -466,6 +567,15 @@ PAHP_Device::StreamMuteChanged(CFStringRef /* name */, CFDictionaryRef userInfo)
 
 #pragma mark ### Construct / Deconstruct ###
 
+void MyCallBack (CFMachPortRef local,
+		      void *msg,
+		      CFIndex size,
+		      void *info)
+{
+	printf("%s\n", __func__);
+}
+
+
 PAHP_Device::PAHP_Device(AudioDeviceID	 inAudioDeviceID,
 			 PAHP_PlugIn	*inPlugIn) :
 	HP_Device(inAudioDeviceID, kAudioDeviceClassID, inPlugIn, 1, false),
@@ -477,6 +587,19 @@ PAHP_Device::PAHP_Device(AudioDeviceID	 inAudioDeviceID,
 	controlProperty(NULL),
 	PAContext(NULL)
 {
+	CFMachPortContext context;
+	
+	memset(&context, 0, sizeof(context));
+	
+	mach_port = CFMachPortCreate(NULL, MyCallBack, &context, false);
+	
+	
+	printf(" --- mach_port %p\n", mach_port);
+	
+	if (mach_port)
+		CFRunLoopAddSource(CFRunLoopGetCurrent(),
+				   CFMachPortCreateRunLoopSource(NULL, mach_port, 0),
+				   kCFRunLoopCommonModes);
 }
 
 PAHP_Device::~PAHP_Device()
@@ -487,7 +610,7 @@ void
 PAHP_Device::Initialize()
 {
 	HP_Device::Initialize();
-
+	
 	recordBufferReadPos.mutex = new CAMutex("recordBufferReadPos");
 	recordBufferWritePos.mutex = new CAMutex("recordBufferWritePos");
 	playbackBufferReadPos.mutex = new CAMutex("playbackBufferReadPos");
@@ -500,6 +623,13 @@ PAHP_Device::Initialize()
 	ret = MPCreateSemaphore(UINT_MAX, 0, &PAContextSemaphore);
 	if (ret != 0)
 		printf("MPCreateSemaphore() failed\n");
+
+	CFNotificationCenterAddObserver(CFNotificationCenterGetDistributedCenter(),
+					this,
+					staticScanDevices,
+					CFSTR("scanDevices"),
+					CFSTR("PAHP_Device"),
+					CFNotificationSuspensionBehaviorDeliverImmediately);
 	
 	CFNotificationCenterAddObserver(CFNotificationCenterGetDistributedCenter(),
 					this,
@@ -507,14 +637,14 @@ PAHP_Device::Initialize()
 					CFSTR("updateStreamVolume"),
 					CFSTR("PAHP_LevelControl"),
 					CFNotificationSuspensionBehaviorDeliverImmediately);
-
+		
 	CFNotificationCenterAddObserver(CFNotificationCenterGetDistributedCenter(),
 					this,
 					staticStreamMuteChanged,
 					CFSTR("updateMuteVolume"),
 					CFSTR("PAHP_BooleanControl"),
 					CFNotificationSuspensionBehaviorDeliverImmediately);
-
+	
 	CFRunLoopTimerContext context;
 	memset(&context, 0, sizeof(context));
 	context.info = this;
@@ -992,8 +1122,10 @@ PAHP_Device::StartIOEngine()
 {
 	HP_Stream *stream = GetStreamByIndex(true, 0);	
 	actualSampleRate = 44100.0; //stream->GetCurrentNominalSampleRate();
+	pulseRate = actualSampleRate;
 	rateScalar = 1.0;
 	underrunCount = 0;
+	driftCompensation = 0.0;
 	InitKalman(actualSampleRate);
 
 	// the IOGuard should already be held prior to calling this routine
@@ -1084,6 +1216,8 @@ PAHP_Device::StartHardware()
 	printf("%s(): WAITING\n", __func__);
 	MPWaitOnSemaphore(PAContextSemaphore, kDurationForever);
 	printf("%s(): DONE\n", __func__);
+	
+	AnnounceDevice();
 }
 
 void
@@ -1093,6 +1227,8 @@ PAHP_Device::StopHardware()
 		DebugMessage("PAHP_Device::StopHardware: stopping the hardware");
 	#endif
 
+	UnannounceDevice();
+	
 	if (!PAMainLoop)
 		return;
 
