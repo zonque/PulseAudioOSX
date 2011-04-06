@@ -11,37 +11,23 @@
 
 #import "BonjourListener.h"
 #import <PreferencePanes/PreferencePanes.h>
+#import <Quartz/Quartz.h>
 
 @interface PAPreferencePane : NSPreferencePane 
 {
-	IBOutlet NSTableView	*deviceTableView;
-	IBOutlet NSPopUpButton	*serverNamePopup;
-	IBOutlet NSPopUpButton	*channelsInPopup;
-	IBOutlet NSPopUpButton	*channelsOutPopup;
-	IBOutlet NSPopUpButton	*blockSizePopup;
-	IBOutlet NSPopUpButton	*audioContentTypePopup;
-	IBOutlet NSPopUpButton	*streamCreationTypePopup;
-	IBOutlet NSTextField	*deviceNameField;
-	IBOutlet NSPanel	*addDevicePanel;
-	IBOutlet NSTextField	*serverNameLabel;
-	IBOutlet NSTextField	*channelsInLabel;
-	IBOutlet NSTextField	*channelsOutLabel;
-	IBOutlet NSTextField	*audioContentTypeLabel;
-	IBOutlet NSTextField	*streamCreationTypeLabel;
+	IBOutlet NSTableView	*clientTableView;
+	IBOutlet IKImageView    *imageView;
+	IBOutlet NSTabView	*clientDetailsBox;
+	IBOutlet NSTextField	*audioDeviceLabel;
+	IBOutlet NSTextField	*PIDLabel;
 
 	NSDistributedNotificationCenter *notificationCenter;
-	NSArray *deviceList;
-	
-	NSMutableArray *audioContentTypeStrings;
-	NSMutableArray *streamCreationTypeStrings;
+	NSMutableArray *clientList;
 	
 	BonjourListener *listener;
+	NSTimer *timer;
 }
 
-- (IBAction) addDevice: (id) sender;
-- (IBAction) removeDevice: (id) sender;
-- (IBAction) cancelAddDevice: (id) sender;
-- (IBAction) doAddDevice: (id) sender;
-- (IBAction) selectDevice: (id) sender;
+- (IBAction) selectClient: (id) sender;
 
 @end

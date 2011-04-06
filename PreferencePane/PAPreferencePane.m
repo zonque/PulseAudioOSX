@@ -11,97 +11,131 @@
 
 #import "PAPreferencePane.h"
 
-#define LOCAL_OBJECT @"PAPreferencePane"
-#define REMOTE_OBJECT @"PADaemon"
-
 @implementation PAPreferencePane
-
-- (void) updateDeviceList: (NSNotification *) notification
-{
-	NSDictionary *dict = [notification userInfo];
-	NSArray *arr = [dict objectForKey: @"array"];
-
-	if (deviceList) {
-		[deviceList release];
-		deviceList = nil;
-	}
-
-	deviceList = [NSArray arrayWithArray: arr];
-	[deviceTableView reloadData];
-}
-
-- (void) requestDeviceList
-{
-	[notificationCenter postNotificationName: @"sendDeviceList"
-					  object: LOCAL_OBJECT
-					userInfo: nil
-			      deliverImmediately: YES];	
-}
 
 - (void) bonjourServiceAdded: (NSNotification *) notification
 {
+	//NSDictionary *userInfo = [notification userInfo];
+}
+
+- (void) scanClients: (NSTimer *) t
+{
+	NSMutableArray *newClientList = [NSMutableArray arrayWithArray: clientList];
+	NSInteger selected = [clientTableView selectedRow];
+	NSDictionary *selectedClient = nil;
+	
+	if (selected >= 0)
+		selectedClient = [clientList objectAtIndex: [clientTableView selectedRow]];
+	
+	BOOL removed = NO;
+
+	for (NSDictionary *client in clientList) {
+		NSRunningApplication *app = [client objectForKey: @"application"];
+		if (app.terminated) {
+			[newClientList removeObject: client];
+			removed = YES;
+		}
+	}
+	
+	if (removed) {
+		[clientList release];
+		clientList = [newClientList retain];
+		[clientTableView reloadData];
+		
+		if (selectedClient && ![clientList containsObject: selectedClient])
+			[self selectClient: nil];
+	}
+}
+
+- (void) clientAnnounced: (NSNotification *) notification
+{
 	NSDictionary *userInfo = [notification userInfo];
-	[serverNamePopup addItemWithTitle: [userInfo objectForKey: @"name"]];
+	pid_t pid = [[userInfo objectForKey: @"pid"] intValue];
+	BOOL found = NO;
+
+	for (NSDictionary *client in clientList) {
+		if (pid == [[client objectForKey: @"pid"] intValue])
+			found = YES;
+	}
+
+	if (!found) {
+		NSRunningApplication *app = [NSRunningApplication runningApplicationWithProcessIdentifier: pid];
+		
+		if (app) {
+			NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary: userInfo];
+			[dict setObject: app
+				 forKey: @"application"];
+			[clientList addObject: dict];
+			[clientTableView reloadData];
+		}
+	}
+}
+
+- (void) clientUnannounced: (NSNotification *) notification
+{
+	BOOL removed = NO;
+	NSDictionary *userInfo = [notification userInfo];
+	pid_t pid = [[userInfo objectForKey: @"pid"] intValue];
+	NSMutableArray *newClientList = [NSMutableArray arrayWithArray: clientList];
+	NSInteger selected = [clientTableView selectedRow];
+	NSDictionary *selectedClient = nil;
+	
+	if (selected >= 0)
+		selectedClient = [clientList objectAtIndex: [clientTableView selectedRow]];
+
+	for (NSDictionary *client in clientList)
+		if (pid == [[client objectForKey: @"pid"] intValue]) {
+			[newClientList removeObject: client];
+			[clientTableView reloadData];
+			removed = YES;
+		}
+	
+	if (removed) {
+		[clientList release];
+		clientList = [newClientList retain];
+		[clientTableView reloadData];
+
+		if (selectedClient && ![clientList containsObject: selectedClient])
+			[self selectClient: nil];
+	}
 }
 
 - (void) mainViewDidLoad
 {
-	NSInteger i;
+	[clientDetailsBox selectTabViewItemAtIndex: 1];
 
-	[serverNamePopup removeAllItems];
-	[serverNamePopup addItemWithTitle: @"localhost"];
+	clientList = [[NSMutableArray arrayWithCapacity: 0] retain];
 	
-	audioContentTypeStrings = [[NSMutableArray arrayWithCapacity: 0] retain];
-	[audioContentTypeStrings addObject: @"Mixdown"];
-	[audioContentTypeStrings addObject: @"Individual clients"];
-
-	streamCreationTypeStrings = [[NSMutableArray arrayWithCapacity: 0] retain];
-	[streamCreationTypeStrings addObject: @"Permanent"];
-	[streamCreationTypeStrings addObject: @"On demand"];
-
-	[channelsInPopup removeAllItems];
-	[channelsOutPopup removeAllItems];
-
-	for (i = 0; i < 5; i++) {
-		NSString *s = [[NSNumber numberWithInt: 1UL << (i + 1)] stringValue];
-		[channelsInPopup addItemWithTitle: s];
-		[channelsOutPopup addItemWithTitle: s];
-	}
-
-	[blockSizePopup removeAllItems];
-
-	for (i = 0; i < 6; i++) {
-		NSString *s = [[NSNumber numberWithInt: 1UL << (i + 6)] stringValue];
-		[blockSizePopup addItemWithTitle: s];
-	}
-	
-	for (NSString *str in audioContentTypeStrings)
-		[audioContentTypePopup addItemWithTitle: str];
-
-	[audioContentTypePopup removeAllItems];
-	for (NSString *str in audioContentTypeStrings)
-		[audioContentTypePopup addItemWithTitle: str];
-
-	[streamCreationTypePopup removeAllItems];
-	for (NSString *str in streamCreationTypeStrings)
-		[streamCreationTypePopup addItemWithTitle: str];
-
-	[self selectDevice: nil];
-
-	notificationCenter = [NSDistributedNotificationCenter defaultCenter];
-
-	[notificationCenter addObserver: self
-			       selector: @selector(updateDeviceList:)
-				   name: @"updateDeviceList"
-				 object: REMOTE_OBJECT];
-	[self requestDeviceList];
-	
+	timer = [NSTimer timerWithTimeInterval: 1.0
+					target: self
+				      selector: @selector(scanClients:)
+				      userInfo: nil
+				       repeats: YES];
+	[[NSRunLoop currentRunLoop] addTimer: timer
+				     forMode: NSDefaultRunLoopMode];
 	listener = [[BonjourListener alloc] initForService: "_pulse-server._tcp"];
 	[[NSNotificationCenter defaultCenter] addObserver: self
 						 selector: @selector(bonjourServiceAdded:)
 						     name: @"serviceAdded"
 						   object: listener];
-	[listener start];	
+	[listener start];
+
+	notificationCenter = [NSDistributedNotificationCenter defaultCenter];
+	
+	[notificationCenter addObserver: self
+			       selector: @selector(clientAnnounced:)
+				   name: @"announceDevice"
+				 object: @"PAHP_Device"];	
+	
+	[notificationCenter addObserver: self
+			       selector: @selector(clientUnannounced:)
+				   name: @"unannounceDevice"
+				 object: @"PAHP_Device"];	
+	
+	[notificationCenter postNotificationName: @"scanDevices"
+					  object: @"PAHP_Device"
+					userInfo: nil
+			      deliverImmediately: YES];
 }
 
 #pragma mark ### NSTableViewSource protocol ###
@@ -115,127 +149,49 @@
 
 - (id)tableView:(NSTableView *)tableView
 	objectValueForTableColumn:(NSTableColumn *)col
-						  row:(int)rowIndex
+	row:(int)rowIndex
 {
-	NSDictionary *dict = [deviceList objectAtIndex: rowIndex];
-	
-	if (!dict)
+	NSDictionary *client = [clientList objectAtIndex: rowIndex];
+
+	if (!client)
 		return @"";
 
-	return [dict valueForKey: @"name"];
+	NSRunningApplication *app = [client objectForKey: @"application"];
+
+	if ([[col identifier] isEqualToString: @"icon"])
+		return app.icon;
+
+	if ([[col identifier] isEqualToString: @"name"])
+		return app.localizedName;
+	
+	return @"";
 }
 
 - (int) numberOfRowsInTableView:(NSTableView *)tableView
 {
-	return deviceList ? [deviceList count] : 0;
+	return clientList ? [clientList count] : 0;
 }
 
 #pragma mark ### IBActions ###
 
-- (IBAction) cancelAddDevice: (id) sender
+- (IBAction) selectClient: (id) sender
 {
-	[NSApp endSheet: addDevicePanel];
-}
+	NSInteger selected = [clientTableView selectedRow];
+	NSDictionary *client = nil;
 
-- (IBAction) doAddDevice: (id) sender
-{
-	[NSApp endSheet: addDevicePanel];
+	if (selected >= 0)
+		client = [clientList objectAtIndex: selected];
 
-	NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithCapacity: 0];
+	if (client) {
+		[clientDetailsBox selectTabViewItemAtIndex: 0];
+		NSRunningApplication *app = [client objectForKey: @"application"];
+		[imageView setImage: app.icon];
+		[audioDeviceLabel setStringValue: [client objectForKey: @"audioDevice"]];
+		[PIDLabel setStringValue: [[NSNumber numberWithInt: app.processIdentifier] stringValue]];
+	} else {
+		[clientDetailsBox selectTabViewItemAtIndex: 1];
+	}
 
-	NSInteger channelsIn  = 1UL << ([channelsInPopup indexOfSelectedItem] + 1);
-	NSInteger channelsOut = 1UL << ([channelsOutPopup indexOfSelectedItem] + 1);
-	NSInteger blockSize  = 1UL << ([blockSizePopup indexOfSelectedItem] + 5);
-
-	[dict setValue: [deviceNameField stringValue]
-		forKey: @"name"];
-	[dict setValue: [serverNamePopup titleOfSelectedItem]
-		forKey: @"server"];
-	[dict setValue: [NSNumber numberWithInt: channelsIn]
-		forKey: @"channelsIn"];
-	[dict setValue: [NSNumber numberWithInt: channelsOut]
-		forKey: @"channelsOut"];
-	[dict setValue: [NSNumber numberWithInt: blockSize]
-		forKey: @"blockSize"];
-	[dict setValue: [NSNumber numberWithInt: [audioContentTypePopup indexOfSelectedItem]]
-		forKey: @"audioContentType"];
-	[dict setValue: [NSNumber numberWithInt: [streamCreationTypePopup indexOfSelectedItem]]
-		forKey: @"streamCreationType"];
-
-	[notificationCenter postNotificationName: @"addDevice"
-					  object: LOCAL_OBJECT
-					userInfo: dict
-			      deliverImmediately: YES];	
-
-	[self requestDeviceList];
-}
-
-- (void)didEndSheet: (NSWindow *) sheet
-		 returnCode: (NSInteger) returnCode
-		contextInfo: (void *)contextInfo
-{
-    [sheet orderOut:self];
-}
-
-- (IBAction) addDevice: (id) sender
-{
-	[deviceNameField setStringValue: @""];
-
-	NSWindow *window = [[self mainView] window];
-
-	[NSApp beginSheet: addDevicePanel
-	   modalForWindow: window
-		modalDelegate: self
-	   didEndSelector: @selector(didEndSheet:returnCode:contextInfo:)
-		  contextInfo: nil];
-}
-
-- (IBAction) removeDevice: (id) sender
-{
-	NSInteger selected = [deviceTableView selectedRow];
-	
-	if (selected < 0)
-		return;
-	
-	NSNumber *index = [NSNumber numberWithInt: selected];
-	NSDictionary *dict = [NSDictionary dictionaryWithObject: index
-							 forKey: @"index"];
-	
-	[notificationCenter postNotificationName: @"removeDevice"
-					  object: LOCAL_OBJECT
-					userInfo: dict
-			      deliverImmediately: YES];
-	
-	[index release];
-	[dict release];
-	[self requestDeviceList];
-}
-
-- (IBAction) selectDevice: (id) sender
-{
-	NSInteger selected = [deviceTableView selectedRow];
-	BOOL hidden = selected < 0;
-
-	[channelsInLabel setHidden: hidden];
-	[channelsOutLabel setHidden: hidden];
-	[audioContentTypeLabel setHidden: hidden];
-	[streamCreationTypeLabel setHidden: hidden];
-
-	if (hidden)
-		return;
-	
-	NSDictionary *dict = [deviceList objectAtIndex: selected];
-	NSString *server = [dict valueForKey: @"server"];
-	NSInteger channelsIn = [[dict valueForKey: @"channelsIn"] intValue];
-	NSInteger channelsOut = [[dict valueForKey: @"channelsOut"] intValue];
-	NSInteger audioContentType = [[dict valueForKey: @"audioContentType"] intValue];
-	NSInteger streamCreationType = [[dict valueForKey: @"streamCreationType"] intValue];
-	
-	[serverNameLabel setStringValue: server];
-	[channelsInLabel setIntValue: channelsIn];
-	[channelsOutLabel setIntValue: channelsOut];
-	[audioContentTypeLabel setStringValue: [audioContentTypeStrings objectAtIndex: audioContentType]];
-	[streamCreationTypeLabel setStringValue: [streamCreationTypeStrings objectAtIndex: streamCreationType]];
 }
 
 @end
