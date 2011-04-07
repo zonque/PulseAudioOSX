@@ -113,6 +113,7 @@
 		2DF7BD1C08DA584F00EE5510 /* CATokenMap.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCE108DA584F00EE5510 /* CATokenMap.h */; };
 		2DF7BD1D08DA584F00EE5510 /* CAVolumeCurve.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BCE208DA584F00EE5510 /* CAVolumeCurve.cpp */; };
 		2DF7BD1E08DA584F00EE5510 /* CAVolumeCurve.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCE308DA584F00EE5510 /* CAVolumeCurve.h */; };
+		65474141134D9DC80030DDFF /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65474140134D9DC80030DDFF /* IOKit.framework */; };
 		65F4FCDB133BCFAE00E72096 /* pulse.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65F4FCDA133BCFAE00E72096 /* pulse.framework */; };
 		8D576314048677EA00EA77CD /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0AA1909FFE8422F4C02AAC07 /* CoreFoundation.framework */; };
 		F7630E7F0E28101E0066580C /* CACFDistributedNotification.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F7630E7D0E28101E0066580C /* CACFDistributedNotification.cpp */; };
@@ -228,6 +229,7 @@
 		2DF7BCE108DA584F00EE5510 /* CATokenMap.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CATokenMap.h; sourceTree = "<group>"; };
 		2DF7BCE208DA584F00EE5510 /* CAVolumeCurve.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = CAVolumeCurve.cpp; sourceTree = "<group>"; };
 		2DF7BCE308DA584F00EE5510 /* CAVolumeCurve.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CAVolumeCurve.h; sourceTree = "<group>"; };
+		65474140134D9DC80030DDFF /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = /System/Library/Frameworks/IOKit.framework; sourceTree = "<absolute>"; };
 		65F40146133F7B7A00E72096 /* CoreServices.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; name = CoreServices.framework; sourceTree = SDKROOT; };
 		65F4FCDA133BCFAE00E72096 /* pulse.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = pulse.framework; path = /Library/Frameworks/pulse.framework; sourceTree = "<absolute>"; };
 		8D576316048677EA00EA77CD /* PAHardwarePlugIn.plugin */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PAHardwarePlugIn.plugin; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -244,6 +246,7 @@
 				8D576314048677EA00EA77CD /* CoreFoundation.framework in Frameworks */,
 				2DF7BC5408DA4CCA00EE5510 /* CoreAudio.framework in Frameworks */,
 				65F4FCDB133BCFAE00E72096 /* pulse.framework in Frameworks */,
+				65474141134D9DC80030DDFF /* IOKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -266,6 +269,7 @@
 		089C1671FE841209C02AAC07 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				65474140134D9DC80030DDFF /* IOKit.framework */,
 				65F40146133F7B7A00E72096 /* CoreServices.framework */,
 				65F4FCDA133BCFAE00E72096 /* pulse.framework */,
 				2DF7BC5308DA4CCA00EE5510 /* CoreAudio.framework */,

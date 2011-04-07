@@ -21,6 +21,7 @@
 #include "CALogMacros.h"
 #include "CAMutex.h"
 
+#include <IOKit/audio/IOAudioTypes.h>
 #include <CarbonCore/DriverServices.h>
 #include <CarbonCore/Math64.h>
 
@@ -85,6 +86,22 @@ static void staticScanDevices(CFNotificationCenterRef /* center */,
 	PAHP_Device *dev = static_cast<PAHP_Device *>(observer);
 	if (dev->PAContext)
 		dev->AnnounceDevice();
+}
+
+static void staticSetConfig(CFNotificationCenterRef /* center */,
+			    void *observer,
+			    CFStringRef /* name */,
+			    const void * /* object */,
+			    CFDictionaryRef userInfo)
+{
+	CFNumberRef n = (CFNumberRef) CFDictionaryGetValue(userInfo, CFSTR("pid"));
+	pid_t pid;
+	
+	CFNumberGetValue(n, kCFNumberIntType, &pid);
+	if (pid == getpid()) {
+		PAHP_Device *dev = static_cast<PAHP_Device *>(observer);
+		dev->SetConfig(userInfo);
+	}
 }
 
 static void staticStreamVolumeChanged(CFNotificationCenterRef /* center */,
@@ -225,6 +242,16 @@ PAHP_Device::UnannounceDevice()
 					     userInfo,
 					     true);
 	CFRelease(userInfo);
+}
+
+void
+PAHP_Device::SetConfig(CFDictionaryRef config)
+{
+	CFStringRef server = (CFStringRef) CFDictionaryGetValue(config, CFSTR("serverName"));
+	char buf[128];
+	
+	CFStringGetCString(server, buf, sizeof(buf), kCFStringEncodingASCII);	
+	printf("REQUEST to connect to %s\n", buf);
 }
 
 void
@@ -567,15 +594,6 @@ PAHP_Device::StreamMuteChanged(CFStringRef /* name */, CFDictionaryRef userInfo)
 
 #pragma mark ### Construct / Deconstruct ###
 
-void MyCallBack (CFMachPortRef local,
-		      void *msg,
-		      CFIndex size,
-		      void *info)
-{
-	printf("%s\n", __func__);
-}
-
-
 PAHP_Device::PAHP_Device(AudioDeviceID	 inAudioDeviceID,
 			 PAHP_PlugIn	*inPlugIn) :
 	HP_Device(inAudioDeviceID, kAudioDeviceClassID, inPlugIn, 1, false),
@@ -585,21 +603,9 @@ PAHP_Device::PAHP_Device(AudioDeviceID	 inAudioDeviceID,
 	anchorHostTime(0),
 	controlsInitialized(false),
 	controlProperty(NULL),
-	PAContext(NULL)
+	PAContext(NULL),
+	deviceID(inAudioDeviceID)
 {
-	CFMachPortContext context;
-	
-	memset(&context, 0, sizeof(context));
-	
-	mach_port = CFMachPortCreate(NULL, MyCallBack, &context, false);
-	
-	
-	printf(" --- mach_port %p\n", mach_port);
-	
-	if (mach_port)
-		CFRunLoopAddSource(CFRunLoopGetCurrent(),
-				   CFMachPortCreateRunLoopSource(NULL, mach_port, 0),
-				   kCFRunLoopCommonModes);
 }
 
 PAHP_Device::~PAHP_Device()
@@ -610,12 +616,14 @@ void
 PAHP_Device::Initialize()
 {
 	HP_Device::Initialize();
-	
+
 	recordBufferReadPos.mutex = new CAMutex("recordBufferReadPos");
 	recordBufferWritePos.mutex = new CAMutex("recordBufferWritePos");
 	playbackBufferReadPos.mutex = new CAMutex("playbackBufferReadPos");
 	playbackBufferWritePos.mutex = new CAMutex("playbackBufferWritePos");
-		
+
+	PAMainLoop = NULL;
+	
 	int ret = GetProcessName();
 	if (ret < 0)
 		printf("Unable to get process name!? ret = %d\n", ret);
@@ -630,25 +638,32 @@ PAHP_Device::Initialize()
 					CFSTR("scanDevices"),
 					CFSTR("PAHP_Device"),
 					CFNotificationSuspensionBehaviorDeliverImmediately);
-	
+
+	CFNotificationCenterAddObserver(CFNotificationCenterGetDistributedCenter(),
+					this,
+					staticSetConfig,
+					CFSTR("setConfiguration"),
+					CFSTR("PAHP_Device"),
+					CFNotificationSuspensionBehaviorDeliverImmediately);
+
 	CFNotificationCenterAddObserver(CFNotificationCenterGetDistributedCenter(),
 					this,
 					staticStreamVolumeChanged,
 					CFSTR("updateStreamVolume"),
 					CFSTR("PAHP_LevelControl"),
 					CFNotificationSuspensionBehaviorDeliverImmediately);
-		
+
 	CFNotificationCenterAddObserver(CFNotificationCenterGetDistributedCenter(),
 					this,
 					staticStreamMuteChanged,
 					CFSTR("updateMuteVolume"),
 					CFSTR("PAHP_BooleanControl"),
-					CFNotificationSuspensionBehaviorDeliverImmediately);
-	
+					CFNotificationSuspensionBehaviorDeliverImmediately);	
+
 	CFRunLoopTimerContext context;
 	memset(&context, 0, sizeof(context));
 	context.info = this;
-	
+
 	timer = CFRunLoopTimerCreate(kCFAllocatorDefault, 0, 1, 0, 0, staticDebugTimerCallback, &context);
 	CFRunLoopAddTimer(CFRunLoopGetCurrent(), timer, kCFRunLoopCommonModes);
 	
@@ -816,6 +831,12 @@ PAHP_Device::HogModeStateChanged()
 }
 
 #pragma mark ### Properties ###
+
+UInt32
+PAHP_Device::GetTransportType() const
+{
+	return kIOAudioDeviceTransportTypeNetwork;
+}
 
 bool
 PAHP_Device::HasProperty(const AudioObjectPropertyAddress &inAddress) const

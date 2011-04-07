@@ -49,6 +49,8 @@ private:
 	HP_HogMode *				hogMode;
 
 public:
+	virtual UInt32				GetTransportType() const;
+
 	virtual bool				HasProperty(const AudioObjectPropertyAddress &inAddress) const;
 	virtual bool				IsPropertySettable(const AudioObjectPropertyAddress &inAddress) const;
 	virtual UInt32				GetPropertyDataSize(const AudioObjectPropertyAddress &inAddress,
@@ -200,6 +202,7 @@ public:
 	
 	void					AnnounceDevice();
 	void					UnannounceDevice();
+	void					SetConfig(CFDictionaryRef config);
 
 public:
 	
