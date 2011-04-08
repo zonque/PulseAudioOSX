@@ -5,6 +5,7 @@
 PA_Object *
 PA_Stream::findObjectById(AudioObjectID searchID)
 {
+	printf("PA_Stream::%s() ... searching for %d, mine %d\n", __func__, searchID, GetObjectID());
 	if (GetObjectID() == searchID)
 		return this;
 	
@@ -106,8 +107,10 @@ PA_Stream::SetPropertyData(const AudioObjectPropertyAddress *inAddress,
 	return super::SetPropertyData(inAddress, inQualifierDataSize, inQualifierData, inDataSize, inData);
 }
 
-
-
+void
+PA_Stream::Initialize()
+{
+}
 
 PA_Stream::PA_Stream(AudioStreamID inAudioStreamID,
 		     AudioHardwarePlugInRef inPlugIn,
@@ -115,7 +118,8 @@ PA_Stream::PA_Stream(AudioStreamID inAudioStreamID,
 		     bool inIsInput,
 		     UInt32 inStartingDeviceChannelNumber)
 {
-
+	SetObjectID(inAudioStreamID);
+	printf("%s() .. inAudioStreamID %d\n", __func__, inAudioStreamID);
 }
 
 PA_Stream::~PA_Stream()

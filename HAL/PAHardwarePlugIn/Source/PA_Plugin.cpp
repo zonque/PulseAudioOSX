@@ -50,14 +50,24 @@ PA_Object *
 PA_Plugin::findObjectById(AudioObjectID searchID)
 {
 	SInt32 i;
+
+	printf("PA_Plugin::%s() searching for %d, mine is %d\n", __func__, searchID, GetObjectID());
+	
+	if (GetObjectID() == searchID)
+		return this;
+	
+	PA_Object *o = NULL;
 	
 	for (i = 0; i < CFArrayGetCount(devices); i++) {
 		PA_Device *dev = (PA_Device *) CFArrayGetValueAtIndex(devices, i);
-		if (dev->GetObjectID() == searchID)
-			return dev;
+		printf("PA_Plugin::%s() asking %p\n", __func__, dev);
+		o = dev->findObjectById(searchID);
+		
+		if (o)
+			break;
 	}
 	
-	return NULL;	
+	return o;
 }
 
 #pragma mark ### PlugIn Operations ###
@@ -84,13 +94,12 @@ OSStatus
 PA_Plugin::InitializeWithObjectID(AudioObjectID inObjectID)
 {
 	TraceCall();
-	devices = CFArrayCreateMutable(kCFAllocatorDefault, 0, NULL);
-	
-	PA_Device *dev = new PA_Device(plugin);
-	dev->Initialize();
-	CFArrayAppendValue(devices, dev);
-	
 	SetObjectID(inObjectID);
+	
+	devices = CFArrayCreateMutable(kCFAllocatorDefault, 0, NULL);
+	PA_Device *dev = new PA_Device(plugin);
+	CFArrayAppendValue(devices, dev);
+	dev->Initialize();
 
 	return kAudioHardwareNoError;
 }
@@ -197,6 +206,7 @@ PA_Plugin::ObjectGetPropertyData(AudioObjectID inObjectID,
 	PA_Object *o = findObjectById(inObjectID);
 	OSStatus ret;
 
+	printf(" xx %d\n", inObjectID);
 	if (!o) {
 		DebugLog("Illegal inObjectID");
 		return kAudioHardwareBadObjectError;

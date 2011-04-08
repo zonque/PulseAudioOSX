@@ -54,6 +54,19 @@ PA_Device::Initialize()
 	
 	inputStreams = pa_xnew0(PA_Stream *, nInputStreams);
 	outputStreams = pa_xnew0(PA_Stream *, nOutputStreams);
+
+	AudioDeviceID newID;
+	OSStatus ret = AudioObjectCreate(plugin,
+					 kAudioObjectSystemObject,
+					 kAudioDeviceClassID,
+					 &newID);
+	
+	if (ret == 0)
+		SetObjectID(newID);
+	
+	printf("newID %d\n", newID);
+	
+	CreateStreams();
 }
 
 void
@@ -104,6 +117,8 @@ PA_Device::GetStreamById(AudioObjectID inObjectID)
 PA_Object *
 PA_Device::findObjectById(AudioObjectID searchID)
 {
+	printf("PA_Device::%s() ... searching for %d, mine %d\n", __func__, searchID, GetObjectID());
+
 	if (GetObjectID() == searchID)
 		return this;
 
@@ -111,19 +126,19 @@ PA_Device::findObjectById(AudioObjectID searchID)
 
 	for (UInt32 i = 0; i < nInputStreams; i++) {
 		o = inputStreams[i]->findObjectById(searchID);
-			
+
 		if (o)
-			break;
+			return o;
 	}
 
 	for (UInt32 i = 0; i < nOutputStreams; i++) {
 		o = outputStreams[i]->findObjectById(searchID);
-			
+
 		if (o)
-			break;
+			return o;
 	}
-	
-	return o;
+
+	return NULL;
 }
 
 OSStatus
@@ -544,7 +559,6 @@ void
 PA_Device::CreateStreams()
 {
 	OSStatus	 ret = 0;
-	PA_Stream	*stream = NULL;
 	
 	AudioStreamID streamIDs[2];
 	memset(streamIDs, 0, sizeof(streamIDs));
@@ -552,14 +566,14 @@ PA_Device::CreateStreams()
 	// instantiate an AudioStream
 	ret = AudioObjectCreate(plugin, GetObjectID(), kAudioStreamClassID, &streamIDs[0]);
 	if (ret == 0) {
-		stream = new PA_Stream(streamIDs[0], plugin, this, true, 1);
-		stream->Initialize();
+		inputStreams[0] = new PA_Stream(streamIDs[0], plugin, this, true, 1);
+		inputStreams[0]->Initialize();
 	}
 	
 	ret = AudioObjectCreate(plugin, GetObjectID(), kAudioStreamClassID, &streamIDs[1]);
 	if (ret == 0) {
-		stream = new PA_Stream(streamIDs[1], plugin, this, false, 1);
-		stream->Initialize();
+		outputStreams[0] = new PA_Stream(streamIDs[1], plugin, this, false, 1);
+		outputStreams[0]->Initialize();
 	}
 
 	ret = AudioObjectsPublishedAndDied(plugin,
