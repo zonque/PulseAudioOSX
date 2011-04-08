@@ -2,6 +2,7 @@
 #define PA_OBJECT_H_
 
 #include <CoreFoundation/CoreFoundation.h>
+#include <CoreAudio/AudioHardwarePlugIn.h>
 #include <CoreAudio/AudioHardware.h>
 #include "CAMutex.h"
 

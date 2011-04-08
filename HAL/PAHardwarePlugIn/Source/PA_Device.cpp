@@ -1,27 +1,18 @@
 #include "PA_Device.h"
+#include "PA_Stream.h"
 #include "CAAudioBufferList.h"
 
 #include <pulse/pulseaudio.h>
 
 #define super PA_Object
+#define TraceCall(x) printf("PA_Device::%s() :%d\n", __func__, __LINE__);
 
-PA_Device::PA_Device()
+PA_Device::PA_Device(AudioHardwarePlugInRef inPlugin) : plugin(inPlugin)
 {
-	ioProcList = CFArrayCreateMutable(NULL, 0, NULL);
-	ioProcListMutex = new CAMutex("ioProcListMutex");
 }
 
 PA_Device::~PA_Device()
 {
-	for (SInt32 i = 0; CFArrayGetCount(ioProcList); i++) {
-		IOProcTracker *io = (IOProcTracker *) CFArrayGetValueAtIndex(ioProcList, i);
-		pa_xfree(io);
-	}
-
-	CFRelease(ioProcList);
-	ioProcList = NULL;
-	
-	delete ioProcListMutex;
 }
 
 IOProcTracker *
@@ -51,30 +42,61 @@ PA_Device::FindIOProcByID(AudioDeviceIOProcID inProcID)
 void
 PA_Device::Initialize()
 {
+	TraceCall();
+	ioProcList = CFArrayCreateMutable(NULL, 0, NULL);
+	ioProcListMutex = new CAMutex("ioProcListMutex");
+	
 	deviceName = CFStringCreateWithCString(NULL, "PulseAudio", kCFStringEncodingASCII);
 	deviceManufacturer = CFStringCreateWithCString(NULL, "PulseAudio", kCFStringEncodingASCII);
+
+	nInputStreams = 1;
+	nOutputStreams = 1;
+	
+	inputStreams = pa_xnew0(PA_Stream *, nInputStreams);
+	outputStreams = pa_xnew0(PA_Stream *, nOutputStreams);
 }
 
 void
 PA_Device::Teardown()
 {
+	TraceCall();
 	CFRelease(deviceName);
 	CFRelease(deviceManufacturer);
 	
 	deviceName = NULL;
 	deviceManufacturer = NULL;
+	
+	for (SInt32 i = 0; CFArrayGetCount(ioProcList); i++) {
+		IOProcTracker *io = (IOProcTracker *) CFArrayGetValueAtIndex(ioProcList, i);
+		pa_xfree(io);
+	}
+	
+	CFRelease(ioProcList);
+	ioProcList = NULL;
+	
+	delete ioProcListMutex;
+	ioProcListMutex = NULL;
+
+	for (UInt32 i = 0; i < nInputStreams; i++)
+		delete inputStreams[i];
+
+	for (UInt32 i = 0; i < nOutputStreams; i++)
+		delete outputStreams[i];
+
+	pa_xfree(inputStreams);
+	pa_xfree(outputStreams);
 }
 
 PA_Stream *
 PA_Device::GetStreamById(AudioObjectID inObjectID)
 {
-	SInt32 i;
-	
-	for (i = 0; i < CFArrayGetCount(streams); i++) {
-		PA_Stream *stream = (PA_Stream *) CFArrayGetValueAtIndex(streams, i);
-		if (stream->GetObjectID() == inObjectID)
-			return stream;
-	}
+	for (UInt32 i = 0; i < nInputStreams; i++)
+		if (inputStreams[i]->GetObjectID() == inObjectID)
+			return inputStreams[i];
+
+	for (UInt32 i = 0; i < nOutputStreams; i++)
+		if (outputStreams[i]->GetObjectID() == inObjectID)
+			return outputStreams[i];
 	
 	return NULL;
 }
@@ -85,13 +107,18 @@ PA_Device::findObjectById(AudioObjectID searchID)
 	if (GetObjectID() == searchID)
 		return this;
 
-	SInt32 i;
 	PA_Object *o = NULL;
-	
-	for (i = 0; i < CFArrayGetCount(streams); i++) {
-		PA_Stream *stream = (PA_Stream *) CFArrayGetValueAtIndex(streams, i);
-		o = stream->findObjectById(searchID);
 
+	for (UInt32 i = 0; i < nInputStreams; i++) {
+		o = inputStreams[i]->findObjectById(searchID);
+			
+		if (o)
+			break;
+	}
+
+	for (UInt32 i = 0; i < nOutputStreams; i++) {
+		o = outputStreams[i]->findObjectById(searchID);
+			
 		if (o)
 			break;
 	}
@@ -234,6 +261,7 @@ PA_Device::Read(const AudioTimeStamp *inStartTime,
 OSStatus
 PA_Device::GetCurrentTime(AudioTimeStamp *outTime)
 {
+	TraceCall();
 	memset(outTime, 0, sizeof(*outTime));
 	return kAudioHardwareNoError;
 }
@@ -270,6 +298,13 @@ PA_Device::EnableAllIOProcs(Boolean enabled)
 void
 PA_Device::SetBufferSize(UInt32 size)
 {
+	bufferFrameSize = size;
+}
+
+UInt32
+PA_Device::GetIOBufferFrameSize()
+{
+	return bufferFrameSize;
 }
 
 #pragma mark ### properties ###
@@ -502,4 +537,35 @@ PA_Device::SetProperty(const AudioTimeStamp * /* inWhen */,
 	
 	return SetPropertyData(&addr, 0, NULL, inPropertyDataSize, inPropertyData);
 }
+
+#pragma mark ### Stream management ###
+
+void
+PA_Device::CreateStreams()
+{
+	OSStatus	 ret = 0;
+	PA_Stream	*stream = NULL;
+	
+	AudioStreamID streamIDs[2];
+	memset(streamIDs, 0, sizeof(streamIDs));
+
+	// instantiate an AudioStream
+	ret = AudioObjectCreate(plugin, GetObjectID(), kAudioStreamClassID, &streamIDs[0]);
+	if (ret == 0) {
+		stream = new PA_Stream(streamIDs[0], plugin, this, true, 1);
+		stream->Initialize();
+	}
+	
+	ret = AudioObjectCreate(plugin, GetObjectID(), kAudioStreamClassID, &streamIDs[1]);
+	if (ret == 0) {
+		stream = new PA_Stream(streamIDs[1], plugin, this, false, 1);
+		stream->Initialize();
+	}
+
+	ret = AudioObjectsPublishedAndDied(plugin,
+					   GetObjectID(),
+					   2, streamIDs,
+					   0, NULL);
+}
+
 

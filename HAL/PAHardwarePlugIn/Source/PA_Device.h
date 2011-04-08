@@ -5,7 +5,8 @@
 #include <CoreAudio/AudioHardware.h>
 
 #include "PA_Object.h"
-#include "PA_Stream.h"
+
+class PA_Stream;
 
 typedef struct IOProcTracker
 {
@@ -19,15 +20,20 @@ typedef struct IOProcTracker
 class PA_Device : public PA_Object
 {
 private:
-	CFMutableArrayRef streams, ioProcList;
+	CFMutableArrayRef ioProcList;
 	
 	CFStringRef deviceName, deviceManufacturer;
 	UInt32 nInputStreams, nOutputStreams;
+	PA_Stream **inputStreams, **outputStreams;
 	
 	CAMutex *ioProcListMutex;
+	AudioHardwarePlugInRef plugin;
+	
+	UInt32 bufferFrameSize;
+	
 	
 public:
-	PA_Device();
+	PA_Device(AudioHardwarePlugInRef inPlugin);
 	~PA_Device();
 	
 	void Initialize();
@@ -115,6 +121,8 @@ public:
 #pragma mark ### internal stuff ###
 	void	EnableAllIOProcs(Boolean enable);
 	void	SetBufferSize(UInt32 size);
+	UInt32	GetIOBufferFrameSize();
+	void	CreateStreams();
 	
 	PA_Object *findObjectById(AudioObjectID searchID);
 };

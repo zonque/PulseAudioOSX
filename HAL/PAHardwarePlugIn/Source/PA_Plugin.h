@@ -14,8 +14,13 @@ private:
 
 	PA_Device *GetDeviceById(AudioObjectID inObjectID);
 	PA_Stream *GetStreamById(AudioObjectID inObjectID);
+	
+	AudioHardwarePlugInRef plugin;
 
 public:
+	PA_Plugin(AudioHardwarePlugInRef inPlugin);
+	~PA_Plugin();
+	
 	ULONG AddRef();
 	ULONG Release();
 	

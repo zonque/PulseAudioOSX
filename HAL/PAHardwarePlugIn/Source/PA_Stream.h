@@ -5,6 +5,10 @@
 #include <CoreAudio/AudioHardware.h>
 
 #include "PA_Object.h"
+#include "PA_Plugin.h"
+#include "PA_Device.h"
+
+class PA_Device;
 
 class PA_Stream : public PA_Object
 {
@@ -12,7 +16,11 @@ private:
 	CFMutableArrayRef *controls;
 	
 public:
-	PA_Stream();
+	PA_Stream(AudioStreamID inAudioStreamID,
+		  AudioHardwarePlugInRef inPlugIn,
+		  PA_Device *inOwningDevice,
+		  bool inIsInput,
+		  UInt32 inStartingDeviceChannelNumber);
 	~PA_Stream();
 	
 	void Initialize();

@@ -124,6 +124,8 @@
 		654742C6134F244C0030DDFF /* PA_Device.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 654742C4134F244C0030DDFF /* PA_Device.cpp */; };
 		6547431F134F2FB30030DDFF /* PA_Stream.h in Headers */ = {isa = PBXBuildFile; fileRef = 6547431D134F2FB30030DDFF /* PA_Stream.h */; };
 		6547439D134F3EBD0030DDFF /* PA_Stream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6547439C134F3EBD0030DDFF /* PA_Stream.cpp */; };
+		65474533134F80FB0030DDFF /* PA_DeviceBackend.h in Headers */ = {isa = PBXBuildFile; fileRef = 65474531134F80FB0030DDFF /* PA_DeviceBackend.h */; };
+		65474534134F80FB0030DDFF /* PA_DeviceBackend.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65474532134F80FB0030DDFF /* PA_DeviceBackend.cpp */; };
 		65F4FCDB133BCFAE00E72096 /* pulse.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65F4FCDA133BCFAE00E72096 /* pulse.framework */; };
 		8D576314048677EA00EA77CD /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0AA1909FFE8422F4C02AAC07 /* CoreFoundation.framework */; };
 		F7630E7F0E28101E0066580C /* CACFDistributedNotification.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F7630E7D0E28101E0066580C /* CACFDistributedNotification.cpp */; };
@@ -250,6 +252,8 @@
 		654742C4134F244C0030DDFF /* PA_Device.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PA_Device.cpp; path = Source/PA_Device.cpp; sourceTree = "<group>"; };
 		6547431D134F2FB30030DDFF /* PA_Stream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PA_Stream.h; path = Source/PA_Stream.h; sourceTree = "<group>"; };
 		6547439C134F3EBD0030DDFF /* PA_Stream.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PA_Stream.cpp; path = Source/PA_Stream.cpp; sourceTree = "<group>"; };
+		65474531134F80FB0030DDFF /* PA_DeviceBackend.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PA_DeviceBackend.h; path = Source/PA_DeviceBackend.h; sourceTree = "<group>"; };
+		65474532134F80FB0030DDFF /* PA_DeviceBackend.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PA_DeviceBackend.cpp; path = Source/PA_DeviceBackend.cpp; sourceTree = "<group>"; };
 		65F40146133F7B7A00E72096 /* CoreServices.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; name = CoreServices.framework; sourceTree = SDKROOT; };
 		65F4FCDA133BCFAE00E72096 /* pulse.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = pulse.framework; path = /Library/Frameworks/pulse.framework; sourceTree = "<absolute>"; };
 		8D576316048677EA00EA77CD /* PAHardwarePlugIn.plugin */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PAHardwarePlugIn.plugin; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -453,12 +457,14 @@
 				65474248134F108C0030DDFF /* PA_PlugInInterface.h */,
 				65474245134F0B680030DDFF /* PA_Plugin.cpp */,
 				6547424C134F146A0030DDFF /* PA_Plugin.h */,
-				654742C3134F244C0030DDFF /* PA_Device.h */,
 				654742C4134F244C0030DDFF /* PA_Device.cpp */,
-				654742B4134F1FAA0030DDFF /* PA_Object.h */,
+				654742C3134F244C0030DDFF /* PA_Device.h */,
 				654742B5134F1FAA0030DDFF /* PA_Object.cpp */,
-				6547431D134F2FB30030DDFF /* PA_Stream.h */,
+				654742B4134F1FAA0030DDFF /* PA_Object.h */,
 				6547439C134F3EBD0030DDFF /* PA_Stream.cpp */,
+				6547431D134F2FB30030DDFF /* PA_Stream.h */,
+				65474531134F80FB0030DDFF /* PA_DeviceBackend.h */,
+				65474532134F80FB0030DDFF /* PA_DeviceBackend.cpp */,
 			);
 			name = NG;
 			sourceTree = "<group>";
@@ -534,6 +540,7 @@
 				654742B6134F1FAA0030DDFF /* PA_Object.h in Headers */,
 				654742C5134F244C0030DDFF /* PA_Device.h in Headers */,
 				6547431F134F2FB30030DDFF /* PA_Stream.h in Headers */,
+				65474533134F80FB0030DDFF /* PA_DeviceBackend.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -640,6 +647,7 @@
 				654742B7134F1FAA0030DDFF /* PA_Object.cpp in Sources */,
 				654742C6134F244C0030DDFF /* PA_Device.cpp in Sources */,
 				6547439D134F3EBD0030DDFF /* PA_Stream.cpp in Sources */,
+				65474534134F80FB0030DDFF /* PA_DeviceBackend.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

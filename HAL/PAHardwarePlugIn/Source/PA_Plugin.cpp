@@ -4,9 +4,16 @@
 
 #include <pulse/pulseaudio.h>
 
-#define TraceCall(x) printf("%s() :%d\n", __func__, __LINE__);
+#define TraceCall(x) printf("PA_Plugin::%s() :%d\n", __func__, __LINE__);
+
+// All methods of this class are just wrappers to call our child classes
 
 #pragma mark ### internal Operations ###
+
+PA_Plugin::PA_Plugin(AudioHardwarePlugInRef inPlugin) : plugin(inPlugin)
+{
+	
+}
 
 PA_Device *
 PA_Plugin::GetDeviceById(AudioObjectID inObjectID)
@@ -79,7 +86,7 @@ PA_Plugin::InitializeWithObjectID(AudioObjectID inObjectID)
 	TraceCall();
 	devices = CFArrayCreateMutable(kCFAllocatorDefault, 0, NULL);
 	
-	PA_Device *dev = new PA_Device();
+	PA_Device *dev = new PA_Device(plugin);
 	dev->Initialize();
 	CFArrayAppendValue(devices, dev);
 	

@@ -109,7 +109,11 @@ PA_Stream::SetPropertyData(const AudioObjectPropertyAddress *inAddress,
 
 
 
-PA_Stream::PA_Stream()
+PA_Stream::PA_Stream(AudioStreamID inAudioStreamID,
+		     AudioHardwarePlugInRef inPlugIn,
+		     PA_Device *inOwningDevice,
+		     bool inIsInput,
+		     UInt32 inStartingDeviceChannelNumber)
 {
 
 }
