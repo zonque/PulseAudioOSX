@@ -18,6 +18,8 @@ public:
 	void Initialize();
 	void Teardown();
 	
+#pragma mark ### plugin interface ###
+
 	OSStatus GetPropertyInfo(UInt32 inChannel,
 				 AudioDevicePropertyID inPropertyID,
 				 UInt32 *outSize,
@@ -33,6 +35,31 @@ public:
 			     AudioDevicePropertyID inPropertyID,
 			     UInt32 inPropertyDataSize,
 			     const void *inPropertyData);
+
+#pragma mark ### properties ###
+	
+	virtual Boolean	HasProperty(const AudioObjectPropertyAddress *inAddress);
+	
+	virtual OSStatus IsPropertySettable(const AudioObjectPropertyAddress *inAddress,
+					    Boolean *outIsSettable);
+	
+	virtual OSStatus GetPropertyDataSize(const AudioObjectPropertyAddress *inAddress,
+					     UInt32 inQualifierDataSize,
+					     const void *inQualifierData,
+					     UInt32 *outDataSize);
+	
+	virtual OSStatus GetPropertyData(const AudioObjectPropertyAddress *inAddress,
+					 UInt32 inQualifierDataSize,
+					 const void *inQualifierData,
+					 UInt32 *ioDataSize,
+					 void *outData);
+	
+	virtual OSStatus SetPropertyData(const AudioObjectPropertyAddress *inAddress,
+					 UInt32 inQualifierDataSize,
+					 const void *inQualifierData,
+					 UInt32 inDataSize,
+					 const void *inData);
+	
 	
 	PA_Object *findObjectById(AudioObjectID searchID);
 };

@@ -114,6 +114,16 @@
 		2DF7BD1D08DA584F00EE5510 /* CAVolumeCurve.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BCE208DA584F00EE5510 /* CAVolumeCurve.cpp */; };
 		2DF7BD1E08DA584F00EE5510 /* CAVolumeCurve.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCE308DA584F00EE5510 /* CAVolumeCurve.h */; };
 		65474141134D9DC80030DDFF /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65474140134D9DC80030DDFF /* IOKit.framework */; };
+		65474231134F01D70030DDFF /* PA_PlugInInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65474230134F01D70030DDFF /* PA_PlugInInterface.cpp */; };
+		65474246134F0B680030DDFF /* PA_Plugin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65474245134F0B680030DDFF /* PA_Plugin.cpp */; };
+		65474249134F108C0030DDFF /* PA_PlugInInterface.h in Headers */ = {isa = PBXBuildFile; fileRef = 65474248134F108C0030DDFF /* PA_PlugInInterface.h */; };
+		6547424D134F146A0030DDFF /* PA_Plugin.h in Headers */ = {isa = PBXBuildFile; fileRef = 6547424C134F146A0030DDFF /* PA_Plugin.h */; };
+		654742B6134F1FAA0030DDFF /* PA_Object.h in Headers */ = {isa = PBXBuildFile; fileRef = 654742B4134F1FAA0030DDFF /* PA_Object.h */; };
+		654742B7134F1FAA0030DDFF /* PA_Object.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 654742B5134F1FAA0030DDFF /* PA_Object.cpp */; };
+		654742C5134F244C0030DDFF /* PA_Device.h in Headers */ = {isa = PBXBuildFile; fileRef = 654742C3134F244C0030DDFF /* PA_Device.h */; };
+		654742C6134F244C0030DDFF /* PA_Device.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 654742C4134F244C0030DDFF /* PA_Device.cpp */; };
+		6547431F134F2FB30030DDFF /* PA_Stream.h in Headers */ = {isa = PBXBuildFile; fileRef = 6547431D134F2FB30030DDFF /* PA_Stream.h */; };
+		6547439D134F3EBD0030DDFF /* PA_Stream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6547439C134F3EBD0030DDFF /* PA_Stream.cpp */; };
 		65F4FCDB133BCFAE00E72096 /* pulse.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65F4FCDA133BCFAE00E72096 /* pulse.framework */; };
 		8D576314048677EA00EA77CD /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0AA1909FFE8422F4C02AAC07 /* CoreFoundation.framework */; };
 		F7630E7F0E28101E0066580C /* CACFDistributedNotification.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F7630E7D0E28101E0066580C /* CACFDistributedNotification.cpp */; };
@@ -230,6 +240,16 @@
 		2DF7BCE208DA584F00EE5510 /* CAVolumeCurve.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = CAVolumeCurve.cpp; sourceTree = "<group>"; };
 		2DF7BCE308DA584F00EE5510 /* CAVolumeCurve.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CAVolumeCurve.h; sourceTree = "<group>"; };
 		65474140134D9DC80030DDFF /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = /System/Library/Frameworks/IOKit.framework; sourceTree = "<absolute>"; };
+		65474230134F01D70030DDFF /* PA_PlugInInterface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PA_PlugInInterface.cpp; path = Source/PA_PlugInInterface.cpp; sourceTree = "<group>"; };
+		65474245134F0B680030DDFF /* PA_Plugin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PA_Plugin.cpp; path = Source/PA_Plugin.cpp; sourceTree = "<group>"; };
+		65474248134F108C0030DDFF /* PA_PlugInInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PA_PlugInInterface.h; path = Source/PA_PlugInInterface.h; sourceTree = "<group>"; };
+		6547424C134F146A0030DDFF /* PA_Plugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PA_Plugin.h; path = Source/PA_Plugin.h; sourceTree = "<group>"; };
+		654742B4134F1FAA0030DDFF /* PA_Object.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PA_Object.h; path = Source/PA_Object.h; sourceTree = "<group>"; };
+		654742B5134F1FAA0030DDFF /* PA_Object.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PA_Object.cpp; path = Source/PA_Object.cpp; sourceTree = "<group>"; };
+		654742C3134F244C0030DDFF /* PA_Device.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PA_Device.h; path = Source/PA_Device.h; sourceTree = "<group>"; };
+		654742C4134F244C0030DDFF /* PA_Device.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PA_Device.cpp; path = Source/PA_Device.cpp; sourceTree = "<group>"; };
+		6547431D134F2FB30030DDFF /* PA_Stream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PA_Stream.h; path = Source/PA_Stream.h; sourceTree = "<group>"; };
+		6547439C134F3EBD0030DDFF /* PA_Stream.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PA_Stream.cpp; path = Source/PA_Stream.cpp; sourceTree = "<group>"; };
 		65F40146133F7B7A00E72096 /* CoreServices.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; name = CoreServices.framework; sourceTree = SDKROOT; };
 		65F4FCDA133BCFAE00E72096 /* pulse.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = pulse.framework; path = /Library/Frameworks/pulse.framework; sourceTree = "<absolute>"; };
 		8D576316048677EA00EA77CD /* PAHardwarePlugIn.plugin */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PAHardwarePlugIn.plugin; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -257,6 +277,7 @@
 			isa = PBXGroup;
 			children = (
 				08FB77AFFE84173DC02AAC07 /* Source */,
+				654742BA134F20010030DDFF /* NG */,
 				2DF7BBD608DA498D00EE5510 /* HPBase */,
 				2DF7BC3008DA4A5400EE5510 /* PublicUtility */,
 				2DF7BC7008DA4D5100EE5510 /* Resources */,
@@ -425,6 +446,23 @@
 			path = Resources;
 			sourceTree = SOURCE_ROOT;
 		};
+		654742BA134F20010030DDFF /* NG */ = {
+			isa = PBXGroup;
+			children = (
+				65474230134F01D70030DDFF /* PA_PlugInInterface.cpp */,
+				65474248134F108C0030DDFF /* PA_PlugInInterface.h */,
+				65474245134F0B680030DDFF /* PA_Plugin.cpp */,
+				6547424C134F146A0030DDFF /* PA_Plugin.h */,
+				654742C3134F244C0030DDFF /* PA_Device.h */,
+				654742C4134F244C0030DDFF /* PA_Device.cpp */,
+				654742B4134F1FAA0030DDFF /* PA_Object.h */,
+				654742B5134F1FAA0030DDFF /* PA_Object.cpp */,
+				6547431D134F2FB30030DDFF /* PA_Stream.h */,
+				6547439C134F3EBD0030DDFF /* PA_Stream.cpp */,
+			);
+			name = NG;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -491,6 +529,11 @@
 				2DBF1BD20C48011700FB5F74 /* HP_ReferenceCounted.h in Headers */,
 				2DBF1BD40C48011700FB5F74 /* HP_SystemInfo.h in Headers */,
 				F7630E800E28101E0066580C /* CACFDistributedNotification.h in Headers */,
+				65474249134F108C0030DDFF /* PA_PlugInInterface.h in Headers */,
+				6547424D134F146A0030DDFF /* PA_Plugin.h in Headers */,
+				654742B6134F1FAA0030DDFF /* PA_Object.h in Headers */,
+				654742C5134F244C0030DDFF /* PA_Device.h in Headers */,
+				6547431F134F2FB30030DDFF /* PA_Stream.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -592,6 +635,11 @@
 				2DBF1BD10C48011700FB5F74 /* HP_ReferenceCounted.cpp in Sources */,
 				2DBF1BD30C48011700FB5F74 /* HP_SystemInfo.cpp in Sources */,
 				F7630E7F0E28101E0066580C /* CACFDistributedNotification.cpp in Sources */,
+				65474231134F01D70030DDFF /* PA_PlugInInterface.cpp in Sources */,
+				65474246134F0B680030DDFF /* PA_Plugin.cpp in Sources */,
+				654742B7134F1FAA0030DDFF /* PA_Object.cpp in Sources */,
+				654742C6134F244C0030DDFF /* PA_Device.cpp in Sources */,
+				6547439D134F3EBD0030DDFF /* PA_Stream.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -3,6 +3,10 @@
 
 #include <CoreFoundation/CoreFoundation.h>
 #include <CoreAudio/AudioHardware.h>
+#include "CAMutex.h"
+
+#define DebugLog(str) printf("%s():%d :: %s\n", __func__, __LINE__, str);
+
 
 class PA_Object
 {
@@ -10,6 +14,7 @@ private:
 	AudioObjectID objectID;
 
 	CFMutableArrayRef properties;
+	CAMutex *mutex;
 
 public:
 	
@@ -19,29 +24,36 @@ public:
 	AudioObjectID	GetObjectID()			{ return objectID; };
 	void		SetObjectID(AudioObjectID i)	{ objectID = i; };
 	
-	Boolean	HasProperty(const AudioObjectPropertyAddress *inAddress);
+#pragma mark ### plugin interface ###
 
-	OSStatus IsPropertySettable(const AudioObjectPropertyAddress *inAddress,
-				    Boolean *outIsSettable);
-	
-	OSStatus GetPropertyDataSize(const AudioObjectPropertyAddress *inAddress,
-				     UInt32 inQualifierDataSize,
-				     const void *inQualifierData,
-				     UInt32 *outDataSize);
-	
-	OSStatus GetPropertyData(const AudioObjectPropertyAddress *inAddress,
-				 UInt32 inQualifierDataSize,
-				 const void *inQualifierData,
-				 UInt32 *ioDataSize,
-				 void *outData);
+	virtual Boolean	HasProperty(const AudioObjectPropertyAddress *inAddress);
 
-	OSStatus SetPropertyData(const AudioObjectPropertyAddress *inAddress,
-				 UInt32 inQualifierDataSize,
-				 const void *inQualifierData,
-				 UInt32 inDataSize,
-				 const void *inData);
+	virtual OSStatus IsPropertySettable(const AudioObjectPropertyAddress *inAddress,
+					    Boolean *outIsSettable);
+	
+	virtual OSStatus GetPropertyDataSize(const AudioObjectPropertyAddress *inAddress,
+					     UInt32 inQualifierDataSize,
+					     const void *inQualifierData,
+					     UInt32 *outDataSize);
+	
+	virtual OSStatus GetPropertyData(const AudioObjectPropertyAddress *inAddress,
+					 UInt32 inQualifierDataSize,
+					 const void *inQualifierData,
+					 UInt32 *ioDataSize,
+					 void *outData);
+	
+	virtual OSStatus SetPropertyData(const AudioObjectPropertyAddress *inAddress,
+					 UInt32 inQualifierDataSize,
+					 const void *inQualifierData,
+					 UInt32 inDataSize,
+					 const void *inData);
 	
 	void Show();
+	
+#pragma mark ### mutex ###
+
+	void Lock();
+	void Unlock();
 	
 	virtual PA_Object *findObjectById(AudioObjectID searchID) = 0;
 };

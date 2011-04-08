@@ -3,10 +3,15 @@
 
 class PA_PlugInInterface
 {
+private:
+	AudioHardwarePlugInInterface *staticInterface;
+
 public:
 	PA_PlugInInterface();
 	~PA_PlugInInterface();
 	
 	PA_Plugin *plugin;
-	static AudioHardwarePlugInInterface staticInterface;
+	
+	AudioHardwarePlugInRef GetInterface() { return &staticInterface; }
+
 };

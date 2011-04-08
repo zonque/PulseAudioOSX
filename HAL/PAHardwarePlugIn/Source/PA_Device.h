@@ -7,10 +7,24 @@
 #include "PA_Object.h"
 #include "PA_Stream.h"
 
+typedef struct IOProcTracker
+{
+	AudioDeviceIOProc proc;
+	AudioTimeStamp startTime;
+	UInt32 startTimeFlags;
+	void *clientData;
+	Boolean enabled;
+} IOProcTracker;
+
 class PA_Device : public PA_Object
 {
 private:
-	CFMutableArrayRef streams;
+	CFMutableArrayRef streams, ioProcList;
+	
+	CFStringRef deviceName, deviceManufacturer;
+	UInt32 nInputStreams, nOutputStreams;
+	
+	CAMutex *ioProcListMutex;
 	
 public:
 	PA_Device();
@@ -19,7 +33,11 @@ public:
 	void Initialize();
 	void Teardown();
 	
+#pragma mark ### plugin interface ###
+
 	PA_Stream *GetStreamById(AudioObjectID inObjectID);
+	IOProcTracker *FindIOProc(AudioDeviceIOProc inProc);
+	IOProcTracker *FindIOProcByID(AudioDeviceIOProcID inProcID);
 	
 	OSStatus CreateIOProcID(AudioDeviceIOProc inProc,
 				void *inClientData,
@@ -70,6 +88,33 @@ public:
 			     AudioDevicePropertyID inPropertyID,
 			     UInt32 inPropertyDataSize,
 			     const void *inPropertyData);
+	
+#pragma mark ### properties ###
+	virtual Boolean	HasProperty(const AudioObjectPropertyAddress *inAddress);
+	
+	virtual OSStatus IsPropertySettable(const AudioObjectPropertyAddress *inAddress,
+					    Boolean *outIsSettable);
+	
+	virtual OSStatus GetPropertyDataSize(const AudioObjectPropertyAddress *inAddress,
+					     UInt32 inQualifierDataSize,
+					     const void *inQualifierData,
+					     UInt32 *outDataSize);
+	
+	virtual OSStatus GetPropertyData(const AudioObjectPropertyAddress *inAddress,
+					 UInt32 inQualifierDataSize,
+					 const void *inQualifierData,
+					 UInt32 *ioDataSize,
+					 void *outData);
+	
+	virtual OSStatus SetPropertyData(const AudioObjectPropertyAddress *inAddress,
+					 UInt32 inQualifierDataSize,
+					 const void *inQualifierData,
+					 UInt32 inDataSize,
+					 const void *inData);
+
+#pragma mark ### internal stuff ###
+	void	EnableAllIOProcs(Boolean enable);
+	void	SetBufferSize(UInt32 size);
 	
 	PA_Object *findObjectById(AudioObjectID searchID);
 };

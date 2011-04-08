@@ -2,10 +2,12 @@
 
 #include "PA_PlugInInterface.h"
 
+#define TraceCall(x) printf("%s() :%d\n", __func__, __LINE__);
+
 static inline PA_Plugin *to_plugin(AudioHardwarePlugInRef ref)
 {	
 	PA_PlugInInterface *interface = (PA_PlugInInterface *) ref;
-	UInt32 offset = ((Byte *) &interface->staticInterface - (Byte *) interface);
+	UInt32 offset = ((Byte *) interface->GetInterface() - (Byte *) interface);
 	interface = (PA_PlugInInterface *) ((Byte *) ref - offset);
 	return interface->plugin;
 }
@@ -13,6 +15,7 @@ static inline PA_Plugin *to_plugin(AudioHardwarePlugInRef ref)
 static ULONG
 Interface_AddRef(AudioHardwarePlugInRef inSelf)
 {
+	TraceCall();
 	PA_Plugin *plugin = to_plugin(inSelf);
 	return plugin->AddRef();
 }
@@ -20,6 +23,7 @@ Interface_AddRef(AudioHardwarePlugInRef inSelf)
 static ULONG
 Interface_Release(AudioHardwarePlugInRef inSelf)
 {
+	TraceCall();
 	PA_Plugin *plugin = to_plugin(inSelf);
 	return plugin->Release();
 }
@@ -29,7 +33,9 @@ Interface_QueryInterface(AudioHardwarePlugInRef inSelf,
 			 REFIID inUUID,
 			 LPVOID *outInterface)
 {
-//	PA_Plugin *plugin = to_plugin(inSelf);
+	TraceCall();
+	
+	*outInterface = inSelf;
 	
 	return kAudioHardwareNoError;
 }
@@ -37,12 +43,16 @@ Interface_QueryInterface(AudioHardwarePlugInRef inSelf,
 static OSStatus
 Interface_Initialize(AudioHardwarePlugInRef inSelf)
 {
+	TraceCall();
+
 	PA_Plugin *plugin = to_plugin(inSelf);
 	return plugin->Initialize();
 }
 
 static OSStatus	Interface_InitializeWithObjectID(AudioHardwarePlugInRef inSelf, AudioObjectID inObjectID)
 {
+	TraceCall();
+
 	PA_Plugin *plugin = to_plugin(inSelf);
 	return plugin->InitializeWithObjectID(inObjectID);
 }
@@ -317,54 +327,59 @@ Interface_StreamSetProperty(AudioHardwarePlugInRef inSelf,
 					 inPropertyID, inPropertyDataSize, inPropertyData);	
 }
 
-AudioHardwarePlugInInterface
-PA_PlugInInterface::staticInterface = 
-{
-	//	Padding for COM
-	_reserved	: NULL,
-
-	//	IUnknown Routines
-	QueryInterface		: (HRESULT (*)(void*, CFUUIDBytes, void**)) Interface_QueryInterface,
-	AddRef			: (ULONG (*)(void*)) Interface_AddRef,
-	Release			: (ULONG (*)(void*)) Interface_Release,
-
-	//	HAL Plug-In Routines
-	Initialize			: Interface_Initialize,
-	Teardown			: Interface_Teardown,
-	DeviceAddIOProc			: Interface_DeviceAddIOProc,
-	DeviceRemoveIOProc		: Interface_DeviceRemoveIOProc,
-	DeviceStart			: Interface_DeviceStart,
-	DeviceStop			: Interface_DeviceStop,
-	DeviceRead			: Interface_DeviceRead,
-	DeviceGetCurrentTime		: Interface_DeviceGetCurrentTime,
-	DeviceTranslateTime		: Interface_DeviceTranslateTime,
-	DeviceGetPropertyInfo		: Interface_DeviceGetPropertyInfo,
-	DeviceGetProperty		: Interface_DeviceGetProperty,
-	DeviceSetProperty		: Interface_DeviceSetProperty,
-	StreamGetPropertyInfo		: Interface_StreamGetPropertyInfo,
-	StreamGetProperty		: Interface_StreamGetProperty,
-	StreamSetProperty		: Interface_StreamSetProperty,
-	DeviceStartAtTime		: Interface_DeviceStartAtTime,
-	DeviceGetNearestStartTime	: Interface_DeviceGetNearestStartTime,
-	InitializeWithObjectID		: Interface_InitializeWithObjectID,
-	ObjectShow			: Interface_ObjectShow,
-	ObjectHasProperty		: Interface_ObjectHasProperty,
-	ObjectIsPropertySettable	: Interface_ObjectIsPropertySettable,
-	ObjectGetPropertyDataSize	: Interface_ObjectGetPropertyDataSize,
-	ObjectGetPropertyData		: Interface_ObjectGetPropertyData,
-	ObjectSetPropertyData		: Interface_ObjectSetPropertyData,
-	DeviceCreateIOProcID		: Interface_DeviceCreateIOProcID,
-	DeviceDestroyIOProcID		: Interface_DeviceDestroyIOProcID
-};
-
 PA_PlugInInterface::PA_PlugInInterface()
 {
+	staticInterface = (AudioHardwarePlugInInterface *) malloc(sizeof(AudioHardwarePlugInInterface));
+	
+	//	Padding for COM
+	staticInterface->_reserved	= NULL,
+
+	//	IUnknown Routines
+	staticInterface->QueryInterface		= (HRESULT (*)(void*, CFUUIDBytes, void**)) Interface_QueryInterface;
+	staticInterface->AddRef			= (ULONG (*)(void*)) Interface_AddRef;
+	staticInterface->Release			= (ULONG (*)(void*)) Interface_Release;
+
+	//	HAL Plug-In Routines
+	staticInterface->Initialize			= Interface_Initialize;
+	staticInterface->Teardown			= Interface_Teardown;
+	staticInterface->DeviceAddIOProc			= Interface_DeviceAddIOProc;
+	staticInterface->DeviceRemoveIOProc		= Interface_DeviceRemoveIOProc;
+	staticInterface->DeviceStart			= Interface_DeviceStart;
+	staticInterface->DeviceStop			= Interface_DeviceStop;
+	staticInterface->DeviceRead			= Interface_DeviceRead;
+	staticInterface->DeviceGetCurrentTime		= Interface_DeviceGetCurrentTime;
+	staticInterface->DeviceTranslateTime		= Interface_DeviceTranslateTime;
+	staticInterface->DeviceGetPropertyInfo		= Interface_DeviceGetPropertyInfo;
+	staticInterface->DeviceGetProperty		= Interface_DeviceGetProperty;
+	staticInterface->DeviceSetProperty		= Interface_DeviceSetProperty;
+	staticInterface->StreamGetPropertyInfo		= Interface_StreamGetPropertyInfo;
+	staticInterface->StreamGetProperty		= Interface_StreamGetProperty;
+	staticInterface->StreamSetProperty		= Interface_StreamSetProperty;
+	staticInterface->DeviceStartAtTime		= Interface_DeviceStartAtTime;
+	staticInterface->DeviceGetNearestStartTime	= Interface_DeviceGetNearestStartTime;
+	staticInterface->InitializeWithObjectID		= Interface_InitializeWithObjectID;
+	staticInterface->ObjectShow			= Interface_ObjectShow;
+	staticInterface->ObjectHasProperty		= Interface_ObjectHasProperty;
+	staticInterface->ObjectIsPropertySettable	= Interface_ObjectIsPropertySettable;
+	staticInterface->ObjectGetPropertyDataSize	= Interface_ObjectGetPropertyDataSize;
+	staticInterface->ObjectGetPropertyData		= Interface_ObjectGetPropertyData;
+	staticInterface->ObjectSetPropertyData		= Interface_ObjectSetPropertyData;
+	staticInterface->DeviceCreateIOProcID		= Interface_DeviceCreateIOProcID;
+	staticInterface->DeviceDestroyIOProcID		= Interface_DeviceDestroyIOProcID;
+
 	plugin = new PA_Plugin();
+	printf(" PLUGIN @ %p\n", plugin);
+	
+//	AudioHardwarePlugInRef x = staticInterface;
+	
+	printf(" static %p\n", &staticInterface);
+//	printf(" ---> %p\n", to_plugin(&x));
 }
 
 PA_PlugInInterface::~PA_PlugInInterface()
 {
 	delete plugin;
+	free(staticInterface);
 }
 
 extern "C" void*
@@ -372,7 +387,8 @@ New_PAHP_PlugIn(CFAllocatorRef * /* allocator */, CFUUIDRef requestedTypeUUID)
 {
 	if (CFEqual(requestedTypeUUID, kAudioHardwarePlugInTypeID)) {
 		PA_PlugInInterface *interface = new PA_PlugInInterface();
-		return &interface->staticInterface;
+		printf(" --- interface = %p, static %p\n", interface, interface->GetInterface());
+		return interface->GetInterface();
 	}
 
 	return NULL;

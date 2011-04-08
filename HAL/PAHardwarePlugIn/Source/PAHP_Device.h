@@ -77,6 +77,8 @@ protected:
 	virtual void				FinishCommandExecution(void* inSavedCommandState);
 
 public:
+	virtual void				AddIOProc(AudioDeviceIOProc inProc, void* inClientData);
+
 	virtual void				Do_StartIOProc(AudioDeviceIOProc inProc);
 	virtual void				Do_StartIOProcAtTime(AudioDeviceIOProc inProc,
 								     AudioTimeStamp &ioStartTime,
@@ -164,7 +166,13 @@ private:
 	Float64					actualSampleRate;
 	UInt64					lastTime;
 	pa_timing_info				lastTimingInfo;
-			
+
+	AudioDeviceIOProc			ioproc;
+	void *					ioprocClientData;
+	AudioDeviceID				deviceID;
+	
+	UInt64 framesPlayed;
+	
 	struct {
 		Float64 x_next, x;
 		Float64 P_next, P;

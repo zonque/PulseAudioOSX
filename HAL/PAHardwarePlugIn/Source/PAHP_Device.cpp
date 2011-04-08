@@ -411,6 +411,67 @@ PAHP_Device::DeviceWriteCallback(pa_stream *stream, size_t nbytes)
 {
 	Assert(stream == PAPlaybackStream, "bogus stream pointer in DeviceWriteCallback");
 
+	if (!ioproc)
+		return;
+	
+	Float64 usecPerFrame = 1000000.0 / 44100.0;
+	
+	AudioBufferList inputList, outputList;
+
+	memset(&inputList, 0, sizeof(inputList));
+	memset(&outputList, 0, sizeof(outputList));
+
+	unsigned int fs = GetIOBufferFrameSize() * 8;
+	unsigned char *buf, *outputBufferPos;
+	
+	//pa_stream_begin_write(stream, (void **) &buf, &nbytes);
+	buf = outputBuffer;
+	outputBufferPos = buf;
+	size_t count = nbytes;
+	
+	memset(buf, 0, nbytes);
+	
+	AudioTimeStamp now, inputTime, outputTime;
+	memset(&now, 0, sizeof(AudioTimeStamp));
+	memset(&inputTime, 0, sizeof(AudioTimeStamp));
+	memset(&outputTime, 0, sizeof(AudioTimeStamp));
+
+	now.mRateScalar = inputTime.mRateScalar = outputTime.mRateScalar = 1.0;
+	now.mHostTime =  inputTime.mHostTime = outputTime.mHostTime = CAHostTimeBase::GetCurrentTime();
+	now.mFlags = kAudioTimeStampHostTimeValid | kAudioTimeStampRateScalarValid;
+
+	inputTime.mFlags = now.mFlags | kAudioTimeStampSampleTimeValid;
+	outputTime.mFlags = now.mFlags | kAudioTimeStampSampleTimeValid;
+	
+	while (count >= fs) {
+		outputList.mBuffers[0].mNumberChannels = 2;
+		outputList.mBuffers[0].mDataByteSize = fs;
+		outputList.mBuffers[0].mData = outputBufferPos;
+		outputList.mNumberBuffers = 1;
+		
+		inputList.mBuffers[0].mNumberChannels = 2;
+		inputList.mBuffers[0].mDataByteSize = fs;
+		inputList.mBuffers[0].mData = inputBuffer;
+		inputList.mNumberBuffers = 1;
+
+		inputTime.mSampleTime = (framesPlayed * usecPerFrame) - 10000;
+		outputTime.mSampleTime = (framesPlayed * usecPerFrame) + 10000;
+
+		//printf(" >>> %d bytes @%p\n", fs, buf);
+		ioproc(deviceID, &now,
+		       &inputList, &inputTime,
+		       &outputList, &outputTime,
+		       ioprocClientData);
+		//printf(" <<< %d bytes @%p\n", (int) outputList.mBuffers[0].mDataByteSize, outputList.mBuffers[0].mData);
+		
+		count -= fs;
+		outputBufferPos += fs;
+		framesPlayed += fs/8;
+	}
+
+	pa_stream_write(stream, buf, outputBufferPos - buf, NULL, 0, (pa_seek_mode_t) 0);
+
+#if 0
 	SInt64 gap = DiffAudioPositions(&playbackBufferWritePos, &playbackBufferReadPos);
 
 	if ((gap < 0) || ((UInt64) gap < nbytes)) {
@@ -443,12 +504,16 @@ PAHP_Device::DeviceWriteCallback(pa_stream *stream, size_t nbytes)
 
 	IncAudioPosition(&playbackBufferReadPos, nbytes);
 	UpdateTiming();
+#endif
 }
 
 void
 PAHP_Device::DeviceReadCallback(pa_stream *stream, size_t nbytes)
 {
 	Assert(stream == PARecordStream, "bogus stream pointer in DeviceReadCallback");
+
+	pa_stream_drop(stream);
+
 #if 0
 	const unsigned char *buf;
 
@@ -466,8 +531,8 @@ PAHP_Device::DeviceReadCallback(pa_stream *stream, size_t nbytes)
 		memcpy(inputBuffer, buf, nbytes);
 
 	pa_stream_drop(stream);
-#endif
 	IncAudioPosition(&recordBufferReadPos, nbytes);
+#endif
 }
 
 void
@@ -495,7 +560,7 @@ PAHP_Device::ContextStateCallback()
 				ss.rate = 44100;
 				ss.channels = 2;
 				
-				buf_attr.tlength = 8192 / 4;
+				buf_attr.tlength = 8192;
 				buf_attr.maxlength = -1;
 				buf_attr.minreq = -1;
 				buf_attr.prebuf = -1;
@@ -1041,6 +1106,16 @@ PAHP_Device::FinishCommandExecution(void *inSavedCommandState)
 #pragma mark ### IOProc ###
 
 void
+PAHP_Device::AddIOProc(AudioDeviceIOProc inProc, void* inClientData)
+{
+	printf("%s() .. inProc %p\n", __func__, inProc);
+	ioproc = inProc;
+	ioprocClientData = inClientData;
+	
+	HP_Device::AddIOProc(inProc, inClientData);
+}
+
+void
 PAHP_Device::Do_StartIOProc(AudioDeviceIOProc inProc)
 {
 	ThrowIf(!HogModeIsOwnedBySelfOrIsFree(),
@@ -1090,7 +1165,7 @@ PAHP_Device::CallIOProcs(const AudioTimeStamp &inCurrentTime,
 	bool hardwareIOSucceeded = true;
 
 	StartIOCycle();
-
+#if 0
 	if (HasInputStreams()) {
 		// refresh the input buffers
 		mIOProcList->RefreshIOProcBufferLists(true);
@@ -1119,7 +1194,7 @@ PAHP_Device::CallIOProcs(const AudioTimeStamp &inCurrentTime,
 			HP_IOProc *IOProc = mIOProcList->GetIOProcByIndex(idx);
 
 			// call it
-			IOProc->Call(inCurrentTime, inInputTime, inputBufferList, inOutputTime, NULL);
+			//IOProc->Call(inCurrentTime, inInputTime, inputBufferList, inOutputTime, NULL);
 
 			// pre-process it before handing it to the hardware
 			PreProcessOutputData(inOutputTime, *IOProc);
@@ -1132,6 +1207,7 @@ PAHP_Device::CallIOProcs(const AudioTimeStamp &inCurrentTime,
 		if (HasOutputStreams())
 			hardwareIOSucceeded = WriteOutputData(inOutputTime, GetIOBufferSetID());
 	}
+#endif
 
 	FinishIOCycle();
 
@@ -1209,6 +1285,8 @@ PAHP_Device::StartHardware()
 	#endif
 
 	// PulseAudio
+	
+	framesPlayed = 0;
 
 	ZeroAudioPosition(&recordBufferReadPos);
 	ZeroAudioPosition(&recordBufferWritePos);
@@ -1227,7 +1305,7 @@ PAHP_Device::StartHardware()
 	Assert(PAContext, "pa_context_new() failed");
 
 	pa_context_set_state_callback(PAContext, staticContextStateCallback, this);
-	pa_context_connect(PAContext, "127.0.0.1", 
+	pa_context_connect(PAContext, "192.168.2.5", 
 			   (pa_context_flags_t) (PA_CONTEXT_NOFAIL | PA_CONTEXT_NOAUTOSPAWN),
 			   NULL);
 

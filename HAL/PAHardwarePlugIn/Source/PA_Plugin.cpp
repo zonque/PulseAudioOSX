@@ -4,7 +4,7 @@
 
 #include <pulse/pulseaudio.h>
 
-#define DebugLog(str) printf("%s():%d :: %s\n", __func__, __LINE__, str);
+#define TraceCall(x) printf("%s() :%d\n", __func__, __LINE__);
 
 #pragma mark ### internal Operations ###
 
@@ -70,17 +70,20 @@ PA_Plugin::Release()
 OSStatus
 PA_Plugin::Initialize()
 {
-	return kAudioHardwareNoError;
+	return InitializeWithObjectID(kAudioObjectUnknown);
 }
 
 OSStatus
 PA_Plugin::InitializeWithObjectID(AudioObjectID inObjectID)
 {
+	TraceCall();
 	devices = CFArrayCreateMutable(kCFAllocatorDefault, 0, NULL);
 	
 	PA_Device *dev = new PA_Device();
 	dev->Initialize();
 	CFArrayAppendValue(devices, dev);
+	
+	SetObjectID(inObjectID);
 
 	return kAudioHardwareNoError;
 }
@@ -120,13 +123,18 @@ PA_Plugin::ObjectHasProperty(AudioObjectID inObjectID,
 			     const AudioObjectPropertyAddress *inAddress)
 {
 	PA_Object *o = findObjectById(inObjectID);
+	Boolean ret;
 	
 	if (!o) {
 		DebugLog("Illegal inObjectID");
 		return false;
 	}
-	
-	return o->HasProperty(inAddress);
+
+	o->Lock();
+	ret = o->HasProperty(inAddress);
+	o->Unlock();
+
+	return ret;
 }
 
 OSStatus
@@ -135,13 +143,18 @@ PA_Plugin::ObjectIsPropertySettable(AudioObjectID inObjectID,
 				    Boolean *outIsSettable)
 {
 	PA_Object *o = findObjectById(inObjectID);
+	OSStatus ret;
 	
 	if (!o) {
 		DebugLog("Illegal inObjectID");
 		return kAudioHardwareBadObjectError;
 	}
 
-	return o->IsPropertySettable(inAddress, outIsSettable);
+	o->Lock();
+	ret = o->IsPropertySettable(inAddress, outIsSettable);
+	o->Unlock();
+	
+	return ret;
 }
 
 OSStatus
@@ -152,13 +165,18 @@ PA_Plugin::ObjectGetPropertyDataSize(AudioObjectID inObjectID,
 				     UInt32 *outDataSize)
 {
 	PA_Object *o = findObjectById(inObjectID);
-	
+	OSStatus ret;
+
 	if (!o) {
 		DebugLog("Illegal inObjectID");
 		return kAudioHardwareBadObjectError;
 	}
 	
-	return o->GetPropertyDataSize(inAddress, inQualifierDataSize, inQualifierData, outDataSize);
+	o->Lock();
+	ret = o->GetPropertyDataSize(inAddress, inQualifierDataSize, inQualifierData, outDataSize);
+	o->Unlock();
+	
+	return ret;
 }
 
 OSStatus
@@ -170,13 +188,18 @@ PA_Plugin::ObjectGetPropertyData(AudioObjectID inObjectID,
 				 void *outData)
 {
 	PA_Object *o = findObjectById(inObjectID);
-	
+	OSStatus ret;
+
 	if (!o) {
 		DebugLog("Illegal inObjectID");
 		return kAudioHardwareBadObjectError;
 	}
 	
-	return o->GetPropertyData(inAddress, inQualifierDataSize, inQualifierData, ioDataSize, outData);
+	o->Lock();
+	ret = o->GetPropertyData(inAddress, inQualifierDataSize, inQualifierData, ioDataSize, outData);
+	o->Unlock();
+	
+	return ret;
 }
 
 OSStatus
@@ -188,13 +211,18 @@ PA_Plugin::ObjectSetPropertyData(AudioObjectID inObjectID,
 				 const void *inData)
 {
 	PA_Object *o = findObjectById(inObjectID);
+	OSStatus ret;
 	
 	if (!o) {
 		DebugLog("Illegal inObjectID");
 		return kAudioHardwareBadObjectError;
 	}
-	
-	return o->SetPropertyData(inAddress, inQualifierDataSize, inQualifierData, inDataSize, inData);
+
+	o->Lock();
+	ret = o->SetPropertyData(inAddress, inQualifierDataSize, inQualifierData, inDataSize, inData);
+	o->Unlock();
+
+	return ret;
 }
 
 #pragma mark ### AudioDevice Operations ###
@@ -206,13 +234,18 @@ PA_Plugin::DeviceCreateIOProcID(AudioDeviceID inDeviceID,
 				AudioDeviceIOProcID *outIOProcID)
 {
 	PA_Device *device = GetDeviceById(inDeviceID);
-
+	OSStatus ret;
+	
 	if (!device) {
 		DebugLog("Illegal inDeviceID");
 		return kAudioHardwareBadDeviceError;
 	}
 
-	return device->CreateIOProcID(inProc, inClientData, outIOProcID);
+	device->Lock();
+	ret = device->CreateIOProcID(inProc, inClientData, outIOProcID);
+	device->Unlock();
+	
+	return ret;
 }
 
 OSStatus
@@ -220,13 +253,18 @@ PA_Plugin::DeviceDestroyIOProcID(AudioDeviceID inDeviceID,
 				 AudioDeviceIOProcID inIOProcID)
 {
 	PA_Device *device = GetDeviceById(inDeviceID);
-	
+	OSStatus ret;
+
 	if (!device) {
 		DebugLog("Illegal inDeviceID");
 		return kAudioHardwareBadDeviceError;
 	}
 	
-	return device->DestroyIOProcID(inIOProcID);
+	device->Lock();
+	ret = device->DestroyIOProcID(inIOProcID);
+	device->Unlock();
+	
+	return ret;
 }
 
 OSStatus
@@ -235,13 +273,18 @@ PA_Plugin::DeviceAddIOProc(AudioDeviceID inDeviceID,
 			   void *inClientData)
 {
 	PA_Device *device = GetDeviceById(inDeviceID);
-	
+	OSStatus ret;
+
 	if (!device) {
 		DebugLog("Illegal inDeviceID");
 		return kAudioHardwareBadDeviceError;
 	}
 
-	return device->AddIOProc(inProc, inClientData);
+	device->Lock();
+	ret = device->AddIOProc(inProc, inClientData);
+	device->Unlock();
+
+	return ret;
 }
 
 OSStatus
@@ -249,13 +292,18 @@ PA_Plugin::DeviceRemoveIOProc(AudioDeviceID inDeviceID,
 			      AudioDeviceIOProc inProc)
 {
 	PA_Device *device = GetDeviceById(inDeviceID);
-	
+	OSStatus ret;
+
 	if (!device) {
 		DebugLog("Illegal inDeviceID");
 		return kAudioHardwareBadDeviceError;
 	}
 
-	return device->RemoveIOProc(inProc);
+	device->Lock();
+	ret = device->RemoveIOProc(inProc);
+	device->Unlock();
+	
+	return ret;
 }
 
 OSStatus
@@ -263,13 +311,18 @@ PA_Plugin::DeviceStart(AudioDeviceID inDeviceID,
 		       AudioDeviceIOProc inProc)
 {
 	PA_Device *device = GetDeviceById(inDeviceID);
-	
+	OSStatus ret;
+
 	if (!device) {
 		DebugLog("Illegal inDeviceID");
 		return kAudioHardwareBadDeviceError;
 	}
-	
-	return device->Start(inProc);
+
+	device->Lock();
+	ret = device->Start(inProc);
+	device->Unlock();
+
+	return ret;
 }
 
 OSStatus
@@ -279,13 +332,18 @@ PA_Plugin::DeviceStartAtTime(AudioDeviceID inDeviceID,
 			     UInt32 inFlags)
 {
 	PA_Device *device = GetDeviceById(inDeviceID);
+	OSStatus ret;
 	
 	if (!device) {
 		DebugLog("Illegal inDeviceID");
 		return kAudioHardwareBadDeviceError;
 	}
 
-	return device->StartAtTime(inProc, ioRequestedStartTime, inFlags);
+	device->Lock();
+	ret = device->StartAtTime(inProc, ioRequestedStartTime, inFlags);
+	device->Unlock();
+	
+	return ret;
 }
 
 OSStatus
@@ -293,13 +351,18 @@ PA_Plugin::DeviceStop(AudioDeviceID inDeviceID,
 		      AudioDeviceIOProc inProc)
 {
 	PA_Device *device = GetDeviceById(inDeviceID);
+	OSStatus ret;
 	
 	if (!device) {
 		DebugLog("Illegal inDeviceID");
 		return kAudioHardwareBadDeviceError;
 	}
 	
-	return device->Stop(inProc);
+	device->Lock();
+	ret = device->Stop(inProc);
+	device->Unlock();
+	
+	return ret;
 }
 
 OSStatus
@@ -308,13 +371,18 @@ PA_Plugin::DeviceRead(AudioDeviceID inDeviceID,
 		      AudioBufferList *outData)
 {
 	PA_Device *device = GetDeviceById(inDeviceID);
+	OSStatus ret;
 	
 	if (!device) {
 		DebugLog("Illegal inDeviceID");
 		return kAudioHardwareBadDeviceError;
 	}
+
+	device->Lock();
+	ret = device->Read(inStartTime, outData);
+	device->Unlock();
 	
-	return device->Read(inStartTime, outData);
+	return ret;
 }
 
 OSStatus
@@ -322,13 +390,18 @@ PA_Plugin::DeviceGetCurrentTime(AudioDeviceID inDeviceID,
 				AudioTimeStamp* outTime)
 {
 	PA_Device *device = GetDeviceById(inDeviceID);
+	OSStatus ret;
 	
 	if (!device) {
 		DebugLog("Illegal inDeviceID");
 		return kAudioHardwareBadDeviceError;
 	}
+
+	device->Lock();
+	ret = device->GetCurrentTime(outTime);
+	device->Unlock();
 	
-	return device->GetCurrentTime(outTime);
+	return ret;
 }
 
 OSStatus
@@ -337,13 +410,18 @@ PA_Plugin::DeviceTranslateTime(AudioDeviceID inDeviceID,
 			       AudioTimeStamp *outTime)
 {
 	PA_Device *device = GetDeviceById(inDeviceID);
+	OSStatus ret;
 	
 	if (!device) {
 		DebugLog("Illegal inDeviceID");
 		return kAudioHardwareBadDeviceError;
 	}
+
+	device->Lock();
+	ret = device->TranslateTime(inTime, outTime);
+	device->Unlock();
 	
-	return device->TranslateTime(inTime, outTime);
+	return ret;
 }
 
 OSStatus
@@ -352,13 +430,18 @@ PA_Plugin::DeviceGetNearestStartTime(AudioDeviceID inDeviceID,
 				     UInt32 inFlags)
 {
 	PA_Device *device = GetDeviceById(inDeviceID);
-	
+	OSStatus ret;
+
 	if (!device) {
 		DebugLog("Illegal inDeviceID");
 		return kAudioHardwareBadDeviceError;
 	}
 	
-	return device->GetNearestStartTime(ioRequestedStartTime, inFlags);
+	device->Lock();
+	ret = device->GetNearestStartTime(ioRequestedStartTime, inFlags);
+	device->Unlock();
+	
+	return ret;
 }
 
 OSStatus
@@ -371,13 +454,18 @@ PA_Plugin::DeviceGetPropertyInfo(AudioDeviceID inDeviceID,
 				 Boolean *outWritable)
 {
 	PA_Device *device = GetDeviceById(inDeviceID);
+	OSStatus ret;
 	
 	if (!device) {
 		DebugLog("Illegal inDeviceID");
 		return kAudioHardwareBadDeviceError;
 	}
 	
-	return device->GetPropertyInfo(inChannel, isInput, inPropertyID, outSize, outWritable);
+	device->Lock();
+	ret = device->GetPropertyInfo(inChannel, isInput, inPropertyID, outSize, outWritable);
+	device->Unlock();
+	
+	return ret;
 }
 
 OSStatus
@@ -389,13 +477,18 @@ PA_Plugin::DeviceGetProperty(AudioDeviceID inDeviceID,
 			     void* outPropertyData)
 {
 	PA_Device *device = GetDeviceById(inDeviceID);
+	OSStatus ret;
 	
 	if (!device) {
 		DebugLog("Illegal inDeviceID");
 		return kAudioHardwareBadDeviceError;
 	}
 	
-	return device->GetProperty(inChannel, isInput, inPropertyID, ioPropertyDataSize, outPropertyData);
+	device->Lock();
+	ret = device->GetProperty(inChannel, isInput, inPropertyID, ioPropertyDataSize, outPropertyData);
+	device->Unlock();
+	
+	return ret;
 }
 
 OSStatus
@@ -408,13 +501,18 @@ PA_Plugin::DeviceSetProperty(AudioDeviceID inDeviceID,
 			     const void *inPropertyData)
 {
 	PA_Device *device = GetDeviceById(inDeviceID);
-	
+	OSStatus ret;
+
 	if (!device) {
 		DebugLog("Illegal inDeviceID");
 		return kAudioHardwareBadDeviceError;
 	}
 	
-	return device->SetProperty(inWhen, inChannel, isInput, inPropertyID, inPropertyDataSize, inPropertyData);
+	device->Lock();
+	ret = device->SetProperty(inWhen, inChannel, isInput, inPropertyID, inPropertyDataSize, inPropertyData);
+	device->Unlock();
+
+	return ret;
 }
 
 #pragma mark ### AudioStream Operations ###
@@ -444,13 +542,18 @@ PA_Plugin::StreamGetProperty(AudioStreamID inStreamID,
 			     void *outPropertyData)
 {
 	PA_Stream *stream = GetStreamById(inStreamID);
-	
+	OSStatus ret;
+
 	if (!stream) {
 		DebugLog("Illegal inStreamID");
 		return kAudioHardwareBadStreamError;
 	}
 
-	return stream->GetProperty(inChannel, inPropertyID, ioPropertyDataSize, outPropertyData);
+	stream->Lock();
+	ret = stream->GetProperty(inChannel, inPropertyID, ioPropertyDataSize, outPropertyData);
+	stream->Unlock();
+	
+	return ret;
 }
 
 OSStatus
@@ -462,11 +565,16 @@ PA_Plugin::StreamSetProperty(AudioStreamID inStreamID,
 			     const void *inPropertyData)
 {
 	PA_Stream *stream = GetStreamById(inStreamID);
-	
+	OSStatus ret;
+
 	if (!stream) {
 		DebugLog("Illegal inStreamID");
 		return kAudioHardwareBadStreamError;
 	}
 	
-	return stream->SetProperty(inWhen, inChannel, inPropertyID, inPropertyDataSize, inPropertyData);
+	stream->Lock();
+	ret = stream->SetProperty(inWhen, inChannel, inPropertyID, inPropertyDataSize, inPropertyData);
+	stream->Unlock();
+	
+	return ret;
 }

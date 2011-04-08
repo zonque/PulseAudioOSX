@@ -178,6 +178,7 @@ PAHP_PlugIn::SetPropertyData(const AudioObjectPropertyAddress	&inAddress,
 	}
 }
 
+#if 0
 extern "C" void*
 New_PAHP_PlugIn(CFAllocatorRef * /* allocator */, CFUUIDRef requestedTypeUUID) 
 {
@@ -189,3 +190,4 @@ New_PAHP_PlugIn(CFAllocatorRef * /* allocator */, CFUUIDRef requestedTypeUUID)
 
 	return NULL;
 }
+#endif
