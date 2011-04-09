@@ -47,7 +47,7 @@ PA_Plugin::GetStreamById(AudioObjectID inObjectID)
 }
 
 PA_Object *
-PA_Plugin::findObjectById(AudioObjectID searchID)
+PA_Plugin::FindObjectByID(AudioObjectID searchID)
 {
 	SInt32 i;
 
@@ -61,7 +61,7 @@ PA_Plugin::findObjectById(AudioObjectID searchID)
 	for (i = 0; i < CFArrayGetCount(devices); i++) {
 		PA_Device *dev = (PA_Device *) CFArrayGetValueAtIndex(devices, i);
 		printf("PA_Plugin::%s() asking %p\n", __func__, dev);
-		o = dev->findObjectById(searchID);
+		o = dev->FindObjectByID(searchID);
 		
 		if (o)
 			break;
@@ -126,7 +126,7 @@ PA_Plugin::Teardown()
 void
 PA_Plugin::ObjectShow(AudioObjectID inObjectID)
 {
-	PA_Object *o = findObjectById(inObjectID);
+	PA_Object *o = FindObjectByID(inObjectID);
 	
 	if (o)
 		o->Show();
@@ -138,7 +138,7 @@ Boolean
 PA_Plugin::ObjectHasProperty(AudioObjectID inObjectID,
 			     const AudioObjectPropertyAddress *inAddress)
 {
-	PA_Object *o = findObjectById(inObjectID);
+	PA_Object *o = FindObjectByID(inObjectID);
 	Boolean ret;
 	
 	if (!o) {
@@ -158,7 +158,7 @@ PA_Plugin::ObjectIsPropertySettable(AudioObjectID inObjectID,
 				    const AudioObjectPropertyAddress *inAddress,
 				    Boolean *outIsSettable)
 {
-	PA_Object *o = findObjectById(inObjectID);
+	PA_Object *o = FindObjectByID(inObjectID);
 	OSStatus ret;
 	
 	if (!o) {
@@ -180,7 +180,7 @@ PA_Plugin::ObjectGetPropertyDataSize(AudioObjectID inObjectID,
 				     const void *inQualifierData,
 				     UInt32 *outDataSize)
 {
-	PA_Object *o = findObjectById(inObjectID);
+	PA_Object *o = FindObjectByID(inObjectID);
 	OSStatus ret;
 
 	if (!o) {
@@ -203,7 +203,7 @@ PA_Plugin::ObjectGetPropertyData(AudioObjectID inObjectID,
 				 UInt32 *ioDataSize,
 				 void *outData)
 {
-	PA_Object *o = findObjectById(inObjectID);
+	PA_Object *o = FindObjectByID(inObjectID);
 	OSStatus ret;
 
 	printf(" xx %d\n", inObjectID);
@@ -227,7 +227,7 @@ PA_Plugin::ObjectSetPropertyData(AudioObjectID inObjectID,
 				 UInt32 inDataSize,
 				 const void *inData)
 {
-	PA_Object *o = findObjectById(inObjectID);
+	PA_Object *o = FindObjectByID(inObjectID);
 	OSStatus ret;
 	
 	if (!o) {

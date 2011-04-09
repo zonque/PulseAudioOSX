@@ -13,7 +13,6 @@ class PA_Object
 {
 private:
 	AudioObjectID objectID;
-
 	CFMutableArrayRef properties;
 	CAMutex *mutex;
 
@@ -56,7 +55,7 @@ public:
 	void Lock();
 	void Unlock();
 	
-	virtual PA_Object *findObjectById(AudioObjectID searchID) = 0;
+	virtual PA_Object *FindObjectByID(AudioObjectID searchID) = 0;
 };
 
 #endif // PA_OBJECT_H_

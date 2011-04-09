@@ -126,6 +126,8 @@
 		6547439D134F3EBD0030DDFF /* PA_Stream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6547439C134F3EBD0030DDFF /* PA_Stream.cpp */; };
 		65474533134F80FB0030DDFF /* PA_DeviceBackend.h in Headers */ = {isa = PBXBuildFile; fileRef = 65474531134F80FB0030DDFF /* PA_DeviceBackend.h */; };
 		65474534134F80FB0030DDFF /* PA_DeviceBackend.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65474532134F80FB0030DDFF /* PA_DeviceBackend.cpp */; };
+		6547460113507DA50030DDFF /* PA_DeviceControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 654745FF13507DA50030DDFF /* PA_DeviceControl.h */; };
+		6547460213507DA50030DDFF /* PA_DeviceControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6547460013507DA50030DDFF /* PA_DeviceControl.cpp */; };
 		65F4FCDB133BCFAE00E72096 /* pulse.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65F4FCDA133BCFAE00E72096 /* pulse.framework */; };
 		8D576314048677EA00EA77CD /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0AA1909FFE8422F4C02AAC07 /* CoreFoundation.framework */; };
 		F7630E7F0E28101E0066580C /* CACFDistributedNotification.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F7630E7D0E28101E0066580C /* CACFDistributedNotification.cpp */; };
@@ -254,6 +256,8 @@
 		6547439C134F3EBD0030DDFF /* PA_Stream.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PA_Stream.cpp; path = Source/PA_Stream.cpp; sourceTree = "<group>"; };
 		65474531134F80FB0030DDFF /* PA_DeviceBackend.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PA_DeviceBackend.h; path = Source/PA_DeviceBackend.h; sourceTree = "<group>"; };
 		65474532134F80FB0030DDFF /* PA_DeviceBackend.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PA_DeviceBackend.cpp; path = Source/PA_DeviceBackend.cpp; sourceTree = "<group>"; };
+		654745FF13507DA50030DDFF /* PA_DeviceControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PA_DeviceControl.h; path = Source/PA_DeviceControl.h; sourceTree = "<group>"; };
+		6547460013507DA50030DDFF /* PA_DeviceControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PA_DeviceControl.cpp; path = Source/PA_DeviceControl.cpp; sourceTree = "<group>"; };
 		65F40146133F7B7A00E72096 /* CoreServices.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; name = CoreServices.framework; sourceTree = SDKROOT; };
 		65F4FCDA133BCFAE00E72096 /* pulse.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = pulse.framework; path = /Library/Frameworks/pulse.framework; sourceTree = "<absolute>"; };
 		8D576316048677EA00EA77CD /* PAHardwarePlugIn.plugin */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PAHardwarePlugIn.plugin; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -465,6 +469,8 @@
 				6547431D134F2FB30030DDFF /* PA_Stream.h */,
 				65474531134F80FB0030DDFF /* PA_DeviceBackend.h */,
 				65474532134F80FB0030DDFF /* PA_DeviceBackend.cpp */,
+				654745FF13507DA50030DDFF /* PA_DeviceControl.h */,
+				6547460013507DA50030DDFF /* PA_DeviceControl.cpp */,
 			);
 			name = NG;
 			sourceTree = "<group>";
@@ -541,6 +547,7 @@
 				654742C5134F244C0030DDFF /* PA_Device.h in Headers */,
 				6547431F134F2FB30030DDFF /* PA_Stream.h in Headers */,
 				65474533134F80FB0030DDFF /* PA_DeviceBackend.h in Headers */,
+				6547460113507DA50030DDFF /* PA_DeviceControl.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -648,6 +655,7 @@
 				654742C6134F244C0030DDFF /* PA_Device.cpp in Sources */,
 				6547439D134F3EBD0030DDFF /* PA_Stream.cpp in Sources */,
 				65474534134F80FB0030DDFF /* PA_DeviceBackend.cpp in Sources */,
+				6547460213507DA50030DDFF /* PA_DeviceControl.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

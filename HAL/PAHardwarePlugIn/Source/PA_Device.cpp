@@ -1,5 +1,7 @@
 #include "PA_Device.h"
 #include "PA_Stream.h"
+#include "PA_DeviceBackend.h"
+#include "PA_DeviceControl.h"
 #include "CAAudioBufferList.h"
 
 #include <pulse/pulseaudio.h>
@@ -39,6 +41,30 @@ PA_Device::FindIOProcByID(AudioDeviceIOProcID inProcID)
 	return NULL;
 }
 
+OSStatus
+PA_Device::RegisterObjects()
+{
+	std::vector<AudioStreamID> streamIDs;
+
+	for (UInt32 i = 0; i < nInputStreams; i++)
+		if (inputStreams[i])
+			streamIDs.push_back(inputStreams[i]->GetObjectID());
+
+	for (UInt32 i = 0; i < nOutputStreams; i++)
+		if (outputStreams[i])
+			streamIDs.push_back(outputStreams[i]->GetObjectID());
+
+	// now tell the HAL about the new stream IDs
+	if (streamIDs.size() != 0)
+		return AudioObjectsPublishedAndDied(plugin,
+						    GetObjectID(),
+						    streamIDs.size(),
+						    &(streamIDs.front()),
+						    0, NULL);
+	
+	return kAudioHardwareNoError;
+}
+
 void
 PA_Device::Initialize()
 {
@@ -46,8 +72,9 @@ PA_Device::Initialize()
 	ioProcList = CFArrayCreateMutable(NULL, 0, NULL);
 	ioProcListMutex = new CAMutex("ioProcListMutex");
 	
+	deviceUID = CFStringCreateWithCString(NULL, "PulseAudio", kCFStringEncodingASCII);
 	deviceName = CFStringCreateWithCString(NULL, "PulseAudio", kCFStringEncodingASCII);
-	deviceManufacturer = CFStringCreateWithCString(NULL, "PulseAudio", kCFStringEncodingASCII);
+	deviceManufacturer = CFStringCreateWithCString(NULL, "pulseaudio.org", kCFStringEncodingASCII);
 
 	nInputStreams = 1;
 	nOutputStreams = 1;
@@ -63,19 +90,41 @@ PA_Device::Initialize()
 	
 	if (ret == 0)
 		SetObjectID(newID);
-	
+
+	AudioObjectsPublishedAndDied(plugin,
+				     kAudioObjectSystemObject,
+				     1, &newID, 0, NULL);
+
 	printf("newID %d\n", newID);
-	
+
 	CreateStreams();
+	RegisterObjects();
+	
+	deviceBackend = new PA_DeviceBackend(this);
+	deviceBackend->Initialize();
+	
+	deviceControl = new PA_DeviceControl(this);
+	deviceControl->Initialize();
 }
 
 void
 PA_Device::Teardown()
 {
 	TraceCall();
+	
+	deviceBackend->Teardown();
+	delete deviceBackend;
+	deviceBackend = NULL;
+
+	deviceControl->Teardown();
+	delete deviceControl;
+	deviceControl = NULL;
+	
+	CFRelease(deviceUID);
 	CFRelease(deviceName);
 	CFRelease(deviceManufacturer);
 	
+	deviceUID = NULL;
 	deviceName = NULL;
 	deviceManufacturer = NULL;
 	
@@ -115,7 +164,7 @@ PA_Device::GetStreamById(AudioObjectID inObjectID)
 }
 
 PA_Object *
-PA_Device::findObjectById(AudioObjectID searchID)
+PA_Device::FindObjectByID(AudioObjectID searchID)
 {
 	printf("PA_Device::%s() ... searching for %d, mine %d\n", __func__, searchID, GetObjectID());
 
@@ -125,14 +174,14 @@ PA_Device::findObjectById(AudioObjectID searchID)
 	PA_Object *o = NULL;
 
 	for (UInt32 i = 0; i < nInputStreams; i++) {
-		o = inputStreams[i]->findObjectById(searchID);
+		o = inputStreams[i]->FindObjectByID(searchID);
 
 		if (o)
 			return o;
 	}
 
 	for (UInt32 i = 0; i < nOutputStreams; i++) {
-		o = outputStreams[i]->findObjectById(searchID);
+		o = outputStreams[i]->FindObjectByID(searchID);
 
 		if (o)
 			return o;
@@ -467,6 +516,19 @@ PA_Device::GetPropertyData(const AudioObjectPropertyAddress *inAddress,
 			   UInt32 *ioDataSize,
 			   void *outData)
 {
+	switch (inAddress->mSelector) {
+		case kAudioObjectPropertyName:
+			*static_cast<CFStringRef*>(outData) = CFStringCreateCopy(NULL, deviceName);
+			return kAudioHardwareNoError;
+
+		case kAudioObjectPropertyManufacturer:
+			*static_cast<CFStringRef*>(outData) = CFStringCreateCopy(NULL, deviceManufacturer);
+			return kAudioHardwareNoError;
+			
+
+			
+	}	
+	
 	return super::GetPropertyData(inAddress, inQualifierDataSize, inQualifierData, ioDataSize, outData);
 }
 
@@ -565,14 +627,16 @@ PA_Device::CreateStreams()
 
 	// instantiate an AudioStream
 	ret = AudioObjectCreate(plugin, GetObjectID(), kAudioStreamClassID, &streamIDs[0]);
+	printf("ret %d\n", ret);
 	if (ret == 0) {
-		inputStreams[0] = new PA_Stream(streamIDs[0], plugin, this, true, 1);
+		inputStreams[0] = new PA_Stream(plugin, this, true, 1);
 		inputStreams[0]->Initialize();
 	}
 	
 	ret = AudioObjectCreate(plugin, GetObjectID(), kAudioStreamClassID, &streamIDs[1]);
+	printf("ret %d\n", ret);
 	if (ret == 0) {
-		outputStreams[0] = new PA_Stream(streamIDs[1], plugin, this, false, 1);
+		outputStreams[0] = new PA_Stream(plugin, this, false, 1);
 		outputStreams[0]->Initialize();
 	}
 
@@ -580,6 +644,7 @@ PA_Device::CreateStreams()
 					   GetObjectID(),
 					   2, streamIDs,
 					   0, NULL);
+	printf("ret %d\n", ret);
 }
 
 

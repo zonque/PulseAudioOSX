@@ -14,10 +14,11 @@ class PA_Stream : public PA_Object
 {
 private:
 	CFMutableArrayRef *controls;
+	PA_Device *device;
+	AudioHardwarePlugInRef plugin;
 	
 public:
-	PA_Stream(AudioStreamID inAudioStreamID,
-		  AudioHardwarePlugInRef inPlugIn,
+	PA_Stream(AudioHardwarePlugInRef inPlugIn,
 		  PA_Device *inOwningDevice,
 		  bool inIsInput,
 		  UInt32 inStartingDeviceChannelNumber);
@@ -69,7 +70,7 @@ public:
 					 const void *inData);
 	
 	
-	PA_Object *findObjectById(AudioObjectID searchID);
+	PA_Object *FindObjectByID(AudioObjectID searchID);
 };
 
 #endif // PA_STREAM_H_

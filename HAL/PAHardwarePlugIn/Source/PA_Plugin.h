@@ -141,7 +141,7 @@ public:
 				   UInt32 inPropertyDataSize,
 				   const void *inPropertyData);
 	
-	PA_Object *findObjectById(AudioObjectID searchID);
+	PA_Object *FindObjectByID(AudioObjectID searchID);
 
 };
 

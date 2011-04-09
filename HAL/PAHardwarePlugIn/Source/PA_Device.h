@@ -7,6 +7,8 @@
 #include "PA_Object.h"
 
 class PA_Stream;
+class PA_DeviceBackend;
+class PA_DeviceControl;
 
 typedef struct IOProcTracker
 {
@@ -22,15 +24,17 @@ class PA_Device : public PA_Object
 private:
 	CFMutableArrayRef ioProcList;
 	
-	CFStringRef deviceName, deviceManufacturer;
+	CFStringRef deviceName, deviceManufacturer, deviceUID;
 	UInt32 nInputStreams, nOutputStreams;
 	PA_Stream **inputStreams, **outputStreams;
 	
 	CAMutex *ioProcListMutex;
-	AudioHardwarePlugInRef plugin;
 	
 	UInt32 bufferFrameSize;
+	AudioHardwarePlugInRef plugin;
 	
+	PA_DeviceBackend *deviceBackend;
+	PA_DeviceControl *deviceControl;
 	
 public:
 	PA_Device(AudioHardwarePlugInRef inPlugin);
@@ -38,6 +42,8 @@ public:
 	
 	void Initialize();
 	void Teardown();
+
+	PA_DeviceBackend *getBackend() { return deviceBackend; }
 	
 #pragma mark ### plugin interface ###
 
@@ -119,12 +125,13 @@ public:
 					 const void *inData);
 
 #pragma mark ### internal stuff ###
-	void	EnableAllIOProcs(Boolean enable);
-	void	SetBufferSize(UInt32 size);
-	UInt32	GetIOBufferFrameSize();
-	void	CreateStreams();
-	
-	PA_Object *findObjectById(AudioObjectID searchID);
+	void		EnableAllIOProcs(Boolean enable);
+	void		SetBufferSize(UInt32 size);
+	UInt32		GetIOBufferFrameSize();
+	void		CreateStreams();
+	OSStatus	RegisterObjects();
+
+	PA_Object *FindObjectByID(AudioObjectID searchID);
 };
 
 #endif // PA_DEVICE_H_

@@ -38,13 +38,12 @@ public:
 	void	DeviceWriteCallback(pa_stream *stream, size_t nbytes);
 	void	StreamOverflowCallback(pa_stream *stream);
 	void	StreamUnderflowCallback(pa_stream *stream);	
-	void	StreamVolumeChanged(CFStringRef name, CFDictionaryRef userInfo);
-	void	StreamMuteChanged(CFStringRef name, CFDictionaryRef userInfo);
 	
 private:
-	int	GetProcessName();
-	
-	
+	int		ConstructProcessName();
+public:
+	CFStringRef	GetProcessName();
+
 public:
 	PA_DeviceBackend(PA_Device *inDevice);
 	~PA_DeviceBackend();
@@ -55,6 +54,11 @@ public:
 	void Connect();
 	void Disconnect();
 	void Reconnect();
+	
+	UInt32 GetConnectionStatus();
+	void ChangeStreamVolume(UInt32 index, Float32 ival);
+	void ChangeStreamMute(UInt32 index, Boolean mute);
+
 };
 
 #endif // PA_DEVICE_BACKEND_H

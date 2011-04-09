@@ -73,30 +73,10 @@ static void staticSetConfig(CFNotificationCenterRef /* center */,
 	}
 }
 
-static void staticStreamVolumeChanged(CFNotificationCenterRef /* center */,
-				      void *observer,
-				      CFStringRef name,
-				      const void * /* object */,
-				      CFDictionaryRef userInfo)
-{
-	PA_DeviceBackend *dev = static_cast<PA_DeviceBackend *>(observer);
-	dev->StreamVolumeChanged(name, userInfo);
-}
-
-static void staticStreamMuteChanged(CFNotificationCenterRef /* center */,
-				    void *observer,
-				    CFStringRef name,
-				    const void * /* object */,
-				    CFDictionaryRef userInfo)
-{
-	PA_DeviceBackend *dev = static_cast<PA_DeviceBackend *>(observer);
-	dev->StreamMuteChanged(name, userInfo);
-}
-
 #pragma mark ### PA_DeviceBackend ###
 
 int
-PA_DeviceBackend::GetProcessName()
+PA_DeviceBackend::ConstructProcessName()
 {
         int name[] = { CTL_KERN, KERN_PROC, KERN_PROC_ALL, 0 };
         unsigned int nnames = sizeof(name) / sizeof(name[0]) - 1;
@@ -129,6 +109,12 @@ PA_DeviceBackend::GetProcessName()
 	
         return 0;
 }
+
+CFStringRef
+PA_DeviceBackend::GetProcessName()
+{
+	return CFStringCreateWithCString(NULL, procname, kCFStringEncodingASCII);
+};
 
 void
 PA_DeviceBackend::DeviceWriteCallback(pa_stream *stream, size_t nbytes)
@@ -334,23 +320,15 @@ PA_DeviceBackend::StreamStartedCallback(pa_stream *stream)
 }
 
 void
-PA_DeviceBackend::StreamVolumeChanged(CFStringRef /* name */, CFDictionaryRef userInfo)
+PA_DeviceBackend::ChangeStreamVolume(UInt32 index, Float32 value)
 {
-	Float32 value;
-	CFNumberRef number = (CFNumberRef) CFDictionaryGetValue(userInfo, CFSTR("value"));
-	
-	CFNumberGetValue(number, kCFNumberFloatType, &value);
-	
-	if (!PAContext)
-		return;
-	
 	int ival = value * 0x10000;
-	
+
 	pa_cvolume volume;
 	volume.channels = 2;
 	volume.values[0] = ival;
 	volume.values[1] = ival;
-	
+	 
 	//printf("%s() %f -> %05x!\n", __func__, value, ival);
 	pa_threaded_mainloop_lock(PAMainLoop);
 	pa_context_set_sink_volume_by_index(PAContext, 0, &volume, NULL, NULL);
@@ -358,18 +336,10 @@ PA_DeviceBackend::StreamVolumeChanged(CFStringRef /* name */, CFDictionaryRef us
 }
 
 void
-PA_DeviceBackend::StreamMuteChanged(CFStringRef /* name */, CFDictionaryRef userInfo)
+PA_DeviceBackend::ChangeStreamMute(UInt32 index, Boolean mute)
 {
-	bool value;
-	CFNumberRef number = (CFNumberRef) CFDictionaryGetValue(userInfo, CFSTR("value"));
-	
-	CFNumberGetValue(number, kCFNumberIntType, &value);
-	
-	if (!PAContext)
-		return;
-	
 	pa_threaded_mainloop_lock(PAMainLoop);
-	pa_context_set_sink_mute_by_index(PAContext, 0, value, NULL, NULL);
+	pa_context_set_sink_mute_by_index(PAContext, 0, mute, NULL, NULL);
 	pa_threaded_mainloop_unlock(PAMainLoop);
 }
 
@@ -473,5 +443,17 @@ PA_DeviceBackend::Reconnect()
 {
 	Disconnect();
 	Connect();
+}
+
+UInt32
+PA_DeviceBackend::GetConnectionStatus()
+{
+	UInt32 status;
+
+	pa_threaded_mainloop_lock(PAMainLoop);
+	status = pa_context_get_state(PAContext);
+	pa_threaded_mainloop_unlock(PAMainLoop);
+
+	return status;
 }
 

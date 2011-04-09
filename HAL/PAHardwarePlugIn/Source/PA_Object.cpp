@@ -22,8 +22,6 @@ PA_Object::HasProperty(const AudioObjectPropertyAddress *inAddress)
 		case kAudioObjectPropertyListenerAdded:
 		case kAudioObjectPropertyListenerRemoved:
 			return true;
-		default:
-			break;
 	}
 
 	return false;
@@ -37,13 +35,10 @@ PA_Object::IsPropertySettable(const AudioObjectPropertyAddress *inAddress,
 		case kAudioObjectPropertyListenerAdded:
 		case kAudioObjectPropertyListenerRemoved:
 			*outIsSettable = true;
-			break;
-		default:
-			*outIsSettable = false;
-			break;
+			return kAudioHardwareNoError;
 	}
 
-	return kAudioHardwareNoError;
+	return kAudioHardwareUnknownPropertyError;
 }
 
 OSStatus
@@ -56,13 +51,11 @@ PA_Object::GetPropertyDataSize(const AudioObjectPropertyAddress *inAddress,
 		case kAudioObjectPropertyListenerAdded:
 		case kAudioObjectPropertyListenerRemoved:
 			*outDataSize = sizeof(AudioObjectPropertyAddress);
-			break;
-		default:
-			*outDataSize = 0;
-			break;
+			return kAudioHardwareNoError;
 	}
-	
-	return kAudioHardwareNoError;
+
+	*outDataSize = 0;
+	return kAudioHardwareUnknownPropertyError;
 }
 
 OSStatus
@@ -77,12 +70,10 @@ PA_Object::GetPropertyData(const AudioObjectPropertyAddress *inAddress,
 		case kAudioObjectPropertyListenerRemoved:
 			//ASSERT
 			memset(outData, 0, *ioDataSize);
-			break;
-		default:
-			break;
+			return kAudioHardwareNoError;
 	}
 	
-	return kAudioHardwareNoError;
+	return kAudioHardwareUnknownPropertyError;
 }
 
 OSStatus
@@ -92,7 +83,13 @@ PA_Object::SetPropertyData(const AudioObjectPropertyAddress *inAddress,
 			   UInt32 inDataSize,
 			   const void *inData)
 {
-	return kAudioHardwareNoError;
+	switch (inAddress->mSelector) {
+		case kAudioObjectPropertyListenerAdded:
+		case kAudioObjectPropertyListenerRemoved:
+			return kAudioHardwareNoError;
+	}
+
+	return kAudioHardwareUnknownPropertyError;
 }
 
 void
