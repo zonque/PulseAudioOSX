@@ -1,3 +1,5 @@
+#define CLASS_NAME "PA_DeviceControl"
+
 #include <IOKit/IOKitLib.h>
 #include "PA_DeviceControl.h"
 #include "PA_DeviceBackend.h"
@@ -61,7 +63,7 @@ PA_DeviceControl::AnnounceDevice()
 								    &kCFTypeDictionaryValueCallBacks);
 	CFNumberRef number;
 	CFStringRef str;
-	PA_DeviceBackend *be = device->getBackend();
+	PA_DeviceBackend *be = device->GetBackend();
 	
 	UInt32 n = getpid();
 	number = CFNumberCreate(NULL, kCFNumberIntType, &n);
@@ -137,7 +139,7 @@ PA_DeviceControl::StreamVolumeChanged(CFStringRef /* name */, CFDictionaryRef us
 	CFNumberRef number = (CFNumberRef) CFDictionaryGetValue(userInfo, CFSTR("value"));
 	
 	CFNumberGetValue(number, kCFNumberFloatType, &value);
-	device->getBackend()->ChangeStreamVolume(0, value);
+	device->GetBackend()->ChangeStreamVolume(0, value);
 }
 
 void
@@ -147,7 +149,7 @@ PA_DeviceControl::StreamMuteChanged(CFStringRef /* name */, CFDictionaryRef user
 	CFNumberRef number = (CFNumberRef) CFDictionaryGetValue(userInfo, CFSTR("value"));
 	
 	CFNumberGetValue(number, kCFNumberIntType, &value);
-	device->getBackend()->ChangeStreamMute(0, value);
+	device->GetBackend()->ChangeStreamMute(0, value);
 }
 
 #pragma mark ### Construct/Desconstruct

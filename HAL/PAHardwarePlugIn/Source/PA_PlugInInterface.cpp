@@ -1,3 +1,5 @@
+#define CLASS_NAME "PA_PlugInInterface"
+
 #include <CoreAudio/AudioHardwarePlugIn.h>
 #include <pulse/pulseaudio.h>
 

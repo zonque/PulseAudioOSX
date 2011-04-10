@@ -36,6 +36,8 @@ private:
 	PA_DeviceBackend *deviceBackend;
 	PA_DeviceControl *deviceControl;
 	
+	Float64 sampleRate;
+	
 public:
 	PA_Device(AudioHardwarePlugInRef inPlugin);
 	~PA_Device();
@@ -43,7 +45,11 @@ public:
 	void Initialize();
 	void Teardown();
 
-	PA_DeviceBackend *getBackend() { return deviceBackend; }
+	PA_DeviceBackend *	GetBackend()			{ return deviceBackend; };
+	UInt32			GetIOBufferFrameSize()		{ return bufferFrameSize; };
+	Float64			GetSampleRate()			{ return sampleRate; };
+
+	
 	
 #pragma mark ### plugin interface ###
 
@@ -127,7 +133,6 @@ public:
 #pragma mark ### internal stuff ###
 	void		EnableAllIOProcs(Boolean enable);
 	void		SetBufferSize(UInt32 size);
-	UInt32		GetIOBufferFrameSize();
 	void		CreateStreams();
 	OSStatus	RegisterObjects();
 

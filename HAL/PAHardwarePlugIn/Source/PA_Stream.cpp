@@ -1,3 +1,5 @@
+#define CLASS_NAME "PA_Stream"
+
 #include "PA_Stream.h"
 
 #define super PA_Object
@@ -5,12 +7,13 @@
 PA_Object *
 PA_Stream::FindObjectByID(AudioObjectID searchID)
 {
-	printf("PA_Stream::%s() ... searching for %d, mine %d\n", __func__, searchID, GetObjectID());
 	if (GetObjectID() == searchID)
 		return this;
 	
 	return NULL;
 }
+
+#pragma mark ### Properties (legacy interface) ###
 
 OSStatus
 PA_Stream::GetPropertyInfo(UInt32 inChannel,
@@ -28,7 +31,7 @@ PA_Stream::GetPropertyInfo(UInt32 inChannel,
 	ret = IsPropertySettable(&addr, outWritable);
 	if (ret != kAudioHardwareNoError)
 		return ret;
-	
+
 	return GetPropertyDataSize(&addr, 0, NULL, outSize);
 }
 
@@ -98,7 +101,8 @@ PA_Stream::GetPropertyDataSize(const AudioObjectPropertyAddress *inAddress,
 		case kAudioStreamPropertyTerminalType:
 		case kAudioStreamPropertyStartingChannel:
 		case kAudioStreamPropertyLatency:
-			return sizeof(UInt32);
+			*outDataSize = sizeof(UInt32);
+			return kAudioHardwareNoError;
 	}
 	
 	return super::GetPropertyDataSize(inAddress, inQualifierDataSize, inQualifierData, outDataSize);
@@ -111,6 +115,24 @@ PA_Stream::GetPropertyData(const AudioObjectPropertyAddress *inAddress,
 			   UInt32 *ioDataSize,
 			   void *outData)
 {
+	switch (inAddress->mSelector) {
+		case kAudioStreamPropertyDirection:
+			*static_cast<UInt32*>(outData) = isInput;
+			return kAudioHardwareNoError;
+
+		case kAudioStreamPropertyTerminalType:
+			*static_cast<UInt32*>(outData) = 0;
+			return kAudioHardwareNoError;
+
+		case kAudioStreamPropertyStartingChannel:
+			*static_cast<UInt32*>(outData) = startingChannel;
+			return kAudioHardwareNoError;
+
+		case kAudioStreamPropertyLatency:
+			*static_cast<UInt32*>(outData) = 0;
+			return kAudioHardwareNoError;
+	}
+	
 	return super::GetPropertyData(inAddress, inQualifierDataSize, inQualifierData, ioDataSize, outData);
 }
 
@@ -121,6 +143,7 @@ PA_Stream::SetPropertyData(const AudioObjectPropertyAddress *inAddress,
 			   UInt32 inDataSize,
 			   const void *inData)
 {
+#if 0
 	bool newIsMixable;
 	AudioStreamBasicDescription newFormat;
 	const AudioStreamBasicDescription *formatDataPtr = static_cast<const AudioStreamBasicDescription*>(inData);
@@ -131,6 +154,7 @@ PA_Stream::SetPropertyData(const AudioObjectPropertyAddress *inAddress,
 		case kAudioStreamPropertyPhysicalFormat:
 			break;
 	}
+#endif
 	
 	return super::SetPropertyData(inAddress, inQualifierDataSize, inQualifierData, inDataSize, inData);
 }
@@ -150,6 +174,7 @@ PA_Stream::Initialize()
 	}
 		       
 	SetObjectID(oid);
+	DebugLog("New stream has ID %d", (int) oid);
 	
 #if 0
 	AudioStreamRangedDescription physicalFormat;
@@ -192,7 +217,9 @@ PA_Stream::PA_Stream(AudioHardwarePlugInRef inPlugIn,
 		     bool inIsInput,
 		     UInt32 inStartingDeviceChannelNumber) :
 	plugin(inPlugIn),
-	device(inOwningDevice)
+	device(inOwningDevice),
+	isInput(inIsInput),
+	startingChannel(inStartingDeviceChannelNumber)
 {
 }
 

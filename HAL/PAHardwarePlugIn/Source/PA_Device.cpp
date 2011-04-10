@@ -1,3 +1,8 @@
+#define CLASS_NAME "PA_Device"
+
+//#include <CoreAudio/CoreAudio.h>
+#include <CoreAudio/AudioHardware.h>
+
 #include "PA_Device.h"
 #include "PA_Stream.h"
 #include "PA_DeviceBackend.h"
@@ -60,8 +65,7 @@ PA_Device::RegisterObjects()
 						    GetObjectID(),
 						    streamIDs.size(),
 						    &(streamIDs.front()),
-						    0, NULL);
-	
+						    0, NULL);	
 	return kAudioHardwareNoError;
 }
 
@@ -88,16 +92,17 @@ PA_Device::Initialize()
 					 kAudioDeviceClassID,
 					 &newID);
 	
-	if (ret == 0)
+	if (ret == 0) {
 		SetObjectID(newID);
+		DebugLog("New device has ID %d", (int) newID);
+	}
+
+	CreateStreams();
 
 	AudioObjectsPublishedAndDied(plugin,
 				     kAudioObjectSystemObject,
 				     1, &newID, 0, NULL);
 
-	printf("newID %d\n", newID);
-
-	CreateStreams();
 	RegisterObjects();
 	
 	deviceBackend = new PA_DeviceBackend(this);
@@ -166,8 +171,6 @@ PA_Device::GetStreamById(AudioObjectID inObjectID)
 PA_Object *
 PA_Device::FindObjectByID(AudioObjectID searchID)
 {
-	printf("PA_Device::%s() ... searching for %d, mine %d\n", __func__, searchID, GetObjectID());
-
 	if (GetObjectID() == searchID)
 		return this;
 
@@ -365,12 +368,6 @@ PA_Device::SetBufferSize(UInt32 size)
 	bufferFrameSize = size;
 }
 
-UInt32
-PA_Device::GetIOBufferFrameSize()
-{
-	return bufferFrameSize;
-}
-
 #pragma mark ### properties ###
 
 Boolean
@@ -398,12 +395,9 @@ PA_Device::HasProperty(const AudioObjectPropertyAddress *inAddress)
                 case kAudioDevicePropertyDeviceManufacturer:
                 case kAudioDevicePropertyDeviceName:
                 case kAudioDevicePropertyDeviceUID:
-                case kAudioDevicePropertyHogMode:
                 case kAudioDevicePropertyIOProcStreamUsage:
-                case kAudioDevicePropertyIsHidden:
                 case kAudioDevicePropertyLatency:
                 case kAudioDevicePropertyModelUID:
-                case kAudioDevicePropertyRelatedDevices:
                 case kAudioDevicePropertySafetyOffset:
                 case kAudioDevicePropertyStreamConfiguration:
                 case kAudioDevicePropertyStreamFormat:
@@ -429,6 +423,7 @@ PA_Device::IsPropertySettable(const AudioObjectPropertyAddress *inAddress,
 		case kAudioDevicePropertyDeviceIsRunning:
 		case kAudioDevicePropertyBufferFrameSize:
 		case kAudioDevicePropertyBufferSize:
+		case kAudioDevicePropertyNominalSampleRate:
 			return true;
 	}
 	
@@ -441,6 +436,8 @@ PA_Device::GetPropertyDataSize(const AudioObjectPropertyAddress *inAddress,
 			       const void *inQualifierData,
 			       UInt32 *outDataSize)
 {
+	Boolean isInput = inAddress->mScope == kAudioDevicePropertyScopeInput;
+
 	switch (inAddress->mSelector) {
 		case kAudioObjectPropertyName:
 		case kAudioObjectPropertyManufacturer:
@@ -468,21 +465,20 @@ PA_Device::GetPropertyDataSize(const AudioObjectPropertyAddress *inAddress,
 		case kAudioDevicePropertyBufferFrameSize:
 		case kAudioDevicePropertySafetyOffset:
 		case kAudioDevicePropertyBufferSize:
-		case kAudioDevicePropertyIsHidden:
 			return sizeof(UInt32);
 			
-		case kAudioDevicePropertyHogMode:
-			return sizeof(pid_t);
-
 		case kAudioDevicePropertyBufferFrameSizeRange:
 		case kAudioDevicePropertyBufferSizeRange:
 			return sizeof(AudioValueRange);
 			
 		case kAudioDevicePropertyStreams:
-			return sizeof(AudioStreamID) * (nInputStreams + nOutputStreams);
-			
+			return sizeof(AudioStreamID) * (isInput ? nInputStreams : nOutputStreams);
+
 		case kAudioDevicePropertyStreamConfiguration:
-			return CAAudioBufferList::CalculateByteSize(nInputStreams);
+			if (isInput)
+				return CAAudioBufferList::CalculateByteSize(nInputStreams);
+			else
+				return CAAudioBufferList::CalculateByteSize(nOutputStreams);
 
 		case kAudioDevicePropertyIOProcStreamUsage:
 			//theAnswer = SizeOf32(void*) + SizeOf32(UInt32) + (GetNumberStreams(isInput) * SizeOf32(UInt32));
@@ -496,7 +492,7 @@ PA_Device::GetPropertyDataSize(const AudioObjectPropertyAddress *inAddress,
 			
 		case kAudioDevicePropertyDeviceManufacturer:
 			return CFStringGetLength(deviceManufacturer);
-			
+
 		case kAudioDevicePropertyChannelName:
 		case kAudioDevicePropertyChannelCategoryName:
 		case kAudioDevicePropertyChannelNumberName:
@@ -516,29 +512,74 @@ PA_Device::GetPropertyData(const AudioObjectPropertyAddress *inAddress,
 			   UInt32 *ioDataSize,
 			   void *outData)
 {
+	Boolean isInput = inAddress->mScope == kAudioDevicePropertyScopeInput;
+
 	switch (inAddress->mSelector) {
 		case kAudioObjectPropertyName:
 			*static_cast<CFStringRef*>(outData) = CFStringCreateCopy(NULL, deviceName);
 			return kAudioHardwareNoError;
-			
-		case kAudioDevicePropertyDeviceName:
-			CFStringGetCString(deviceName, (char *) outData, *ioDataSize, kCFStringEncodingASCII);
-			*ioDataSize = CFStringGetLength(deviceName);
+
+		case kAudioDevicePropertyDeviceUID:
+			*static_cast<CFStringRef*>(outData) = CFStringCreateCopy(NULL, deviceUID);
 			return kAudioHardwareNoError;
 
 		case kAudioObjectPropertyManufacturer:
 			*static_cast<CFStringRef*>(outData) = CFStringCreateCopy(NULL, deviceManufacturer);
 			return kAudioHardwareNoError;
 
+		case kAudioDevicePropertyDeviceName:
+			CFStringGetCString(deviceName, (char *) outData, *ioDataSize, kCFStringEncodingASCII);
+			return kAudioHardwareNoError;
+
 		case kAudioDevicePropertyDeviceManufacturer:
 			CFStringGetCString(deviceManufacturer, (char *) outData, *ioDataSize, kCFStringEncodingASCII);
-			*ioDataSize = CFStringGetLength(deviceManufacturer);
-			return kAudioHardwareNoError;			
-
-		case kAudioDevicePropertyDeviceUID:
-			*static_cast<CFStringRef*>(outData) = CFStringCreateCopy(NULL, deviceUID);
 			return kAudioHardwareNoError;
-	}	
+			
+		case kAudioDevicePropertyTransportType:
+			*static_cast<UInt32*>(outData) = 'virt';
+			return kAudioHardwareNoError;
+
+		/* "always true" */
+		case kAudioDevicePropertyDeviceCanBeDefaultSystemDevice:
+		case kAudioDevicePropertyDeviceCanBeDefaultDevice:
+		case kAudioDevicePropertyDeviceIsAlive:
+			*static_cast<UInt32*>(outData) = 1;
+			return kAudioHardwareNoError;
+			
+		case kAudioDevicePropertyDeviceIsRunning:
+		case kAudioDevicePropertyDeviceIsRunningSomewhere:
+			*static_cast<UInt32*>(outData) = deviceBackend->isRunning();
+			return kAudioHardwareNoError;			
+			
+		case kAudioDevicePropertyBufferFrameSize:
+			*static_cast<UInt32*>(outData) = GetIOBufferFrameSize();
+			return kAudioHardwareNoError;
+
+		case kAudioDevicePropertyActualSampleRate:
+		case kAudioDevicePropertyNominalSampleRate:
+			*static_cast<Float64*>(outData) = GetSampleRate();
+			return kAudioHardwareNoError;
+			
+		case kAudioDevicePropertyClockDomain:
+			*static_cast<UInt32*>(outData) = 0;
+			return kAudioHardwareNoError;
+			
+		case kAudioDevicePropertyStreams: {
+			AudioStreamID *list = static_cast<AudioStreamID*>(outData);
+			
+			if (isInput) {
+				UInt32 n = MIN(nInputStreams, *ioDataSize / sizeof(UInt32));
+				*ioDataSize = n * sizeof(UInt32);
+				for (UInt32 i = 0; i < n; i++)
+					list[i] = inputStreams[i]->GetObjectID();
+			} else {
+				UInt32 n = MIN(nOutputStreams, *ioDataSize / sizeof(UInt32));
+				*ioDataSize = n * sizeof(UInt32);
+				for (UInt32 i = 0; i < n; i++)
+					list[i] = outputStreams[i]->GetObjectID();
+			}
+		}
+	}
 	
 	return super::GetPropertyData(inAddress, inQualifierDataSize, inQualifierData, ioDataSize, outData);
 }
@@ -561,6 +602,11 @@ PA_Device::SetPropertyData(const AudioObjectPropertyAddress *inAddress,
 
 		case kAudioDevicePropertyBufferSize:
 			SetBufferSize((*(UInt32 *) inData) * 8);
+			return kAudioHardwareNoError;
+			
+		case kAudioDevicePropertyNominalSampleRate:
+			sampleRate = *static_cast<const Float64*>(inData);
+			//FIXME
 			return kAudioHardwareNoError;
 	}
 	
@@ -637,25 +683,11 @@ PA_Device::CreateStreams()
 	memset(streamIDs, 0, sizeof(streamIDs));
 
 	// instantiate an AudioStream
-	ret = AudioObjectCreate(plugin, GetObjectID(), kAudioStreamClassID, &streamIDs[0]);
-	printf("ret %d\n", ret);
-	if (ret == 0) {
-		inputStreams[0] = new PA_Stream(plugin, this, true, 1);
-		inputStreams[0]->Initialize();
-	}
+	inputStreams[0] = new PA_Stream(plugin, this, true, 1);
+	inputStreams[0]->Initialize();
 	
-	ret = AudioObjectCreate(plugin, GetObjectID(), kAudioStreamClassID, &streamIDs[1]);
-	printf("ret %d\n", ret);
-	if (ret == 0) {
-		outputStreams[0] = new PA_Stream(plugin, this, false, 1);
-		outputStreams[0]->Initialize();
-	}
-
-	ret = AudioObjectsPublishedAndDied(plugin,
-					   GetObjectID(),
-					   2, streamIDs,
-					   0, NULL);
-	printf("ret %d\n", ret);
+	outputStreams[0] = new PA_Stream(plugin, this, false, 1);
+	outputStreams[0]->Initialize();
 }
 
 

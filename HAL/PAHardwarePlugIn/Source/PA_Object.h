@@ -6,7 +6,12 @@
 #include <CoreAudio/AudioHardware.h>
 #include "CAMutex.h"
 
-#define DebugLog(format, args...) printf("%s():%d :: " format "\n", __func__, __LINE__, ## args);
+#ifndef CLASS_NAME
+#error CLASS_NAME undefined
+#endif
+
+#define DebugLog(format, args...) printf("%s::%s(), line %d: " format "\n", \
+					 CLASS_NAME, __func__, __LINE__, ## args);
 
 class PA_Object
 {
@@ -20,8 +25,8 @@ public:
 	PA_Object();
 	~PA_Object();
 	
-	AudioObjectID	GetObjectID()			{ return objectID; };
-	void		SetObjectID(AudioObjectID i)	{ objectID = i; };
+	AudioObjectID	GetObjectID();
+	void		SetObjectID(AudioObjectID i);
 	
 #pragma mark ### plugin interface ###
 

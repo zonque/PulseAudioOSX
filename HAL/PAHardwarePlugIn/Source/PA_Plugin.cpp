@@ -1,3 +1,5 @@
+#define CLASS_NAME "PA_Plugin"
+
 #include "PA_Plugin.h"
 #include "PA_Device.h"
 #include "PA_Stream.h"
@@ -12,7 +14,6 @@
 
 PA_Plugin::PA_Plugin(AudioHardwarePlugInRef inPlugin) : plugin(inPlugin)
 {
-	
 }
 
 PA_Device *
@@ -50,8 +51,6 @@ PA_Object *
 PA_Plugin::FindObjectByID(AudioObjectID searchID)
 {
 	SInt32 i;
-
-	printf("PA_Plugin::%s() searching for %d, mine is %d\n", __func__, searchID, GetObjectID());
 	
 	if (GetObjectID() == searchID)
 		return this;
@@ -94,6 +93,7 @@ OSStatus
 PA_Plugin::InitializeWithObjectID(AudioObjectID inObjectID)
 {
 	TraceCall();
+	DebugLog("inObjectID = %d\n", (int) inObjectID);
 	SetObjectID(inObjectID);
 	
 	devices = CFArrayCreateMutable(kCFAllocatorDefault, 0, NULL);

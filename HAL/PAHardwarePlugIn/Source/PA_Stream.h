@@ -16,6 +16,8 @@ private:
 	CFMutableArrayRef *controls;
 	PA_Device *device;
 	AudioHardwarePlugInRef plugin;
+	Boolean isInput;
+	UInt32 startingChannel;
 	
 public:
 	PA_Stream(AudioHardwarePlugInRef inPlugIn,

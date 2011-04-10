@@ -1,4 +1,19 @@
+#define CLASS_NAME "PA_Object"
+
 #include "PA_Object.h"
+
+AudioObjectID
+PA_Object::GetObjectID()
+{
+	return objectID;
+}
+
+void
+PA_Object::SetObjectID(AudioObjectID i)
+{
+	DebugLog("id = %d", (int) i);
+	objectID = i;
+}
 
 /*
 void
@@ -38,12 +53,12 @@ PA_Object::IsPropertySettable(const AudioObjectPropertyAddress *inAddress,
 			return kAudioHardwareNoError;
 	}
 
-	printf("%s(): Unhandled property for id %d: '%c%c%c%c'\n",
-	       __func__, (int) GetObjectID(),
-	       ((int) inAddress->mSelector >> 24) & 0xff,
-	       ((int) inAddress->mSelector >> 16) & 0xff,
-	       ((int) inAddress->mSelector >> 8) & 0xff,
-	       ((int) inAddress->mSelector >> 0) & 0xff);
+	DebugLog("Unhandled property for id %d: '%c%c%c%c'",
+		 (int) GetObjectID(),
+		 ((int) inAddress->mSelector >> 24) & 0xff,
+		 ((int) inAddress->mSelector >> 16) & 0xff,
+		 ((int) inAddress->mSelector >> 8) & 0xff,
+		 ((int) inAddress->mSelector >> 0) & 0xff);
 	
 	return kAudioHardwareUnknownPropertyError;
 }
@@ -63,12 +78,12 @@ PA_Object::GetPropertyDataSize(const AudioObjectPropertyAddress *inAddress,
 
 	*outDataSize = 0;
 	
-	printf("%s(): Unhandled property for id %d: '%c%c%c%c'\n",
-	       __func__, (int) GetObjectID(),
-	       ((int) inAddress->mSelector >> 24) & 0xff,
-	       ((int) inAddress->mSelector >> 16) & 0xff,
-	       ((int) inAddress->mSelector >> 8) & 0xff,
-	       ((int) inAddress->mSelector >> 0) & 0xff);
+	DebugLog("Unhandled property for id %d: '%c%c%c%c'",
+		 (int) GetObjectID(),
+		 ((int) inAddress->mSelector >> 24) & 0xff,
+		 ((int) inAddress->mSelector >> 16) & 0xff,
+		 ((int) inAddress->mSelector >> 8) & 0xff,
+		 ((int) inAddress->mSelector >> 0) & 0xff);
 	
 	return kAudioHardwareUnknownPropertyError;
 }
@@ -88,13 +103,13 @@ PA_Object::GetPropertyData(const AudioObjectPropertyAddress *inAddress,
 			return kAudioHardwareNoError;
 	}
 
-	printf("%s(): Unhandled property for id %d: '%c%c%c%c'\n",
-	       __func__, (int) GetObjectID(),
-	       ((int) inAddress->mSelector >> 24) & 0xff,
-	       ((int) inAddress->mSelector >> 16) & 0xff,
-	       ((int) inAddress->mSelector >> 8) & 0xff,
-	       ((int) inAddress->mSelector >> 0) & 0xff);
-
+	DebugLog("Unhandled property for id %d: '%c%c%c%c'",
+		 (int) GetObjectID(),
+		 ((int) inAddress->mSelector >> 24) & 0xff,
+		 ((int) inAddress->mSelector >> 16) & 0xff,
+		 ((int) inAddress->mSelector >> 8) & 0xff,
+		 ((int) inAddress->mSelector >> 0) & 0xff);
+	
 	return kAudioHardwareUnknownPropertyError;
 }
 
@@ -111,12 +126,12 @@ PA_Object::SetPropertyData(const AudioObjectPropertyAddress *inAddress,
 			return kAudioHardwareNoError;
 	}
 
-	printf("%s(): Unhandled property for id %d: '%c%c%c%c'\n",
-	       __func__, (int) GetObjectID(),
-	       ((int) inAddress->mSelector >> 24) & 0xff,
-	       ((int) inAddress->mSelector >> 16) & 0xff,
-	       ((int) inAddress->mSelector >> 8) & 0xff,
-	       ((int) inAddress->mSelector >> 0) & 0xff);
+	DebugLog("Unhandled property for id %d: '%c%c%c%c'",
+		 (int) GetObjectID(),
+		 ((int) inAddress->mSelector >> 24) & 0xff,
+		 ((int) inAddress->mSelector >> 16) & 0xff,
+		 ((int) inAddress->mSelector >> 8) & 0xff,
+		 ((int) inAddress->mSelector >> 0) & 0xff);
 	
 	return kAudioHardwareUnknownPropertyError;
 }

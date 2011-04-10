@@ -1,3 +1,5 @@
+#define CLASS_NAME "PA_DeviceBackend"
+
 #include <pulse/pulseaudio.h>
 #include <sys/sysctl.h>
 
@@ -341,6 +343,12 @@ PA_DeviceBackend::ChangeStreamMute(UInt32 index, Boolean mute)
 	pa_threaded_mainloop_lock(PAMainLoop);
 	pa_context_set_sink_mute_by_index(PAContext, 0, mute, NULL, NULL);
 	pa_threaded_mainloop_unlock(PAMainLoop);
+}
+
+Boolean
+PA_DeviceBackend::isRunning()
+{
+	return true;
 }
 
 #pragma mark ### Construct/Desconstruct
