@@ -121,6 +121,17 @@ PA_Stream::SetPropertyData(const AudioObjectPropertyAddress *inAddress,
 			   UInt32 inDataSize,
 			   const void *inData)
 {
+	bool newIsMixable;
+	AudioStreamBasicDescription newFormat;
+	const AudioStreamBasicDescription *formatDataPtr = static_cast<const AudioStreamBasicDescription*>(inData);
+
+	switch (inAddress->mSelector) {
+		case kAudioDevicePropertySupportsMixing:
+		case kAudioStreamPropertyVirtualFormat:
+		case kAudioStreamPropertyPhysicalFormat:
+			break;
+	}
+	
 	return super::SetPropertyData(inAddress, inQualifierDataSize, inQualifierData, inDataSize, inData);
 }
 
@@ -132,7 +143,7 @@ PA_Stream::Initialize()
 	OSStatus ret;
 	AudioObjectID oid;
 	
-	ret = AudioObjectCreate(plugin, GetObjectID(), kAudioStreamClassID, &oid);
+	ret = AudioObjectCreate(plugin, device->GetObjectID(), kAudioStreamClassID, &oid);
 	if (ret != kAudioHardwareNoError) {
 		printf("AudioObjectCreate() failed with %d\n", ret);
 		return;

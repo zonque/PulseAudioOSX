@@ -377,42 +377,43 @@ Boolean
 PA_Device::HasProperty(const AudioObjectPropertyAddress *inAddress)
 {	
 	switch (inAddress->mSelector) {
-		case kAudioObjectPropertyName:
-		case kAudioObjectPropertyManufacturer:
-		case kAudioObjectPropertyElementName:
-		case kAudioObjectPropertyElementCategoryName:
-		case kAudioObjectPropertyElementNumberName:
-		case kAudioDevicePropertyConfigurationApplication:
-		case kAudioDevicePropertyDeviceUID:
-		case kAudioDevicePropertyModelUID:
-		case kAudioDevicePropertyTransportType:
-		case kAudioDevicePropertyRelatedDevices:
-		case kAudioDevicePropertyClockDomain:
-		case kAudioDevicePropertyDeviceIsAlive:
-		case kAudioDevicePropertyDeviceHasChanged:
-		case kAudioDevicePropertyDeviceIsRunning:
-		case kAudioDevicePropertyDeviceIsRunningSomewhere:
-		case kAudioDevicePropertyDeviceCanBeDefaultDevice:
-		case kAudioDevicePropertyDeviceCanBeDefaultSystemDevice:
-		case kAudioDeviceProcessorOverload:
-		case kAudioDevicePropertyHogMode:
-		case kAudioDevicePropertyLatency:
-		case kAudioDevicePropertyBufferFrameSize:
-		case kAudioDevicePropertyBufferFrameSizeRange:
-		case kAudioDevicePropertyStreams:
-		case kAudioDevicePropertySafetyOffset:
-		case kAudioDevicePropertyStreamConfiguration:
-		case kAudioDevicePropertyIOProcStreamUsage:
-		case kAudioDevicePropertyActualSampleRate:
-		case kAudioDevicePropertyDeviceName:
-		case kAudioDevicePropertyDeviceManufacturer:
-		case kAudioDevicePropertyChannelName:
-		case kAudioDevicePropertyChannelCategoryName:
-		case kAudioDevicePropertyChannelNumberName:
-		case kAudioDevicePropertyBufferSize:
-		case kAudioDevicePropertyBufferSizeRange:
-		//case kAudioDevicePropertyIcon:
-		case kAudioDevicePropertyIsHidden:
+			//case kAudioDevicePropertyIcon:
+                case kAudioDeviceProcessorOverload:
+                case kAudioDevicePropertyActualSampleRate:
+                case kAudioDevicePropertyBufferFrameSize:
+                case kAudioDevicePropertyBufferFrameSizeRange:
+                case kAudioDevicePropertyBufferSize:
+                case kAudioDevicePropertyBufferSizeRange:
+                case kAudioDevicePropertyChannelCategoryName:
+                case kAudioDevicePropertyChannelName:
+                case kAudioDevicePropertyChannelNumberName:
+                case kAudioDevicePropertyClockDomain:
+                case kAudioDevicePropertyConfigurationApplication:
+                case kAudioDevicePropertyDeviceCanBeDefaultDevice:
+                case kAudioDevicePropertyDeviceCanBeDefaultSystemDevice:
+                case kAudioDevicePropertyDeviceHasChanged:
+                case kAudioDevicePropertyDeviceIsAlive:
+                case kAudioDevicePropertyDeviceIsRunning:
+                case kAudioDevicePropertyDeviceIsRunningSomewhere:
+                case kAudioDevicePropertyDeviceManufacturer:
+                case kAudioDevicePropertyDeviceName:
+                case kAudioDevicePropertyDeviceUID:
+                case kAudioDevicePropertyHogMode:
+                case kAudioDevicePropertyIOProcStreamUsage:
+                case kAudioDevicePropertyIsHidden:
+                case kAudioDevicePropertyLatency:
+                case kAudioDevicePropertyModelUID:
+                case kAudioDevicePropertyRelatedDevices:
+                case kAudioDevicePropertySafetyOffset:
+                case kAudioDevicePropertyStreamConfiguration:
+                case kAudioDevicePropertyStreamFormat:
+                case kAudioDevicePropertyStreams:
+                case kAudioDevicePropertyTransportType:
+                case kAudioObjectPropertyElementCategoryName:
+                case kAudioObjectPropertyElementName:
+                case kAudioObjectPropertyElementNumberName:
+                case kAudioObjectPropertyManufacturer:
+                case kAudioObjectPropertyName:
 			return true;
 			
 	}
@@ -478,8 +479,7 @@ PA_Device::GetPropertyDataSize(const AudioObjectPropertyAddress *inAddress,
 			return sizeof(AudioValueRange);
 			
 		case kAudioDevicePropertyStreams:
-			//theAnswer = SizeOf32(AudioStreamID) * GetNumberStreams(isInput);
-			return 0;
+			return sizeof(AudioStreamID) * (nInputStreams + nOutputStreams);
 			
 		case kAudioDevicePropertyStreamConfiguration:
 			return CAAudioBufferList::CalculateByteSize(nInputStreams);
@@ -520,13 +520,24 @@ PA_Device::GetPropertyData(const AudioObjectPropertyAddress *inAddress,
 		case kAudioObjectPropertyName:
 			*static_cast<CFStringRef*>(outData) = CFStringCreateCopy(NULL, deviceName);
 			return kAudioHardwareNoError;
+			
+		case kAudioDevicePropertyDeviceName:
+			CFStringGetCString(deviceName, (char *) outData, *ioDataSize, kCFStringEncodingASCII);
+			*ioDataSize = CFStringGetLength(deviceName);
+			return kAudioHardwareNoError;
 
 		case kAudioObjectPropertyManufacturer:
 			*static_cast<CFStringRef*>(outData) = CFStringCreateCopy(NULL, deviceManufacturer);
 			return kAudioHardwareNoError;
-			
 
-			
+		case kAudioDevicePropertyDeviceManufacturer:
+			CFStringGetCString(deviceManufacturer, (char *) outData, *ioDataSize, kCFStringEncodingASCII);
+			*ioDataSize = CFStringGetLength(deviceManufacturer);
+			return kAudioHardwareNoError;			
+
+		case kAudioDevicePropertyDeviceUID:
+			*static_cast<CFStringRef*>(outData) = CFStringCreateCopy(NULL, deviceUID);
+			return kAudioHardwareNoError;
 	}	
 	
 	return super::GetPropertyData(inAddress, inQualifierDataSize, inQualifierData, ioDataSize, outData);
@@ -620,7 +631,7 @@ PA_Device::SetProperty(const AudioTimeStamp * /* inWhen */,
 void
 PA_Device::CreateStreams()
 {
-	OSStatus	 ret = 0;
+	OSStatus ret = 0;
 	
 	AudioStreamID streamIDs[2];
 	memset(streamIDs, 0, sizeof(streamIDs));

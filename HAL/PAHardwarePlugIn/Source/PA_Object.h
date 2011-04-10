@@ -6,8 +6,7 @@
 #include <CoreAudio/AudioHardware.h>
 #include "CAMutex.h"
 
-#define DebugLog(str) printf("%s():%d :: %s\n", __func__, __LINE__, str);
-
+#define DebugLog(format, args...) printf("%s():%d :: " format "\n", __func__, __LINE__, ## args);
 
 class PA_Object
 {
