@@ -152,6 +152,9 @@ PA_DeviceBackend::DeviceWriteCallback(pa_stream *stream, size_t nbytes)
 	inputTime.mFlags = now.mFlags | kAudioTimeStampSampleTimeValid;
 	outputTime.mFlags = now.mFlags | kAudioTimeStampSampleTimeValid;
 	
+	CFArrayRef ioProcList = device->LockIOProcList();
+	AudioObjectID deviceID = device->GetObjectID();
+
 	while (count >= fs) {
 		outputList.mBuffers[0].mNumberChannels = 2;
 		outputList.mBuffers[0].mDataByteSize = fs;
@@ -166,20 +169,25 @@ PA_DeviceBackend::DeviceWriteCallback(pa_stream *stream, size_t nbytes)
 		inputTime.mSampleTime = (framesPlayed * usecPerFrame) - 10000;
 		outputTime.mSampleTime = (framesPlayed * usecPerFrame) + 10000;
 		
-#if 0
-		//printf(" >>> %d bytes @%p\n", fs, buf);
-		ioproc(deviceID, &now,
-		       &inputList, &inputTime,
-		       &outputList, &outputTime,
-		       ioprocClientData);
-		//printf(" <<< %d bytes @%p\n", (int) outputList.mBuffers[0].mDataByteSize, outputList.mBuffers[0].mData);
-#endif
+		for (SInt32 i = 0; i < CFArrayGetCount(ioProcList); i++) {
+			IOProcTracker *io = (IOProcTracker *) CFArrayGetValueAtIndex(ioProcList, i);
+			
+			if (io->enabled) {
+				io->proc(deviceID, &now,
+					 &inputList, &inputTime,
+					 &outputList, &outputTime,
+					 io->clientData);
+			}
+		}
 		
 		count -= fs;
 		outputBufferPos += fs;
 		framesPlayed += fs/8;
 	}
 	
+	device->UnlockIOProcList();
+	CFRelease(ioProcList);
+
 	pa_stream_write(stream, buf, outputBufferPos - buf, NULL, 0, (pa_seek_mode_t) 0);
 	
 #if 0
@@ -366,12 +374,17 @@ void
 PA_DeviceBackend::Initialize()
 {
 	framesPlayed = 0;
+	inputBuffer = (unsigned char *) pa_xmalloc0(PA_BUFFER_SIZE);
+	outputBuffer = (unsigned char *) pa_xmalloc0(PA_BUFFER_SIZE);
 }
 
 void
 PA_DeviceBackend::Teardown()
 {
-	
+	pa_xfree(inputBuffer);
+	pa_xfree(outputBuffer);
+	inputBuffer = NULL;
+	outputBuffer = NULL;
 }
 
 #pragma mark ### Connect/Disconnect ###
@@ -391,7 +404,7 @@ PA_DeviceBackend::Connect()
 	Assert(PAContext, "pa_context_new() failed");
 	
 	pa_context_set_state_callback(PAContext, staticContextStateCallback, this);
-	pa_context_connect(PAContext, "192.168.2.5", 
+	pa_context_connect(PAContext, NULL, //"192.168.2.5", 
 			   (pa_context_flags_t) (PA_CONTEXT_NOFAIL | PA_CONTEXT_NOAUTOSPAWN),
 			   NULL);
 	

@@ -228,41 +228,6 @@ PA_Stream::Initialize()
 		       
 	SetObjectID(oid);
 	DebugLog("New stream has ID %d", (int) oid);
-	
-#if 0
-	AudioStreamRangedDescription physicalFormat;
-	
-	// the first is 16 bit stereo
-	physicalFormat.mFormat.mSampleRate = 44100;
-	physicalFormat.mSampleRateRange.mMinimum = 44100;
-	physicalFormat.mSampleRateRange.mMaximum = 44100;
-	physicalFormat.mFormat.mFormatID = kAudioFormatLinearPCM;
-	physicalFormat.mFormat.mFormatFlags = kLinearPCMFormatFlagIsSignedInteger	|
-					      kAudioFormatFlagsNativeEndian		|
-					      kAudioFormatFlagIsPacked;
-	physicalFormat.mFormat.mBytesPerPacket = 4;
-	physicalFormat.mFormat.mFramesPerPacket = 1;
-	physicalFormat.mFormat.mBytesPerFrame = 4;
-	physicalFormat.mFormat.mChannelsPerFrame = 2;
-	physicalFormat.mFormat.mBitsPerChannel = 16;
-	mFormatList->AddPhysicalFormat(physicalFormat);
-
-	AudioStreamBasicDescription physicalFormat;
-	physicalFormat.mSampleRate = 44100;
-	physicalFormat.mFormatID = kAudioFormatLinearPCM;
-	physicalFormat.mFormatFlags = kLinearPCMFormatFlagIsFloat		|
-				      kAudioFormatFlagsNativeEndian		|
-				      kAudioFormatFlagIsPacked;
-	physicalFormat.mFramesPerPacket = 1;
-	physicalFormat.mChannelsPerFrame = 2;
-	physicalFormat.mBitsPerChannel = 32;
-	physicalFormat.mBytesPerPacket = (physicalFormat.mBitsPerChannel *
-					  physicalFormat.mChannelsPerFrame) / 8;
-	physicalFormat.mBytesPerFrame = physicalFormat.mBytesPerPacket *
-					physicalFormat.mFramesPerPacket;
-	mFormatList->SetCurrentPhysicalFormat(physicalFormat, false);
-#endif
-
 }
 
 PA_Stream::PA_Stream(PA_Plugin *inPlugIn,

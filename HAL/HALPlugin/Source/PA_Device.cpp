@@ -14,6 +14,12 @@
 #define super PA_Object
 #define TraceCall(x) printf("PA_Device::%s() :%d\n", __func__, __LINE__);
 
+#if 1
+#define DebugIOProc(x...) DebugLog(x)
+#else
+#define DebugIOProc(x...) do {} while(0)
+#endif
+
 PA_Device::PA_Device(PA_Plugin *inPlugin) : plugin(inPlugin)
 {
 }
@@ -25,7 +31,7 @@ PA_Device::~PA_Device()
 IOProcTracker *
 PA_Device::FindIOProc(AudioDeviceIOProc inProc)
 {
-	for (SInt32 i = 0; CFArrayGetCount(ioProcList); i++) {
+	for (SInt32 i = 0; i < CFArrayGetCount(ioProcList); i++) {
 		IOProcTracker *io = (IOProcTracker *) CFArrayGetValueAtIndex(ioProcList, i);
 		if (io->proc == inProc)
 			return io;
@@ -37,13 +43,40 @@ PA_Device::FindIOProc(AudioDeviceIOProc inProc)
 IOProcTracker *
 PA_Device::FindIOProcByID(AudioDeviceIOProcID inProcID)
 {
-	for (SInt32 i = 0; CFArrayGetCount(ioProcList); i++) {
+	for (SInt32 i = 0; i < CFArrayGetCount(ioProcList); i++) {
 		IOProcTracker *io = (IOProcTracker *) CFArrayGetValueAtIndex(ioProcList, i);
 		if (io == (IOProcTracker *) inProcID)
 			return io;
 	}
 	
 	return NULL;
+}
+
+UInt32
+PA_Device::CountEnabledIOProcs()
+{
+	UInt32 count = 0;
+	
+	for (SInt32 i = 0; i < CFArrayGetCount(ioProcList); i++) {
+		IOProcTracker *io = (IOProcTracker *) CFArrayGetValueAtIndex(ioProcList, i);
+		if (io->enabled)
+			count++;
+	}
+	
+	return count;
+}
+
+CFArrayRef
+PA_Device::LockIOProcList()
+{
+	ioProcListMutex->Lock();
+	return (CFArrayRef) CFRetain(ioProcList);
+}
+
+void
+PA_Device::UnlockIOProcList()
+{
+	ioProcListMutex->Unlock();
 }
 
 OSStatus
@@ -80,16 +113,16 @@ PA_Device::Initialize()
 	UInt32 i;
 
 	TraceCall();
-	ioProcList = CFArrayCreateMutable(NULL, 0, NULL);
+	ioProcList = CFArrayCreateMutable(plugin->GetAllocator(), 0, NULL);
 	ioProcListMutex = new CAMutex("ioProcListMutex");
 	
-	deviceUID = CFStringCreateWithCString(NULL, "PulseAudio", kCFStringEncodingASCII);
-	deviceName = CFStringCreateWithCString(NULL, "PulseAudio", kCFStringEncodingASCII);
-	deviceManufacturer = CFStringCreateWithCString(NULL, "pulseaudio.org", kCFStringEncodingASCII);
+	deviceUID = CFStringCreateWithCString(plugin->GetAllocator(), "PulseAudio", kCFStringEncodingASCII);
+	deviceName = CFStringCreateWithCString(plugin->GetAllocator(), "PulseAudio", kCFStringEncodingASCII);
+	deviceManufacturer = CFStringCreateWithCString(plugin->GetAllocator(), "pulseaudio.org", kCFStringEncodingASCII);
 
 	nInputStreams = 1;
 	nOutputStreams = 1;
-	
+
 	inputStreams = pa_xnew0(PA_Stream *, nInputStreams);
 	outputStreams = pa_xnew0(PA_Stream *, nOutputStreams);
 
@@ -120,6 +153,7 @@ PA_Device::Initialize()
 	deviceControl = new PA_DeviceControl(this);
 	deviceControl->Initialize();
 
+	bufferFrameSize = 1024;
 	sampleRate = 48000.0f;
 	
 	streamDescription.mSampleRate = sampleRate;
@@ -131,13 +165,13 @@ PA_Device::Initialize()
 	streamDescription.mFramesPerPacket = GetIOBufferFrameSize();
 	streamDescription.mBytesPerFrame = GetFrameSize();
 
-	physicalFormat.mFormat.mSampleRate = 44100;
-	physicalFormat.mSampleRateRange.mMinimum = 44100;
-	physicalFormat.mSampleRateRange.mMaximum = 44100;
+	physicalFormat.mFormat.mSampleRate = sampleRate;
+	physicalFormat.mSampleRateRange.mMinimum = sampleRate;
+	physicalFormat.mSampleRateRange.mMaximum = sampleRate;
 	physicalFormat.mFormat.mFormatID = kAudioFormatLinearPCM;
 	physicalFormat.mFormat.mFormatFlags = kLinearPCMFormatFlagIsSignedInteger	|
-	kAudioFormatFlagsNativeEndian		|
-	kAudioFormatFlagIsPacked;
+						kAudioFormatFlagsNativeEndian		|
+						kAudioFormatFlagIsPacked;
 	physicalFormat.mFormat.mBytesPerPacket = 4;
 	physicalFormat.mFormat.mFramesPerPacket = 1;
 	physicalFormat.mFormat.mBytesPerFrame = 4;
@@ -251,6 +285,8 @@ PA_Device::CreateIOProcID(AudioDeviceIOProc inProc,
 	CFArrayAppendValue(ioProcList, io);
 	ioProcListMutex->Unlock();
 	
+	DebugIOProc("New IOProc tracker @%p", io);
+	
 	return kAudioHardwareNoError;
 }
 
@@ -265,12 +301,14 @@ PA_Device::DestroyIOProcID(AudioDeviceIOProcID inIOProcID)
 			pa_xfree(io);
 			CFArrayRemoveValueAtIndex(ioProcList, i);
 			ioProcListMutex->Unlock();
+			DebugIOProc("Destroyed IOProc tracker @%p", io);
 			return kAudioHardwareNoError;
 		}
 	}
 	
 	ioProcListMutex->Unlock();
 	DebugLog("IOProc has not been added");
+
 	return kAudioHardwareIllegalOperationError;
 }
 
@@ -292,6 +330,7 @@ PA_Device::RemoveIOProc(AudioDeviceIOProc inProc)
 			pa_xfree(io);
 			CFArrayRemoveValueAtIndex(ioProcList, i);
 			ioProcListMutex->Unlock();
+			DebugIOProc("Removed IOProc tracker @%p", io);
 			return kAudioHardwareNoError;
 		}
 	}
@@ -312,6 +351,8 @@ PA_Device::StartAtTime(AudioDeviceIOProc inProc,
 		       AudioTimeStamp *ioRequestedStartTime,
 		       UInt32 inFlags)
 {
+	UInt32 count;
+
 	ioProcListMutex->Lock();
 	IOProcTracker *io = FindIOProc(inProc);
 	
@@ -321,9 +362,17 @@ PA_Device::StartAtTime(AudioDeviceIOProc inProc,
 
 		if (ioRequestedStartTime)
 			memcpy(&io->startTime, ioRequestedStartTime, sizeof(*ioRequestedStartTime));
+
+		DebugIOProc("Starting IOProc @%p", io);
 	}
 
+	count = CountEnabledIOProcs();	
 	ioProcListMutex->Unlock();
+	
+	if (count > 0 && !hardwareIsRunning) {
+		deviceBackend->Connect();
+		hardwareIsRunning = true;
+	}
 	
 	if (io)
 		return kAudioHardwareNoError;
@@ -336,17 +385,28 @@ PA_Device::StartAtTime(AudioDeviceIOProc inProc,
 OSStatus
 PA_Device::Stop(AudioDeviceIOProc inProc)
 {
+	UInt32 count;
+
 	ioProcListMutex->Lock();
 	IOProcTracker *io = FindIOProc(inProc);
 	
 	if (io)
 		io->enabled = false;
-	
+
+	DebugIOProc("Stopping IOProc @%p", io);
+
+	count = CountEnabledIOProcs();
 	ioProcListMutex->Unlock();
 	
-	if (io)
+	if (count == 0 && hardwareIsRunning) {
+		DebugLog("Stopping hardware");
+		deviceBackend->Disconnect();
+		hardwareIsRunning = false;
+	}
+	
+	if (io) {
 		return kAudioHardwareNoError;
-	else {
+	} else {
 		DebugLog("IOProc has not been added");
 		return kAudioHardwareIllegalOperationError;
 	}
@@ -500,7 +560,8 @@ PA_Device::IsPropertySettable(const AudioObjectPropertyAddress *inAddress,
 		case kAudioDevicePropertyBufferSize:
 		case kAudioDevicePropertyNominalSampleRate:
 		case kAudioDevicePropertyStreamFormat:
-			return true;
+			*outIsSettable = true;
+			return kAudioHardwareNoError;
 	}
 	
 	return super::IsPropertySettable(inAddress, outIsSettable);
@@ -564,7 +625,6 @@ PA_Device::GetPropertyDataSize(const AudioObjectPropertyAddress *inAddress,
 			*outDataSize = 0;
 			return kAudioHardwareNoError;
 
-		case kAudioDevicePropertyAvailableNominalSampleRates:
 		case kAudioDevicePropertyNominalSampleRate:
 		case kAudioDevicePropertyActualSampleRate:
 			*outDataSize = sizeof(Float64);
@@ -587,6 +647,10 @@ PA_Device::GetPropertyDataSize(const AudioObjectPropertyAddress *inAddress,
 		case kAudioDevicePropertyStreamFormat:
 			*outDataSize = sizeof(AudioStreamBasicDescription);
 			return kAudioHardwareNoError;
+			
+		case kAudioDevicePropertyAvailableNominalSampleRates:
+			*outDataSize = sizeof(AudioValueRange);
+			return kAudioHardwareNoError;			
 
 		//case kAudioDevicePropertyIcon:
 		//	return sizeof(CFURLRef);
@@ -664,6 +728,10 @@ PA_Device::GetPropertyData(const AudioObjectPropertyAddress *inAddress,
 			return kAudioHardwareNoError;
 
 		case kAudioDevicePropertyAvailableNominalSampleRates:
+			static_cast<AudioValueRange*>(outData)->mMinimum = GetSampleRate();
+			static_cast<AudioValueRange*>(outData)->mMaximum = GetSampleRate();
+			return kAudioHardwareNoError;
+
 		case kAudioDevicePropertyActualSampleRate:
 		case kAudioDevicePropertyNominalSampleRate:
 			*static_cast<Float64*>(outData) = GetSampleRate();
@@ -737,6 +805,7 @@ PA_Device::SetPropertyData(const AudioObjectPropertyAddress *inAddress,
 			
 		case kAudioDevicePropertyNominalSampleRate:
 			sampleRate = *static_cast<const Float64*>(inData);
+			DebugLog("SETTING sample rate %f\n", sampleRate);
 			//FIXME - tell the backend
 			return kAudioHardwareNoError;
 			

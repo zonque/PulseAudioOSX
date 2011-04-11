@@ -148,7 +148,7 @@ PAHP_PlugIn::GetPropertyData(const AudioObjectPropertyAddress	&inAddress,
 			ThrowIf(ioDataSize != GetPropertyDataSize(inAddress, inQualifierDataSize, inQualifierData),
 				CAException(kAudioHardwareBadPropertySizeError),
 				"PAHP_PlugIn::GetPropertyData: GetPropertyDataSize() failed");
-			*static_cast<CFStringRef*>(outData) = CFSTR("org.pulseaudio.PAHardwarePlugIn");
+			*static_cast<CFStringRef*>(outData) = CFSTR("org.pulseaudio.HALPlugin");
 			CFRetain(*static_cast<CFStringRef*>(outData));
 			break;
 

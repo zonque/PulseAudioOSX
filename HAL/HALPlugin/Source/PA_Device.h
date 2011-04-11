@@ -43,6 +43,8 @@ private:
 	PA_DeviceControl *deviceControl;
 	
 	Float64 sampleRate;
+	
+	Boolean hardwareIsRunning;
 
 public:
 	PA_Device(PA_Plugin *inPlugin);
@@ -55,6 +57,11 @@ public:
 	UInt32			GetIOBufferFrameSize()		{ return bufferFrameSize; };
 	Float64			GetSampleRate()			{ return sampleRate; };
 
+	UInt32			CountEnabledIOProcs();
+
+	CFArrayRef		LockIOProcList();
+	void			UnlockIOProcList();
+	
 	AudioStreamBasicDescription streamDescription;
 	AudioStreamRangedDescription physicalFormat;
 	

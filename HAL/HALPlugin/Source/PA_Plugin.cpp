@@ -183,13 +183,6 @@ PA_Plugin::ObjectIsPropertySettable(AudioObjectID inObjectID,
 				    const AudioObjectPropertyAddress *inAddress,
 				    Boolean *outIsSettable)
 {
-	DebugProperty("asked id %d for '%c%c%c%c'",
-		 (int) inObjectID,
-		 ((int) inAddress->mSelector >> 24) & 0xff,
-		 ((int) inAddress->mSelector >> 16) & 0xff,
-		 ((int) inAddress->mSelector >> 8)  & 0xff,
-		 ((int) inAddress->mSelector >> 0)  & 0xff);
-	
 	PA_Object *o = FindObjectByID(inObjectID);
 	OSStatus ret;
 	
@@ -201,7 +194,15 @@ PA_Plugin::ObjectIsPropertySettable(AudioObjectID inObjectID,
 	o->Lock();
 	ret = o->IsPropertySettable(inAddress, outIsSettable);
 	o->Unlock();
-	
+
+	DebugProperty("asked id %d for '%c%c%c%c', -> %d",
+		      (int) inObjectID,
+		      ((int) inAddress->mSelector >> 24) & 0xff,
+		      ((int) inAddress->mSelector >> 16) & 0xff,
+		      ((int) inAddress->mSelector >> 8)  & 0xff,
+		      ((int) inAddress->mSelector >> 0)  & 0xff,
+		      *outIsSettable);
+
 	return ret;
 }
 
