@@ -11,24 +11,8 @@ PA_Object::GetObjectID()
 void
 PA_Object::SetObjectID(AudioObjectID i)
 {
-	DebugLog("id = %d", (int) i);
 	objectID = i;
 }
-
-/*
-void
-PA_Object::AddProperty(const AudioObjectPropertyAddress *inAddress)
-{
-	mutex->Lock();
-	CFMutableDictionaryRef property =
-		CFDictionaryCreateMutable(NULL, 0,
-					  &kCFTypeDictionaryKeyCallBacks,
-					  &kCFTypeDictionaryValueCallBacks);
-
-	CFArrayAppendValue(properties, property);
-	mutex->Unlock();
-}
-*/
 
 Boolean
 PA_Object::HasProperty(const AudioObjectPropertyAddress *inAddress)
@@ -53,14 +37,8 @@ PA_Object::IsPropertySettable(const AudioObjectPropertyAddress *inAddress,
 			return kAudioHardwareNoError;
 	}
 
-	DebugLog("Unhandled property for id %d: '%c%c%c%c'",
-		 (int) GetObjectID(),
-		 ((int) inAddress->mSelector >> 24) & 0xff,
-		 ((int) inAddress->mSelector >> 16) & 0xff,
-		 ((int) inAddress->mSelector >> 8) & 0xff,
-		 ((int) inAddress->mSelector >> 0) & 0xff);
-	
-	return kAudioHardwareUnknownPropertyError;
+	*outIsSettable = false;
+	return kAudioHardwareNoError;
 }
 
 OSStatus

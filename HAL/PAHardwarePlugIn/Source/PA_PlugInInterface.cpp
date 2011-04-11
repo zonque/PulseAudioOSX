@@ -332,17 +332,14 @@ Interface_StreamSetProperty(AudioHardwarePlugInRef inSelf,
 					 inPropertyID, inPropertyDataSize, inPropertyData);	
 }
 
-PA_PlugInInterface::PA_PlugInInterface()
+PA_PlugInInterface::PA_PlugInInterface(CFAllocatorRef inAllocator)
 {
 	staticInterface = pa_xnew0(AudioHardwarePlugInInterface, 1);
 
-	//	Padding for COM
-	staticInterface->_reserved	= NULL,
-
 	//	IUnknown Routines
-	staticInterface->QueryInterface		= (HRESULT (*)(void*, CFUUIDBytes, void**)) Interface_QueryInterface;
-	staticInterface->AddRef			= (ULONG (*)(void*)) Interface_AddRef;
-	staticInterface->Release		= (ULONG (*)(void*)) Interface_Release;
+	staticInterface->QueryInterface	= (HRESULT (*)(void*, CFUUIDBytes, void**)) Interface_QueryInterface;
+	staticInterface->AddRef		= (ULONG (*)(void*)) Interface_AddRef;
+	staticInterface->Release	= (ULONG (*)(void*)) Interface_Release;
 
 	//	HAL Plug-In Routines
 	staticInterface->Initialize			= Interface_Initialize;
@@ -372,7 +369,7 @@ PA_PlugInInterface::PA_PlugInInterface()
 	staticInterface->DeviceCreateIOProcID		= Interface_DeviceCreateIOProcID;
 	staticInterface->DeviceDestroyIOProcID		= Interface_DeviceDestroyIOProcID;
 
-	plugin = new PA_Plugin(GetInterface());
+	plugin = new PA_Plugin(inAllocator, GetInterface());
 }
 
 PA_PlugInInterface::~PA_PlugInInterface()
@@ -381,14 +378,16 @@ PA_PlugInInterface::~PA_PlugInInterface()
 	pa_xfree(staticInterface);
 }
 
+#if 1
 extern "C" void*
-New_PAHP_PlugIn(CFAllocatorRef * /* allocator */, CFUUIDRef requestedTypeUUID) 
+New_PAHP_PlugIn(CFAllocatorRef *allocator, CFUUIDRef requestedTypeUUID) 
 {
 	if (CFEqual(requestedTypeUUID, kAudioHardwarePlugInTypeID)) {
-		PA_PlugInInterface *interface = new PA_PlugInInterface();
+		PA_PlugInInterface *interface =
+			new PA_PlugInInterface(allocator ? *allocator : NULL);
 		return interface->GetInterface();
 	}
 
 	return NULL;
 }
-
+#endif

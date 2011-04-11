@@ -1,5 +1,9 @@
 #define CLASS_NAME "PA_Stream"
 
+#include <CoreAudio/CoreAudioTypes.h>
+#include <CoreAudio/AudioHardware.h>
+#include <sys/param.h>
+
 #include "PA_Stream.h"
 
 #define super PA_Object
@@ -22,17 +26,25 @@ PA_Stream::GetPropertyInfo(UInt32 inChannel,
 			   Boolean *outWritable)
 {
 	AudioObjectPropertyAddress addr;
-	OSStatus ret;
+	OSStatus ret = kAudioHardwareNoError;
 	
 	addr.mSelector = inPropertyID;
 	addr.mElement = inChannel;
 	addr.mScope = 0;
 	
-	ret = IsPropertySettable(&addr, outWritable);
+	if (!HasProperty(&addr))
+		return kAudioHardwareUnknownPropertyError;
+	
+	if (outWritable)
+		ret = IsPropertySettable(&addr, outWritable);
+	
 	if (ret != kAudioHardwareNoError)
 		return ret;
-
-	return GetPropertyDataSize(&addr, 0, NULL, outSize);
+	
+	if (outSize)
+		ret = GetPropertyDataSize(&addr, 0, NULL, outSize);
+	
+	return ret;
 }
 
 OSStatus
@@ -46,6 +58,9 @@ PA_Stream::GetProperty(UInt32 inChannel,
 	addr.mSelector = inPropertyID;
 	addr.mElement = inChannel;
 	addr.mScope = 0;
+
+	if (!HasProperty(&addr))
+		return kAudioHardwareUnknownPropertyError;
 
 	return GetPropertyData(&addr, 0, NULL, ioPropertyDataSize, outPropertyData);
 }
@@ -62,7 +77,10 @@ PA_Stream::SetProperty(const AudioTimeStamp * /* inWhen */,
 	addr.mSelector = inPropertyID;
 	addr.mElement = inChannel;
 	addr.mScope = 0;
-	
+
+	if (!HasProperty(&addr))
+		return kAudioHardwareUnknownPropertyError;
+
 	return SetPropertyData(&addr, 0, NULL, inPropertyDataSize, inPropertyData);
 }
 
@@ -76,6 +94,11 @@ PA_Stream::HasProperty(const AudioObjectPropertyAddress *inAddress)
 		case kAudioStreamPropertyTerminalType:
 		case kAudioStreamPropertyStartingChannel:
 		case kAudioStreamPropertyLatency:
+		case kAudioStreamPropertyVirtualFormat:
+		case kAudioStreamPropertyAvailableVirtualFormats:
+		case kAudioStreamPropertyPhysicalFormat:
+		case kAudioStreamPropertyAvailablePhysicalFormats:			
+		case kAudioDevicePropertySupportsMixing:
 			return true;
 	}
 
@@ -101,8 +124,19 @@ PA_Stream::GetPropertyDataSize(const AudioObjectPropertyAddress *inAddress,
 		case kAudioStreamPropertyTerminalType:
 		case kAudioStreamPropertyStartingChannel:
 		case kAudioStreamPropertyLatency:
+		case kAudioDevicePropertySupportsMixing:
 			*outDataSize = sizeof(UInt32);
 			return kAudioHardwareNoError;
+
+		case kAudioStreamPropertyVirtualFormat:
+		case kAudioStreamPropertyPhysicalFormat:
+			*outDataSize = sizeof(AudioStreamBasicDescription);
+			return kAudioHardwareNoError;
+
+		case kAudioStreamPropertyAvailableVirtualFormats:
+		case kAudioStreamPropertyAvailablePhysicalFormats:
+			*outDataSize = sizeof(AudioStreamRangedDescription);
+			return kAudioHardwareNoError;			
 	}
 	
 	return super::GetPropertyDataSize(inAddress, inQualifierDataSize, inQualifierData, outDataSize);
@@ -130,6 +164,23 @@ PA_Stream::GetPropertyData(const AudioObjectPropertyAddress *inAddress,
 
 		case kAudioStreamPropertyLatency:
 			*static_cast<UInt32*>(outData) = 0;
+			return kAudioHardwareNoError;
+		
+		case kAudioStreamPropertyVirtualFormat:
+		case kAudioStreamPropertyPhysicalFormat:
+			*ioDataSize = MIN(*ioDataSize, sizeof(AudioStreamBasicDescription));
+			memcpy(outData, &device->streamDescription, *ioDataSize);
+			return kAudioHardwareNoError;
+
+		case kAudioStreamPropertyAvailableVirtualFormats:
+		case kAudioStreamPropertyAvailablePhysicalFormats:
+			*ioDataSize = MIN(*ioDataSize, sizeof(AudioStreamRangedDescription));
+			memcpy(outData, &device->physicalFormat, *ioDataSize);
+			return kAudioHardwareNoError;
+			
+		// "always true"
+		case kAudioDevicePropertySupportsMixing:
+			*static_cast<UInt32*>(outData) = 1;
 			return kAudioHardwareNoError;
 	}
 	
@@ -167,9 +218,11 @@ PA_Stream::Initialize()
 	OSStatus ret;
 	AudioObjectID oid;
 	
-	ret = AudioObjectCreate(plugin, device->GetObjectID(), kAudioStreamClassID, &oid);
+	ret = AudioObjectCreate(plugin->GetInterface(),
+				device->GetObjectID(),
+				kAudioStreamClassID, &oid);
 	if (ret != kAudioHardwareNoError) {
-		printf("AudioObjectCreate() failed with %d\n", ret);
+		DebugLog("AudioObjectCreate() failed with %d", (int) ret);
 		return;
 	}
 		       
@@ -212,7 +265,7 @@ PA_Stream::Initialize()
 
 }
 
-PA_Stream::PA_Stream(AudioHardwarePlugInRef inPlugIn,
+PA_Stream::PA_Stream(PA_Plugin *inPlugIn,
 		     PA_Device *inOwningDevice,
 		     bool inIsInput,
 		     UInt32 inStartingDeviceChannelNumber) :
@@ -225,5 +278,4 @@ PA_Stream::PA_Stream(AudioHardwarePlugInRef inPlugIn,
 
 PA_Stream::~PA_Stream()
 {
-
 }

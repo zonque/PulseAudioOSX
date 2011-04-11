@@ -8,12 +8,29 @@
 
 #define TraceCall(x) printf("PA_Plugin::%s() :%d\n", __func__, __LINE__);
 
+#if 0
+#define DebugProperty(x...) DebugLog(x)
+#else
+#define DebugProperty(x...) do {} while(0)
+#endif
+
 // All methods of this class are just wrappers to call our child classes
 
 #pragma mark ### internal Operations ###
 
-PA_Plugin::PA_Plugin(AudioHardwarePlugInRef inPlugin) : plugin(inPlugin)
+PA_Plugin::PA_Plugin(CFAllocatorRef inAllocator,
+		     AudioHardwarePlugInRef inPlugin) :
+	allocator(inAllocator),
+	plugin(inPlugin)
 {
+	if (allocator)
+		CFRetain(allocator);
+}
+
+PA_Plugin::~PA_Plugin()
+{
+	if (allocator)
+		CFRelease(allocator);	
 }
 
 PA_Device *
@@ -59,7 +76,6 @@ PA_Plugin::FindObjectByID(AudioObjectID searchID)
 	
 	for (i = 0; i < CFArrayGetCount(devices); i++) {
 		PA_Device *dev = (PA_Device *) CFArrayGetValueAtIndex(devices, i);
-		printf("PA_Plugin::%s() asking %p\n", __func__, dev);
 		o = dev->FindObjectByID(searchID);
 		
 		if (o)
@@ -97,7 +113,7 @@ PA_Plugin::InitializeWithObjectID(AudioObjectID inObjectID)
 	SetObjectID(inObjectID);
 	
 	devices = CFArrayCreateMutable(kCFAllocatorDefault, 0, NULL);
-	PA_Device *dev = new PA_Device(plugin);
+	PA_Device *dev = new PA_Device(this);
 	CFArrayAppendValue(devices, dev);
 	dev->Initialize();
 
@@ -149,6 +165,15 @@ PA_Plugin::ObjectHasProperty(AudioObjectID inObjectID,
 	o->Lock();
 	ret = o->HasProperty(inAddress);
 	o->Unlock();
+	
+	if (!ret) {
+		DebugProperty("id %d has NO property '%c%c%c%c'",
+			      (int) inObjectID,
+			      ((int) inAddress->mSelector >> 24) & 0xff,
+			      ((int) inAddress->mSelector >> 16) & 0xff,
+			      ((int) inAddress->mSelector >> 8)  & 0xff,
+			      ((int) inAddress->mSelector >> 0)  & 0xff);
+	}	
 
 	return ret;
 }
@@ -158,6 +183,13 @@ PA_Plugin::ObjectIsPropertySettable(AudioObjectID inObjectID,
 				    const AudioObjectPropertyAddress *inAddress,
 				    Boolean *outIsSettable)
 {
+	DebugProperty("asked id %d for '%c%c%c%c'",
+		 (int) inObjectID,
+		 ((int) inAddress->mSelector >> 24) & 0xff,
+		 ((int) inAddress->mSelector >> 16) & 0xff,
+		 ((int) inAddress->mSelector >> 8)  & 0xff,
+		 ((int) inAddress->mSelector >> 0)  & 0xff);
+	
 	PA_Object *o = FindObjectByID(inObjectID);
 	OSStatus ret;
 	
@@ -180,6 +212,13 @@ PA_Plugin::ObjectGetPropertyDataSize(AudioObjectID inObjectID,
 				     const void *inQualifierData,
 				     UInt32 *outDataSize)
 {
+	DebugProperty("asked id %d for '%c%c%c%c'",
+		      (int) inObjectID,
+		      ((int) inAddress->mSelector >> 24) & 0xff,
+		      ((int) inAddress->mSelector >> 16) & 0xff,
+		      ((int) inAddress->mSelector >> 8)  & 0xff,
+		      ((int) inAddress->mSelector >> 0)  & 0xff);
+	
 	PA_Object *o = FindObjectByID(inObjectID);
 	OSStatus ret;
 
@@ -192,6 +231,9 @@ PA_Plugin::ObjectGetPropertyDataSize(AudioObjectID inObjectID,
 	ret = o->GetPropertyDataSize(inAddress, inQualifierDataSize, inQualifierData, outDataSize);
 	o->Unlock();
 	
+	if (*outDataSize == 0)
+		DebugLog("!!!!!!!!!!! outDataSize == 0");
+	
 	return ret;
 }
 
@@ -203,6 +245,13 @@ PA_Plugin::ObjectGetPropertyData(AudioObjectID inObjectID,
 				 UInt32 *ioDataSize,
 				 void *outData)
 {
+	DebugProperty("asked id %d for '%c%c%c%c'",
+		      (int) inObjectID,
+		      ((int) inAddress->mSelector >> 24) & 0xff,
+		      ((int) inAddress->mSelector >> 16) & 0xff,
+		      ((int) inAddress->mSelector >> 8)  & 0xff,
+		      ((int) inAddress->mSelector >> 0)  & 0xff);
+	
 	PA_Object *o = FindObjectByID(inObjectID);
 	OSStatus ret;
 
@@ -226,6 +275,13 @@ PA_Plugin::ObjectSetPropertyData(AudioObjectID inObjectID,
 				 UInt32 inDataSize,
 				 const void *inData)
 {
+	DebugProperty("asked id %d for '%c%c%c%c'",
+		      (int) inObjectID,
+		      ((int) inAddress->mSelector >> 24) & 0xff,
+		      ((int) inAddress->mSelector >> 16) & 0xff,
+		      ((int) inAddress->mSelector >> 8)  & 0xff,
+		      ((int) inAddress->mSelector >> 0)  & 0xff);
+
 	PA_Object *o = FindObjectByID(inObjectID);
 	OSStatus ret;
 	
@@ -249,6 +305,7 @@ PA_Plugin::DeviceCreateIOProcID(AudioDeviceID inDeviceID,
 				void *inClientData,
 				AudioDeviceIOProcID *outIOProcID)
 {
+	TraceCall();
 	PA_Device *device = GetDeviceById(inDeviceID);
 	OSStatus ret;
 	
@@ -268,6 +325,7 @@ OSStatus
 PA_Plugin::DeviceDestroyIOProcID(AudioDeviceID inDeviceID,
 				 AudioDeviceIOProcID inIOProcID)
 {
+	TraceCall();
 	PA_Device *device = GetDeviceById(inDeviceID);
 	OSStatus ret;
 
@@ -288,6 +346,7 @@ PA_Plugin::DeviceAddIOProc(AudioDeviceID inDeviceID,
 			   AudioDeviceIOProc inProc, 
 			   void *inClientData)
 {
+	TraceCall();
 	PA_Device *device = GetDeviceById(inDeviceID);
 	OSStatus ret;
 
@@ -307,6 +366,7 @@ OSStatus
 PA_Plugin::DeviceRemoveIOProc(AudioDeviceID inDeviceID,
 			      AudioDeviceIOProc inProc)
 {
+	TraceCall();
 	PA_Device *device = GetDeviceById(inDeviceID);
 	OSStatus ret;
 
@@ -326,6 +386,7 @@ OSStatus
 PA_Plugin::DeviceStart(AudioDeviceID inDeviceID,
 		       AudioDeviceIOProc inProc)
 {
+	TraceCall();
 	PA_Device *device = GetDeviceById(inDeviceID);
 	OSStatus ret;
 
@@ -347,6 +408,7 @@ PA_Plugin::DeviceStartAtTime(AudioDeviceID inDeviceID,
 			     AudioTimeStamp *ioRequestedStartTime,
 			     UInt32 inFlags)
 {
+	TraceCall();
 	PA_Device *device = GetDeviceById(inDeviceID);
 	OSStatus ret;
 	
@@ -366,6 +428,7 @@ OSStatus
 PA_Plugin::DeviceStop(AudioDeviceID inDeviceID,
 		      AudioDeviceIOProc inProc)
 {
+	TraceCall();
 	PA_Device *device = GetDeviceById(inDeviceID);
 	OSStatus ret;
 	
@@ -386,6 +449,7 @@ PA_Plugin::DeviceRead(AudioDeviceID inDeviceID,
 		      const AudioTimeStamp *inStartTime,
 		      AudioBufferList *outData)
 {
+	TraceCall();
 	PA_Device *device = GetDeviceById(inDeviceID);
 	OSStatus ret;
 	
@@ -405,6 +469,7 @@ OSStatus
 PA_Plugin::DeviceGetCurrentTime(AudioDeviceID inDeviceID,
 				AudioTimeStamp* outTime)
 {
+	TraceCall();
 	PA_Device *device = GetDeviceById(inDeviceID);
 	OSStatus ret;
 	
@@ -425,6 +490,7 @@ PA_Plugin::DeviceTranslateTime(AudioDeviceID inDeviceID,
 			       const AudioTimeStamp *inTime,
 			       AudioTimeStamp *outTime)
 {
+	TraceCall();
 	PA_Device *device = GetDeviceById(inDeviceID);
 	OSStatus ret;
 	
@@ -445,6 +511,7 @@ PA_Plugin::DeviceGetNearestStartTime(AudioDeviceID inDeviceID,
 				     AudioTimeStamp* ioRequestedStartTime,
 				     UInt32 inFlags)
 {
+	TraceCall();
 	PA_Device *device = GetDeviceById(inDeviceID);
 	OSStatus ret;
 
@@ -469,6 +536,7 @@ PA_Plugin::DeviceGetPropertyInfo(AudioDeviceID inDeviceID,
 				 UInt32 *outSize,
 				 Boolean *outWritable)
 {
+	TraceCall();
 	PA_Device *device = GetDeviceById(inDeviceID);
 	OSStatus ret;
 	
@@ -492,6 +560,7 @@ PA_Plugin::DeviceGetProperty(AudioDeviceID inDeviceID,
 			     UInt32* ioPropertyDataSize,
 			     void* outPropertyData)
 {
+	TraceCall();
 	PA_Device *device = GetDeviceById(inDeviceID);
 	OSStatus ret;
 	
@@ -516,6 +585,7 @@ PA_Plugin::DeviceSetProperty(AudioDeviceID inDeviceID,
 			     UInt32 inPropertyDataSize,
 			     const void *inPropertyData)
 {
+	TraceCall();
 	PA_Device *device = GetDeviceById(inDeviceID);
 	OSStatus ret;
 
@@ -540,6 +610,7 @@ PA_Plugin::StreamGetPropertyInfo(AudioStreamID inStreamID,
 				 UInt32 *outSize,
 				 Boolean *outWritable)
 {
+	TraceCall();
 	PA_Stream *stream = GetStreamById(inStreamID);
 	
 	if (!stream) {
@@ -557,6 +628,7 @@ PA_Plugin::StreamGetProperty(AudioStreamID inStreamID,
 			     UInt32 *ioPropertyDataSize,
 			     void *outPropertyData)
 {
+	TraceCall();
 	PA_Stream *stream = GetStreamById(inStreamID);
 	OSStatus ret;
 
@@ -580,6 +652,7 @@ PA_Plugin::StreamSetProperty(AudioStreamID inStreamID,
 			     UInt32 inPropertyDataSize,
 			     const void *inPropertyData)
 {
+	TraceCall();
 	PA_Stream *stream = GetStreamById(inStreamID);
 	OSStatus ret;
 

@@ -3,9 +3,11 @@
 
 #include <CoreFoundation/CoreFoundation.h>
 #include <CoreAudio/AudioHardware.h>
+#include <CarbonCore/Multiprocessing.h>
 
 #include "PA_Object.h"
 
+class PA_Plugin;
 class PA_Stream;
 class PA_DeviceBackend;
 class PA_DeviceControl;
@@ -17,6 +19,10 @@ typedef struct IOProcTracker
 	UInt32 startTimeFlags;
 	void *clientData;
 	Boolean enabled;
+	
+	// for one-shot DeviceRead() listeners
+	MPSemaphoreID semaphore;
+	AudioBufferList *bufferList;
 } IOProcTracker;
 
 class PA_Device : public PA_Object
@@ -31,15 +37,15 @@ private:
 	CAMutex *ioProcListMutex;
 	
 	UInt32 bufferFrameSize;
-	AudioHardwarePlugInRef plugin;
+	PA_Plugin *plugin;
 	
 	PA_DeviceBackend *deviceBackend;
 	PA_DeviceControl *deviceControl;
 	
 	Float64 sampleRate;
-	
+
 public:
-	PA_Device(AudioHardwarePlugInRef inPlugin);
+	PA_Device(PA_Plugin *inPlugin);
 	~PA_Device();
 	
 	void Initialize();
@@ -49,7 +55,8 @@ public:
 	UInt32			GetIOBufferFrameSize()		{ return bufferFrameSize; };
 	Float64			GetSampleRate()			{ return sampleRate; };
 
-	
+	AudioStreamBasicDescription streamDescription;
+	AudioStreamRangedDescription physicalFormat;
 	
 #pragma mark ### plugin interface ###
 
@@ -133,8 +140,8 @@ public:
 #pragma mark ### internal stuff ###
 	void		EnableAllIOProcs(Boolean enable);
 	void		SetBufferSize(UInt32 size);
-	void		CreateStreams();
 	OSStatus	RegisterObjects();
+	UInt32		GetFrameSize();
 
 	PA_Object *FindObjectByID(AudioObjectID searchID);
 };

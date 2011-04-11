@@ -8,6 +8,7 @@
 #include "PA_Plugin.h"
 #include "PA_Device.h"
 
+class PA_Plugin;
 class PA_Device;
 
 class PA_Stream : public PA_Object
@@ -15,12 +16,12 @@ class PA_Stream : public PA_Object
 private:
 	CFMutableArrayRef *controls;
 	PA_Device *device;
-	AudioHardwarePlugInRef plugin;
+	PA_Plugin *plugin;
 	Boolean isInput;
 	UInt32 startingChannel;
 	
 public:
-	PA_Stream(AudioHardwarePlugInRef inPlugIn,
+	PA_Stream(PA_Plugin *inPlugIn,
 		  PA_Device *inOwningDevice,
 		  bool inIsInput,
 		  UInt32 inStartingDeviceChannelNumber);

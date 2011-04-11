@@ -16,9 +16,10 @@ private:
 	PA_Stream *GetStreamById(AudioObjectID inObjectID);
 	
 	AudioHardwarePlugInRef plugin;
+	CFAllocatorRef allocator;
 
 public:
-	PA_Plugin(AudioHardwarePlugInRef inPlugin);
+	PA_Plugin(CFAllocatorRef inAllocator, AudioHardwarePlugInRef inPlugin);
 	~PA_Plugin();
 	
 	ULONG AddRef();
@@ -143,6 +144,8 @@ public:
 	
 	PA_Object *FindObjectByID(AudioObjectID searchID);
 
+	AudioHardwarePlugInRef GetInterface()	{ return plugin; };
+	CFAllocatorRef GetAllocator()		{ return allocator; };
 };
 
 #endif // PA_PLUGIN_H_

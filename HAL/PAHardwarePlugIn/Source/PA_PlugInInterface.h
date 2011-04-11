@@ -5,9 +5,9 @@ class PA_PlugInInterface
 {
 private:
 	AudioHardwarePlugInInterface *staticInterface;
-
+	
 public:
-	PA_PlugInInterface();
+	PA_PlugInInterface(CFAllocatorRef inAllocator);
 	~PA_PlugInInterface();
 	
 	PA_Plugin *plugin;
