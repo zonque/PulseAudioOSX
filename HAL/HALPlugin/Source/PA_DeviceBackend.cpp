@@ -102,14 +102,14 @@ PA_DeviceBackend::ConstructProcessName()
                         strncpy(procname, result[i].kp_proc.p_comm, sizeof(procname));
 	
         free(result);
-	
+
         return 0;
 }
 
 CFStringRef
 PA_DeviceBackend::GetProcessName()
 {
-	return CFStringCreateWithCString(NULL, procname, kCFStringEncodingASCII);
+	return CFStringCreateWithCString(device->GetAllocator(), procname, kCFStringEncodingASCII);
 }
 
 void
@@ -258,15 +258,6 @@ PA_DeviceBackend::ContextStateCallback()
 		{
 			printf("%s(): Connection ready.\n", __func__);
 			
-			sampleSpec.format = PA_SAMPLE_FLOAT32;
-			sampleSpec.rate = device->GetSampleRate();
-			sampleSpec.channels = 2;
-			
-			bufAttr.tlength = device->GetIOBufferFrameSize() * device->GetFrameSize();
-			bufAttr.maxlength = -1;
-			bufAttr.minreq = -1;
-			bufAttr.prebuf = -1;
-			
 			char tmp[sizeof(procname) + 10];
 			
 			snprintf(tmp, sizeof(tmp), "%s playback", procname);
@@ -362,6 +353,15 @@ PA_DeviceBackend::Initialize()
 	inputBuffer = (unsigned char *) pa_xmalloc0(PA_BUFFER_SIZE);
 	outputBuffer = (unsigned char *) pa_xmalloc0(PA_BUFFER_SIZE);
 	connectHost = NULL;
+	
+	sampleSpec.format = PA_SAMPLE_FLOAT32;
+	sampleSpec.rate = device->GetSampleRate();
+	sampleSpec.channels = 2;
+	
+	bufAttr.tlength = device->GetIOBufferFrameSize() * pa_frame_size(&sampleSpec);
+	bufAttr.maxlength = -1;
+	bufAttr.minreq = -1;
+	bufAttr.prebuf = -1;
 	
 	ConstructProcessName();
 }

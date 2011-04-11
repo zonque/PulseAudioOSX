@@ -79,7 +79,8 @@ public:
 	Float64			GetSampleRate()			{ return sampleRate; };
 	CFStringRef		CopyDeviceName()		{ return (CFStringRef) CFRetain(deviceName); };
 	Boolean			IsRunning()			{ return isRunning; };
-	
+	CFAllocatorRef		GetAllocator();
+
 	UInt32			CountEnabledIOProcs();
 
 	CFArrayRef		LockIOProcList();
@@ -171,7 +172,6 @@ public:
 	void		EnableAllIOProcs(Boolean enable);
 	void		SetBufferSize(UInt32 size);
 	OSStatus	RegisterObjects();
-	UInt32		GetFrameSize();
 
 	PA_Object *FindObjectByID(AudioObjectID searchID);
 };

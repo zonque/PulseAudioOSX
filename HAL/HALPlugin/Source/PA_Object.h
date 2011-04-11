@@ -31,14 +31,14 @@
 #error CLASS_NAME undefined
 #endif
 
-#define DebugLog(format, args...) printf("%s::%s(), line %d: " format "\n", \
-					 CLASS_NAME, __func__, __LINE__, ## args);
+#define DebugLog(format, args...) \
+	printf("%s::%s(), line %d: " format "\n", \
+		CLASS_NAME, __func__, __LINE__, ## args);
 
 class PA_Object
 {
 private:
 	AudioObjectID objectID;
-	CFMutableArrayRef properties;
 	CAMutex *mutex;
 
 public:

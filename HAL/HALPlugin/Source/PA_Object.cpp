@@ -155,12 +155,10 @@ PA_Object::Unlock()
 
 PA_Object::PA_Object()
 {
-	properties = CFArrayCreateMutable(NULL, 0, &kCFTypeArrayCallBacks);
 	mutex = new CAMutex("PA_Object");
 }
 
 PA_Object::~PA_Object()
 {
-	CFRelease(properties);
 	delete mutex;
 }

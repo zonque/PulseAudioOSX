@@ -133,7 +133,7 @@ PA_Plugin::InitializeWithObjectID(AudioObjectID inObjectID)
 	DebugLog("inObjectID = %d\n", (int) inObjectID);
 	SetObjectID(inObjectID);
 	
-	devices = CFArrayCreateMutable(kCFAllocatorDefault, 0, NULL);
+	devices = CFArrayCreateMutable(allocator, 0, NULL);
 	PA_Device *dev = new PA_Device(this);
 	CFArrayAppendValue(devices, dev);
 	dev->Initialize();

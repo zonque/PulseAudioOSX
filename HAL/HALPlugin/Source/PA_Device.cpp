@@ -85,6 +85,10 @@ PA_Device::Initialize()
 	UInt32 i;
 	
 	TraceCall();
+	
+	bufferFrameSize = 1024;
+	sampleRate = 48000.0f;
+	
 	ioProcList = CFArrayCreateMutable(plugin->GetAllocator(), 0, NULL);
 	ioProcListMutex = new CAMutex("ioProcListMutex");
 	
@@ -125,25 +129,22 @@ PA_Device::Initialize()
 	deviceControl = new PA_DeviceControl(this);
 	deviceControl->Initialize();
 	
-	bufferFrameSize = 1024;
-	sampleRate = 48000.0f;
-	
 	streamDescription.mSampleRate = sampleRate;
 	streamDescription.mFormatID = kAudioFormatLinearPCM;
 	streamDescription.mFormatFlags = kAudioFormatFlagIsFloat;
 	streamDescription.mBitsPerChannel = 16;
 	streamDescription.mChannelsPerFrame = 2;
-	streamDescription.mBytesPerPacket = 2 * GetIOBufferFrameSize() * GetFrameSize();
+	streamDescription.mBytesPerPacket = 2 * GetIOBufferFrameSize() * deviceBackend->GetFrameSize();
 	streamDescription.mFramesPerPacket = GetIOBufferFrameSize();
-	streamDescription.mBytesPerFrame = GetFrameSize();
+	streamDescription.mBytesPerFrame = deviceBackend->GetFrameSize();
 	
 	physicalFormat.mFormat.mSampleRate = sampleRate;
 	physicalFormat.mSampleRateRange.mMinimum = sampleRate;
 	physicalFormat.mSampleRateRange.mMaximum = sampleRate;
 	physicalFormat.mFormat.mFormatID = kAudioFormatLinearPCM;
 	physicalFormat.mFormat.mFormatFlags = kLinearPCMFormatFlagIsSignedInteger	|
-	kAudioFormatFlagsNativeEndian		|
-	kAudioFormatFlagIsPacked;
+						kAudioFormatFlagsNativeEndian		|
+						kAudioFormatFlagIsPacked;
 	physicalFormat.mFormat.mBytesPerPacket = 4;
 	physicalFormat.mFormat.mFramesPerPacket = 1;
 	physicalFormat.mFormat.mBytesPerFrame = 4;
@@ -227,11 +228,10 @@ PA_Device::SetBufferSize(UInt32 size)
 	bufferFrameSize = size;
 }
 
-UInt32
-PA_Device::GetFrameSize()
+CFAllocatorRef
+PA_Device::GetAllocator()
 {
-	// FIXME
-	return 8;
+	return plugin->GetAllocator();
 }
 
 #pragma mark ### IOProcTracker / list management ###
@@ -771,7 +771,7 @@ PA_Device::GetPropertyData(const AudioObjectPropertyAddress *inAddress,
 			return kAudioHardwareNoError;
 
 		case kAudioDevicePropertyBufferSize:
-			*static_cast<UInt32*>(outData) = GetIOBufferFrameSize() * GetFrameSize();
+			*static_cast<UInt32*>(outData) = GetIOBufferFrameSize() * deviceBackend->GetFrameSize();
 			return kAudioHardwareNoError;
 
 		case kAudioDevicePropertyBufferFrameSizeRange:
@@ -821,7 +821,7 @@ PA_Device::GetPropertyData(const AudioObjectPropertyAddress *inAddress,
 			AudioBufferList *list = static_cast<AudioBufferList*>(outData);
 			list->mNumberBuffers = 1;
 			list->mBuffers[0].mNumberChannels = (isInput ? nInputStreams : nOutputStreams) * 2;
-			list->mBuffers[0].mDataByteSize = GetIOBufferFrameSize() * GetFrameSize();
+			list->mBuffers[0].mDataByteSize = GetIOBufferFrameSize() * deviceBackend->GetFrameSize();
 			list->mBuffers[0].mData = NULL;
 			*ioDataSize = sizeof(*list);
 			return kAudioHardwareNoError;
