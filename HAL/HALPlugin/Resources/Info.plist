@@ -5,13 +5,13 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleExecutable</key>
-	<string>PAHardwarePlugIn</string>
+	<string>PulseAudio</string>
 	<key>CFBundleIdentifier</key>
-	<string>org.pulseaudio.PAHardwarePlugIn</string>
+	<string>org.pulseaudio.PulseAudio</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>PAHardwarePlugIn</string>
+	<string>PulseAudio</string>
 	<key>CFBundlePackageType</key>
 	<string>BNDL</string>
 	<key>CFBundleShortVersionString</key>
