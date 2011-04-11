@@ -1,3 +1,24 @@
+/***
+ This file is part of PulseConsole
+ 
+ Copyright 2010,2011 Daniel Mack <pulseaudio@zonque.de>
+ 
+ PulseConsole is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2.1 of the License, or
+ (at your option) any later version.
+ 
+ PulseConsole is distributed in the hope that it will be useful, but
+ WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with PulseAudio; if not, write to the Free Software
+ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ USA.
+ ***/
+
 #define CLASS_NAME "PA_DeviceControl"
 
 #include <IOKit/IOKitLib.h>
@@ -13,8 +34,11 @@ static void staticScanDevices(CFNotificationCenterRef /* center */,
 			      const void * /* object */,
 			      CFDictionaryRef /* userInfo */)
 {
-	PA_DeviceControl *dev = static_cast<PA_DeviceControl *>(observer);
-	dev->AnnounceDevice();
+	PA_DeviceControl *control = static_cast<PA_DeviceControl *>(observer);
+	PA_Device *dev = control->GetDevice();
+	
+	if (dev->IsRunning())
+		control->AnnounceDevice();
 }
 
 static void staticSetConfig(CFNotificationCenterRef /* center */,
@@ -28,8 +52,8 @@ static void staticSetConfig(CFNotificationCenterRef /* center */,
 	
 	CFNumberGetValue(n, kCFNumberIntType, &pid);
 	if (pid == getpid()) {
-		PA_DeviceControl *dev = static_cast<PA_DeviceControl *>(observer);
-		dev->SetConfig(userInfo);
+		PA_DeviceControl *control = static_cast<PA_DeviceControl *>(observer);
+		control->SetConfig(userInfo);
 	}
 }
 
@@ -39,8 +63,8 @@ static void staticStreamVolumeChanged(CFNotificationCenterRef /* center */,
 				      const void * /* object */,
 				      CFDictionaryRef userInfo)
 {
-	PA_DeviceControl *dev = static_cast<PA_DeviceControl *>(observer);
-	dev->StreamVolumeChanged(name, userInfo);
+	PA_DeviceControl *control = static_cast<PA_DeviceControl *>(observer);
+	control->StreamVolumeChanged(name, userInfo);
 }
 
 static void staticStreamMuteChanged(CFNotificationCenterRef /* center */,
@@ -49,8 +73,8 @@ static void staticStreamMuteChanged(CFNotificationCenterRef /* center */,
 				    const void * /* object */,
 				    CFDictionaryRef userInfo)
 {
-	PA_DeviceControl *dev = static_cast<PA_DeviceControl *>(observer);
-	dev->StreamMuteChanged(name, userInfo);
+	PA_DeviceControl *control = static_cast<PA_DeviceControl *>(observer);
+	control->StreamMuteChanged(name, userInfo);
 }
 
 #pragma mark ### PA_DeviceControl ###
@@ -72,16 +96,14 @@ PA_DeviceControl::AnnounceDevice()
 	
 	CFDictionarySetValue(userInfo, CFSTR("procname"), be->GetProcessName());
 
-	//str = CopyDeviceName();
-	//CFDictionarySetValue(userInfo, CFSTR("audioDevice"), str);
-	//CFRelease(str);
+	str = device->CopyDeviceName();
+	CFDictionarySetValue(userInfo, CFSTR("audioDevice"), str);
+	CFRelease(str);
 	
-	/*
-	n = GetIOBufferFrameSize();
+	n = device->GetIOBufferFrameSize();
 	number = CFNumberCreate(NULL, kCFNumberIntType, &n);
 	CFDictionarySetValue(userInfo, CFSTR("IOBufferFrameSize"), number);
 	CFRelease(number);
-	*/
 
 	CFDictionarySetValue(userInfo, CFSTR("serverName"), CFSTR("localhost"));
 	
@@ -89,8 +111,6 @@ PA_DeviceControl::AnnounceDevice()
 	number = CFNumberCreate(NULL, kCFNumberIntType, &n);
 	CFDictionarySetValue(userInfo, CFSTR("connectionStatus"), number);
 	CFRelease(number);
-	
-	
 	
 	CFNotificationCenterPostNotification(CFNotificationCenterGetDistributedCenter(),
 					     CFSTR("announceDevice"),
@@ -107,7 +127,6 @@ PA_DeviceControl::UnannounceDevice()
 								    &kCFCopyStringDictionaryKeyCallBacks,
 								    &kCFTypeDictionaryValueCallBacks);
 	CFNumberRef number;
-	CFStringRef str;
 	
 	UInt32 pid = getpid();
 	number = CFNumberCreate(NULL, kCFNumberIntType, &pid);
@@ -125,11 +144,10 @@ PA_DeviceControl::UnannounceDevice()
 void
 PA_DeviceControl::SetConfig(CFDictionaryRef config)
 {
+	PA_DeviceBackend *be = device->GetBackend();
 	CFStringRef server = (CFStringRef) CFDictionaryGetValue(config, CFSTR("serverName"));
-	char buf[128];
-	
-	CFStringGetCString(server, buf, sizeof(buf), kCFStringEncodingASCII);	
-	printf("REQUEST to connect to %s\n", buf);
+	be->SetHostName(server);
+	be->Reconnect();
 }
 
 void
@@ -166,29 +184,27 @@ PA_DeviceControl::~PA_DeviceControl()
 void
 PA_DeviceControl::Initialize()
 {
-	CFNotificationCenterAddObserver(CFNotificationCenterGetDistributedCenter(),
-					this,
+	center = CFNotificationCenterGetDistributedCenter();
+	
+	CFNotificationCenterAddObserver(center, this,
 					staticScanDevices,
 					CFSTR("scanDevices"),
 					CFSTR("PAHP_Device"),
 					CFNotificationSuspensionBehaviorDeliverImmediately);
 	
-	CFNotificationCenterAddObserver(CFNotificationCenterGetDistributedCenter(),
-					this,
+	CFNotificationCenterAddObserver(center, this,
 					staticSetConfig,
 					CFSTR("setConfiguration"),
 					CFSTR("PAHP_Device"),
 					CFNotificationSuspensionBehaviorDeliverImmediately);
 	
-	CFNotificationCenterAddObserver(CFNotificationCenterGetDistributedCenter(),
-					this,
+	CFNotificationCenterAddObserver(center, this,
 					staticStreamVolumeChanged,
 					CFSTR("updateStreamVolume"),
 					CFSTR("PAHP_LevelControl"),
 					CFNotificationSuspensionBehaviorDeliverImmediately);
 	
-	CFNotificationCenterAddObserver(CFNotificationCenterGetDistributedCenter(),
-					this,
+	CFNotificationCenterAddObserver(center, this,
 					staticStreamMuteChanged,
 					CFSTR("updateMuteVolume"),
 					CFSTR("PAHP_BooleanControl"),
@@ -198,5 +214,19 @@ PA_DeviceControl::Initialize()
 void
 PA_DeviceControl::Teardown()
 {
-	// FIXME
+	CFNotificationCenterRemoveObserver(center, this,
+					   CFSTR("scanDevices"),
+					   CFSTR("PAHP_Device"));
+
+	CFNotificationCenterRemoveObserver(center, this,
+					   CFSTR("setConfiguration"),
+					   CFSTR("PAHP_Device"));
+
+	CFNotificationCenterRemoveObserver(center, this,
+					   CFSTR("updateStreamVolume"),
+					   CFSTR("PAHP_LevelControl"));
+
+	CFNotificationCenterRemoveObserver(center, this,
+					   CFSTR("updateMuteVolume"),
+					   CFSTR("PAHP_LevelControl"));
 }
