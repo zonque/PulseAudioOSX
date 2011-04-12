@@ -1,14 +1,14 @@
 /***
- This file is part of PulseConsole
+ This file is part of the PulseAudio HAL plugin project
  
  Copyright 2010,2011 Daniel Mack <pulseaudio@zonque.de>
  
- PulseConsole is free software; you can redistribute it and/or modify
+ The PulseAudio HAL plugin project is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 2.1 of the License, or
  (at your option) any later version.
  
- PulseConsole is distributed in the hope that it will be useful, but
+ The PulseAudio HAL plugin project is distributed in the hope that it will be useful, but
  WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  General Public License for more details.
@@ -29,8 +29,7 @@
 #include "PA_DeviceBackend.h"
 #include "PA_DeviceControl.h"
 #include "CAAudioBufferList.h"
-
-//#include <pulse/pulseaudio.h>
+#include "CAHostTimeBase.h"
 
 #define super PA_Object
 #define TraceCall(x) printf("PA_Device::%s() :%d\n", __func__, __LINE__);
@@ -49,6 +48,11 @@ PA_Device::PA_Device(PA_Plugin *inPlugin) : plugin(inPlugin)
 
 PA_Device::~PA_Device()
 {
+}
+
+const char *
+PA_Device::ClassName() {
+	return CLASS_NAME;
 }
 
 OSStatus
@@ -88,20 +92,54 @@ PA_Device::Initialize()
 	
 	bufferFrameSize = 1024;
 	sampleRate = 48000.0f;
-	
+	isRunning = false;
+
+	nInputStreams = 1;
+	nOutputStreams = 1;
+		
 	ioProcList = CFArrayCreateMutable(plugin->GetAllocator(), 0, NULL);
 	ioProcListMutex = new CAMutex("ioProcListMutex");
 	
-	deviceUID = CFStringCreateWithCString(plugin->GetAllocator(), "PulseAudio", kCFStringEncodingASCII);
 	deviceName = CFStringCreateWithCString(plugin->GetAllocator(), "PulseAudio", kCFStringEncodingASCII);
 	deviceManufacturer = CFStringCreateWithCString(plugin->GetAllocator(), "pulseaudio.org", kCFStringEncodingASCII);
-	
-	nInputStreams = 1;
-	nOutputStreams = 1;
-	
+	modelUID = CFStringCreateWithFormat(plugin->GetAllocator(), NULL,
+					    CFSTR("%@:%d,%d"), deviceName, nInputStreams * 2, nOutputStreams * 2);	
+	deviceUID = CFStringCreateWithFormat(plugin->GetAllocator(), NULL,
+					     CFSTR("org.pulseaudio.HALPlugin.%@"), modelUID);
+
 	inputStreams = pa_xnew0(PA_Stream *, nInputStreams);
 	outputStreams = pa_xnew0(PA_Stream *, nOutputStreams);
+
+	deviceBackend = new PA_DeviceBackend(this);
+	deviceBackend->Initialize();
 	
+	deviceControl = new PA_DeviceControl(this);
+	deviceControl->Initialize();
+
+	streamDescription.mSampleRate = sampleRate;
+	streamDescription.mFormatID = kAudioFormatLinearPCM;
+	streamDescription.mFormatFlags = kAudioFormatFlagIsFloat;
+	streamDescription.mBitsPerChannel = 32;
+	streamDescription.mChannelsPerFrame = 2;
+	streamDescription.mBytesPerPacket = 2 * GetIOBufferFrameSize() * deviceBackend->GetFrameSize();
+	streamDescription.mFramesPerPacket = GetIOBufferFrameSize();
+	streamDescription.mBytesPerFrame = deviceBackend->GetFrameSize();
+	
+	physicalFormat.mFormat.mSampleRate = sampleRate;
+	physicalFormat.mSampleRateRange.mMinimum = sampleRate;
+	physicalFormat.mSampleRateRange.mMaximum = sampleRate;
+	physicalFormat.mFormat.mFormatID = kAudioFormatLinearPCM;
+	physicalFormat.mFormat.mFormatFlags = kAudioFormatFlagIsFloat			|
+						kAudioFormatFlagsNativeEndian		|
+						kAudioFormatFlagIsPacked;
+	physicalFormat.mFormat.mBitsPerChannel = 32;
+	physicalFormat.mFormat.mChannelsPerFrame = 2;
+	physicalFormat.mFormat.mFramesPerPacket = 1;
+	physicalFormat.mFormat.mBytesPerFrame = (physicalFormat.mFormat.mBitsPerChannel / 8) *
+						(physicalFormat.mFormat.mChannelsPerFrame);
+	physicalFormat.mFormat.mBytesPerPacket = physicalFormat.mFormat.mBytesPerFrame *
+						 physicalFormat.mFormat.mFramesPerPacket;
+
 	AudioDeviceID newID;
 	OSStatus ret = AudioObjectCreate(plugin->GetInterface(),
 					 kAudioObjectSystemObject,
@@ -122,34 +160,6 @@ PA_Device::Initialize()
 		outputStreams[0] = new PA_Stream(plugin, this, false, 1);
 		outputStreams[0]->Initialize();
 	}
-	
-	deviceBackend = new PA_DeviceBackend(this);
-	deviceBackend->Initialize();
-	
-	deviceControl = new PA_DeviceControl(this);
-	deviceControl->Initialize();
-	
-	streamDescription.mSampleRate = sampleRate;
-	streamDescription.mFormatID = kAudioFormatLinearPCM;
-	streamDescription.mFormatFlags = kAudioFormatFlagIsFloat;
-	streamDescription.mBitsPerChannel = 16;
-	streamDescription.mChannelsPerFrame = 2;
-	streamDescription.mBytesPerPacket = 2 * GetIOBufferFrameSize() * deviceBackend->GetFrameSize();
-	streamDescription.mFramesPerPacket = GetIOBufferFrameSize();
-	streamDescription.mBytesPerFrame = deviceBackend->GetFrameSize();
-	
-	physicalFormat.mFormat.mSampleRate = sampleRate;
-	physicalFormat.mSampleRateRange.mMinimum = sampleRate;
-	physicalFormat.mSampleRateRange.mMaximum = sampleRate;
-	physicalFormat.mFormat.mFormatID = kAudioFormatLinearPCM;
-	physicalFormat.mFormat.mFormatFlags = kLinearPCMFormatFlagIsSignedInteger	|
-						kAudioFormatFlagsNativeEndian		|
-						kAudioFormatFlagIsPacked;
-	physicalFormat.mFormat.mBytesPerPacket = 4;
-	physicalFormat.mFormat.mFramesPerPacket = 1;
-	physicalFormat.mFormat.mBytesPerFrame = 4;
-	physicalFormat.mFormat.mChannelsPerFrame = 2;
-	physicalFormat.mFormat.mBitsPerChannel = 16;
 	
 	RegisterObjects();
 }
@@ -176,6 +186,11 @@ PA_Device::Teardown()
 		deviceUID = NULL;
 	}
 	
+	if (modelUID) {
+		CFRelease(modelUID);
+		modelUID = NULL;
+	}
+	
 	if (deviceName) {
 		CFRelease(deviceName);
 		deviceName = NULL;
@@ -186,7 +201,7 @@ PA_Device::Teardown()
 		deviceManufacturer = NULL;
 	}
 
-	for (SInt32 i = 0; CFArrayGetCount(ioProcList); i++) {
+	for (SInt32 i = 0; i < CFArrayGetCount(ioProcList); i++) {
 		IOProcTracker *io = (IOProcTracker *) CFArrayGetValueAtIndex(ioProcList, i);
 		pa_xfree(io);
 	}
@@ -294,7 +309,7 @@ PA_Device::EnableAllIOProcs(Boolean enabled)
 	
 	for (SInt32 i = 0; i < CFArrayGetCount(ioProcList); i++) {
 		IOProcTracker *io = (IOProcTracker *) CFArrayGetValueAtIndex(ioProcList, i);
-		io->enabled = enabled;
+		io->enabled = !!enabled;
 	}
 	
 	ioProcListMutex->Unlock();
@@ -451,15 +466,16 @@ PA_Device::StartAtTime(AudioDeviceIOProc inProc,
 	
 	if (count > 0 && !isRunning) {
 		deviceBackend->Connect();
+		deviceControl->AnnounceDevice();
 		isRunning = true;
 	}
 	
-	if (io)
-		return kAudioHardwareNoError;
-	else {
+	if (!io) {
 		DebugLog("IOProc has not been added");
 		return kAudioHardwareIllegalOperationError;
 	}
+
+	return kAudioHardwareNoError;
 }
 
 OSStatus
@@ -480,18 +496,20 @@ PA_Device::Stop(AudioDeviceIOProc inProc)
 	
 	if (count == 0 && isRunning) {
 		DebugLog("Stopping hardware");
+		deviceControl->SignOffDevice();
 		deviceBackend->Disconnect();
 		isRunning = false;
 	}
 	
-	if (io) {
-		return kAudioHardwareNoError;
-	} else {
+	if (!io) {
 		DebugLog("IOProc has not been added");
 		return kAudioHardwareIllegalOperationError;
 	}
+
+	return kAudioHardwareNoError;
 }
 
+#if 0
 static OSStatus
 oneShotIOProc(AudioDeviceID            /* inDevice */,
 	      const AudioTimeStamp *   /* inNow */,
@@ -528,8 +546,15 @@ PA_Device::Read(const AudioTimeStamp *inStartTime,
 	MPWaitOnSemaphore(io->semaphore, kDurationForever);
 	
 	DestroyIOProcID((AudioDeviceIOProcID) io);
-	
+
 	return kAudioHardwareNoError;
+}
+#endif
+
+OSStatus
+PA_Device::Read(const AudioTimeStamp *, AudioBufferList *)
+{
+	return kAudioHardwareUnsupportedOperationError;
 }
 
 OSStatus
@@ -537,6 +562,11 @@ PA_Device::GetCurrentTime(AudioTimeStamp *outTime)
 {
 	TraceCall();
 	memset(outTime, 0, sizeof(*outTime));
+
+	outTime->mRateScalar = 1.0;
+	outTime->mHostTime = CAHostTimeBase::GetCurrentTime();
+	outTime->mFlags = kAudioTimeStampHostTimeValid | kAudioTimeStampRateScalarValid;
+
 	return kAudioHardwareNoError;
 }
 
@@ -568,9 +598,6 @@ PA_Device::HasProperty(const AudioObjectPropertyAddress *inAddress)
                 case kAudioDevicePropertyBufferFrameSizeRange:
                 case kAudioDevicePropertyBufferSize:
                 case kAudioDevicePropertyBufferSizeRange:
-                case kAudioDevicePropertyChannelCategoryName:
-                case kAudioDevicePropertyChannelName:
-                case kAudioDevicePropertyChannelNumberName:
                 case kAudioDevicePropertyClockDomain:
                 //case kAudioDevicePropertyConfigurationApplication:
                 case kAudioDevicePropertyDeviceCanBeDefaultDevice:
@@ -590,15 +617,19 @@ PA_Device::HasProperty(const AudioObjectPropertyAddress *inAddress)
 		//case kAudioDevicePropertyRelatedDevices:
                 case kAudioDevicePropertySafetyOffset:
                 case kAudioDevicePropertyStreamConfiguration:
-                case kAudioDevicePropertyStreamFormat:
                 case kAudioDevicePropertyStreams:
                 case kAudioDevicePropertyTransportType:
-                case kAudioObjectPropertyElementCategoryName:
-                case kAudioObjectPropertyElementName:
-                case kAudioObjectPropertyElementNumberName:
                 case kAudioObjectPropertyManufacturer:
                 case kAudioObjectPropertyName:
 		case kAudioDevicePropertyAvailableNominalSampleRates:
+		
+		// stream properties
+		case kAudioStreamPropertyAvailableVirtualFormats:
+		case kAudioStreamPropertyAvailablePhysicalFormats:
+		case kAudioDevicePropertyStreamFormats:
+		case kAudioDevicePropertyStreamFormat:
+		case kAudioStreamPropertyPhysicalFormats:
+		case kAudioStreamPropertyPhysicalFormat:
 			return true;
 	}
 
@@ -613,7 +644,11 @@ PA_Device::IsPropertySettable(const AudioObjectPropertyAddress *inAddress,
 		case kAudioDevicePropertyBufferFrameSize:
 		case kAudioDevicePropertyBufferSize:
 		case kAudioDevicePropertyNominalSampleRate:
+			
+		// stream properties
+		case kAudioStreamPropertyPhysicalFormat:
 		case kAudioDevicePropertyStreamFormat:
+			
 			*outIsSettable = true;
 			return kAudioHardwareNoError;
 	}
@@ -632,9 +667,6 @@ PA_Device::GetPropertyDataSize(const AudioObjectPropertyAddress *inAddress,
 	switch (inAddress->mSelector) {
 		case kAudioObjectPropertyName:
 		case kAudioObjectPropertyManufacturer:
-		case kAudioObjectPropertyElementName:
-		case kAudioObjectPropertyElementCategoryName:
-		case kAudioObjectPropertyElementNumberName:
 		case kAudioDevicePropertyConfigurationApplication:
 		case kAudioDevicePropertyDeviceUID:
 		case kAudioDevicePropertyModelUID:
@@ -685,29 +717,32 @@ PA_Device::GetPropertyDataSize(const AudioObjectPropertyAddress *inAddress,
 			return kAudioHardwareNoError;
 	
 		case kAudioDevicePropertyDeviceName:
-			*outDataSize = CFStringGetLength(deviceName);
+			*outDataSize = CFStringGetLength(deviceName) + 1;
 			return kAudioHardwareNoError;
 	
 		case kAudioDevicePropertyDeviceManufacturer:
-			*outDataSize = CFStringGetLength(deviceManufacturer);
+			*outDataSize = CFStringGetLength(deviceManufacturer) + 1;
 			return kAudioHardwareNoError;
 
-		case kAudioDevicePropertyChannelName:
-		case kAudioDevicePropertyChannelCategoryName:
-		case kAudioDevicePropertyChannelNumberName:
-			*outDataSize = 0;
-			return kAudioHardwareNoError;
-
-		case kAudioDevicePropertyStreamFormat:
-			*outDataSize = sizeof(AudioStreamBasicDescription);
-			return kAudioHardwareNoError;
-			
 		case kAudioDevicePropertyAvailableNominalSampleRates:
 			*outDataSize = sizeof(AudioValueRange);
 			return kAudioHardwareNoError;			
 
 		//case kAudioDevicePropertyIcon:
 		//	return sizeof(CFURLRef);
+
+		// Stream properties
+		case kAudioStreamPropertyAvailableVirtualFormats:
+		case kAudioStreamPropertyAvailablePhysicalFormats:
+			*outDataSize = sizeof(AudioStreamRangedDescription);
+			return kAudioHardwareNoError;
+
+		case kAudioStreamPropertyPhysicalFormats:
+		case kAudioStreamPropertyPhysicalFormat:
+		case kAudioDevicePropertyStreamFormats:
+		case kAudioDevicePropertyStreamFormat:
+			*outDataSize = sizeof(AudioStreamBasicDescription);
+			return kAudioHardwareNoError;
 	}
 	
 	return super::GetPropertyDataSize(inAddress, inQualifierDataSize, inQualifierData, outDataSize);
@@ -721,6 +756,7 @@ PA_Device::GetPropertyData(const AudioObjectPropertyAddress *inAddress,
 			   void *outData)
 {
 	Boolean isInput = inAddress->mScope == kAudioDevicePropertyScopeInput;
+	char tmp[100];
 
 	switch (inAddress->mSelector) {
 		case kAudioObjectPropertyName:
@@ -728,6 +764,10 @@ PA_Device::GetPropertyData(const AudioObjectPropertyAddress *inAddress,
 			return kAudioHardwareNoError;
 
 		case kAudioDevicePropertyModelUID:
+			*static_cast<CFStringRef*>(outData) = CFStringCreateCopy(plugin->GetAllocator(), modelUID);
+			*ioDataSize = sizeof(CFStringRef);
+			return kAudioHardwareNoError;
+
 		case kAudioDevicePropertyDeviceUID:
 			*static_cast<CFStringRef*>(outData) = CFStringCreateCopy(plugin->GetAllocator(), deviceUID);
 			*ioDataSize = sizeof(CFStringRef);
@@ -735,35 +775,42 @@ PA_Device::GetPropertyData(const AudioObjectPropertyAddress *inAddress,
 
 		case kAudioObjectPropertyManufacturer:
 			*static_cast<CFStringRef*>(outData) = CFStringCreateCopy(plugin->GetAllocator(), deviceManufacturer);
+			*ioDataSize = sizeof(CFStringRef);
 			return kAudioHardwareNoError;
 
 		case kAudioDevicePropertyDeviceName:
-			CFStringGetCString(deviceName, (char *) outData, *ioDataSize, kCFStringEncodingASCII);
+			*ioDataSize = MIN(*ioDataSize, sizeof(tmp));
+			memset(outData, 0, *ioDataSize);
+			CFStringGetCString(deviceName, tmp, sizeof(tmp), kCFStringEncodingASCII);
+			memcpy(outData, tmp, *ioDataSize);
 			return kAudioHardwareNoError;
-
+	
 		case kAudioDevicePropertyDeviceManufacturer:
-			CFStringGetCString(deviceManufacturer, (char *) outData, *ioDataSize, kCFStringEncodingASCII);
+			*ioDataSize = MIN(*ioDataSize, sizeof(tmp));
+			memset(outData, 0, *ioDataSize);
+			CFStringGetCString(deviceManufacturer, tmp, sizeof(tmp), kCFStringEncodingASCII);
+			memcpy(outData, tmp, *ioDataSize);
 			return kAudioHardwareNoError;
 			
 		case kAudioDevicePropertyTransportType:
 			*static_cast<UInt32*>(outData) = 'virt';
 			return kAudioHardwareNoError;
 
-		/* "always true" */
 		case kAudioDevicePropertyDeviceCanBeDefaultSystemDevice:
 		case kAudioDevicePropertyDeviceCanBeDefaultDevice:
 		case kAudioDevicePropertyDeviceIsAlive:
+			/* "always true" */
 			*static_cast<UInt32*>(outData) = 1;
 			return kAudioHardwareNoError;
 			
-		/* "always false" */
 		case kAudioDevicePropertyIsHidden:
+			/* "always false" */
 			*static_cast<UInt32*>(outData) = 0;
 			return kAudioHardwareNoError;
 			
 		case kAudioDevicePropertyDeviceIsRunning:
 		case kAudioDevicePropertyDeviceIsRunningSomewhere:
-			*static_cast<UInt32*>(outData) = deviceBackend->isRunning();
+			*static_cast<UInt32*>(outData) = isRunning;
 			return kAudioHardwareNoError;			
 			
 		case kAudioDevicePropertyBufferFrameSize:
@@ -819,14 +866,23 @@ PA_Device::GetPropertyData(const AudioObjectPropertyAddress *inAddress,
 
 		case kAudioDevicePropertyStreamConfiguration: {
 			AudioBufferList *list = static_cast<AudioBufferList*>(outData);
+			memset(list, 0, sizeof(*list));
 			list->mNumberBuffers = 1;
 			list->mBuffers[0].mNumberChannels = (isInput ? nInputStreams : nOutputStreams) * 2;
 			list->mBuffers[0].mDataByteSize = GetIOBufferFrameSize() * deviceBackend->GetFrameSize();
-			list->mBuffers[0].mData = NULL;
 			*ioDataSize = sizeof(*list);
 			return kAudioHardwareNoError;
 		}
 
+		case kAudioStreamPropertyAvailablePhysicalFormats:
+		case kAudioStreamPropertyAvailableVirtualFormats:
+			*ioDataSize = MIN(*ioDataSize, sizeof(physicalFormat));
+			memcpy(outData, &physicalFormat, *ioDataSize);
+			return kAudioHardwareNoError;
+
+		case kAudioStreamPropertyPhysicalFormats:
+		case kAudioStreamPropertyPhysicalFormat:
+		case kAudioDevicePropertyStreamFormats:
 		case kAudioDevicePropertyStreamFormat:
 			*ioDataSize = MIN(*ioDataSize, sizeof(streamDescription));
 			memcpy(outData, &streamDescription, *ioDataSize);
@@ -845,7 +901,7 @@ PA_Device::SetPropertyData(const AudioObjectPropertyAddress *inAddress,
 {
 	switch (inAddress->mSelector) {
 		case kAudioDevicePropertyDeviceIsRunning:
-			EnableAllIOProcs(!!(*(UInt32 *) inData));
+			EnableAllIOProcs(*(UInt32 *) inData);
 			return kAudioHardwareNoError;
 
 		case kAudioDevicePropertyBufferFrameSize:
@@ -861,7 +917,10 @@ PA_Device::SetPropertyData(const AudioObjectPropertyAddress *inAddress,
 			DebugLog("SETTING sample rate %f", sampleRate);
 			//FIXME - tell the backend
 			return kAudioHardwareNoError;
-			
+
+		case kAudioStreamPropertyPhysicalFormat:
+			return kAudioHardwareNoError;
+
 		case kAudioDevicePropertyStreamFormat:
 			inDataSize = MIN(inDataSize, sizeof(streamDescription));
 			memcpy(&streamDescription, inData, inDataSize);

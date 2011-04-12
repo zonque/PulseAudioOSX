@@ -1,14 +1,14 @@
 /***
- This file is part of PulseConsole
+ This file is part of the PulseAudio HAL plugin project
  
  Copyright 2010,2011 Daniel Mack <pulseaudio@zonque.de>
  
- PulseConsole is free software; you can redistribute it and/or modify
+ The PulseAudio HAL plugin project is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 2.1 of the License, or
  (at your option) any later version.
  
- PulseConsole is distributed in the hope that it will be useful, but
+ The PulseAudio HAL plugin project is distributed in the hope that it will be useful, but
  WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  General Public License for more details.
@@ -95,6 +95,7 @@ public:
 	
 	
 	PA_Object *FindObjectByID(AudioObjectID searchID);
+	virtual const char *ClassName();
 };
 
 #endif // PA_STREAM_H_

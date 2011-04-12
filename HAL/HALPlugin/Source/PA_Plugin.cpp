@@ -1,14 +1,14 @@
 /***
- This file is part of PulseConsole
+ This file is part of the PulseAudio HAL plugin project
  
  Copyright 2010,2011 Daniel Mack <pulseaudio@zonque.de>
  
- PulseConsole is free software; you can redistribute it and/or modify
+ The PulseAudio HAL plugin project is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 2.1 of the License, or
  (at your option) any later version.
  
- PulseConsole is distributed in the hope that it will be useful, but
+ The PulseAudio HAL plugin project is distributed in the hope that it will be useful, but
  WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  General Public License for more details.
@@ -29,7 +29,7 @@
 
 #define TraceCall(x) printf("PA_Plugin::%s() :%d\n", __func__, __LINE__);
 
-#if 0
+#if 1
 #define DebugProperty(x...) DebugLog(x)
 #else
 #define DebugProperty(x...) do {} while(0)
@@ -52,6 +52,11 @@ PA_Plugin::~PA_Plugin()
 {
 	if (allocator)
 		CFRelease(allocator);	
+}
+
+const char *
+PA_Plugin::ClassName() {
+	return CLASS_NAME;
 }
 
 PA_Device *
@@ -188,8 +193,8 @@ PA_Plugin::ObjectHasProperty(AudioObjectID inObjectID,
 	o->Unlock();
 	
 	if (!ret) {
-		DebugProperty("id %d has NO property '%c%c%c%c'",
-			      (int) inObjectID,
+		DebugProperty("id %d (%s) has NO property '%c%c%c%c'",
+			      (int) inObjectID, o->ClassName(),
 			      ((int) inAddress->mSelector >> 24) & 0xff,
 			      ((int) inAddress->mSelector >> 16) & 0xff,
 			      ((int) inAddress->mSelector >> 8)  & 0xff,
@@ -216,13 +221,13 @@ PA_Plugin::ObjectIsPropertySettable(AudioObjectID inObjectID,
 	ret = o->IsPropertySettable(inAddress, outIsSettable);
 	o->Unlock();
 
-	DebugProperty("asked id %d for '%c%c%c%c', -> %d",
-		      (int) inObjectID,
+	DebugProperty("asked id %d (%s) for '%c%c%c%c', -> %s",
+		      (int) inObjectID, o->ClassName(),
 		      ((int) inAddress->mSelector >> 24) & 0xff,
 		      ((int) inAddress->mSelector >> 16) & 0xff,
 		      ((int) inAddress->mSelector >> 8)  & 0xff,
 		      ((int) inAddress->mSelector >> 0)  & 0xff,
-		      *outIsSettable);
+		      *outIsSettable ? "YES" : "NO");
 
 	return ret;
 }
@@ -234,13 +239,6 @@ PA_Plugin::ObjectGetPropertyDataSize(AudioObjectID inObjectID,
 				     const void *inQualifierData,
 				     UInt32 *outDataSize)
 {
-	DebugProperty("asked id %d for '%c%c%c%c'",
-		      (int) inObjectID,
-		      ((int) inAddress->mSelector >> 24) & 0xff,
-		      ((int) inAddress->mSelector >> 16) & 0xff,
-		      ((int) inAddress->mSelector >> 8)  & 0xff,
-		      ((int) inAddress->mSelector >> 0)  & 0xff);
-	
 	PA_Object *o = FindObjectByID(inObjectID);
 	OSStatus ret;
 
@@ -252,7 +250,15 @@ PA_Plugin::ObjectGetPropertyDataSize(AudioObjectID inObjectID,
 	o->Lock();
 	ret = o->GetPropertyDataSize(inAddress, inQualifierDataSize, inQualifierData, outDataSize);
 	o->Unlock();
-	
+
+	DebugProperty("asked id %d (%s) for '%c%c%c%c' -> %d",
+		      (int) inObjectID,  o->ClassName(),
+		      ((int) inAddress->mSelector >> 24) & 0xff,
+		      ((int) inAddress->mSelector >> 16) & 0xff,
+		      ((int) inAddress->mSelector >> 8)  & 0xff,
+		      ((int) inAddress->mSelector >> 0)  & 0xff,
+		      outDataSize ? (int) *outDataSize : 0);
+		
 	if (*outDataSize == 0)
 		DebugLog("!!!!!!!!!!! outDataSize == 0");
 	
@@ -267,21 +273,21 @@ PA_Plugin::ObjectGetPropertyData(AudioObjectID inObjectID,
 				 UInt32 *ioDataSize,
 				 void *outData)
 {
-	DebugProperty("asked id %d for '%c%c%c%c'",
-		      (int) inObjectID,
-		      ((int) inAddress->mSelector >> 24) & 0xff,
-		      ((int) inAddress->mSelector >> 16) & 0xff,
-		      ((int) inAddress->mSelector >> 8)  & 0xff,
-		      ((int) inAddress->mSelector >> 0)  & 0xff);
-	
 	PA_Object *o = FindObjectByID(inObjectID);
 	OSStatus ret;
-
+	
 	if (!o) {
 		DebugLog("Illegal inObjectID %d", (int) inObjectID);
 		return kAudioHardwareBadObjectError;
 	}
-	
+
+	DebugProperty("asked id %d (%s) for '%c%c%c%c'",
+		      (int) inObjectID,  o->ClassName(),
+		      ((int) inAddress->mSelector >> 24) & 0xff,
+		      ((int) inAddress->mSelector >> 16) & 0xff,
+		      ((int) inAddress->mSelector >> 8)  & 0xff,
+		      ((int) inAddress->mSelector >> 0)  & 0xff);
+		
 	o->Lock();
 	ret = o->GetPropertyData(inAddress, inQualifierDataSize, inQualifierData, ioDataSize, outData);
 	o->Unlock();
@@ -297,13 +303,6 @@ PA_Plugin::ObjectSetPropertyData(AudioObjectID inObjectID,
 				 UInt32 inDataSize,
 				 const void *inData)
 {
-	DebugProperty("asked id %d for '%c%c%c%c'",
-		      (int) inObjectID,
-		      ((int) inAddress->mSelector >> 24) & 0xff,
-		      ((int) inAddress->mSelector >> 16) & 0xff,
-		      ((int) inAddress->mSelector >> 8)  & 0xff,
-		      ((int) inAddress->mSelector >> 0)  & 0xff);
-
 	PA_Object *o = FindObjectByID(inObjectID);
 	OSStatus ret;
 	
@@ -311,7 +310,14 @@ PA_Plugin::ObjectSetPropertyData(AudioObjectID inObjectID,
 		DebugLog("Illegal inObjectID %d", (int) inObjectID);
 		return kAudioHardwareBadObjectError;
 	}
-
+	
+	DebugProperty("asked id %d (%s) for '%c%c%c%c'",
+		      (int) inObjectID, o->ClassName(),
+		      ((int) inAddress->mSelector >> 24) & 0xff,
+		      ((int) inAddress->mSelector >> 16) & 0xff,
+		      ((int) inAddress->mSelector >> 8)  & 0xff,
+		      ((int) inAddress->mSelector >> 0)  & 0xff);
+		
 	o->Lock();
 	ret = o->SetPropertyData(inAddress, inQualifierDataSize, inQualifierData, inDataSize, inData);
 	o->Unlock();

@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>PulseAudio</string>
 	<key>CFBundleIdentifier</key>
-	<string>org.pulseaudio.PulseAudio</string>
+	<string>org.pulseaudio.HALPlugin</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -23,7 +23,7 @@
 	<key>CFPlugInFactories</key>
 	<dict>
 		<key>45F4645C-E875-4364-9296-95837C4B7291</key>
-		<string>New_PAHP_PlugIn</string>
+		<string>New_PAHAL_PlugIn</string>
 	</dict>
 	<key>CFPlugInTypes</key>
 	<dict>
