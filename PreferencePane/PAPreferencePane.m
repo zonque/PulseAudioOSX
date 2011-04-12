@@ -11,13 +11,14 @@
 
 #import "PAPreferencePane.h"
 
+#define REMOTE_OBJECT @"PAHP_Device"
+
 @implementation PAPreferencePane
 
 - (void) bonjourServiceAdded: (NSNotification *) notification
 {
 	NSDictionary *userInfo = [notification userInfo];
 	NSString *name = [userInfo objectForKey: @"name"];
-
 	[serverSelectButton addItemWithTitle: name];
 }
 
@@ -26,11 +27,10 @@
 	NSMutableArray *newClientList = [NSMutableArray arrayWithArray: clientList];
 	NSInteger selected = [clientTableView selectedRow];
 	NSDictionary *selectedClient = nil;
+	BOOL removed = NO;
 	
 	if (selected >= 0)
 		selectedClient = [clientList objectAtIndex: [clientTableView selectedRow]];
-	
-	BOOL removed = NO;
 
 	for (NSDictionary *client in clientList) {
 		NSRunningApplication *app = [client objectForKey: @"application"];
@@ -103,20 +103,28 @@
 	}
 }
 
-- (void) mainViewDidLoad
+- (void) didSelect
 {
-	[clientDetailsBox selectTabViewItemAtIndex: 1];
-
-	clientList = [[NSMutableArray arrayWithCapacity: 0] retain];
-	
 	timer = [NSTimer timerWithTimeInterval: 1.0
 					target: self
 				      selector: @selector(scanClients:)
 				      userInfo: nil
 				       repeats: YES];
 	[[NSRunLoop currentRunLoop] addTimer: timer
-				     forMode: NSDefaultRunLoopMode];
-	
+				     forMode: NSDefaultRunLoopMode];	
+}
+
+- (void) didUnselect
+{
+	[timer invalidate];
+}
+
+- (void) mainViewDidLoad
+{
+	[clientDetailsBox selectTabViewItemAtIndex: 1];
+
+	clientList = [[NSMutableArray arrayWithCapacity: 0] retain];
+
 	[serverSelectButton removeAllItems];
 	[serverSelectButton addItemWithTitle: @"localhost"];
 	listener = [[BonjourListener alloc] initForService: "_pulse-server._tcp"];
@@ -131,15 +139,15 @@
 	[notificationCenter addObserver: self
 			       selector: @selector(clientAnnounced:)
 				   name: @"announceDevice"
-				 object: @"PAHP_Device"];	
+				 object: REMOTE_OBJECT];	
 	
 	[notificationCenter addObserver: self
 			       selector: @selector(clientUnannounced:)
-				   name: @"unannounceDevice"
-				 object: @"PAHP_Device"];	
-	
+				   name: @"signOffDevice"
+				 object: REMOTE_OBJECT];	
+
 	[notificationCenter postNotificationName: @"scanDevices"
-					  object: @"PAHP_Device"
+					  object: REMOTE_OBJECT
 					userInfo: nil
 			      deliverImmediately: YES];
 }
@@ -158,10 +166,6 @@
 	row:(int)rowIndex
 {
 	NSDictionary *client = [clientList objectAtIndex: rowIndex];
-
-	if (!client)
-		return @"";
-
 	NSRunningApplication *app = [client objectForKey: @"application"];
 
 	if ([[col identifier] isEqualToString: @"icon"])
@@ -209,11 +213,28 @@ enum {
 
 	NSRunningApplication *app = [client objectForKey: @"application"];
 
+	NSString *arch = @"unknown";
+	
+	switch (app.executableArchitecture) {
+		case NSBundleExecutableArchitectureI386:
+			arch = @"i386 (32bit)";
+			break;
+		case NSBundleExecutableArchitecturePPC:
+			arch = @"PPC (32bit)";
+			break;
+		case NSBundleExecutableArchitectureX86_64:
+			arch = @"x86_64";
+			break;
+		case NSBundleExecutableArchitecturePPC64:
+			arch = @"PPC64";
+			break;
+	}
+	
 	[clientDetailsBox selectTabViewItemAtIndex: kClientDetailBoxEnabledTab];
 	[imageView setImage: app.icon];
 	[clientNameLabel setStringValue: app.localizedName];
 	[audioDeviceLabel setStringValue: [client objectForKey: @"audioDevice"]];
-	[PIDLabel setStringValue: [[NSNumber numberWithInt: app.processIdentifier] stringValue]];
+	[PIDLabel setStringValue: [NSString stringWithFormat: @"%d, %@", app.processIdentifier, arch]];
 	[IOBufferSizeLabel setStringValue: [[client objectForKey: @"IOBufferFrameSize"] stringValue]];
 	[serverSelectButton selectItemWithTitle: [client objectForKey: @"serverName"]];
 
@@ -226,9 +247,20 @@ enum {
 
 - (IBAction) connectClient: (id) sender
 {
-	printf(" --- SELECTING SERVER: \n");
-	CFShow([serverSelectButton titleOfSelectedItem]);
+	NSInteger selected = [clientTableView selectedRow];
+	NSDictionary *client = [clientList objectAtIndex: selected];
+	NSNumber *pid = [client objectForKey: @"pid"];
+	NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithCapacity: 0];
 
+	[userInfo setObject: [serverSelectButton titleOfSelectedItem]
+		     forKey: @"serverName"];
+	[userInfo setObject: pid
+		     forKey: @"pid"];
+	
+	[notificationCenter postNotificationName: @"setConfiguration"
+					  object: REMOTE_OBJECT
+					userInfo: userInfo
+			      deliverImmediately: YES];
 }
 
 @end
