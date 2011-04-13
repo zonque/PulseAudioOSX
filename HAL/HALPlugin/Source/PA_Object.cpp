@@ -122,10 +122,19 @@ PA_Object::SetPropertyData(const AudioObjectPropertyAddress *inAddress,
 			   UInt32 /* inQualifierDataSize */,
 			   const void * /* inQualifierData */,
 			   UInt32 /* inDataSize */,
-			   const void * /* inData */)
+			   const void *inData)
 {
 	switch (inAddress->mSelector) {
-		case kAudioObjectPropertyListenerAdded:
+		case kAudioObjectPropertyListenerAdded: {
+			const AudioObjectPropertyAddress *listen =
+				static_cast<const AudioObjectPropertyAddress *> (inData);
+			DebugLog("Added listener for property '%c%c%c%c'",
+				 ((int) listen->mSelector >> 24) & 0xff,
+				 ((int) listen->mSelector >> 16) & 0xff,
+				 ((int) listen->mSelector >> 8) & 0xff,
+				 ((int) listen->mSelector >> 0) & 0xff);
+			return kAudioHardwareNoError;
+		}
 		case kAudioObjectPropertyListenerRemoved:
 			return kAudioHardwareNoError;
 	}
