@@ -92,7 +92,8 @@ public:
 	PA_Stream *GetStreamById(AudioObjectID inObjectID);
 	IOProcTracker *FindIOProc(AudioDeviceIOProc inProc);
 	IOProcTracker *FindIOProcByID(AudioDeviceIOProcID inProcID);
-	
+	UInt32 CountEnabledIOProcs();
+
 	OSStatus CreateIOProcID(AudioDeviceIOProc inProc,
 				void *inClientData,
 				AudioDeviceIOProcID *outIOProcID);
@@ -122,7 +123,8 @@ public:
 	
 	OSStatus GetNearestStartTime(AudioTimeStamp *ioRequestedStartTime,
 				     UInt32 inFlags);
-	
+#pragma mark ### properties (legacy interface) ###
+
 	OSStatus GetPropertyInfo(UInt32 inChannel,
 				 Boolean isInput,
 				 AudioDevicePropertyID

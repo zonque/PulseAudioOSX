@@ -85,8 +85,6 @@ public:
 	
 	void ChangeStreamVolume(UInt32 index, Float32 ival);
 	void ChangeStreamMute(UInt32 index, Boolean mute);
-
-	Boolean isRunning();
 };
 
 #endif // PA_DEVICE_BACKEND_H

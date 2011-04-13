@@ -293,6 +293,19 @@ PA_Device::EnableAllIOProcs(Boolean enabled)
 	ioProcListMutex->Unlock();
 }
 
+UInt32
+PA_Device::CountEnabledIOProcs()
+{
+	UInt32 count = 0;
+	
+	for (SInt32 i = 0; i < CFArrayGetCount(ioProcList); i++) {
+		IOProcTracker *io = (IOProcTracker *) CFArrayGetValueAtIndex(ioProcList, i);
+		if (io->enabled)
+			count++;
+	}
+	
+	return count;
+}
 
 #pragma mark ### Plugin interface ###
 
@@ -469,6 +482,7 @@ PA_Device::Stop(AudioDeviceIOProc inProcID)
 
 	DebugIOProc("Stopping IOProc @%p", io);
 
+	UInt32 count = CountEnabledIOProcs();
 	ioProcListMutex->Unlock();
 
 	if (inProcID && !io) {
@@ -476,7 +490,7 @@ PA_Device::Stop(AudioDeviceIOProc inProcID)
 		return kAudioHardwareIllegalOperationError;
 	}
 
-	if (isRunning) {
+	if (isRunning && count > 0) {
 		isRunning = false;
 		DebugLog("Stopping hardware");
 		deviceControl->SignOffDevice();

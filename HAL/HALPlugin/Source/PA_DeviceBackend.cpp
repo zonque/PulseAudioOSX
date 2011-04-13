@@ -382,12 +382,6 @@ PA_DeviceBackend::ChangeStreamMute(UInt32 index, Boolean mute)
 	pa_threaded_mainloop_unlock(PAMainLoop);
 }
 
-Boolean
-PA_DeviceBackend::isRunning()
-{
-	return true;
-}
-
 #pragma mark ### Construct/Desconstruct
 
 PA_DeviceBackend::PA_DeviceBackend(PA_Device *inDevice) :
@@ -465,7 +459,6 @@ PA_DeviceBackend::Connect()
 		Assert(ret >= 0, "pa_threaded_mainloop_start() failed\n");
 	}
 
-	DebugLog("... PAContext %p", PAContext);
 	if (PAContext)
 		return;
 
