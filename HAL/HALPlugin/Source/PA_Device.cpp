@@ -73,7 +73,6 @@ PA_Device::RegisterObjects()
 		if (outputStreams[i])
 			streamIDs.push_back(outputStreams[i]->GetObjectID());
 
-	// now tell the HAL about the new stream IDs
 	if (streamIDs.size() != 0)
 		return AudioObjectsPublishedAndDied(plugin->GetInterface(),
 						    GetObjectID(),
@@ -116,29 +115,22 @@ PA_Device::Initialize()
 	deviceControl = new PA_DeviceControl(this);
 	deviceControl->Initialize();
 
+	memset(&streamDescription, 0, sizeof(streamDescription));
+	memset(&physicalFormat, 0, sizeof(physicalFormat));
+	
 	streamDescription.mSampleRate = sampleRate;
 	streamDescription.mFormatID = kAudioFormatLinearPCM;
-	streamDescription.mFormatFlags = kAudioFormatFlagIsFloat;
+	streamDescription.mFormatFlags = kAudioFormatFlagsCanonical;
 	streamDescription.mBitsPerChannel = 32;
 	streamDescription.mChannelsPerFrame = 2;
-	streamDescription.mBytesPerPacket = 2 * GetIOBufferFrameSize() * deviceBackend->GetFrameSize();
 	streamDescription.mFramesPerPacket = GetIOBufferFrameSize();
 	streamDescription.mBytesPerFrame = deviceBackend->GetFrameSize();
+	streamDescription.mBytesPerPacket = streamDescription.mFramesPerPacket *
+					    streamDescription.mBytesPerFrame;
 	
-	physicalFormat.mFormat.mSampleRate = sampleRate;
 	physicalFormat.mSampleRateRange.mMinimum = sampleRate;
 	physicalFormat.mSampleRateRange.mMaximum = sampleRate;
-	physicalFormat.mFormat.mFormatID = kAudioFormatLinearPCM;
-	physicalFormat.mFormat.mFormatFlags = kAudioFormatFlagIsFloat			|
-						kAudioFormatFlagsNativeEndian		|
-						kAudioFormatFlagIsPacked;
-	physicalFormat.mFormat.mBitsPerChannel = 32;
-	physicalFormat.mFormat.mChannelsPerFrame = 2;
-	physicalFormat.mFormat.mFramesPerPacket = 1;
-	physicalFormat.mFormat.mBytesPerFrame = (physicalFormat.mFormat.mBitsPerChannel / 8) *
-						(physicalFormat.mFormat.mChannelsPerFrame);
-	physicalFormat.mFormat.mBytesPerPacket = physicalFormat.mFormat.mBytesPerFrame *
-						 physicalFormat.mFormat.mFramesPerPacket;
+	memcpy(&physicalFormat.mFormat, &streamDescription, sizeof(streamDescription));
 
 	AudioDeviceID newID;
 	OSStatus ret = AudioObjectCreate(plugin->GetInterface(),
@@ -273,20 +265,6 @@ PA_Device::FindIOProcByID(AudioDeviceIOProcID inProcID)
 	}
 	
 	return NULL;
-}
-
-UInt32
-PA_Device::CountEnabledIOProcs()
-{
-	UInt32 count = 0;
-	
-	for (SInt32 i = 0; i < CFArrayGetCount(ioProcList); i++) {
-		IOProcTracker *io = (IOProcTracker *) CFArrayGetValueAtIndex(ioProcList, i);
-		if (io->enabled)
-			count++;
-	}
-	
-	return count;
 }
 
 CFArrayRef
@@ -448,10 +426,6 @@ PA_Device::StartAtTime(AudioDeviceIOProcID inProcID,
 		       AudioTimeStamp *ioRequestedStartTime,
 		       UInt32 inFlags)
 {
-	UInt32 count;
-
-	DebugLog("inProc %p", inProcID);
-	
 	ioProcListMutex->Lock();
 	IOProcTracker *io = FindIOProcByID(inProcID);
 	
@@ -468,18 +442,15 @@ PA_Device::StartAtTime(AudioDeviceIOProcID inProcID,
 		DebugIOProc("Starting IOProc @%p", io);
 	}
 
-	count = CountEnabledIOProcs();	
 	ioProcListMutex->Unlock();
 
-	if (!io) {
+	if (inProcID && !io) {
 		DebugLog("IOProc has not been added");
-		return kAudioHardwareIllegalOperationError;
 	}
 
-	DebugLog("count %d", count);
-	if (count > 0 && !isRunning) {
+	if (!isRunning) {
 		isRunning = true;
-		DebugLog("Starting hardware", count);
+		DebugLog("Starting hardware");
 		deviceBackend->Connect();
 		deviceControl->AnnounceDevice();
 	}
@@ -490,34 +461,28 @@ PA_Device::StartAtTime(AudioDeviceIOProcID inProcID,
 OSStatus
 PA_Device::Stop(AudioDeviceIOProc inProcID)
 {
-	UInt32 count;
-
-	DebugLog("before lock");
 	ioProcListMutex->Lock();
 	IOProcTracker *io = FindIOProcByID(inProcID);
-	DebugLog("after lock");
 
 	if (io)
 		io->enabled = false;
 
 	DebugIOProc("Stopping IOProc @%p", io);
 
-	count = CountEnabledIOProcs();
 	ioProcListMutex->Unlock();
-	
-	DebugLog("count %d", count);
-	if (count == 0 && isRunning) {
+
+	if (inProcID && !io) {
+		DebugLog("IOProc has not been added");
+		return kAudioHardwareIllegalOperationError;
+	}
+
+	if (isRunning) {
 		isRunning = false;
 		DebugLog("Stopping hardware");
 		deviceControl->SignOffDevice();
 		deviceBackend->Disconnect();
 	}
 	
-	if (!io) {
-		DebugLog("IOProc has not been added");
-		return kAudioHardwareIllegalOperationError;
-	}
-
 	return kAudioHardwareNoError;
 }
 
@@ -897,6 +862,7 @@ PA_Device::GetPropertyData(const AudioObjectPropertyAddress *inAddress,
 		case kAudioDevicePropertyStreamFormats:
 		case kAudioDevicePropertyStreamFormat:
 			*ioDataSize = MIN(*ioDataSize, sizeof(streamDescription));
+			DebugLog("*ioDataSize = %d", *ioDataSize);
 			memcpy(outData, &streamDescription, *ioDataSize);
 			return kAudioHardwareNoError;
 	}

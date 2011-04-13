@@ -59,10 +59,10 @@ PA_Stream::PA_Stream(PA_Plugin *inPlugIn,
 		     PA_Device *inOwningDevice,
 		     bool inIsInput,
 		     UInt32 inStartingDeviceChannelNumber) :
-plugin(inPlugIn),
-device(inOwningDevice),
-isInput(inIsInput),
-startingChannel(inStartingDeviceChannelNumber)
+	plugin(inPlugIn),
+	device(inOwningDevice),
+	isInput(inIsInput),
+	startingChannel(inStartingDeviceChannelNumber)
 {
 }
 

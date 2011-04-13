@@ -81,8 +81,6 @@ public:
 	Boolean			IsRunning()			{ return isRunning; };
 	CFAllocatorRef		GetAllocator();
 
-	UInt32			CountEnabledIOProcs();
-
 	CFArrayRef		LockIOProcList();
 	void			UnlockIOProcList();
 	

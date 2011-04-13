@@ -305,10 +305,14 @@ PA_DeviceBackend::StreamBufferAttrCallback(pa_stream *stream)
 void
 PA_DeviceBackend::ContextStateCallback()
 {
-	switch (pa_context_get_state(PAContext)) {
+	int state = pa_context_get_state(PAContext);
+
+	DebugLog("Context state changed to %d", state);
+
+	switch (state) {
 		case PA_CONTEXT_READY:
 		{
-			printf("%s(): Connection ready.\n", __func__);
+			DebugLog("Connection ready.");
 			
 			char tmp[sizeof(procname) + 10];
 			
@@ -540,7 +544,7 @@ PA_DeviceBackend::GetConnectionStatus()
 {
 	UInt32 status;
 
-	if (!PAMainLoop)
+	if (!PAMainLoop || !PAContext)
 		return 0;
 	
 	pa_threaded_mainloop_lock(PAMainLoop);
