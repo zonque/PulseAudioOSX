@@ -42,7 +42,6 @@ private:
 	unsigned char *				inputBuffer;
 	unsigned char *				outputBuffer;
 	
-	bool					PAConnected;
 	MPSemaphoreID				PAContextSemaphore;
 	pa_buffer_attr				bufAttr;
 	pa_sample_spec				sampleSpec;
@@ -56,11 +55,13 @@ public:
 	void	ContextStateCallback();
 	void	StreamStartedCallback(pa_stream *stream);
 	
-	void	DeviceReadCallback(pa_stream *stream, size_t nbytes);
-	void	DeviceWriteCallback(pa_stream *stream, size_t nbytes);
+	void	StreamReadCallback(pa_stream *stream, size_t nbytes);
+	void	StreamWriteCallback(pa_stream *stream, size_t nbytes);
 	void	StreamOverflowCallback(pa_stream *stream);
 	void	StreamUnderflowCallback(pa_stream *stream);	
-	
+	void	StreamEventCallback(pa_stream *stream, const char *name, pa_proplist *pl);
+	void	StreamBufferAttrCallback(pa_stream *stream);
+
 private:
 	int		ConstructProcessName();
 public:

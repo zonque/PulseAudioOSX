@@ -463,11 +463,13 @@ PA_Device::StartAtTime(AudioDeviceIOProc inProc,
 
 	count = CountEnabledIOProcs();	
 	ioProcListMutex->Unlock();
-	
+
+	DebugLog("count %d", count);
 	if (count > 0 && !isRunning) {
+		isRunning = true;
+		DebugLog("Starting hardware", count);
 		deviceBackend->Connect();
 		deviceControl->AnnounceDevice();
-		isRunning = true;
 	}
 	
 	if (!io) {
@@ -483,9 +485,11 @@ PA_Device::Stop(AudioDeviceIOProc inProc)
 {
 	UInt32 count;
 
+	DebugLog("before lock");
 	ioProcListMutex->Lock();
 	IOProcTracker *io = FindIOProc(inProc);
-	
+	DebugLog("after lock");
+
 	if (io)
 		io->enabled = false;
 
@@ -494,11 +498,12 @@ PA_Device::Stop(AudioDeviceIOProc inProc)
 	count = CountEnabledIOProcs();
 	ioProcListMutex->Unlock();
 	
+	DebugLog("count %d", count);
 	if (count == 0 && isRunning) {
+		isRunning = false;
 		DebugLog("Stopping hardware");
 		deviceControl->SignOffDevice();
 		deviceBackend->Disconnect();
-		isRunning = false;
 	}
 	
 	if (!io) {

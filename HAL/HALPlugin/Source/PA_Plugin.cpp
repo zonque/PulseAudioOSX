@@ -29,7 +29,7 @@
 
 #define TraceCall(x) printf("PA_Plugin::%s() :%d\n", __func__, __LINE__);
 
-#if 1
+#if 0
 #define DebugProperty(x...) DebugLog(x)
 #else
 #define DebugProperty(x...) do {} while(0)

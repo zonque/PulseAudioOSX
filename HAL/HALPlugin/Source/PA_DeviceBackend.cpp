@@ -45,16 +45,16 @@ static void staticStreamStartedCallback(pa_stream *stream, void *userdata)
 	be->StreamStartedCallback(stream);
 }
 
-static void staticDeviceWriteCallback(pa_stream *stream, size_t nbytes, void *userdata)
+static void staticStreamWriteCallback(pa_stream *stream, size_t nbytes, void *userdata)
 {
 	PA_DeviceBackend *be = static_cast<PA_DeviceBackend *>(userdata);
-	be->DeviceWriteCallback(stream, nbytes);
+	be->StreamWriteCallback(stream, nbytes);
 }
 
-static void staticDeviceReadCallback(pa_stream *stream, size_t nbytes, void *userdata)
+static void staticStreamReadCallback(pa_stream *stream, size_t nbytes, void *userdata)
 {
 	PA_DeviceBackend *be = static_cast<PA_DeviceBackend *>(userdata);
-	be->DeviceReadCallback(stream, nbytes);
+	be->StreamReadCallback(stream, nbytes);
 }
 
 static void staticStreamOverflowCallback(pa_stream *stream, void *userdata)
@@ -66,7 +66,19 @@ static void staticStreamOverflowCallback(pa_stream *stream, void *userdata)
 static void staticStreamUnderflowCallback(pa_stream *stream, void *userdata)
 {
 	PA_DeviceBackend *be = static_cast<PA_DeviceBackend *>(userdata);
-	be->StreamUnderflowCallback(stream);	
+	be->StreamUnderflowCallback(stream);
+}
+
+static void staticStreamEventCallback(pa_stream *stream, const char *name, pa_proplist *pl, void *userdata)
+{
+	PA_DeviceBackend *be = static_cast<PA_DeviceBackend *>(userdata);
+	be->StreamEventCallback(stream, name, pl);
+}
+
+static void staticStreamBufferAttrCallback(pa_stream *stream, void *userdata)
+{
+	PA_DeviceBackend *be = static_cast<PA_DeviceBackend *>(userdata);
+	be->StreamBufferAttrCallback(stream);
 }
 
 #pragma mark ### PA_DeviceBackend ###
@@ -115,9 +127,9 @@ PA_DeviceBackend::GetProcessName()
 }
 
 void
-PA_DeviceBackend::DeviceWriteCallback(pa_stream *stream, size_t nbytes)
+PA_DeviceBackend::StreamWriteCallback(pa_stream *stream, size_t nbytes)
 {
-	Assert(stream == PAPlaybackStream, "bogus stream pointer in DeviceWriteCallback");
+	Assert(stream == PAPlaybackStream, "bogus stream pointer in StreamWriteCallback");
 	
 	Float64 usecPerFrame = 1000000.0 / 44100.0;
 	UInt32 frameSize = GetFrameSize();
@@ -130,7 +142,7 @@ PA_DeviceBackend::DeviceWriteCallback(pa_stream *stream, size_t nbytes)
 	unsigned int ioProcSize = device->GetIOBufferFrameSize() * frameSize;
 	unsigned char *buf, *outputBufferPos;
 	
-#if 1
+#if 0
 	int ret = pa_stream_begin_write(stream, (void **) &buf, &nbytes);
 	if (ret < 0) {
 		printf(" XXXXXXXXXXXX ret %d\n", ret);
@@ -212,9 +224,9 @@ PA_DeviceBackend::DeviceWriteCallback(pa_stream *stream, size_t nbytes)
 }
 
 void
-PA_DeviceBackend::DeviceReadCallback(pa_stream *stream, size_t nbytes)
+PA_DeviceBackend::StreamReadCallback(pa_stream *stream, size_t nbytes)
 {
-	Assert(stream == PARecordStream, "bogus stream pointer in DeviceReadCallback");
+	Assert(stream == PARecordStream, "bogus stream pointer in StreamReadCallback");
 	
 	pa_stream_drop(stream);
 	
@@ -240,15 +252,33 @@ PA_DeviceBackend::DeviceReadCallback(pa_stream *stream, size_t nbytes)
 }
 
 void
+PA_DeviceBackend::StreamStartedCallback(pa_stream * stream)
+{
+	DebugLog("%s", stream == PARecordStream ? "input" : "output");
+}
+
+void
 PA_DeviceBackend::StreamOverflowCallback(pa_stream *stream)
 {
-	printf("%s() %s\n", __func__, stream == PARecordStream ? "input" : "output");
+	DebugLog("%s", stream == PARecordStream ? "input" : "output");
 }
 
 void
 PA_DeviceBackend::StreamUnderflowCallback(pa_stream *stream)
 {
-	printf("%s() %s\n", __func__, stream == PARecordStream ? "input" : "output");
+	DebugLog("%s", stream == PARecordStream ? "input" : "output");
+}
+
+void
+PA_DeviceBackend::StreamEventCallback(pa_stream *stream, const char *name, pa_proplist *pl)
+{
+	DebugLog("%s", stream == PARecordStream ? "input" : "output");
+}
+
+void
+PA_DeviceBackend::StreamBufferAttrCallback(pa_stream *stream)
+{
+	DebugLog("%s", stream == PARecordStream ? "input" : "output");
 }
 
 void
@@ -263,10 +293,12 @@ PA_DeviceBackend::ContextStateCallback()
 			
 			snprintf(tmp, sizeof(tmp), "%s playback", procname);
 			PAPlaybackStream = pa_stream_new(PAContext, tmp, &sampleSpec, NULL);
-			pa_stream_set_write_callback(PAPlaybackStream, staticDeviceWriteCallback, this);
+			pa_stream_set_event_callback(PAPlaybackStream, staticStreamEventCallback, this);
+			pa_stream_set_write_callback(PAPlaybackStream, staticStreamWriteCallback, this);
+			pa_stream_set_started_callback(PAPlaybackStream, staticStreamStartedCallback, this);
 			pa_stream_set_overflow_callback(PAPlaybackStream, staticStreamOverflowCallback, this);
 			pa_stream_set_underflow_callback(PAPlaybackStream, staticStreamUnderflowCallback, this);
-			pa_stream_set_started_callback(PAPlaybackStream, staticStreamStartedCallback, this);
+			pa_stream_set_buffer_attr_callback(PAPlaybackStream, staticStreamBufferAttrCallback, this);
 			pa_stream_connect_playback(PAPlaybackStream, NULL, &bufAttr,
 						   (pa_stream_flags_t)  (PA_STREAM_INTERPOLATE_TIMING |
 									 PA_STREAM_AUTO_TIMING_UPDATE),
@@ -275,35 +307,30 @@ PA_DeviceBackend::ContextStateCallback()
 			/*
 			snprintf(tmp, sizeof(tmp), "%s record", procname);
 			PARecordStream = pa_stream_new(PAContext, tmp, &sampleSpec, NULL);
-			pa_stream_set_read_callback(PAPlaybackStream, staticDeviceReadCallback, this);
+			pa_stream_set_read_callback(PAPlaybackStream, staticStreamReadCallback, this);
 			pa_stream_set_overflow_callback(PARecordStream, staticStreamOverflowCallback, this);
 			pa_stream_set_underflow_callback(PARecordStream, staticStreamUnderflowCallback, this);
 			pa_stream_connect_record(PARecordStream, NULL, &bufAttr, (pa_stream_flags_t) 0);
 			*/
 			
-			PAConnected = true;
 			MPSignalSemaphore(PAContextSemaphore);
-		}
 			break;
+		}
 		case PA_CONTEXT_TERMINATED:
-			printf("%s(): Connection terminated.\n", __func__);
-			PAConnected = false;
+			DebugLog("Connection terminated.");
 			MPSignalSemaphore(PAContextSemaphore);
+			pa_context_unref(PAContext);
+			PAContext = NULL;
 			break;
 		case PA_CONTEXT_FAILED:
-			printf("%s(): Connection failed.\n", __func__);
-			PAConnected = false;
+			DebugLog("Connection failed.");
 			MPSignalSemaphore(PAContextSemaphore);
+			pa_context_unref(PAContext);
+			PAContext = NULL;
 			break;
 		default:
-			PAConnected = false;
 			break;
 	}
-}
-
-void
-PA_DeviceBackend::StreamStartedCallback(pa_stream * /* stream */)
-{
 }
 
 void
@@ -356,7 +383,8 @@ PA_DeviceBackend::Initialize()
 	connectHost = NULL;
 	PAContext = NULL;
 	PAMainLoop = NULL;
-	PAConnected = false;
+	PAPlaybackStream = NULL;
+	PARecordStream = NULL;
 	
 	sampleSpec.format = PA_SAMPLE_FLOAT32;
 	sampleSpec.rate = device->GetSampleRate();
@@ -367,6 +395,10 @@ PA_DeviceBackend::Initialize()
 	bufAttr.minreq = -1;
 	bufAttr.prebuf = -1;
 	
+	int ret = MPCreateSemaphore(UINT_MAX, 0, &PAContextSemaphore);
+	if (ret != 0)
+		DebugLog("MPCreateSemaphore() failed");
+		
 	ConstructProcessName();
 }
 
@@ -389,6 +421,8 @@ PA_DeviceBackend::Teardown()
 	
 	pa_xfree(connectHost);
 	connectHost = NULL;
+	
+	MPDeleteSemaphore(PAContextSemaphore);
 }
 
 #pragma mark ### Connect/Disconnect ###
@@ -396,19 +430,21 @@ PA_DeviceBackend::Teardown()
 void
 PA_DeviceBackend::Connect()
 {
+	int ret;
+
 	if (!PAMainLoop) {
-		printf(" --- creating main loop\n");
 		PAMainLoop = pa_threaded_mainloop_new();
 		Assert(PAMainLoop, "pa_threaded_mainloop_new() failed");
-		int ret = pa_threaded_mainloop_start(PAMainLoop);
+		ret = pa_threaded_mainloop_start(PAMainLoop);
 		Assert(ret >= 0, "pa_threaded_mainloop_start() failed\n");
 	}
 
+	DebugLog("... PAContext %p", PAContext);
 	if (PAContext)
 		return;
 
 	pa_threaded_mainloop_lock(PAMainLoop);
-	
+
 	pa_mainloop_api *api = pa_threaded_mainloop_get_api(PAMainLoop);
 	Assert(api, "pa_threaded_mainloop_get_api() failed");
 	
@@ -416,15 +452,15 @@ PA_DeviceBackend::Connect()
 	Assert(PAContext, "pa_context_new() failed");
 
 	pa_context_set_state_callback(PAContext, staticContextStateCallback, this);
-	pa_context_connect(PAContext, connectHost,
-			   (pa_context_flags_t) (PA_CONTEXT_NOFAIL | PA_CONTEXT_NOAUTOSPAWN),
-			   NULL);
+	ret = pa_context_connect(PAContext, connectHost,
+				 (pa_context_flags_t) (PA_CONTEXT_NOFAIL | PA_CONTEXT_NOAUTOSPAWN),
+				 NULL);
 
 	pa_threaded_mainloop_unlock(PAMainLoop);
-	
-	printf("%s(): WAITING\n", __func__);
+
+	DebugLog("WAITING");
 	MPWaitOnSemaphore(PAContextSemaphore, kDurationForever);
-	printf("%s(): DONE\n", __func__);	
+	DebugLog("DONE");
 }
 
 void
@@ -444,9 +480,9 @@ PA_DeviceBackend::SetHostName(CFStringRef inHost)
 void
 PA_DeviceBackend::Disconnect()
 {
-	if (!PAMainLoop)
+	if (!PAMainLoop || !PAContext)
 		return;
-
+	
 	pa_threaded_mainloop_lock(PAMainLoop);
 
 	if (PAPlaybackStream) {
@@ -461,21 +497,13 @@ PA_DeviceBackend::Disconnect()
 		pa_stream_unref(PARecordStream);
 		PARecordStream = NULL;
 	}
-	
-	if (PAContext) {
-		pa_context_disconnect(PAContext);
-		pa_threaded_mainloop_unlock(PAMainLoop);
-		
-		printf("%s(): WAITING\n", __func__);
-		MPWaitOnSemaphore(PAContextSemaphore, kDurationForever);
-		printf("%s(): DONE\n", __func__);
-		
-		pa_threaded_mainloop_lock(PAMainLoop);
-		pa_context_unref(PAContext);
-		PAContext = NULL;
-	}
-	
+
+	pa_context_disconnect(PAContext);
 	pa_threaded_mainloop_unlock(PAMainLoop);
+		
+	DebugLog("WAITING");
+	MPWaitOnSemaphore(PAContextSemaphore, kDurationForever);
+	DebugLog("DONE");
 }
 
 void
