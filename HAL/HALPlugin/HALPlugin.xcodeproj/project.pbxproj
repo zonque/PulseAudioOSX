@@ -41,8 +41,6 @@
 		2DF7BD0308DA584F00EE5510 /* CADebugger.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCC808DA584F00EE5510 /* CADebugger.h */; };
 		2DF7BD0408DA584F00EE5510 /* CADebugMacros.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BCC908DA584F00EE5510 /* CADebugMacros.cpp */; };
 		2DF7BD0508DA584F00EE5510 /* CADebugMacros.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCCA08DA584F00EE5510 /* CADebugMacros.h */; };
-		2DF7BD0608DA584F00EE5510 /* CADebugPrintf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BCCB08DA584F00EE5510 /* CADebugPrintf.cpp */; };
-		2DF7BD0708DA584F00EE5510 /* CADebugPrintf.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCCC08DA584F00EE5510 /* CADebugPrintf.h */; };
 		2DF7BD0808DA584F00EE5510 /* CAException.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCCD08DA584F00EE5510 /* CAException.h */; };
 		2DF7BD0908DA584F00EE5510 /* CAGuard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BCCE08DA584F00EE5510 /* CAGuard.cpp */; };
 		2DF7BD0A08DA584F00EE5510 /* CAGuard.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCCF08DA584F00EE5510 /* CAGuard.h */; };
@@ -65,7 +63,6 @@
 		2DF7BD1C08DA584F00EE5510 /* CATokenMap.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCE108DA584F00EE5510 /* CATokenMap.h */; };
 		2DF7BD1D08DA584F00EE5510 /* CAVolumeCurve.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BCE208DA584F00EE5510 /* CAVolumeCurve.cpp */; };
 		2DF7BD1E08DA584F00EE5510 /* CAVolumeCurve.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCE308DA584F00EE5510 /* CAVolumeCurve.h */; };
-		65474141134D9DC80030DDFF /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65474140134D9DC80030DDFF /* IOKit.framework */; };
 		65474231134F01D70030DDFF /* PA_PlugInInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65474230134F01D70030DDFF /* PA_PlugInInterface.cpp */; };
 		65474246134F0B680030DDFF /* PA_Plugin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65474245134F0B680030DDFF /* PA_Plugin.cpp */; };
 		65474249134F108C0030DDFF /* PA_PlugInInterface.h in Headers */ = {isa = PBXBuildFile; fileRef = 65474248134F108C0030DDFF /* PA_PlugInInterface.h */; };
@@ -123,8 +120,6 @@
 		2DF7BCC808DA584F00EE5510 /* CADebugger.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CADebugger.h; sourceTree = "<group>"; };
 		2DF7BCC908DA584F00EE5510 /* CADebugMacros.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = CADebugMacros.cpp; sourceTree = "<group>"; };
 		2DF7BCCA08DA584F00EE5510 /* CADebugMacros.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CADebugMacros.h; sourceTree = "<group>"; };
-		2DF7BCCB08DA584F00EE5510 /* CADebugPrintf.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = CADebugPrintf.cpp; sourceTree = "<group>"; };
-		2DF7BCCC08DA584F00EE5510 /* CADebugPrintf.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CADebugPrintf.h; sourceTree = "<group>"; };
 		2DF7BCCD08DA584F00EE5510 /* CAException.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CAException.h; sourceTree = "<group>"; };
 		2DF7BCCE08DA584F00EE5510 /* CAGuard.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = CAGuard.cpp; sourceTree = "<group>"; };
 		2DF7BCCF08DA584F00EE5510 /* CAGuard.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CAGuard.h; sourceTree = "<group>"; };
@@ -147,7 +142,6 @@
 		2DF7BCE108DA584F00EE5510 /* CATokenMap.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CATokenMap.h; sourceTree = "<group>"; };
 		2DF7BCE208DA584F00EE5510 /* CAVolumeCurve.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = CAVolumeCurve.cpp; sourceTree = "<group>"; };
 		2DF7BCE308DA584F00EE5510 /* CAVolumeCurve.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CAVolumeCurve.h; sourceTree = "<group>"; };
-		65474140134D9DC80030DDFF /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = /System/Library/Frameworks/IOKit.framework; sourceTree = "<absolute>"; };
 		65474230134F01D70030DDFF /* PA_PlugInInterface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PA_PlugInInterface.cpp; sourceTree = "<group>"; };
 		65474245134F0B680030DDFF /* PA_Plugin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PA_Plugin.cpp; sourceTree = "<group>"; };
 		65474248134F108C0030DDFF /* PA_PlugInInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PA_PlugInInterface.h; sourceTree = "<group>"; };
@@ -178,7 +172,6 @@
 				8D576314048677EA00EA77CD /* CoreFoundation.framework in Frameworks */,
 				2DF7BC5408DA4CCA00EE5510 /* CoreAudio.framework in Frameworks */,
 				65F4FCDB133BCFAE00E72096 /* pulse.framework in Frameworks */,
-				65474141134D9DC80030DDFF /* IOKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -200,7 +193,6 @@
 		089C1671FE841209C02AAC07 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				65474140134D9DC80030DDFF /* IOKit.framework */,
 				65F40146133F7B7A00E72096 /* CoreServices.framework */,
 				65F4FCDA133BCFAE00E72096 /* pulse.framework */,
 				2DF7BC5308DA4CCA00EE5510 /* CoreAudio.framework */,
@@ -275,8 +267,6 @@
 				2DF7BCC808DA584F00EE5510 /* CADebugger.h */,
 				2DF7BCC908DA584F00EE5510 /* CADebugMacros.cpp */,
 				2DF7BCCA08DA584F00EE5510 /* CADebugMacros.h */,
-				2DF7BCCB08DA584F00EE5510 /* CADebugPrintf.cpp */,
-				2DF7BCCC08DA584F00EE5510 /* CADebugPrintf.h */,
 				2DF7BCCD08DA584F00EE5510 /* CAException.h */,
 				2DF7BCCE08DA584F00EE5510 /* CAGuard.cpp */,
 				2DF7BCCF08DA584F00EE5510 /* CAGuard.h */,
@@ -339,7 +329,6 @@
 				2DF7BD0008DA584F00EE5510 /* CACFString.h in Headers */,
 				2DF7BD0308DA584F00EE5510 /* CADebugger.h in Headers */,
 				2DF7BD0508DA584F00EE5510 /* CADebugMacros.h in Headers */,
-				2DF7BD0708DA584F00EE5510 /* CADebugPrintf.h in Headers */,
 				2DF7BD0808DA584F00EE5510 /* CAException.h in Headers */,
 				2DF7BD0A08DA584F00EE5510 /* CAGuard.h in Headers */,
 				2DF7BD0D08DA584F00EE5510 /* CAHostTimeBase.h in Headers */,
@@ -428,7 +417,6 @@
 				2DF7BCFF08DA584F00EE5510 /* CACFString.cpp in Sources */,
 				2DF7BD0208DA584F00EE5510 /* CADebugger.cpp in Sources */,
 				2DF7BD0408DA584F00EE5510 /* CADebugMacros.cpp in Sources */,
-				2DF7BD0608DA584F00EE5510 /* CADebugPrintf.cpp in Sources */,
 				2DF7BD0908DA584F00EE5510 /* CAGuard.cpp in Sources */,
 				2DF7BD0C08DA584F00EE5510 /* CAHostTimeBase.cpp in Sources */,
 				2DF7BD0F08DA584F00EE5510 /* CAMutex.cpp in Sources */,

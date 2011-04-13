@@ -22,7 +22,6 @@
 #ifndef PA_DEVICE_BACKEND_H
 #define PA_DEVICE_BACKEND_H
 
-#include <IOKit/IOKitLib.h>
 #include <CarbonCore/Multiprocessing.h>
 #include <pulse/pulseaudio.h>
 #include <pulse/mainloop.h>

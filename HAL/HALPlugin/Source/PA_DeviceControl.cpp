@@ -47,10 +47,10 @@ static void staticSetConfig(CFNotificationCenterRef /* center */,
 			    const void * /* object */,
 			    CFDictionaryRef userInfo)
 {
-	CFNumberRef n = (CFNumberRef) CFDictionaryGetValue(userInfo, CFSTR("pid"));
+	CFNumberRef number = (CFNumberRef) CFDictionaryGetValue(userInfo, CFSTR("pid"));
 	pid_t pid;
-	
-	CFNumberGetValue(n, kCFNumberIntType, &pid);
+
+	CFNumberGetValue(number, kCFNumberIntType, &pid);
 	if (pid == getpid()) {
 		PA_DeviceControl *control = static_cast<PA_DeviceControl *>(observer);
 		control->SetConfig(userInfo);

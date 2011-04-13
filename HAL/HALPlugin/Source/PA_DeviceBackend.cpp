@@ -71,19 +71,21 @@ static void staticStreamUnderflowCallback(pa_stream *stream, void *userdata)
 
 #pragma mark ### PA_DeviceBackend ###
 
+#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
+
 int
 PA_DeviceBackend::ConstructProcessName()
 {
         int name[] = { CTL_KERN, KERN_PROC, KERN_PROC_ALL, 0 };
-        unsigned int nnames = sizeof(name) / sizeof(name[0]) - 1;
         struct kinfo_proc *result;
 	unsigned int i;
         size_t length = 0;
         int err;
 	
+	memset(procname, 0, sizeof(procname));
 	snprintf(procname, sizeof(procname), "UNKNOWN");
 	
-        err = sysctl(name, nnames, NULL, &length, NULL, 0);
+        err = sysctl(name, ARRAY_SIZE(name) - 1, NULL, &length, NULL, 0);
         if (err < 0)
                 return err;
 	
@@ -91,7 +93,7 @@ PA_DeviceBackend::ConstructProcessName()
         if (!result)
                 return -ENOMEM;
 	
-        err = sysctl(name, nnames, result, &length, NULL, 0);
+        err = sysctl(name, ARRAY_SIZE(name) - 1, result, &length, NULL, 0);
 	if (err < 0) {
 		free(result);
 		return err;
@@ -99,8 +101,8 @@ PA_DeviceBackend::ConstructProcessName()
 	
         for (i = 0; i < length / sizeof(*result); i++)
                 if (result[i].kp_proc.p_pid == getpid())
-                        strncpy(procname, result[i].kp_proc.p_comm, sizeof(procname));
-	
+                        strncpy(procname, result[i].kp_proc.p_comm, sizeof(procname) - 1);
+
         free(result);
 
         return 0;
@@ -118,26 +120,28 @@ PA_DeviceBackend::DeviceWriteCallback(pa_stream *stream, size_t nbytes)
 	Assert(stream == PAPlaybackStream, "bogus stream pointer in DeviceWriteCallback");
 	
 	Float64 usecPerFrame = 1000000.0 / 44100.0;
+	UInt32 frameSize = GetFrameSize();
 	
 	AudioBufferList inputList, outputList;
 	
 	memset(&inputList, 0, sizeof(inputList));
 	memset(&outputList, 0, sizeof(outputList));
 	
-	unsigned int fs = device->GetIOBufferFrameSize() * 8;
+	unsigned int ioProcSize = device->GetIOBufferFrameSize() * frameSize;
 	unsigned char *buf, *outputBufferPos;
 	
-	/*
+#if 1
 	int ret = pa_stream_begin_write(stream, (void **) &buf, &nbytes);
 	if (ret < 0) {
 		printf(" XXXXXXXXXXXX ret %d\n", ret);
 		return;
 	}
-	*/
 	
 	//printf("buf %p, sizeof(void*) %d\n", buf, sizeof(void*));
-	
+#else	
 	buf = outputBuffer;
+#endif
+
 	outputBufferPos = buf;
 	size_t count = nbytes;
 	
@@ -158,14 +162,14 @@ PA_DeviceBackend::DeviceWriteCallback(pa_stream *stream, size_t nbytes)
 	CFArrayRef ioProcList = device->LockIOProcList();
 	AudioObjectID deviceID = device->GetObjectID();
 
-	while (count >= fs) {
+	while (count >= ioProcSize) {
 		outputList.mBuffers[0].mNumberChannels = 2;
-		outputList.mBuffers[0].mDataByteSize = fs;
+		outputList.mBuffers[0].mDataByteSize = ioProcSize;
 		outputList.mBuffers[0].mData = outputBufferPos;
 		outputList.mNumberBuffers = 1;
 		
 		inputList.mBuffers[0].mNumberChannels = 2;
-		inputList.mBuffers[0].mDataByteSize = fs;
+		inputList.mBuffers[0].mDataByteSize = ioProcSize;
 		inputList.mBuffers[0].mData = inputBuffer;
 		inputList.mNumberBuffers = 1;
 		
@@ -194,16 +198,13 @@ PA_DeviceBackend::DeviceWriteCallback(pa_stream *stream, size_t nbytes)
 			}
 		}
 		
-		count -= fs;
-		outputBufferPos += fs;
-		framesPlayed += fs/8;
+		count -= ioProcSize;
+		outputBufferPos += ioProcSize;
+		framesPlayed += ioProcSize / frameSize;
 	}
-	
+
 	device->UnlockIOProcList();
 	
-	//for (int xxx = 0; xxx < nbytes; xxx++)
-	//	buf[xxx] = rand() % 0xff;
-		
 	pa_stream_write(stream, buf, outputBufferPos - buf, NULL, 0,
 			(pa_seek_mode_t) PA_SEEK_RELATIVE);
 
@@ -355,6 +356,7 @@ PA_DeviceBackend::Initialize()
 	connectHost = NULL;
 	PAContext = NULL;
 	PAMainLoop = NULL;
+	PAConnected = false;
 	
 	sampleSpec.format = PA_SAMPLE_FLOAT32;
 	sampleSpec.rate = device->GetSampleRate();
@@ -371,11 +373,21 @@ PA_DeviceBackend::Initialize()
 void
 PA_DeviceBackend::Teardown()
 {
+	if (PAMainLoop) {
+		pa_threaded_mainloop_lock(PAMainLoop);
+		pa_threaded_mainloop_unlock(PAMainLoop);
+		pa_threaded_mainloop_stop(PAMainLoop);
+		pa_threaded_mainloop_free(PAMainLoop);		
+		PAMainLoop = NULL;
+	}
+
 	pa_xfree(inputBuffer);
-	pa_xfree(outputBuffer);
-	pa_xfree(connectHost);
 	inputBuffer = NULL;
+
+	pa_xfree(outputBuffer);
 	outputBuffer = NULL;
+	
+	pa_xfree(connectHost);
 	connectHost = NULL;
 }
 
@@ -384,24 +396,31 @@ PA_DeviceBackend::Teardown()
 void
 PA_DeviceBackend::Connect()
 {
+	if (!PAMainLoop) {
+		printf(" --- creating main loop\n");
+		PAMainLoop = pa_threaded_mainloop_new();
+		Assert(PAMainLoop, "pa_threaded_mainloop_new() failed");
+		int ret = pa_threaded_mainloop_start(PAMainLoop);
+		Assert(ret >= 0, "pa_threaded_mainloop_start() failed\n");
+	}
+
 	if (PAContext)
 		return;
+
+	pa_threaded_mainloop_lock(PAMainLoop);
 	
-	PAMainLoop = pa_threaded_mainloop_new();
-	Assert(PAMainLoop, "pa_threaded_mainloop_new() failed");
 	pa_mainloop_api *api = pa_threaded_mainloop_get_api(PAMainLoop);
 	Assert(api, "pa_threaded_mainloop_get_api() failed");
 	
 	PAContext = pa_context_new(api, procname);
 	Assert(PAContext, "pa_context_new() failed");
-	
+
 	pa_context_set_state_callback(PAContext, staticContextStateCallback, this);
 	pa_context_connect(PAContext, connectHost,
 			   (pa_context_flags_t) (PA_CONTEXT_NOFAIL | PA_CONTEXT_NOAUTOSPAWN),
 			   NULL);
-	
-	int ret = pa_threaded_mainloop_start(PAMainLoop);
-	Assert(ret >= 0, "pa_threaded_mainloop_start() failed\n");
+
+	pa_threaded_mainloop_unlock(PAMainLoop);
 	
 	printf("%s(): WAITING\n", __func__);
 	MPWaitOnSemaphore(PAContextSemaphore, kDurationForever);
@@ -415,7 +434,7 @@ PA_DeviceBackend::SetHostName(CFStringRef inHost)
 		pa_xfree(connectHost);
 	
 	CFIndex size = CFStringGetLength(inHost);
-	connectHost = (char *) pa_xmalloc0(size);
+	connectHost = (char *) pa_xmalloc0(size) + 1;
 	if (!connectHost)
 		return;
 	
@@ -427,9 +446,9 @@ PA_DeviceBackend::Disconnect()
 {
 	if (!PAMainLoop)
 		return;
-	
+
 	pa_threaded_mainloop_lock(PAMainLoop);
-	
+
 	if (PAPlaybackStream) {
 		pa_stream_flush(PAPlaybackStream, NULL, NULL);
 		pa_stream_disconnect(PAPlaybackStream);
@@ -456,12 +475,7 @@ PA_DeviceBackend::Disconnect()
 		PAContext = NULL;
 	}
 	
-	pa_threaded_mainloop *loop = PAMainLoop;
-	PAMainLoop = NULL;
-	
-	pa_threaded_mainloop_unlock(loop);
-	pa_threaded_mainloop_stop(loop);
-	pa_threaded_mainloop_free(loop);		
+	pa_threaded_mainloop_unlock(PAMainLoop);
 }
 
 void
