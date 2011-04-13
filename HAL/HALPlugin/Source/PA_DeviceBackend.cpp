@@ -126,34 +126,38 @@ PA_DeviceBackend::GetProcessName()
 	return CFStringCreateWithCString(device->GetAllocator(), procname, kCFStringEncodingASCII);
 }
 
-void
-PA_DeviceBackend::StreamWriteCallback(pa_stream *stream, size_t nbytes)
+UInt32
+PA_DeviceBackend::CallIOProcs(size_t nbytes, CFArrayRef ioProcList)
 {
-	Assert(stream == PAPlaybackStream, "bogus stream pointer in StreamWriteCallback");
-	
 	Float64 usecPerFrame = 1000000.0 / 44100.0;
 	UInt32 frameSize = GetFrameSize();
+	UInt32 ioProcSize = device->GetIOBufferFrameSize() * frameSize;
+
+	if (ioProcSize > nbytes)
+		return 0;
 	
 	AudioBufferList inputList, outputList;
 	
 	memset(&inputList, 0, sizeof(inputList));
 	memset(&outputList, 0, sizeof(outputList));
 	
-	unsigned int ioProcSize = device->GetIOBufferFrameSize() * frameSize;
 	unsigned char *buf, *outputBufferPos;
+
+	//DebugLog("stream %p nbytes %d", PAPlaybackStream, nbytes);
 	
-#if 0
-	int ret = pa_stream_begin_write(stream, (void **) &buf, &nbytes);
+#if 1
+	int ret = pa_stream_begin_write(PAPlaybackStream, (void **) &buf, &nbytes);
+
 	if (ret < 0) {
-		printf(" XXXXXXXXXXXX ret %d\n", ret);
-		return;
+		DebugLog(" XXXXXXXXXXXX ret %d", ret);
+		return 0;
 	}
 	
 	//printf("buf %p, sizeof(void*) %d\n", buf, sizeof(void*));
 #else	
 	buf = outputBuffer;
 #endif
-
+	
 	outputBufferPos = buf;
 	size_t count = nbytes;
 	
@@ -171,9 +175,8 @@ PA_DeviceBackend::StreamWriteCallback(pa_stream *stream, size_t nbytes)
 	inputTime.mFlags = now.mFlags | kAudioTimeStampSampleTimeValid;
 	outputTime.mFlags = now.mFlags | kAudioTimeStampSampleTimeValid;
 	
-	CFArrayRef ioProcList = device->LockIOProcList();
 	AudioObjectID deviceID = device->GetObjectID();
-
+	
 	while (count >= ioProcSize) {
 		outputList.mBuffers[0].mNumberChannels = 2;
 		outputList.mBuffers[0].mDataByteSize = ioProcSize;
@@ -195,7 +198,7 @@ PA_DeviceBackend::StreamWriteCallback(pa_stream *stream, size_t nbytes)
 			if ((io->startTime.mFlags & kAudioTimeStampHostTimeValid) &&
 			    (io->startTime.mHostTime > now.mHostTime))
 				enabled = false;
-
+			
 			if ((io->startTime.mFlags & kAudioTimeStampSampleTimeValid) &&
 			    (io->startTime.mSampleTime > now.mSampleTime))
 				enabled = false;
@@ -215,11 +218,29 @@ PA_DeviceBackend::StreamWriteCallback(pa_stream *stream, size_t nbytes)
 		framesPlayed += ioProcSize / frameSize;
 	}
 
-	device->UnlockIOProcList();
+	//DebugLog("writing %d, count %d", outputBufferPos - buf, count);
 	
-	pa_stream_write(stream, buf, outputBufferPos - buf, NULL, 0,
+	count = outputBufferPos - buf;
+	pa_stream_write(PAPlaybackStream, buf, count, NULL, 0,
 			(pa_seek_mode_t) PA_SEEK_RELATIVE);
+	
+	return count;
+}
 
+void
+PA_DeviceBackend::StreamWriteCallback(pa_stream *stream, size_t nbytes)
+{
+	Assert(stream == PAPlaybackStream, "bogus stream pointer in StreamWriteCallback");
+	
+	CFArrayRef ioProcList = device->LockIOProcList();
+	UInt32 written = 0;
+
+	do {
+		written = CallIOProcs(nbytes, ioProcList);
+		nbytes -= written;
+	} while (written > 0);
+
+	device->UnlockIOProcList();
 	CFRelease(ioProcList);
 }
 
@@ -378,14 +399,15 @@ void
 PA_DeviceBackend::Initialize()
 {
 	framesPlayed = 0;
-	inputBuffer = (unsigned char *) pa_xmalloc0(PA_BUFFER_SIZE);
-	outputBuffer = (unsigned char *) pa_xmalloc0(PA_BUFFER_SIZE);
 	connectHost = NULL;
 	PAContext = NULL;
 	PAMainLoop = NULL;
 	PAPlaybackStream = NULL;
 	PARecordStream = NULL;
-	
+
+	inputBuffer = (unsigned char *) pa_xmalloc0(PA_BUFFER_SIZE);
+	outputBuffer = (unsigned char *) pa_xmalloc0(PA_BUFFER_SIZE);
+
 	sampleSpec.format = PA_SAMPLE_FLOAT32;
 	sampleSpec.rate = device->GetSampleRate();
 	sampleSpec.channels = 2;

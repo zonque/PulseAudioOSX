@@ -204,30 +204,30 @@ Interface_DeviceRemoveIOProc(AudioHardwarePlugInRef inSelf,
 static OSStatus
 Interface_DeviceStart(AudioHardwarePlugInRef inSelf,
 		      AudioDeviceID inDeviceID,
-		      AudioDeviceIOProc inProc)
+		      AudioDeviceIOProcID inProcID)
 {
 	PA_Plugin *plugin = to_plugin(inSelf);
-	return plugin->DeviceStart(inDeviceID, inProc);
+	return plugin->DeviceStart(inDeviceID, inProcID);
 }
 
 static OSStatus
 Interface_DeviceStartAtTime(AudioHardwarePlugInRef inSelf,
 			    AudioDeviceID inDeviceID,
-			    AudioDeviceIOProc inProc,
+			    AudioDeviceIOProcID inProcID,
 			    AudioTimeStamp *ioRequestedStartTime,
 			    UInt32 inFlags)
 {
 	PA_Plugin *plugin = to_plugin(inSelf);
-	return plugin->DeviceStartAtTime(inDeviceID, inProc, ioRequestedStartTime, inFlags);
+	return plugin->DeviceStartAtTime(inDeviceID, inProcID, ioRequestedStartTime, inFlags);
 }
 
 static OSStatus
 Interface_DeviceStop(AudioHardwarePlugInRef inSelf,
 		     AudioDeviceID inDeviceID,
-		     AudioDeviceIOProc inProc)
+		     AudioDeviceIOProcID inProcID)
 {
 	PA_Plugin *plugin = to_plugin(inSelf);
-	return plugin->DeviceStop(inDeviceID, inProc);
+	return plugin->DeviceStop(inDeviceID, inProcID);
 }
 
 static OSStatus

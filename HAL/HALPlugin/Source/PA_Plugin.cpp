@@ -27,9 +27,9 @@
 
 #include <pulse/pulseaudio.h>
 
-#define TraceCall(x) printf("PA_Plugin::%s() :%d\n", __func__, __LINE__);
+#define TraceCall(x) printf("%s::%s() :%d\n", CLASS_NAME, __func__, __LINE__);
 
-#if 0
+#if 1
 #define DebugProperty(x...) DebugLog(x)
 #else
 #define DebugProperty(x...) do {} while(0)
@@ -412,7 +412,7 @@ PA_Plugin::DeviceRemoveIOProc(AudioDeviceID inDeviceID,
 
 OSStatus
 PA_Plugin::DeviceStart(AudioDeviceID inDeviceID,
-		       AudioDeviceIOProc inProc)
+		       AudioDeviceIOProcID inProcID)
 {
 	TraceCall();
 	PA_Device *device = GetDeviceById(inDeviceID);
@@ -424,7 +424,7 @@ PA_Plugin::DeviceStart(AudioDeviceID inDeviceID,
 	}
 
 	device->Lock();
-	ret = device->Start(inProc);
+	ret = device->Start(inProcID);
 	device->Unlock();
 
 	return ret;
@@ -432,7 +432,7 @@ PA_Plugin::DeviceStart(AudioDeviceID inDeviceID,
 
 OSStatus
 PA_Plugin::DeviceStartAtTime(AudioDeviceID inDeviceID,
-			     AudioDeviceIOProc inProc,
+			     AudioDeviceIOProcID inProcID,
 			     AudioTimeStamp *ioRequestedStartTime,
 			     UInt32 inFlags)
 {
@@ -446,7 +446,7 @@ PA_Plugin::DeviceStartAtTime(AudioDeviceID inDeviceID,
 	}
 
 	device->Lock();
-	ret = device->StartAtTime(inProc, ioRequestedStartTime, inFlags);
+	ret = device->StartAtTime(inProcID, ioRequestedStartTime, inFlags);
 	device->Unlock();
 	
 	return ret;
@@ -454,7 +454,7 @@ PA_Plugin::DeviceStartAtTime(AudioDeviceID inDeviceID,
 
 OSStatus
 PA_Plugin::DeviceStop(AudioDeviceID inDeviceID,
-		      AudioDeviceIOProc inProc)
+		      AudioDeviceIOProcID inProcID)
 {
 	TraceCall();
 	PA_Device *device = GetDeviceById(inDeviceID);
@@ -466,7 +466,7 @@ PA_Plugin::DeviceStop(AudioDeviceID inDeviceID,
 	}
 	
 	device->Lock();
-	ret = device->Stop(inProc);
+	ret = device->Stop(inProcID);
 	device->Unlock();
 	
 	return ret;

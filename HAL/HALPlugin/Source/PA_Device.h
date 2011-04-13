@@ -106,13 +106,13 @@ public:
 	
 	OSStatus RemoveIOProc(AudioDeviceIOProc inProc);
 	
-	OSStatus Start(AudioDeviceIOProc inProc);
+	OSStatus Start(AudioDeviceIOProc inProcID);
 	
-	OSStatus StartAtTime(AudioDeviceIOProc inProc,
+	OSStatus StartAtTime(AudioDeviceIOProc inProcID,
 			     AudioTimeStamp *ioRequestedStartTime,
 			     UInt32 inFlags);
 	
-	OSStatus Stop(AudioDeviceIOProc inProc);
+	OSStatus Stop(AudioDeviceIOProc inProcID);
 	
 	OSStatus Read(const AudioTimeStamp *inStartTime,
 		      AudioBufferList *outData);

@@ -96,15 +96,15 @@ public:
 				    AudioDeviceIOProc inProc);
 	
 	OSStatus DeviceStart(AudioDeviceID inDeviceID,
-			     AudioDeviceIOProc inProc);
+			     AudioDeviceIOProcID inProcID);
 	
 	OSStatus DeviceStartAtTime(AudioDeviceID inDeviceID,
-				   AudioDeviceIOProc inProc,
+				   AudioDeviceIOProcID inProcID,
 				   AudioTimeStamp *ioRequestedStartTime,
 				   UInt32 inFlags);
 	
 	OSStatus DeviceStop(AudioDeviceID inDeviceID,
-			    AudioDeviceIOProc inProc);
+			    AudioDeviceIOProcID inProcID);
 	
 	OSStatus DeviceRead(AudioDeviceID inDeviceID,
 			    const AudioTimeStamp *inStartTime,

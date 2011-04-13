@@ -91,7 +91,7 @@ PA_Device::Initialize()
 	TraceCall();
 	
 	bufferFrameSize = 1024;
-	sampleRate = 48000.0f;
+	sampleRate = 44100.0f;
 	isRunning = false;
 
 	nInputStreams = 1;
@@ -362,6 +362,8 @@ PA_Device::CreateIOProcID(AudioDeviceIOProc inProc,
 			  void *inClientData,
 			  AudioDeviceIOProcID *outIOProcID)
 {
+	DebugLog("inProc %p outIOProcID %p", inProc, outIOProcID);
+
 	ioProcListMutex->Lock();
 
 	if (FindIOProc(inProc)) {
@@ -436,20 +438,25 @@ PA_Device::RemoveIOProc(AudioDeviceIOProc inProc)
 }
 
 OSStatus
-PA_Device::Start(AudioDeviceIOProc inProc)
+PA_Device::Start(AudioDeviceIOProcID inProcID)
 {
-	return StartAtTime(inProc, NULL, 0);
+	return StartAtTime(inProcID, NULL, 0);
 }
 
 OSStatus
-PA_Device::StartAtTime(AudioDeviceIOProc inProc,
+PA_Device::StartAtTime(AudioDeviceIOProcID inProcID,
 		       AudioTimeStamp *ioRequestedStartTime,
 		       UInt32 inFlags)
 {
 	UInt32 count;
 
+	DebugLog("inProc %p", inProcID);
+	
 	ioProcListMutex->Lock();
-	IOProcTracker *io = FindIOProc(inProc);
+	IOProcTracker *io = FindIOProcByID(inProcID);
+	
+	if (!io)
+		io = FindIOProc(inProcID);
 	
 	if (io) {
 		io->enabled = true;
@@ -464,6 +471,11 @@ PA_Device::StartAtTime(AudioDeviceIOProc inProc,
 	count = CountEnabledIOProcs();	
 	ioProcListMutex->Unlock();
 
+	if (!io) {
+		DebugLog("IOProc has not been added");
+		return kAudioHardwareIllegalOperationError;
+	}
+
 	DebugLog("count %d", count);
 	if (count > 0 && !isRunning) {
 		isRunning = true;
@@ -472,22 +484,17 @@ PA_Device::StartAtTime(AudioDeviceIOProc inProc,
 		deviceControl->AnnounceDevice();
 	}
 	
-	if (!io) {
-		DebugLog("IOProc has not been added");
-		return kAudioHardwareIllegalOperationError;
-	}
-
 	return kAudioHardwareNoError;
 }
 
 OSStatus
-PA_Device::Stop(AudioDeviceIOProc inProc)
+PA_Device::Stop(AudioDeviceIOProc inProcID)
 {
 	UInt32 count;
 
 	DebugLog("before lock");
 	ioProcListMutex->Lock();
-	IOProcTracker *io = FindIOProc(inProc);
+	IOProcTracker *io = FindIOProcByID(inProcID);
 	DebugLog("after lock");
 
 	if (io)

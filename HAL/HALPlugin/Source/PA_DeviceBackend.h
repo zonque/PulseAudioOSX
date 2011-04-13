@@ -63,6 +63,7 @@ public:
 	void	StreamBufferAttrCallback(pa_stream *stream);
 
 private:
+	UInt32		CallIOProcs(size_t nbytes, CFArrayRef ioProcList);
 	int		ConstructProcessName();
 public:
 	CFStringRef	GetProcessName();
