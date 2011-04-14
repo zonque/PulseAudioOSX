@@ -143,9 +143,18 @@ PA_DeviceBackend::CallIOProcs(size_t nbytes, CFArrayRef ioProcList)
 	
 	unsigned char *buf, *outputBufferPos;
 
-	//DebugLog("stream %p nbytes %d", PAPlaybackStream, nbytes);
+	char *in = NULL;
 	
-#if 0
+	if (PARecordStream && (pa_stream_readable_size(PARecordStream) >= nbytes)) {
+		size_t readSize;
+		pa_stream_peek(PARecordStream, (const void **) &in, &readSize);
+	}
+	
+	char *inputBufferPos = in;
+	
+	//DebugLog("stream %p nbytes %d", PAPlaybackStream, nbytes);
+
+#if 1
 	int ret = pa_stream_begin_write(PAPlaybackStream, (void **) &buf, &nbytes);
 
 	if (ret < 0) {
@@ -184,8 +193,8 @@ PA_DeviceBackend::CallIOProcs(size_t nbytes, CFArrayRef ioProcList)
 		outputList.mNumberBuffers = 1;
 		
 		inputList.mBuffers[0].mNumberChannels = 2;
-		inputList.mBuffers[0].mDataByteSize = ioProcSize;
-		inputList.mBuffers[0].mData = inputBuffer;
+		inputList.mBuffers[0].mDataByteSize = inputBufferPos ? ioProcSize : 0;
+		inputList.mBuffers[0].mData = inputBufferPos;
 		inputList.mNumberBuffers = 1;
 		
 		inputTime.mSampleTime = (framesPlayed * usecPerFrame) - 10000;
@@ -214,6 +223,7 @@ PA_DeviceBackend::CallIOProcs(size_t nbytes, CFArrayRef ioProcList)
 		}
 		
 		count -= ioProcSize;
+		inputBufferPos += ioProcSize;
 		outputBufferPos += ioProcSize;
 		framesPlayed += ioProcSize / frameSize;
 	}
@@ -223,6 +233,8 @@ PA_DeviceBackend::CallIOProcs(size_t nbytes, CFArrayRef ioProcList)
 	count = outputBufferPos - buf;
 	pa_stream_write(PAPlaybackStream, buf, count, NULL, 0,
 			(pa_seek_mode_t) PA_SEEK_RELATIVE);
+	if (in)
+		pa_stream_drop(PARecordStream);
 	
 	return count;
 }
@@ -252,26 +264,6 @@ PA_DeviceBackend::StreamReadCallback(pa_stream *stream, size_t nbytes)
 	Assert(stream == PARecordStream, "bogus stream pointer in StreamReadCallback");
 	
 	pa_stream_drop(stream);
-	
-#if 0
-	const unsigned char *buf;
-	
-	pa_stream_peek(stream, (const void **) &buf, &nbytes);
-	
-	if (recordBufferReadPos.bytePos + nbytes >= PA_BUFFER_SIZE) {
-		/* wrap case */
-		
-		UInt32 lengthA = PA_BUFFER_SIZE - recordBufferReadPos.bytePos;
-		UInt32 lengthB = nbytes - lengthA;
-		
-		memcpy(inputBuffer + recordBufferReadPos.bytePos, buf, lengthA);
-		memcpy(inputBuffer, buf + lengthA, lengthB);
-	} else
-		memcpy(inputBuffer, buf, nbytes);
-	
-	pa_stream_drop(stream);
-	IncAudioPosition(&recordBufferReadPos, nbytes);
-#endif
 }
 
 void
@@ -330,16 +322,16 @@ PA_DeviceBackend::ContextStateCallback()
 						   (pa_stream_flags_t)  (PA_STREAM_INTERPOLATE_TIMING |
 									 PA_STREAM_AUTO_TIMING_UPDATE),
 						   NULL, NULL);
-			
-			/*
+
 			snprintf(tmp, sizeof(tmp), "%s record", procname);
 			PARecordStream = pa_stream_new(PAContext, tmp, &sampleSpec, NULL);
-			pa_stream_set_read_callback(PAPlaybackStream, staticStreamReadCallback, this);
+			//pa_stream_set_read_callback(PARecordStream, staticStreamReadCallback, this);
+			pa_stream_set_event_callback(PARecordStream, staticStreamEventCallback, this);
 			pa_stream_set_overflow_callback(PARecordStream, staticStreamOverflowCallback, this);
 			pa_stream_set_underflow_callback(PARecordStream, staticStreamUnderflowCallback, this);
+			pa_stream_set_buffer_attr_callback(PARecordStream, staticStreamBufferAttrCallback, this);
 			pa_stream_connect_record(PARecordStream, NULL, &bufAttr, (pa_stream_flags_t) 0);
-			*/
-			
+
 			MPSignalSemaphore(PAContextSemaphore);
 			break;
 		}
@@ -487,15 +479,28 @@ PA_DeviceBackend::Connect()
 void
 PA_DeviceBackend::SetHostName(CFStringRef inHost)
 {
-	if (connectHost)
+	if (connectHost) {
 		pa_xfree(connectHost);
+		connectHost = NULL;
+	}
 	
 	CFIndex size = CFStringGetLength(inHost);
+
+	if (size == 0)
+		return;
+	
 	connectHost = (char *) pa_xmalloc0(size) + 1;
 	if (!connectHost)
 		return;
+
+	CFStringGetCString(inHost, connectHost, size + 1, kCFStringEncodingASCII);
 	
-	CFStringGetCString(inHost, connectHost, size, kCFStringEncodingASCII);
+	if (strcmp(connectHost, "localhost") == 0) {
+		pa_xfree(connectHost);
+		connectHost = NULL;
+	}
+
+	DebugLog("Set host name to >%s<", connectHost);
 }
 
 void
@@ -521,7 +526,7 @@ PA_DeviceBackend::Disconnect()
 
 	pa_context_disconnect(PAContext);
 	pa_threaded_mainloop_unlock(PAMainLoop);
-		
+
 	DebugLog("WAITING");
 	MPWaitOnSemaphore(PAContextSemaphore, kDurationForever);
 	DebugLog("DONE");

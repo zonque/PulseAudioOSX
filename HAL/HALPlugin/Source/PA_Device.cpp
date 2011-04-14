@@ -515,7 +515,6 @@ PA_Device::Stop(AudioDeviceIOProc inProcID)
 	// CFMessagePorts make that very easy.
 
 	CFDataRef data = CFDataCreate(GetAllocator(), (UInt8 *) &arg, sizeof(arg));
-	CFShow(data);
 	SInt32 ret = SendAsyncMessage(ASYC_MSG_DEVICE_STOP, data);
 	CFRelease(data);
 
@@ -1094,20 +1093,13 @@ PA_Device::SetupAsyncCommands()
 {
 	CFMessagePortContext context;
 	CFRunLoopSourceRef source;
-	char portName[21];
-	CFStringRef portNameRef;
+	CFStringRef portNameRef = NULL;
 
 	// create a random string for out port name to avoid getting messages like
 	//    bootstrap_register(): failed 1100 (0x44c) 'Permission denied'
 	srandom(clock());
-	for (UInt32 i = 0; i < sizeof(portName) - 1; i++)
-		portName[i] = 'A' + (random() % ('z' - 'A'));
-	
-	portName[sizeof(portName)] = '\0';
-
-	DebugLog("portName is >%s<", portName);
-	portNameRef = CFStringCreateWithCString(GetAllocator(), portName, kCFStringEncodingASCII);
-	
+	portNameRef = CFStringCreateWithFormat(GetAllocator(), NULL, CFSTR("%08x%08x"),
+					       random(), random());
 	memset(&context, 0, sizeof(context));
 	context.info = this;
 	
