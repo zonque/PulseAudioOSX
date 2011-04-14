@@ -173,7 +173,7 @@ public:
 #pragma mark ### internal stuff ###
 	void		EnableAllIOProcs(Boolean enable);
 	void		SetBufferSize(UInt32 size);
-	OSStatus	RegisterObjects();
+	OSStatus	PublishObjects(Boolean died);
 
 	PA_Object *FindObjectByID(AudioObjectID searchID);
 	virtual const char *ClassName();

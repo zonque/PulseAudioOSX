@@ -19,60 +19,30 @@
  USA.
  ***/
 
-#ifndef PA_STREAM_H_
-#define PA_STREAM_H_
+#ifndef PA_VOLUMECONTROL_H_
+#define PA_VOLUMECONTROL_H_
 
 #include <CoreFoundation/CoreFoundation.h>
 #include <CoreAudio/AudioHardware.h>
 
 #include "PA_Object.h"
 #include "PA_Plugin.h"
-#include "PA_Device.h"
 
 class PA_Plugin;
-class PA_Device;
-class PA_MuteControl;
-class PA_VolumeControl;
+class PA_Stream;
 
-class PA_Stream : public PA_Object
+class PA_VolumeControl : public PA_Object
 {
 private:
-	CFMutableArrayRef *controls;
-	PA_Device *device;
-	PA_MuteControl *muteControl;
-	PA_VolumeControl *volumeControl;
-	PA_Plugin *plugin;
-	Boolean isInput;
-	UInt32 startingChannel;
+	PA_Stream *stream;
 	
 public:
-	PA_Stream(PA_Plugin *inPlugIn,
-		  PA_Device *inOwningDevice,
-		  bool inIsInput,
-		  UInt32 inStartingDeviceChannelNumber);
-	~PA_Stream();
+	PA_VolumeControl(PA_Stream *inOwningStream);
+	~PA_VolumeControl();
 	
 	void Initialize();
 	void Teardown();
 	
-#pragma mark ### plugin interface ###
-
-	OSStatus GetPropertyInfo(UInt32 inChannel,
-				 AudioDevicePropertyID inPropertyID,
-				 UInt32 *outSize,
-				 Boolean *outWritable);
-	
-	OSStatus GetProperty(UInt32 inChannel,
-			     AudioDevicePropertyID inPropertyID,
-			     UInt32 *ioPropertyDataSize,
-			     void *outPropertyData);
-	
-	OSStatus SetProperty(const AudioTimeStamp *inWhen,
-			     UInt32 inChannel,
-			     AudioDevicePropertyID inPropertyID,
-			     UInt32 inPropertyDataSize,
-			     const void *inPropertyData);
-
 #pragma mark ### properties ###
 	
 	virtual Boolean	HasProperty(const AudioObjectPropertyAddress *inAddress);
@@ -97,9 +67,8 @@ public:
 					 UInt32 inDataSize,
 					 const void *inData);
 	
-	
-	PA_Object *FindObjectByID(AudioObjectID searchID);
+	virtual PA_Object *FindObjectByID(AudioObjectID searchID);
 	virtual const char *ClassName();
 };
 
-#endif // PA_STREAM_H_
+#endif // PA_VOLUMECONTROL_H_

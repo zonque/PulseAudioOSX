@@ -56,7 +56,7 @@ PA_Device::ClassName() {
 }
 
 OSStatus
-PA_Device::RegisterObjects()
+PA_Device::PublishObjects(Boolean active)
 {
 	AudioObjectID oid = GetObjectID();
 	std::vector<AudioStreamID> streamIDs;
@@ -74,11 +74,20 @@ PA_Device::RegisterObjects()
 			streamIDs.push_back(outputStreams[i]->GetObjectID());
 
 	if (streamIDs.size() != 0)
-		return AudioObjectsPublishedAndDied(plugin->GetInterface(),
-						    GetObjectID(),
-						    streamIDs.size(),
-						    &(streamIDs.front()),
-						    0, NULL);	
+		if (active) {
+			return AudioObjectsPublishedAndDied(plugin->GetInterface(),
+							    GetObjectID(),
+							    0, NULL,
+							    streamIDs.size(),
+							    &(streamIDs.front()));	
+		} else {
+			return AudioObjectsPublishedAndDied(plugin->GetInterface(),
+							    GetObjectID(),
+							    streamIDs.size(),
+							    &(streamIDs.front()),
+							    0, NULL);
+		}
+
 	return kAudioHardwareNoError;
 }
 
@@ -152,7 +161,7 @@ PA_Device::Initialize()
 		outputStreams[0]->Initialize();
 	}
 	
-	RegisterObjects();
+	PublishObjects(true);
 }
 
 void
@@ -160,6 +169,8 @@ PA_Device::Teardown()
 {
 	TraceCall();
 	
+	PublishObjects(false);
+
 	if (deviceBackend) {
 		deviceBackend->Teardown();
 		delete deviceBackend;

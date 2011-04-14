@@ -26,9 +26,10 @@
 #include <sys/param.h>
 
 #include "PA_Stream.h"
+#include "PA_MuteControl.h"
+#include "PA_VolumeControl.h"
 
 #define super PA_Object
-
 
 #pragma mark ### Construct/Deconstruct
 
@@ -36,23 +37,45 @@ void
 PA_Stream::Initialize()
 {
 	OSStatus ret;
-	AudioObjectID oid;
+	AudioObjectID oid[2];
 	
 	ret = AudioObjectCreate(plugin->GetInterface(),
 				device->GetObjectID(),
-				kAudioStreamClassID, &oid);
+				kAudioStreamClassID, &oid[0]);
 	if (ret != kAudioHardwareNoError) {
 		DebugLog("AudioObjectCreate() failed with %d", (int) ret);
 		return;
 	}
 	
-	SetObjectID(oid);
-	DebugLog("New stream has ID %d", (int) oid);
+	SetObjectID(oid[0]);
+	DebugLog("New stream has ID %d", (int) oid[0]);
+
+	muteControl = new PA_MuteControl(this);
+	muteControl->Initialize();
+	oid[0] = muteControl->GetObjectID();
+
+	volumeControl = new PA_VolumeControl(this);
+	volumeControl->Initialize();
+	oid[1] = volumeControl->GetObjectID();
+	
+	AudioObjectsPublishedAndDied(plugin->GetInterface(),
+				     GetObjectID(),
+				     2, oid,
+				     0, NULL);
 }
 
 void
 PA_Stream::Teardown()
 {
+	AudioObjectID oid[2];
+
+	oid[0] = muteControl->GetObjectID();
+	oid[1] = volumeControl->GetObjectID();
+	AudioObjectsPublishedAndDied(plugin->GetInterface(),
+				     GetObjectID(),
+				     0, NULL,
+				     2, oid);
+	
 }
 
 PA_Stream::PA_Stream(PA_Plugin *inPlugIn,
@@ -78,8 +101,18 @@ PA_Stream::ClassName() {
 PA_Object *
 PA_Stream::FindObjectByID(AudioObjectID searchID)
 {
-	if (GetObjectID() == searchID)
+	PA_Object *o;
+
+	if (searchID == GetObjectID())
 		return this;
+	
+	o = muteControl->FindObjectByID(searchID);
+	if (o)
+		return o;
+
+	o = volumeControl->FindObjectByID(searchID);
+	if (o)
+		return o;
 	
 	return NULL;
 }
