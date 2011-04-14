@@ -66,8 +66,9 @@ private:
 	PA_DeviceControl *deviceControl;
 	
 	Float64 sampleRate;
-	
 	Boolean isRunning;
+	
+	CFMessagePortRef localPort, remotePort;
 
 public:
 	PA_Device(PA_Plugin *inPlugin);
@@ -174,6 +175,10 @@ public:
 	void		EnableAllIOProcs(Boolean enable);
 	void		SetBufferSize(UInt32 size);
 	OSStatus	PublishObjects(Boolean died);
+	void		AnnounceDeviceChange();
+	void		SetupAsyncCommands();
+	OSStatus	DoStop(AudioDeviceIOProcID procID);
+	OSStatus	SendAsyncMessage(SInt32 command, CFDataRef data);
 
 	virtual void ReportOwnedObjects(std::vector<AudioObjectID> &arr);
 	virtual PA_Object *FindObjectByID(AudioObjectID searchID);

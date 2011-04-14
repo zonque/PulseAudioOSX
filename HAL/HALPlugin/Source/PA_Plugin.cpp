@@ -29,7 +29,7 @@
 
 #define TraceCall(x) printf("%s::%s() :%d\n", CLASS_NAME, __func__, __LINE__);
 
-#if 1
+#if 0
 #define DebugProperty(x...) DebugLog(x)
 #else
 #define DebugProperty(x...) do {} while(0)
@@ -487,9 +487,9 @@ PA_Plugin::DeviceStop(AudioDeviceID inDeviceID,
 		return kAudioHardwareBadDeviceError;
 	}
 	
-	device->Lock();
+	//device->Lock();
 	ret = device->Stop(inProcID);
-	device->Unlock();
+	//device->Unlock();
 	
 	return ret;
 }

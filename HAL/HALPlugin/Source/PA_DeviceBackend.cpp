@@ -145,7 +145,7 @@ PA_DeviceBackend::CallIOProcs(size_t nbytes, CFArrayRef ioProcList)
 
 	//DebugLog("stream %p nbytes %d", PAPlaybackStream, nbytes);
 	
-#if 1
+#if 0
 	int ret = pa_stream_begin_write(PAPlaybackStream, (void **) &buf, &nbytes);
 
 	if (ret < 0) {
@@ -232,7 +232,10 @@ PA_DeviceBackend::StreamWriteCallback(pa_stream *stream, size_t nbytes)
 {
 	Assert(stream == PAPlaybackStream, "bogus stream pointer in StreamWriteCallback");
 	
-	CFArrayRef ioProcList = device->LockIOProcList();
+	CFArrayRef ioProcList = CFArrayCreateCopy(device->GetAllocator(),
+						  device->LockIOProcList());
+	device->UnlockIOProcList();
+
 	UInt32 written = 0;
 
 	do {
@@ -240,7 +243,6 @@ PA_DeviceBackend::StreamWriteCallback(pa_stream *stream, size_t nbytes)
 		nbytes -= written;
 	} while (written > 0);
 
-	device->UnlockIOProcList();
 	CFRelease(ioProcList);
 }
 

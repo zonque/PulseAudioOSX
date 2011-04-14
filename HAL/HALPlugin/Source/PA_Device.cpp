@@ -40,6 +40,10 @@
 #define DebugIOProc(x...) do {} while(0)
 #endif
 
+enum {
+	ASYC_MSG_DEVICE_STOP = 0
+};
+
 #pragma mark ### Construct / Deconstruct ###
 
 PA_Device::PA_Device(PA_Plugin *inPlugin) : plugin(inPlugin)
@@ -167,6 +171,8 @@ PA_Device::Initialize()
 		outputStreams[0] = new PA_Stream(plugin, this, false, 1);
 		outputStreams[0]->Initialize();
 	}
+	
+	SetupAsyncCommands();
 }
 
 void
@@ -251,6 +257,20 @@ CFAllocatorRef
 PA_Device::GetAllocator()
 {
 	return plugin->GetAllocator();
+}
+
+void
+PA_Device::AnnounceDeviceChange()
+{
+	AudioObjectPropertyAddress addr;
+	
+	addr.mSelector = kAudioDevicePropertyDeviceHasChanged;
+	addr.mElement = 0;
+	addr.mScope = 0;
+
+	AudioObjectPropertiesChanged(plugin->GetInterface(),
+				     GetObjectID(),
+				     1, &addr);
 }
 
 #pragma mark ### IOProcTracker / list management ###
@@ -478,6 +498,7 @@ PA_Device::StartAtTime(AudioDeviceIOProcID inProcID,
 		DebugLog("Starting hardware");
 		deviceBackend->Connect();
 		deviceControl->AnnounceDevice();
+		AnnounceDeviceChange();
 	}
 	
 	return kAudioHardwareNoError;
@@ -486,30 +507,19 @@ PA_Device::StartAtTime(AudioDeviceIOProcID inProcID,
 OSStatus
 PA_Device::Stop(AudioDeviceIOProc inProcID)
 {
-	pthread_mutex_lock(&ioProcListMutex);
-	IOProcTracker *io = FindIOProcByID(inProcID);
+	unsigned long arg = (unsigned long) inProcID;
 
-	if (io)
-		io->enabled = false;
+	// This plugin method is likely to be called from the IOProc thread, which
+	// the pulseaudio mainloop API doesn't like. Hence, we have to trick around
+	// and send a message to the thread the plugin was initialized from. Luckily,
+	// CFMessagePorts make that very easy.
 
-	DebugIOProc("Stopping IOProc @%p", io);
+	CFDataRef data = CFDataCreate(GetAllocator(), (UInt8 *) &arg, sizeof(arg));
+	CFShow(data);
+	SInt32 ret = SendAsyncMessage(ASYC_MSG_DEVICE_STOP, data);
+	CFRelease(data);
 
-	UInt32 count = CountEnabledIOProcs();
-	pthread_mutex_unlock(&ioProcListMutex);
-
-	if (inProcID && !io) {
-		DebugLog("IOProc has not been added");
-		return kAudioHardwareIllegalOperationError;
-	}
-
-	if (isRunning && count > 0) {
-		isRunning = false;
-		DebugLog("Stopping hardware");
-		deviceControl->SignOffDevice();
-		deviceBackend->Disconnect();
-	}
-	
-	return kAudioHardwareNoError;
+	return ret;
 }
 
 #if 0
@@ -1000,4 +1010,113 @@ PA_Device::SetProperty(const AudioTimeStamp * /* inWhen */,
 				kAudioDevicePropertyScopeOutput;
 	
 	return SetPropertyData(&addr, 0, NULL, inPropertyDataSize, inPropertyData);
+}
+
+#pragma mark ### async command ###
+
+OSStatus
+PA_Device::DoStop(AudioDeviceIOProcID inProcID)
+{
+	pthread_mutex_lock(&ioProcListMutex);
+	IOProcTracker *io = FindIOProcByID(inProcID);
+
+	if (!io)
+		io = FindIOProc(inProcID);
+
+	if (io)
+		io->enabled = false;
+		
+	UInt32 count = CountEnabledIOProcs();
+	pthread_mutex_unlock(&ioProcListMutex);
+
+	if (inProcID && !io) {
+		DebugLog("IOProc has not been added");
+		return kAudioHardwareIllegalOperationError;
+	}
+
+	DebugIOProc("Stopping IOProc @%p", io);
+
+	if (isRunning && count == 0) {
+		isRunning = false;
+		DebugLog("Stopping hardware");
+		deviceControl->SignOffDevice();
+		deviceBackend->Disconnect();
+		AnnounceDeviceChange();	
+	}
+	
+	return kAudioHardwareNoError;
+}
+
+static CFDataRef
+staticMessagePortDispatch(CFMessagePortRef /* local */,
+			  SInt32 msgid,
+			  CFDataRef data,
+			  void *info)
+{
+	PA_Device *dev = static_cast<PA_Device *> (info);
+	
+	DebugLog("msgid = %d", (int) msgid);
+	
+	switch (msgid) {
+		case ASYC_MSG_DEVICE_STOP: {
+			AudioDeviceIOProcID ioid;
+			CFDataGetBytes(data, CFRangeMake(0, sizeof(ioid)), (Byte *) &ioid);
+			OSStatus ret = dev->DoStop(ioid);
+			return CFDataCreate(dev->GetAllocator(), (Byte *) &ret, sizeof(ret));
+		}
+
+		default:
+			DebugLog("Unhandled message %d", (int) msgid);
+	}
+	
+	return NULL;
+}
+
+OSStatus
+PA_Device::SendAsyncMessage(SInt32 command, CFDataRef data)
+{
+	CFDataRef returnData = NULL;
+	CFMessagePortSendRequest(remotePort, command, data,
+				 10, 10, kCFRunLoopDefaultMode, &returnData);
+	
+	if (returnData) {
+		OSStatus ret;
+		CFDataGetBytes(returnData, CFRangeMake(0, sizeof(ret)), (Byte *) &ret);
+		CFRelease(returnData);
+		return ret;
+	}
+
+	return 0;
+}
+
+void
+PA_Device::SetupAsyncCommands()
+{
+	CFMessagePortContext context;
+	CFRunLoopSourceRef source;
+	char portName[21];
+	CFStringRef portNameRef;
+
+	// create a random string for out port name to avoid getting messages like
+	//    bootstrap_register(): failed 1100 (0x44c) 'Permission denied'
+	srandom(clock());
+	for (UInt32 i = 0; i < sizeof(portName) - 1; i++)
+		portName[i] = 'A' + (random() % ('z' - 'A'));
+	
+	portName[sizeof(portName)] = '\0';
+
+	DebugLog("portName is >%s<", portName);
+	portNameRef = CFStringCreateWithCString(GetAllocator(), portName, kCFStringEncodingASCII);
+	
+	memset(&context, 0, sizeof(context));
+	context.info = this;
+	
+	localPort = CFMessagePortCreateLocal(GetAllocator(), portNameRef,
+					     staticMessagePortDispatch, &context, NULL);
+	source = CFMessagePortCreateRunLoopSource(GetAllocator(), localPort, 0);
+	CFRunLoopAddSource(CFRunLoopGetCurrent(), source, kCFRunLoopCommonModes);
+	
+	remotePort = CFMessagePortCreateRemote(GetAllocator(), portNameRef);
+	
+	CFRelease(portNameRef);
 }
