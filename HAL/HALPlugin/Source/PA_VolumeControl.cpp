@@ -4,8 +4,10 @@
 
 #define super PA_Object
 
-PA_VolumeControl::PA_VolumeControl(PA_Stream *inOwningStream) :
-stream(inOwningStream)
+PA_VolumeControl::PA_VolumeControl(PA_Plugin *inPlugin,
+				   PA_Stream *inOwningStream) :
+	plugin(inPlugin),
+	stream(inOwningStream)
 {
 }
 

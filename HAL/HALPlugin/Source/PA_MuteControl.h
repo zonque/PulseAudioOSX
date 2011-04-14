@@ -35,9 +35,11 @@ class PA_MuteControl : public PA_Object
 {
 private:
 	PA_Stream *stream;
+	PA_Plugin *plugin;
 	
 public:
-	PA_MuteControl(PA_Stream *inOwningStream);
+	PA_MuteControl(PA_Plugin *inPlugin,
+		       PA_Stream *inOwningStream);
 	~PA_MuteControl();
 	
 	void Initialize();

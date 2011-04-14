@@ -37,7 +37,6 @@ class PA_VolumeControl;
 class PA_Stream : public PA_Object
 {
 private:
-	CFMutableArrayRef *controls;
 	PA_Device *device;
 	PA_MuteControl *muteControl;
 	PA_VolumeControl *volumeControl;
@@ -100,6 +99,8 @@ public:
 	
 	PA_Object *FindObjectByID(AudioObjectID searchID);
 	virtual const char *ClassName();
+	
+	OSStatus PublishObjects(Boolean active);
 };
 
 #endif // PA_STREAM_H_

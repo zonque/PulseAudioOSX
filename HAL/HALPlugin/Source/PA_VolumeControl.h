@@ -35,9 +35,11 @@ class PA_VolumeControl : public PA_Object
 {
 private:
 	PA_Stream *stream;
-	
+	PA_Plugin *plugin;
+
 public:
-	PA_VolumeControl(PA_Stream *inOwningStream);
+	PA_VolumeControl(PA_Plugin *plugin,
+			 PA_Stream *inOwningStream);
 	~PA_VolumeControl();
 	
 	void Initialize();

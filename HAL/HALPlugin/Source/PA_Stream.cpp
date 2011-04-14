@@ -33,49 +33,77 @@
 
 #pragma mark ### Construct/Deconstruct
 
+OSStatus
+PA_Stream::PublishObjects(Boolean active)
+{
+	std::vector<AudioStreamID> controlIDs;
+
+	controlIDs.empty();
+
+	if (muteControl)
+		controlIDs.push_back(muteControl->GetObjectID());
+
+	if (volumeControl)
+		controlIDs.push_back(volumeControl->GetObjectID());
+
+	if (controlIDs.size() != 0)
+		if (active) {
+			return AudioObjectsPublishedAndDied(plugin->GetInterface(),
+							    GetObjectID(),
+							    controlIDs.size(),
+							    &(controlIDs.front()),
+							    0, NULL);	
+		} else {
+			return AudioObjectsPublishedAndDied(plugin->GetInterface(),
+							    GetObjectID(),
+							    0, NULL,
+							    controlIDs.size(),
+							    &(controlIDs.front()));
+		}
+	
+	return kAudioHardwareNoError;	
+}
+
 void
 PA_Stream::Initialize()
 {
 	OSStatus ret;
-	AudioObjectID oid[2];
+	AudioObjectID oid;
 	
 	ret = AudioObjectCreate(plugin->GetInterface(),
 				device->GetObjectID(),
-				kAudioStreamClassID, &oid[0]);
+				kAudioStreamClassID, &oid);
 	if (ret != kAudioHardwareNoError) {
 		DebugLog("AudioObjectCreate() failed with %d", (int) ret);
 		return;
 	}
 	
-	SetObjectID(oid[0]);
-	DebugLog("New stream has ID %d", (int) oid[0]);
+	SetObjectID(oid);
+	DebugLog("New stream has ID %d", (int) oid);
 
-	muteControl = new PA_MuteControl(this);
-	muteControl->Initialize();
-	oid[0] = muteControl->GetObjectID();
+	if (!isInput) {
+		muteControl = new PA_MuteControl(plugin, this);
+		muteControl->Initialize();
 
-	volumeControl = new PA_VolumeControl(this);
-	volumeControl->Initialize();
-	oid[1] = volumeControl->GetObjectID();
-	
-	AudioObjectsPublishedAndDied(plugin->GetInterface(),
-				     GetObjectID(),
-				     2, oid,
-				     0, NULL);
+		volumeControl = new PA_VolumeControl(plugin, this);
+		volumeControl->Initialize();
+	}
 }
 
 void
 PA_Stream::Teardown()
 {
-	AudioObjectID oid[2];
+	if (muteControl) {
+		muteControl->Teardown();
+		delete muteControl;
+		muteControl = NULL;
+	}
 
-	oid[0] = muteControl->GetObjectID();
-	oid[1] = volumeControl->GetObjectID();
-	AudioObjectsPublishedAndDied(plugin->GetInterface(),
-				     GetObjectID(),
-				     0, NULL,
-				     2, oid);
-	
+	if (volumeControl) {
+		volumeControl->Teardown();
+		delete volumeControl;
+		volumeControl = NULL;
+	}
 }
 
 PA_Stream::PA_Stream(PA_Plugin *inPlugIn,
@@ -85,7 +113,9 @@ PA_Stream::PA_Stream(PA_Plugin *inPlugIn,
 	plugin(inPlugIn),
 	device(inOwningDevice),
 	isInput(inIsInput),
-	startingChannel(inStartingDeviceChannelNumber)
+	startingChannel(inStartingDeviceChannelNumber),
+	muteControl(NULL),
+	volumeControl(NULL)
 {
 }
 
@@ -106,14 +136,18 @@ PA_Stream::FindObjectByID(AudioObjectID searchID)
 	if (searchID == GetObjectID())
 		return this;
 	
-	o = muteControl->FindObjectByID(searchID);
-	if (o)
-		return o;
+	if (muteControl) {
+		o = muteControl->FindObjectByID(searchID);
+		if (o)
+			return o;
+	}
 
-	o = volumeControl->FindObjectByID(searchID);
-	if (o)
-		return o;
-	
+	if (volumeControl) {
+		o = volumeControl->FindObjectByID(searchID);
+		if (o)
+			return o;
+	}
+
 	return NULL;
 }
 

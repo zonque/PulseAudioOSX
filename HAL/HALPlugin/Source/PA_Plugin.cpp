@@ -137,11 +137,24 @@ PA_Plugin::InitializeWithObjectID(AudioObjectID inObjectID)
 	TraceCall();
 	DebugLog("inObjectID = %d\n", (int) inObjectID);
 	SetObjectID(inObjectID);
-	
+
+	std::vector<AudioStreamID> deviceIDs;
+	deviceIDs.empty();
+
 	devices = CFArrayCreateMutable(allocator, 0, NULL);
 	PA_Device *dev = new PA_Device(this);
 	CFArrayAppendValue(devices, dev);
 	dev->Initialize();
+	deviceIDs.push_back(dev->GetObjectID());
+	
+	// publish device objects
+	if (deviceIDs.size() != 0)
+		AudioObjectsPublishedAndDied(GetInterface(),
+					     kAudioObjectSystemObject,
+					     deviceIDs.size(), &(deviceIDs.front()),
+					     0, NULL);
+	
+	dev->PublishObjects(true);
 
 	return kAudioHardwareNoError;
 }

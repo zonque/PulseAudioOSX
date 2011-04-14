@@ -4,7 +4,9 @@
 
 #define super PA_Object
 
-PA_MuteControl::PA_MuteControl(PA_Stream *inOwningStream) :
+PA_MuteControl::PA_MuteControl(PA_Plugin *inPlugin,
+			       PA_Stream *inOwningStream) :
+	plugin(inPlugin),
 	stream(inOwningStream)
 {
 }
@@ -21,7 +23,13 @@ PA_MuteControl::ClassName()
 
 void
 PA_MuteControl::Initialize()
-{	
+{
+	AudioObjectID oid;
+
+	AudioObjectCreate(plugin->GetInterface(),
+			  stream->GetObjectID(),
+			  kAudioMuteControlClassID, &oid);	
+	SetObjectID(oid);
 }
 
 void
