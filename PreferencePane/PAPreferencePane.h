@@ -9,11 +9,10 @@
  (at your option) any later version.
  ***/
 
-#import "BonjourListener.h"
 #import <PreferencePanes/PreferencePanes.h>
 #import <Quartz/Quartz.h>
 
-@interface PAPreferencePane : NSPreferencePane 
+@interface PAPreferencePane : NSPreferencePane <NSNetServiceDelegate, NSNetServiceBrowserDelegate>
 {
 	IBOutlet NSTableView		*clientTableView;
 	IBOutlet IKImageView		*imageView;
@@ -29,11 +28,31 @@
 	IBOutlet NSButton		*persistenCheckButton;
 
 	NSDistributedNotificationCenter *notificationCenter;
-	NSMutableArray *clientList;
-	NSTimer *timer;
-	BonjourListener *listener;
+	NSNetServiceBrowser		*netServiceBrowser;	
+	NSMutableArray			*clientList;
+	NSMutableDictionary		*serviceDict;	
+	NSTimer				*timer;
 }
 
+- (NSString *) ipOfService: (NSNetService *) service;
+
+/* NSNetServiceDelegate */
+- (void)netServiceDidResolveAddress:(NSNetService *)sender;
+- (void) netService: (NSNetService *) sender
+      didNotResolve: (NSDictionary *) errorDict;
+
+- (void)netServiceWillResolve:(NSNetService *)sender;
+- (void)netServiceDidStop:(NSNetService *)sender;
+
+/* NSNetServiceBrowserDelegate */
+- (void) netServiceBrowser: (NSNetServiceBrowser *) netServiceBrowser
+	    didFindService: (NSNetService *) netService
+	        moreComing: (BOOL) moreServicesComing;
+- (void) netServiceBrowser: (NSNetServiceBrowser *) netServiceBrowser
+	  didRemoveService: (NSNetService *) netService
+		moreComing: (BOOL) moreServicesComing;
+
+/* GUI */
 - (IBAction) selectClient: (id) sender;
 - (IBAction) connectClient: (id) sender;
 

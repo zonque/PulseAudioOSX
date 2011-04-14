@@ -8,8 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		650E30FC1338F4BB009ACF12 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 650E30FB1338F4BB009ACF12 /* IOKit.framework */; };
-		650E324313390D64009ACF12 /* BonjourListener.h in Headers */ = {isa = PBXBuildFile; fileRef = 650E324113390D64009ACF12 /* BonjourListener.h */; };
-		650E324413390D64009ACF12 /* BonjourListener.m in Sources */ = {isa = PBXBuildFile; fileRef = 650E324213390D64009ACF12 /* BonjourListener.m */; };
 		6547ABD5134C9B040097578F /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6547ABD4134C9B040097578F /* Quartz.framework */; };
 		8D202CEA0486D31800D8A456 /* PulseAudio_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 32DBCFA20370C41700C91783 /* PulseAudio_Prefix.pch */; };
 		8D202CEB0486D31800D8A456 /* PAPreferencePane.h in Headers */ = {isa = PBXBuildFile; fileRef = F506C03C013D9D7901CA16C8 /* PAPreferencePane.h */; };
@@ -28,8 +26,6 @@
 		1058C7ADFEA557BF11CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		32DBCFA20370C41700C91783 /* PulseAudio_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PulseAudio_Prefix.pch; sourceTree = "<group>"; };
 		650E30FB1338F4BB009ACF12 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = /System/Library/Frameworks/IOKit.framework; sourceTree = "<absolute>"; };
-		650E324113390D64009ACF12 /* BonjourListener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BonjourListener.h; path = ../PulseConsole/BonjourListener.h; sourceTree = SOURCE_ROOT; };
-		650E324213390D64009ACF12 /* BonjourListener.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BonjourListener.m; path = ../PulseConsole/BonjourListener.m; sourceTree = SOURCE_ROOT; };
 		6547ABD4134C9B040097578F /* Quartz.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quartz.framework; path = /System/Library/Frameworks/Quartz.framework; sourceTree = "<absolute>"; };
 		8D202CF70486D31800D8A456 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		8D202CF80486D31800D8A456 /* PulseAudio.prefPane */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PulseAudio.prefPane; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -90,8 +86,6 @@
 		08FB77AFFE84173DC02AAC07 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				650E324113390D64009ACF12 /* BonjourListener.h */,
-				650E324213390D64009ACF12 /* BonjourListener.m */,
 				F506C03C013D9D7901CA16C8 /* PAPreferencePane.h */,
 				F506C03D013D9D7901CA16C8 /* PAPreferencePane.m */,
 			);
@@ -101,6 +95,8 @@
 		1058C7ACFEA557BF11CA2CBB /* Linked Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				089C1672FE841209C02AAC07 /* Foundation.framework */,
+				089C167FFE841241C02AAC07 /* AppKit.framework */,
 				6547ABD4134C9B040097578F /* Quartz.framework */,
 				650E30FB1338F4BB009ACF12 /* IOKit.framework */,
 				1058C7ADFEA557BF11CA2CBB /* Cocoa.framework */,
@@ -112,8 +108,6 @@
 		1058C7AEFEA557BF11CA2CBB /* Other Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				089C1672FE841209C02AAC07 /* Foundation.framework */,
-				089C167FFE841241C02AAC07 /* AppKit.framework */,
 			);
 			name = "Other Frameworks";
 			sourceTree = "<group>";
@@ -143,7 +137,6 @@
 			files = (
 				8D202CEA0486D31800D8A456 /* PulseAudio_Prefix.pch in Headers */,
 				8D202CEB0486D31800D8A456 /* PAPreferencePane.h in Headers */,
-				650E324313390D64009ACF12 /* BonjourListener.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -223,7 +216,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				8D202CF10486D31800D8A456 /* PAPreferencePane.m in Sources */,
-				650E324413390D64009ACF12 /* BonjourListener.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -314,7 +306,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				PREBINDING = NO;
-				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.5.sdk";
+				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.6.sdk";
 			};
 			name = Release;
 		};
