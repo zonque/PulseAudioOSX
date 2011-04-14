@@ -21,6 +21,7 @@
 
 #define CLASS_NAME "PA_Object"
 
+#include <sys/param.h>
 #include "PA_Object.h"
 
 AudioObjectID
@@ -35,6 +36,11 @@ PA_Object::SetObjectID(AudioObjectID i)
 	objectID = i;
 }
 
+void
+PA_Object::ReportOwnedObjects(std::vector<AudioObjectID> & /* arr */)
+{
+}
+
 const char *
 PA_Object::ClassName() {
 	return CLASS_NAME;
@@ -44,6 +50,7 @@ Boolean
 PA_Object::HasProperty(const AudioObjectPropertyAddress *inAddress)
 {
 	switch (inAddress->mSelector) {
+		case kAudioObjectPropertyOwnedObjects:
 		case kAudioObjectPropertyListenerAdded:
 		case kAudioObjectPropertyListenerRemoved:
 			return true;
@@ -74,6 +81,12 @@ PA_Object::GetPropertyDataSize(const AudioObjectPropertyAddress *inAddress,
 			       UInt32 *outDataSize)
 {
 	switch (inAddress->mSelector) {
+		case kAudioObjectPropertyOwnedObjects: {
+			std::vector<AudioObjectID> arr;
+			ReportOwnedObjects(arr);
+			*outDataSize = sizeof(AudioObjectID) * arr.size();
+			return kAudioHardwareNoError;
+		}
 		case kAudioObjectPropertyListenerAdded:
 		case kAudioObjectPropertyListenerRemoved:
 			*outDataSize = sizeof(AudioObjectPropertyAddress);
@@ -100,6 +113,13 @@ PA_Object::GetPropertyData(const AudioObjectPropertyAddress *inAddress,
 			   void *outData)
 {
 	switch (inAddress->mSelector) {
+		case kAudioObjectPropertyOwnedObjects: {
+			std::vector<AudioObjectID> arr;
+			ReportOwnedObjects(arr);
+			*ioDataSize = MIN(*ioDataSize, sizeof(AudioObjectID) * arr.size());
+			memcpy(outData, &(arr.front()), *ioDataSize);
+			return kAudioHardwareNoError;
+		}			
 		case kAudioObjectPropertyListenerAdded:
 		case kAudioObjectPropertyListenerRemoved:
 			//ASSERT

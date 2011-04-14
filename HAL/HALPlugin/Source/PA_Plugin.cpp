@@ -54,6 +54,15 @@ PA_Plugin::~PA_Plugin()
 		CFRelease(allocator);	
 }
 
+void
+PA_Plugin::ReportOwnedObjects(std::vector<AudioObjectID> &arr)
+{
+	for (SInt32 i = 0; i < CFArrayGetCount(devices); i++) {
+		PA_Device *dev = (PA_Device *) CFArrayGetValueAtIndex(devices, i);
+		arr.push_back(dev->GetObjectID());
+	}
+}
+
 const char *
 PA_Plugin::ClassName() {
 	return CLASS_NAME;
@@ -138,15 +147,15 @@ PA_Plugin::InitializeWithObjectID(AudioObjectID inObjectID)
 	DebugLog("inObjectID = %d\n", (int) inObjectID);
 	SetObjectID(inObjectID);
 
-	std::vector<AudioStreamID> deviceIDs;
-	deviceIDs.empty();
-
 	devices = CFArrayCreateMutable(allocator, 0, NULL);
 	PA_Device *dev = new PA_Device(this);
 	CFArrayAppendValue(devices, dev);
 	dev->Initialize();
-	deviceIDs.push_back(dev->GetObjectID());
-	
+
+	std::vector<AudioStreamID> deviceIDs;
+	deviceIDs.clear();
+	ReportOwnedObjects(deviceIDs);
+		
 	// publish device objects
 	if (deviceIDs.size() != 0)
 		AudioObjectsPublishedAndDied(GetInterface(),

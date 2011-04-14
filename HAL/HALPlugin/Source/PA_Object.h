@@ -79,7 +79,8 @@ public:
 
 	void Lock();
 	void Unlock();
-	
+
+	virtual void ReportOwnedObjects(std::vector<AudioObjectID> &arr);
 	virtual PA_Object *FindObjectByID(AudioObjectID searchID) = 0;
 	virtual const char *ClassName();
 };

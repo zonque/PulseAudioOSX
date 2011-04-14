@@ -33,18 +33,22 @@
 
 #pragma mark ### Construct/Deconstruct
 
+void
+PA_Stream::ReportOwnedObjects(std::vector<AudioObjectID> &arr)
+{
+	if (muteControl)
+		arr.push_back(muteControl->GetObjectID());
+	
+	if (volumeControl)
+		arr.push_back(volumeControl->GetObjectID());
+}
+
 OSStatus
 PA_Stream::PublishObjects(Boolean active)
 {
 	std::vector<AudioStreamID> controlIDs;
-
-	controlIDs.empty();
-
-	if (muteControl)
-		controlIDs.push_back(muteControl->GetObjectID());
-
-	if (volumeControl)
-		controlIDs.push_back(volumeControl->GetObjectID());
+	controlIDs.clear();
+	ReportOwnedObjects(controlIDs);
 
 	if (controlIDs.size() != 0)
 		if (active) {

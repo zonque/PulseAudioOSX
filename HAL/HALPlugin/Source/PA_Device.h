@@ -175,7 +175,8 @@ public:
 	void		SetBufferSize(UInt32 size);
 	OSStatus	PublishObjects(Boolean died);
 
-	PA_Object *FindObjectByID(AudioObjectID searchID);
+	virtual void ReportOwnedObjects(std::vector<AudioObjectID> &arr);
+	virtual PA_Object *FindObjectByID(AudioObjectID searchID);
 	virtual const char *ClassName();
 };
 

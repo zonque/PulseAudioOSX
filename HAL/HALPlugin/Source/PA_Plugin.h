@@ -165,6 +165,7 @@ public:
 	
 	PA_Object *FindObjectByID(AudioObjectID searchID);
 
+	virtual void ReportOwnedObjects(std::vector<AudioObjectID> &arr);
 	AudioHardwarePlugInRef GetInterface()	{ return plugin; };
 	CFAllocatorRef GetAllocator()		{ return allocator; };
 	virtual const char *ClassName();

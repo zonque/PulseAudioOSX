@@ -55,20 +55,24 @@ PA_Device::ClassName() {
 	return CLASS_NAME;
 }
 
+void
+PA_Device::ReportOwnedObjects(std::vector<AudioObjectID> &arr)
+{
+	for (UInt32 i = 0; i < nInputStreams; i++)
+		if (inputStreams[i])
+			arr.push_back(inputStreams[i]->GetObjectID());
+	
+	for (UInt32 i = 0; i < nOutputStreams; i++)
+		if (outputStreams[i])
+			arr.push_back(outputStreams[i]->GetObjectID());
+}
+
 OSStatus
 PA_Device::PublishObjects(Boolean active)
 {
 	std::vector<AudioStreamID> streamIDs;
-
-	streamIDs.empty();
-
-	for (UInt32 i = 0; i < nInputStreams; i++)
-		if (inputStreams[i])
-			streamIDs.push_back(inputStreams[i]->GetObjectID());
-
-	for (UInt32 i = 0; i < nOutputStreams; i++)
-		if (outputStreams[i])
-			streamIDs.push_back(outputStreams[i]->GetObjectID());
+	streamIDs.clear();
+	ReportOwnedObjects(streamIDs);
 
 	if (streamIDs.size() != 0)
 		if (active) {

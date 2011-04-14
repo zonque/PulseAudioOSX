@@ -97,7 +97,8 @@ public:
 					 const void *inData);
 	
 	
-	PA_Object *FindObjectByID(AudioObjectID searchID);
+	virtual void ReportOwnedObjects(std::vector<AudioObjectID> &arr);
+	virtual PA_Object *FindObjectByID(AudioObjectID searchID);
 	virtual const char *ClassName();
 	
 	OSStatus PublishObjects(Boolean active);
