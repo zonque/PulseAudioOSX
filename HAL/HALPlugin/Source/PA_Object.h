@@ -25,7 +25,7 @@
 #include <CoreFoundation/CoreFoundation.h>
 #include <CoreAudio/AudioHardwarePlugIn.h>
 #include <CoreAudio/AudioHardware.h>
-#include "CAMutex.h"
+#include <pthread.h>
 
 #ifndef CLASS_NAME
 #error CLASS_NAME undefined
@@ -39,7 +39,7 @@ class PA_Object
 {
 private:
 	AudioObjectID objectID;
-	CAMutex *mutex;
+	pthread_mutex_t mutex;
 
 public:
 	

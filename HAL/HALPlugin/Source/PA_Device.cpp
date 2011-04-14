@@ -97,7 +97,7 @@ PA_Device::Initialize()
 	nOutputStreams = 1;
 		
 	ioProcList = CFArrayCreateMutable(plugin->GetAllocator(), 0, NULL);
-	ioProcListMutex = new CAMutex("ioProcListMutex");
+	pthread_mutex_init(&ioProcListMutex, NULL);
 	
 	deviceName = CFStringCreateWithCString(plugin->GetAllocator(), "PulseAudio", kCFStringEncodingASCII);
 	deviceManufacturer = CFStringCreateWithCString(plugin->GetAllocator(), "pulseaudio.org", kCFStringEncodingASCII);
@@ -123,11 +123,10 @@ PA_Device::Initialize()
 	streamDescription.mFormatFlags = kAudioFormatFlagsCanonical;
 	streamDescription.mBitsPerChannel = 32;
 	streamDescription.mChannelsPerFrame = 2;
-	streamDescription.mFramesPerPacket = GetIOBufferFrameSize();
-	streamDescription.mBytesPerFrame = deviceBackend->GetFrameSize();
-	streamDescription.mBytesPerPacket = streamDescription.mFramesPerPacket *
-					    streamDescription.mBytesPerFrame;
-	
+	streamDescription.mFramesPerPacket = 1;
+	streamDescription.mBytesPerFrame = 8;
+	streamDescription.mBytesPerPacket = 8;
+
 	physicalFormat.mSampleRateRange.mMinimum = sampleRate;
 	physicalFormat.mSampleRateRange.mMaximum = sampleRate;
 	memcpy(&physicalFormat.mFormat, &streamDescription, sizeof(streamDescription));
@@ -199,14 +198,13 @@ PA_Device::Teardown()
 	}
 	
 	if (ioProcList) {
-		ioProcListMutex->Lock();
+		pthread_mutex_lock(&ioProcListMutex);
 		CFRelease(ioProcList);
 		ioProcList = NULL;
-		ioProcListMutex->Unlock();
+		pthread_mutex_unlock(&ioProcListMutex);
 	}
 
-	delete ioProcListMutex;
-	ioProcListMutex = NULL;
+	pthread_mutex_destroy(&ioProcListMutex);
 	
 	for (UInt32 i = 0; i < nInputStreams; i++)
 		if (inputStreams[i]) {
@@ -270,27 +268,27 @@ PA_Device::FindIOProcByID(AudioDeviceIOProcID inProcID)
 CFArrayRef
 PA_Device::LockIOProcList()
 {
-	ioProcListMutex->Lock();
+	pthread_mutex_lock(&ioProcListMutex);
 	return (CFArrayRef) CFRetain(ioProcList);
 }
 
 void
 PA_Device::UnlockIOProcList()
 {
-	ioProcListMutex->Unlock();
+	pthread_mutex_unlock(&ioProcListMutex);
 }
 
 void
 PA_Device::EnableAllIOProcs(Boolean enabled)
 {
-	ioProcListMutex->Lock();
+	pthread_mutex_lock(&ioProcListMutex);
 	
 	for (SInt32 i = 0; i < CFArrayGetCount(ioProcList); i++) {
 		IOProcTracker *io = (IOProcTracker *) CFArrayGetValueAtIndex(ioProcList, i);
 		io->enabled = !!enabled;
 	}
 	
-	ioProcListMutex->Unlock();
+	pthread_mutex_unlock(&ioProcListMutex);
 }
 
 UInt32
@@ -355,11 +353,11 @@ PA_Device::CreateIOProcID(AudioDeviceIOProc inProc,
 {
 	DebugLog("inProc %p outIOProcID %p", inProc, outIOProcID);
 
-	ioProcListMutex->Lock();
+	pthread_mutex_lock(&ioProcListMutex);
 
 	if (FindIOProc(inProc)) {
 		DebugLog("IOProc has already been added");
-		ioProcListMutex->Unlock();
+		pthread_mutex_unlock(&ioProcListMutex);
 		return kAudioHardwareIllegalOperationError;
 	}
 	
@@ -371,7 +369,7 @@ PA_Device::CreateIOProcID(AudioDeviceIOProc inProc,
 		*outIOProcID = (AudioDeviceIOProcID) io;
 
 	CFArrayAppendValue(ioProcList, io);
-	ioProcListMutex->Unlock();
+	pthread_mutex_unlock(&ioProcListMutex);
 	
 	DebugIOProc("New IOProc tracker @%p", io);
 	
@@ -381,20 +379,20 @@ PA_Device::CreateIOProcID(AudioDeviceIOProc inProc,
 OSStatus
 PA_Device::DestroyIOProcID(AudioDeviceIOProcID inIOProcID)
 {
-	ioProcListMutex->Lock();
+	pthread_mutex_lock(&ioProcListMutex);
 
 	for (SInt32 i = 0; i < CFArrayGetCount(ioProcList); i++) {
 		IOProcTracker *io = (IOProcTracker *) CFArrayGetValueAtIndex(ioProcList, i);
 		if (io == (IOProcTracker *) inIOProcID) {
 			pa_xfree(io);
 			CFArrayRemoveValueAtIndex(ioProcList, i);
-			ioProcListMutex->Unlock();
+			pthread_mutex_unlock(&ioProcListMutex);
 			DebugIOProc("Destroyed IOProc tracker @%p", io);
 			return kAudioHardwareNoError;
 		}
 	}
 	
-	ioProcListMutex->Unlock();
+	pthread_mutex_unlock(&ioProcListMutex);
 	DebugLog("IOProc has not been added");
 
 	return kAudioHardwareIllegalOperationError;
@@ -410,20 +408,20 @@ PA_Device::AddIOProc(AudioDeviceIOProc inProc,
 OSStatus
 PA_Device::RemoveIOProc(AudioDeviceIOProc inProc)
 {
-	ioProcListMutex->Lock();
+	pthread_mutex_lock(&ioProcListMutex);
 	
 	for (SInt32 i = 0; i < CFArrayGetCount(ioProcList); i++) {
 		IOProcTracker *io = (IOProcTracker *) CFArrayGetValueAtIndex(ioProcList, i);
 		if (io->proc == inProc) {
 			pa_xfree(io);
 			CFArrayRemoveValueAtIndex(ioProcList, i);
-			ioProcListMutex->Unlock();
+			pthread_mutex_unlock(&ioProcListMutex);
 			DebugIOProc("Removed IOProc tracker @%p", io);
 			return kAudioHardwareNoError;
 		}
 	}
 	
-	ioProcListMutex->Unlock();
+	pthread_mutex_unlock(&ioProcListMutex);
 	DebugLog("IOProc has not been added");
 	return kAudioHardwareIllegalOperationError;
 }
@@ -439,7 +437,7 @@ PA_Device::StartAtTime(AudioDeviceIOProcID inProcID,
 		       AudioTimeStamp *ioRequestedStartTime,
 		       UInt32 inFlags)
 {
-	ioProcListMutex->Lock();
+	pthread_mutex_lock(&ioProcListMutex);
 	IOProcTracker *io = FindIOProcByID(inProcID);
 	
 	if (!io)
@@ -455,7 +453,7 @@ PA_Device::StartAtTime(AudioDeviceIOProcID inProcID,
 		DebugIOProc("Starting IOProc @%p", io);
 	}
 
-	ioProcListMutex->Unlock();
+	pthread_mutex_unlock(&ioProcListMutex);
 
 	if (inProcID && !io) {
 		DebugLog("IOProc has not been added");
@@ -474,7 +472,7 @@ PA_Device::StartAtTime(AudioDeviceIOProcID inProcID,
 OSStatus
 PA_Device::Stop(AudioDeviceIOProc inProcID)
 {
-	ioProcListMutex->Lock();
+	pthread_mutex_lock(&ioProcListMutex);
 	IOProcTracker *io = FindIOProcByID(inProcID);
 
 	if (io)
@@ -483,7 +481,7 @@ PA_Device::Stop(AudioDeviceIOProc inProcID)
 	DebugIOProc("Stopping IOProc @%p", io);
 
 	UInt32 count = CountEnabledIOProcs();
-	ioProcListMutex->Unlock();
+	pthread_mutex_unlock(&ioProcListMutex);
 
 	if (inProcID && !io) {
 		DebugLog("IOProc has not been added");
@@ -876,7 +874,6 @@ PA_Device::GetPropertyData(const AudioObjectPropertyAddress *inAddress,
 		case kAudioDevicePropertyStreamFormats:
 		case kAudioDevicePropertyStreamFormat:
 			*ioDataSize = MIN(*ioDataSize, sizeof(streamDescription));
-			DebugLog("*ioDataSize = %d", *ioDataSize);
 			memcpy(outData, &streamDescription, *ioDataSize);
 			return kAudioHardwareNoError;
 	}

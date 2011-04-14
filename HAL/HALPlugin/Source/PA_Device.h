@@ -42,8 +42,10 @@ typedef struct IOProcTracker
 	Boolean enabled;
 	
 	// for one-shot DeviceRead() listeners
+	/*
 	MPSemaphoreID semaphore;
 	AudioBufferList *bufferList;
+	 */
 } IOProcTracker;
 
 class PA_Device : public PA_Object
@@ -55,7 +57,7 @@ private:
 	UInt32 nInputStreams, nOutputStreams;
 	PA_Stream **inputStreams, **outputStreams;
 	
-	CAMutex *ioProcListMutex;
+	pthread_mutex_t ioProcListMutex;
 	
 	UInt32 bufferFrameSize;
 	PA_Plugin *plugin;

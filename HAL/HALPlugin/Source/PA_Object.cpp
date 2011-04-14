@@ -158,21 +158,21 @@ PA_Object::Show()
 void
 PA_Object::Lock()
 {
-	mutex->Lock();
+	pthread_mutex_lock(&mutex);
 }
 
 void
 PA_Object::Unlock()
 {
-	mutex->Unlock();
+	pthread_mutex_unlock(&mutex);
 }
 
 PA_Object::PA_Object()
 {
-	mutex = new CAMutex("PA_Object");
+	pthread_mutex_init(&mutex, NULL);
 }
 
 PA_Object::~PA_Object()
 {
-	delete mutex;
+	pthread_mutex_destroy(&mutex);
 }
