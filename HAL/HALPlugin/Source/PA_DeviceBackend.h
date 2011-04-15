@@ -33,9 +33,9 @@ class PA_DeviceBackend
 private:
 	PA_Device *				device;
 
-	char					procname[MAXCOMLEN+1];
 	char *					connectHost;
-	
+	char					procName[100];
+
 	pa_stream *				PARecordStream;
 	pa_stream *				PAPlaybackStream;
 	
@@ -64,7 +64,6 @@ public:
 
 private:
 	UInt32		CallIOProcs(size_t nbytes, CFArrayRef ioProcList);
-	int		ConstructProcessName();
 public:
 	CFStringRef	GetProcessName();
 
@@ -78,7 +77,8 @@ public:
 	void Connect();
 	void Disconnect();
 	void Reconnect();
-	void SetHostName(CFStringRef inHost);
+	void SetHostName(CFStringRef inHost, CFNumberRef inPort);
+	CFStringRef GetHostName();
 
 	UInt32 GetConnectionStatus();
 	UInt32 GetFrameSize();

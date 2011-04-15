@@ -105,7 +105,9 @@ PA_DeviceControl::AnnounceDevice()
 	CFDictionarySetValue(userInfo, CFSTR("IOBufferFrameSize"), number);
 	CFRelease(number);
 
-	CFDictionarySetValue(userInfo, CFSTR("serverName"), CFSTR("localhost"));
+	CFStringRef serverName = be->GetHostName();
+	CFDictionarySetValue(userInfo, CFSTR("serverName"), serverName);
+	CFRelease(serverName);
 	
 	n = be->GetConnectionStatus();
 	number = CFNumberCreate(NULL, kCFNumberIntType, &n);
@@ -146,7 +148,7 @@ PA_DeviceControl::SetConfig(CFDictionaryRef config)
 {
 	PA_DeviceBackend *be = device->GetBackend();
 	CFStringRef server = (CFStringRef) CFDictionaryGetValue(config, CFSTR("serverName"));
-	be->SetHostName(server);
+	be->SetHostName(server, NULL);
 	be->Reconnect();
 }
 

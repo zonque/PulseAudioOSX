@@ -83,47 +83,10 @@ static void staticStreamBufferAttrCallback(pa_stream *stream, void *userdata)
 
 #pragma mark ### PA_DeviceBackend ###
 
-#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
-
-int
-PA_DeviceBackend::ConstructProcessName()
-{
-        int name[] = { CTL_KERN, KERN_PROC, KERN_PROC_ALL, 0 };
-        struct kinfo_proc *result;
-	unsigned int i;
-        size_t length = 0;
-        int err;
-	
-	memset(procname, 0, sizeof(procname));
-	snprintf(procname, sizeof(procname), "UNKNOWN");
-	
-        err = sysctl(name, ARRAY_SIZE(name) - 1, NULL, &length, NULL, 0);
-        if (err < 0)
-                return err;
-	
-        result = (kinfo_proc *) malloc(length);
-        if (!result)
-                return -ENOMEM;
-	
-        err = sysctl(name, ARRAY_SIZE(name) - 1, result, &length, NULL, 0);
-	if (err < 0) {
-		free(result);
-		return err;
-	}
-	
-        for (i = 0; i < length / sizeof(*result); i++)
-                if (result[i].kp_proc.p_pid == getpid())
-                        strncpy(procname, result[i].kp_proc.p_comm, sizeof(procname) - 1);
-
-        free(result);
-
-        return 0;
-}
-
 CFStringRef
 PA_DeviceBackend::GetProcessName()
 {
-	return CFStringCreateWithCString(device->GetAllocator(), procname, kCFStringEncodingASCII);
+	return CFStringCreateWithCString(device->GetAllocator(), procName, kCFStringEncodingASCII);
 }
 
 UInt32
@@ -191,6 +154,8 @@ PA_DeviceBackend::CallIOProcs(size_t nbytes, CFArrayRef ioProcList)
 		outputList.mBuffers[0].mDataByteSize = ioProcSize;
 		outputList.mBuffers[0].mData = outputBufferPos;
 		outputList.mNumberBuffers = 1;
+		
+		printf("rendering to %p\n", outputBufferPos);
 		
 		inputList.mBuffers[0].mNumberChannels = 2;
 		inputList.mBuffers[0].mDataByteSize = inputBufferPos ? ioProcSize : 0;
@@ -308,9 +273,9 @@ PA_DeviceBackend::ContextStateCallback()
 		{
 			DebugLog("Connection ready.");
 			
-			char tmp[sizeof(procname) + 10];
+			char tmp[sizeof(procName) + 10];
 			
-			snprintf(tmp, sizeof(tmp), "%s playback", procname);
+			snprintf(tmp, sizeof(tmp), "%s playback", procName);
 			PAPlaybackStream = pa_stream_new(PAContext, tmp, &sampleSpec, NULL);
 			pa_stream_set_event_callback(PAPlaybackStream, staticStreamEventCallback, this);
 			pa_stream_set_write_callback(PAPlaybackStream, staticStreamWriteCallback, this);
@@ -323,7 +288,8 @@ PA_DeviceBackend::ContextStateCallback()
 									 PA_STREAM_AUTO_TIMING_UPDATE),
 						   NULL, NULL);
 
-			snprintf(tmp, sizeof(tmp), "%s record", procname);
+			/*
+			snprintf(tmp, sizeof(tmp), "%s record", procName);
 			PARecordStream = pa_stream_new(PAContext, tmp, &sampleSpec, NULL);
 			//pa_stream_set_read_callback(PARecordStream, staticStreamReadCallback, this);
 			pa_stream_set_event_callback(PARecordStream, staticStreamEventCallback, this);
@@ -331,7 +297,7 @@ PA_DeviceBackend::ContextStateCallback()
 			pa_stream_set_underflow_callback(PARecordStream, staticStreamUnderflowCallback, this);
 			pa_stream_set_buffer_attr_callback(PARecordStream, staticStreamBufferAttrCallback, this);
 			pa_stream_connect_record(PARecordStream, NULL, &bufAttr, (pa_stream_flags_t) 0);
-
+			 */
 			MPSignalSemaphore(PAContextSemaphore);
 			break;
 		}
@@ -412,8 +378,9 @@ PA_DeviceBackend::Initialize()
 	int ret = MPCreateSemaphore(UINT_MAX, 0, &PAContextSemaphore);
 	if (ret != 0)
 		DebugLog("MPCreateSemaphore() failed");
-		
-	ConstructProcessName();
+	
+	pa_get_binary_name(procName, sizeof(procName));
+	DebugLog("binary name >%s<", procName);
 }
 
 void
@@ -461,7 +428,7 @@ PA_DeviceBackend::Connect()
 	pa_mainloop_api *api = pa_threaded_mainloop_get_api(PAMainLoop);
 	Assert(api, "pa_threaded_mainloop_get_api() failed");
 	
-	PAContext = pa_context_new(api, procname);
+	PAContext = pa_context_new(api, procName);
 	Assert(PAContext, "pa_context_new() failed");
 
 	pa_context_set_state_callback(PAContext, staticContextStateCallback, this);
@@ -477,7 +444,7 @@ PA_DeviceBackend::Connect()
 }
 
 void
-PA_DeviceBackend::SetHostName(CFStringRef inHost)
+PA_DeviceBackend::SetHostName(CFStringRef inHost, CFNumberRef inPort)
 {
 	if (connectHost) {
 		pa_xfree(connectHost);
@@ -501,6 +468,14 @@ PA_DeviceBackend::SetHostName(CFStringRef inHost)
 	}
 
 	DebugLog("Set host name to >%s<", connectHost);
+}
+
+CFStringRef
+PA_DeviceBackend::GetHostName()
+{
+	return CFStringCreateWithCString(device->GetAllocator(),
+					 connectHost ?: "localhost",
+					 kCFStringEncodingASCII);
 }
 
 void
