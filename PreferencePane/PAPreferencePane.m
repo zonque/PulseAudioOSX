@@ -315,17 +315,17 @@ enum {
 	[serverSelectButton addItemWithTitle: name];		
 }
 
-- (void)netService:(NSNetService *)sender didNotResolve:(NSDictionary *)errorDict
+- (void) netService: (NSNetService *) sender
+      didNotResolve: (NSDictionary *)errorDict
 {
-	[sender release];
-}
-
-- (void)netServiceWillResolve:(NSNetService *)sender
-{
+	[serviceDict removeObjectForKey: [sender name]];
+	[serverSelectButton removeItemWithTitle: [sender name]];		
 }
 
 - (void)netServiceDidStop:(NSNetService *)sender
 {
+	[serviceDict removeObjectForKey: [sender name]];
+	[serverSelectButton removeItemWithTitle: [sender name]];		
 }
 
 #pragma mark ### NSNetServiceBrowserDelegate ###

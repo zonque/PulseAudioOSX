@@ -36,6 +36,16 @@
 
 - (NSString *) ipOfService: (NSNetService *) service;
 
+/* NSTableViewDelegate */
+- (void)tableView:(NSTableView *)aTableView
+   setObjectValue:obj
+   forTableColumn:(NSTableColumn *)col
+	      row:(int)rowIndex;
+- (id)tableView:(NSTableView *)tableView
+objectValueForTableColumn:(NSTableColumn *)col
+	    row:(int)rowIndex;
+- (int) numberOfRowsInTableView:(NSTableView *)tableView;
+
 /* NSNetServiceDelegate */
 - (void)netServiceDidResolveAddress:(NSNetService *)sender;
 - (void) netService: (NSNetService *) sender

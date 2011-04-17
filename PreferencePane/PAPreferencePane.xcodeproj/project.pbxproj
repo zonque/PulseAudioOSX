@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		650E30FC1338F4BB009ACF12 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 650E30FB1338F4BB009ACF12 /* IOKit.framework */; };
 		6547ABD5134C9B040097578F /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6547ABD4134C9B040097578F /* Quartz.framework */; };
+		655316D8135B51B100817E2D /* Growl.h in Headers */ = {isa = PBXBuildFile; fileRef = 655316D6135B51B100817E2D /* Growl.h */; };
+		655316D9135B51B100817E2D /* Growl.m in Sources */ = {isa = PBXBuildFile; fileRef = 655316D7135B51B100817E2D /* Growl.m */; };
+		65531795135B999500817E2D /* Growl_512x512.png in Resources */ = {isa = PBXBuildFile; fileRef = 65531794135B999500817E2D /* Growl_512x512.png */; };
 		8D202CEA0486D31800D8A456 /* PulseAudio_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 32DBCFA20370C41700C91783 /* PulseAudio_Prefix.pch */; };
 		8D202CEB0486D31800D8A456 /* PAPreferencePane.h in Headers */ = {isa = PBXBuildFile; fileRef = F506C03C013D9D7901CA16C8 /* PAPreferencePane.h */; };
 		8D202CED0486D31800D8A456 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C167DFE841241C02AAC07 /* InfoPlist.strings */; };
@@ -27,6 +30,9 @@
 		32DBCFA20370C41700C91783 /* PulseAudio_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PulseAudio_Prefix.pch; sourceTree = "<group>"; };
 		650E30FB1338F4BB009ACF12 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = /System/Library/Frameworks/IOKit.framework; sourceTree = "<absolute>"; };
 		6547ABD4134C9B040097578F /* Quartz.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quartz.framework; path = /System/Library/Frameworks/Quartz.framework; sourceTree = "<absolute>"; };
+		655316D6135B51B100817E2D /* Growl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Growl.h; sourceTree = "<group>"; };
+		655316D7135B51B100817E2D /* Growl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Growl.m; sourceTree = "<group>"; };
+		65531794135B999500817E2D /* Growl_512x512.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Growl_512x512.png; sourceTree = "<group>"; };
 		8D202CF70486D31800D8A456 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		8D202CF80486D31800D8A456 /* PulseAudio.prefPane */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PulseAudio.prefPane; sourceTree = BUILT_PRODUCTS_DIR; };
 		F506C035013D953901CA16C8 /* PreferencePanes.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PreferencePanes.framework; path = /System/Library/Frameworks/PreferencePanes.framework; sourceTree = "<absolute>"; };
@@ -75,6 +81,7 @@
 		089C167CFE841241C02AAC07 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				65531794135B999500817E2D /* Growl_512x512.png */,
 				8D202CF70486D31800D8A456 /* Info.plist */,
 				089C167DFE841241C02AAC07 /* InfoPlist.strings */,
 				F506C040013D9D8001CA16C8 /* PAPreferencePane.tiff */,
@@ -86,6 +93,8 @@
 		08FB77AFFE84173DC02AAC07 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				655316D6135B51B100817E2D /* Growl.h */,
+				655316D7135B51B100817E2D /* Growl.m */,
 				F506C03C013D9D7901CA16C8 /* PAPreferencePane.h */,
 				F506C03D013D9D7901CA16C8 /* PAPreferencePane.m */,
 			);
@@ -137,6 +146,7 @@
 			files = (
 				8D202CEA0486D31800D8A456 /* PulseAudio_Prefix.pch in Headers */,
 				8D202CEB0486D31800D8A456 /* PAPreferencePane.h in Headers */,
+				655316D8135B51B100817E2D /* Growl.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -195,6 +205,7 @@
 				8D202CED0486D31800D8A456 /* InfoPlist.strings in Resources */,
 				8D202CEE0486D31800D8A456 /* PAPreferencePane.tiff in Resources */,
 				8D202CEF0486D31800D8A456 /* PAPreferencePane.nib in Resources */,
+				65531795135B999500817E2D /* Growl_512x512.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -216,6 +227,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8D202CF10486D31800D8A456 /* PAPreferencePane.m in Sources */,
+				655316D9135B51B100817E2D /* Growl.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
