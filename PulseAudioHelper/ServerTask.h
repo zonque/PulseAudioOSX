@@ -11,22 +11,13 @@
 
 #import <Cocoa/Cocoa.h>
 
-@protocol ServerConnectionDelegate
-@required
-- (void) serverConnection: (id) serverConnection
-       newClientAnnounced: (NSString *) name
-		     icon: (NSImage *) icon;
-- (void) serverConnection: (id) serverConnection
-	  clientSignedOff: (NSString *) name;
 
-@end
-
-
-@interface ServerConnection : NSObject {
-	id<ServerConnectionDelegate> delegate;
+@interface ServerTask : NSObject {
+	NSTask *task;
 	NSDistributedNotificationCenter *notificationCenter;
 }
 
-- (void) setDelegate: (id<ServerConnectionDelegate>) newDelegate;
+- (void) start;
+- (void) stop;
 
 @end

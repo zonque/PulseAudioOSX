@@ -24,7 +24,8 @@
 	
 	if (app) {
 		[delegate serverConnection: self
-			newClientAnnounced: app.localizedName];
+			newClientAnnounced: app.localizedName
+				      icon: app.icon];
 	}
 }
 

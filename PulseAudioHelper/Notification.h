@@ -38,7 +38,8 @@
 
 /* ServerConnectionDelegate */
 - (void) serverConnection: (id) serverConnection
-       newClientAnnounced: (NSString *) name;
+       newClientAnnounced: (NSString *) name
+		     icon: (NSImage *) icon;
 - (void) serverConnection: (id) serverConnection
 	  clientSignedOff: (NSString *) name;
 

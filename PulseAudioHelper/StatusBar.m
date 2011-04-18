@@ -19,9 +19,16 @@
 
 @implementation StatusBar
 
-- (void) openPreferences: (id) sender {
-        NSString *prefPane = @"/Library/PreferencePanes/PulseAudio.prefPane";
-        [[NSWorkspace sharedWorkspace] openFile:prefPane];
+- (void) openPreferences: (id) sender
+{
+        NSString *file = @"/Library/PreferencePanes/PulseAudio.prefPane";
+        [[NSWorkspace sharedWorkspace] openFile: file];
+}
+
+- (void) openPulseConsole: (id) sender
+{
+        NSString *file = @"/Applications/PulseConsole.app";
+        [[NSWorkspace sharedWorkspace] openFile: file];	
 }
 
 - (NSMenu *) createMenu
@@ -43,7 +50,11 @@
 			    action: @selector(openPreferences:)
 		     keyEquivalent: @""];
         [item setTarget: self];
-        [item setTag: 2];
+
+	item = [m addItemWithTitle: @"Open PulseConsole ..."
+			    action: @selector(openPulseConsole:)
+		     keyEquivalent: @""];
+        [item setTarget: self];
 	
 	return m;
 }

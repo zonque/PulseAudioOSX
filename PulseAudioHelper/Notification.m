@@ -154,6 +154,7 @@ static NSString *kMDNSLocalDomain = @"local.";
 
 - (void) serverConnection: (id) serverConnection
        newClientAnnounced: (NSString *) name
+		     icon: (NSImage *) icon
 {
 	if (!growlEnabled)
 		return;
@@ -166,7 +167,7 @@ static NSString *kMDNSLocalDomain = @"local.";
 	[GrowlApplicationBridge notifyWithTitle: @"PulseAudio"
 				    description: description
 			       notificationName: kPulseAudioClientConnected
-				       iconData: logoData
+				       iconData: [icon TIFFRepresentation]
 				       priority: 0
 				       isSticky: NO
 				   clickContext: nil];
