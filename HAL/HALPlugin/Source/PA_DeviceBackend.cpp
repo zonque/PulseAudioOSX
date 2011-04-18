@@ -117,7 +117,7 @@ PA_DeviceBackend::CallIOProcs(size_t nbytes, CFArrayRef ioProcList)
 	
 	//DebugLog("stream %p nbytes %d", PAPlaybackStream, nbytes);
 
-#if 1
+#if 0
 	int ret = pa_stream_begin_write(PAPlaybackStream, (void **) &buf, &nbytes);
 
 	if (ret < 0) {
@@ -154,8 +154,6 @@ PA_DeviceBackend::CallIOProcs(size_t nbytes, CFArrayRef ioProcList)
 		outputList.mBuffers[0].mDataByteSize = ioProcSize;
 		outputList.mBuffers[0].mData = outputBufferPos;
 		outputList.mNumberBuffers = 1;
-		
-		printf("rendering to %p\n", outputBufferPos);
 		
 		inputList.mBuffers[0].mNumberChannels = 2;
 		inputList.mBuffers[0].mDataByteSize = inputBufferPos ? ioProcSize : 0;

@@ -21,6 +21,8 @@
 
 #define CLASS_NAME "PA_DeviceControl"
 
+#define LOCAL_OBJECT CFSTR("PAHP_Device")
+
 #include <IOKit/IOKitLib.h>
 #include "PA_DeviceControl.h"
 #include "PA_DeviceBackend.h"
@@ -114,9 +116,11 @@ PA_DeviceControl::AnnounceDevice()
 	CFDictionarySetValue(userInfo, CFSTR("connectionStatus"), number);
 	CFRelease(number);
 	
+	DebugLog();
+
 	CFNotificationCenterPostNotification(CFNotificationCenterGetDistributedCenter(),
 					     CFSTR("announceDevice"),
-					     CFSTR("PAHP_Device"),
+					     LOCAL_OBJECT,
 					     userInfo,
 					     true);
 	CFRelease(userInfo);
@@ -137,7 +141,7 @@ PA_DeviceControl::SignOffDevice()
 	
 	CFNotificationCenterPostNotification(CFNotificationCenterGetDistributedCenter(),
 					     CFSTR("signOffDevice"),
-					     CFSTR("PAHP_Device"),
+					     LOCAL_OBJECT,
 					     userInfo,
 					     true);
 	CFRelease(userInfo);
