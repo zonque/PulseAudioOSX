@@ -24,6 +24,7 @@ defineNotification(kPulseAudioSourceDisappeared,	3);
 defineNotification(kPulseAudioSinkAppeared,		4);
 defineNotification(kPulseAudioSinkDisappeared,		5);
 defineNotification(kPulseAudioClientConnected,		6);
+defineNotification(kPulseAudioClientDisconnected,	7);
 
 static NSString *kMDNSPulseServer = @"_pulse-server._tcp";
 static NSString *kMDNSPulseSink   = @"_pulse-sink._tcp";
@@ -35,6 +36,7 @@ static NSString *kMDNSLocalDomain = @"local.";
 - (void) setPreferences: (Preferences *) newPrefs
 {
 	prefs = newPrefs;
+	[serverConnection setPreferences: prefs];
 }
 
 - (id) init
@@ -61,9 +63,9 @@ static NSString *kMDNSLocalDomain = @"local.";
 	[sourceBrowser searchForServicesOfType: kMDNSPulseSource
 				      inDomain: kMDNSLocalDomain];
 	
-	ServerConnection *serverConnection = [[ServerConnection alloc] init];
+	serverConnection = [[ServerConnection alloc] init];
 	[serverConnection setDelegate: self];
-	
+
 	return self;
 }
 
@@ -84,6 +86,7 @@ static NSString *kMDNSLocalDomain = @"local.";
 					kPulseAudioSinkAppeared,
 					kPulseAudioSinkDisappeared,
 					kPulseAudioClientConnected,
+					kPulseAudioClientDisconnected,
 					nil];
 	
 	NSDictionary *regDict = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -133,7 +136,24 @@ static NSString *kMDNSLocalDomain = @"local.";
 
 - (void) serverConnection: (id) serverConnection
 	  clientSignedOff: (NSString *) name
+		     icon: (NSImage *) icon
 {
+	if (![prefs isGrowlEnabled])
+		return;
+	
+	if (!([prefs growlNotificationFlags] & kPulseAudioClientDisconnectedFlag))
+		return;
+
+	NSString *description = [NSString stringWithFormat: @"Client disconnected: %@", name];
+	
+	[GrowlApplicationBridge notifyWithTitle: @"PulseAudio"
+				    description: description
+			       notificationName: kPulseAudioClientDisconnected
+				       iconData: [icon TIFFRepresentation]
+				       priority: 0
+				       isSticky: NO
+				   clickContext: nil];
+	
 }
 
 #pragma mark ### NSNetServiceDelegate ###

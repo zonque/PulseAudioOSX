@@ -26,7 +26,7 @@
 	NSNetServiceBrowser *sinkBrowser;
 	NSData *logoData;
 	BOOL growlReady;
-	
+	ServerConnection *serverConnection;
 	Preferences *prefs;
 }
 
@@ -43,7 +43,8 @@
        newClientAnnounced: (NSString *) name
 		     icon: (NSImage *) icon;
 - (void) serverConnection: (id) serverConnection
-	  clientSignedOff: (NSString *) name;
+	  clientSignedOff: (NSString *) name
+		     icon: (NSImage *) icon;
 
 /* NSNetServiceDelegate */
 - (void)netServiceDidResolveAddress:(NSNetService *)sender;

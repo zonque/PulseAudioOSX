@@ -18,13 +18,17 @@
        newClientAnnounced: (NSString *) name
 		     icon: (NSImage *) icon;
 - (void) serverConnection: (id) serverConnection
-	  clientSignedOff: (NSString *) name;
+	  clientSignedOff: (NSString *) name
+		     icon: (NSImage *) icon;
 
 @end
 
 
 @interface ServerConnection : NSObject {
 	id<ServerConnectionDelegate> delegate;
+	
+	NSTimer *timer;
+	NSMutableArray *clientList;
 	Preferences *prefs;
 }
 

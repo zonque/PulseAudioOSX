@@ -13,38 +13,108 @@
 
 @implementation ServerConnection
 
-- (void) deviceAnnounced: (NSNotification *) notification
+- (void) announceDeviceSignOff: (NSRunningApplication *) app
 {
-	NSDictionary *userInfo = [notification userInfo];
-	pid_t pid = [[userInfo objectForKey: @"pid"] intValue];
+	NSNumber *number = [NSNumber numberWithInteger: app.processIdentifier];
+	NSDictionary *userInfo = [NSDictionary dictionaryWithObject: number
+							     forKey: @"pid"];
+
+	// send on behalf of the HAL plugin
+	[[prefs notificationCenter] postNotificationName: @"signOffDevice"
+						  object: REMOTE_OBJECT_HALPLUGIN
+						userInfo: userInfo
+				      deliverImmediately: YES];	
 	
-	NSRunningApplication *app = [NSRunningApplication runningApplicationWithProcessIdentifier: pid];
+	[delegate serverConnection: self
+		   clientSignedOff: app.localizedName
+			      icon: app.icon];
 	
-	if (app) {
-		[delegate serverConnection: self
-			newClientAnnounced: app.localizedName
-				      icon: app.icon];
-	}
+	//[userInfo release];
 }
 
 - (void) deviceSignedOff: (NSNotification *) notification
 {
+	BOOL removed = NO;
+	NSDictionary *userInfo = [notification userInfo];
+	pid_t pid = [[userInfo objectForKey: @"pid"] intValue];
+	NSMutableArray *newClientList = [NSMutableArray arrayWithArray: clientList];
+
+	for (NSDictionary *client in clientList)
+		if (pid == [[client objectForKey: @"pid"] intValue]) {
+			[self announceDeviceSignOff: [client objectForKey: @"application"]];
+			[newClientList removeObject: client];
+			removed = YES;
+		}
+	
+	if (removed) {
+		[clientList release];
+		clientList = [newClientList retain];
+	}
+}
+
+- (void) scanClients: (NSTimer *) t
+{
+	NSMutableArray *newClientList = [NSMutableArray arrayWithArray: clientList];
+	BOOL removed = NO;
+	
+	for (NSDictionary *client in clientList) {
+		NSRunningApplication *app = [client objectForKey: @"application"];
+		if (app.terminated) {
+			[self announceDeviceSignOff: app];
+			[newClientList removeObject: client];
+			removed = YES;
+		}
+	}
+	
+	if (removed) {
+		[clientList release];
+		clientList = [newClientList retain];
+	}
+}
+
+- (void) deviceAnnounced: (NSNotification *) notification
+{
+	NSDictionary *userInfo = [notification userInfo];
+	pid_t pid = [[userInfo objectForKey: @"pid"] intValue];
+	BOOL found = NO;
+	
+	NSLog(@"%s()\n", __func__);
+	
+	for (NSDictionary *client in clientList) {
+		if (pid == [[client objectForKey: @"pid"] intValue])
+			found = YES;
+	}
+	
+	if (!found) {
+		NSRunningApplication *app = [NSRunningApplication runningApplicationWithProcessIdentifier: pid];
+		
+		if (app) {
+			NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary: userInfo];
+			[dict setObject: app
+				 forKey: @"application"];
+			[clientList addObject: dict];
+
+			[delegate serverConnection: self
+				newClientAnnounced: app.localizedName
+					      icon: app.icon];
+		}
+	}
 }
 
 - (id) init
 {
 	[super init];
 
-	[[prefs notificationCenter] addObserver: self
-				       selector: @selector(deviceAnnounced:)
-					   name: @"announceDevice"
-					 object: REMOTE_OBJECT_HALPLUGIN];	
-	
-	[[prefs notificationCenter] addObserver: self
-				       selector: @selector(deviceSignedOff:)
-					   name: @"signOffDevice"
-					 object: REMOTE_OBJECT_HALPLUGIN];	
-	
+	clientList = [NSMutableArray arrayWithCapacity: 0];
+
+	timer = [NSTimer timerWithTimeInterval: 1.0
+					target: self
+				      selector: @selector(scanClients:)
+				      userInfo: nil
+				       repeats: YES];
+	[[NSRunLoop currentRunLoop] addTimer: timer
+				     forMode: NSDefaultRunLoopMode];
+
 	return self;
 }
 
@@ -56,6 +126,16 @@
 - (void) setPreferences: (Preferences *) newPrefs
 {
 	prefs = newPrefs;
+
+	[[prefs notificationCenter] addObserver: self
+				       selector: @selector(deviceAnnounced:)
+					   name: @"announceDevice"
+					 object: REMOTE_OBJECT_HALPLUGIN];	
+	
+	[[prefs notificationCenter] addObserver: self
+				       selector: @selector(deviceSignedOff:)
+					   name: @"signOffDevice"
+					 object: REMOTE_OBJECT_HALPLUGIN];	
 }
 
 @end
