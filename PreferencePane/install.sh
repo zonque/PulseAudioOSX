@@ -6,8 +6,10 @@ if [ -z "$conf" ]; then
 	conf="Release"
 fi
 
-rm -fr /Library/PreferencePanes/PulseAudio.prefPane
+dest=/Library/PreferencePanes/PulseAudio.prefPane
+
+rm -fr $dest
 cp -r build/${conf}/PulseAudio.prefPane /Library/PreferencePanes/
 
-echo "now call /Applications/System\ Preferences.app/Contents/MacOS/System\ Preferences"
+echo "now call /Applications/System\ Preferences.app/Contents/MacOS/System\ Preferences $dest"
 
