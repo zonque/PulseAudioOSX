@@ -44,7 +44,7 @@
 	}
 }
 
-- (void) clientAnnounced: (NSNotification *) notification
+- (void) deviceAnnounced: (NSNotification *) notification
 {
 	NSDictionary *userInfo = [notification userInfo];
 	pid_t pid = [[userInfo objectForKey: @"pid"] intValue];
@@ -68,7 +68,7 @@
 	}
 }
 
-- (void) clientUnannounced: (NSNotification *) notification
+- (void) deviceSignedOff: (NSNotification *) notification
 {
 	BOOL removed = NO;
 	NSDictionary *userInfo = [notification userInfo];
@@ -113,13 +113,28 @@
 	[timer invalidate];
 }
 
+- (id) init
+{
+	[super init];	
+	return self;
+}
+
+- (void) dealloc
+{
+	[clientList release];
+	[serviceDict release];
+	[netServiceBrowser release];
+
+	[super dealloc];
+}
+
 - (void) awakeFromNib
 {
 	[clientDetailsBox selectTabViewItemAtIndex: 1];
 
 	clientList = [[NSMutableArray arrayWithCapacity: 0] retain];
 	serviceDict = [[NSMutableDictionary dictionaryWithCapacity: 0] retain];
-
+	
 	[serverSelectButton removeAllItems];
 	[serverSelectButton addItemWithTitle: @"localhost"];
 	
@@ -129,21 +144,23 @@
 					  inDomain: @"local."];
 	
 	notificationCenter = [NSDistributedNotificationCenter defaultCenter];
-
+	
 	[notificationCenter addObserver: self
-			       selector: @selector(clientAnnounced:)
+			       selector: @selector(deviceAnnounced:)
 				   name: @"announceDevice"
 				 object: REMOTE_OBJECT];	
 	
 	[notificationCenter addObserver: self
-			       selector: @selector(clientUnannounced:)
+			       selector: @selector(deviceSignedOff:)
 				   name: @"signOffDevice"
 				 object: REMOTE_OBJECT];	
-
+	
 	[notificationCenter postNotificationName: @"scanDevices"
 					  object: REMOTE_OBJECT
 					userInfo: nil
 			      deliverImmediately: YES];
+	
+	NSLog(@"%s()\n", __func__);
 }
 
 #pragma mark ### NSTableViewSource protocol ###
