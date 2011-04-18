@@ -4,10 +4,10 @@ export PATH="/opt/local/bin:/opt/local/sbin:$PATH"
 export CC="gcc-4.2"
 export CFLAGS="-I/opt/local/include -O0 -g"
 export LDFLAGS="-L/opt/local/lib"
-staging=/Library/Frameworks/pulse.framework/Resources/
+staging=/Library/Frameworks/pulse.framework/
 
 ./autogen.sh \
-	--prefix=$staging		\
+	--prefix=$staging/Resources	\
 	--enable-mac-universal		\
 	--disable-dependency-tracking	\
 	--disable-jack			\
@@ -17,6 +17,7 @@ staging=/Library/Frameworks/pulse.framework/Resources/
 	--disable-avahi			\
 	$* && make
 
-rm -fr staging
+rm -fr $staging
+make clean
 make install
 
