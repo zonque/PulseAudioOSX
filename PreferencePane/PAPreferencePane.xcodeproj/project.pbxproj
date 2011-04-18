@@ -14,6 +14,8 @@
 		65531795135B999500817E2D /* Growl_512x512.png in Resources */ = {isa = PBXBuildFile; fileRef = 65531794135B999500817E2D /* Growl_512x512.png */; };
 		65531820135C1D3D00817E2D /* PreferencePane.h in Headers */ = {isa = PBXBuildFile; fileRef = 6553181E135C1D3D00817E2D /* PreferencePane.h */; };
 		65531821135C1D3D00817E2D /* PreferencePane.m in Sources */ = {isa = PBXBuildFile; fileRef = 6553181F135C1D3D00817E2D /* PreferencePane.m */; };
+		65531974135C3F8B00817E2D /* LocalServer.h in Headers */ = {isa = PBXBuildFile; fileRef = 65531972135C3F8B00817E2D /* LocalServer.h */; };
+		65531975135C3F8B00817E2D /* LocalServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 65531973135C3F8B00817E2D /* LocalServer.m */; };
 		8D202CEA0486D31800D8A456 /* PulseAudio_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 32DBCFA20370C41700C91783 /* PulseAudio_Prefix.pch */; };
 		8D202CEB0486D31800D8A456 /* AudioClients.h in Headers */ = {isa = PBXBuildFile; fileRef = F506C03C013D9D7901CA16C8 /* AudioClients.h */; };
 		8D202CED0486D31800D8A456 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C167DFE841241C02AAC07 /* InfoPlist.strings */; };
@@ -37,6 +39,8 @@
 		65531794135B999500817E2D /* Growl_512x512.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Growl_512x512.png; sourceTree = "<group>"; };
 		6553181E135C1D3D00817E2D /* PreferencePane.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferencePane.h; sourceTree = "<group>"; };
 		6553181F135C1D3D00817E2D /* PreferencePane.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreferencePane.m; sourceTree = "<group>"; };
+		65531972135C3F8B00817E2D /* LocalServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalServer.h; sourceTree = "<group>"; };
+		65531973135C3F8B00817E2D /* LocalServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalServer.m; sourceTree = "<group>"; };
 		8D202CF70486D31800D8A456 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		8D202CF80486D31800D8A456 /* PulseAudio.prefPane */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PulseAudio.prefPane; sourceTree = BUILT_PRODUCTS_DIR; };
 		F506C035013D953901CA16C8 /* PreferencePanes.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PreferencePanes.framework; path = /System/Library/Frameworks/PreferencePanes.framework; sourceTree = "<absolute>"; };
@@ -99,6 +103,8 @@
 			children = (
 				6553181E135C1D3D00817E2D /* PreferencePane.h */,
 				6553181F135C1D3D00817E2D /* PreferencePane.m */,
+				65531972135C3F8B00817E2D /* LocalServer.h */,
+				65531973135C3F8B00817E2D /* LocalServer.m */,
 				655316D6135B51B100817E2D /* Growl.h */,
 				655316D7135B51B100817E2D /* Growl.m */,
 				F506C03C013D9D7901CA16C8 /* AudioClients.h */,
@@ -154,6 +160,7 @@
 				8D202CEB0486D31800D8A456 /* AudioClients.h in Headers */,
 				655316D8135B51B100817E2D /* Growl.h in Headers */,
 				65531820135C1D3D00817E2D /* PreferencePane.h in Headers */,
+				65531974135C3F8B00817E2D /* LocalServer.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -236,6 +243,7 @@
 				8D202CF10486D31800D8A456 /* AudioClients.m in Sources */,
 				655316D9135B51B100817E2D /* Growl.m in Sources */,
 				65531821135C1D3D00817E2D /* PreferencePane.m in Sources */,
+				65531975135C3F8B00817E2D /* LocalServer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
