@@ -56,12 +56,13 @@
 {
 	[super init];
 	
-	[[prefs getCenter] addObserver: self
-			      selector: @selector(setLocalServerEnabled:)
-				  name: @"setLocalServerEnabled"
-				object: REMOTE_OBJECT];	
-	
-	[self start];
+	[[prefs notificationCenter] addObserver: self
+				       selector: @selector(setLocalServerEnabled:)
+					   name: @"setLocalServerEnabled"
+					 object: REMOTE_OBJECT];	
+
+	if ([prefs isLocalServerEnabled])
+		[self start];
 
 	return self;
 }

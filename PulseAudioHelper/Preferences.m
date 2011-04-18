@@ -95,6 +95,8 @@ static NSString *kPAPreferencesStatusBarEnabledKey	= @"statusBarEnabled";
 
 - (void) makeDefaults
 {
+	preferencesDict = [NSMutableDictionary dictionaryWithCapacity: 0];
+
 	[preferencesDict setObject: [NSNumber numberWithBool: YES]
 			    forKey: kPAPreferencesGrowlEnabledKey];
 	[preferencesDict setObject: [NSNumber numberWithBool: YES]
@@ -103,6 +105,8 @@ static NSString *kPAPreferencesStatusBarEnabledKey	= @"statusBarEnabled";
 			    forKey: kPAPreferencesStatusBarEnabledKey];
 	[preferencesDict setObject: [NSNumber numberWithUnsignedLongLong: 0xffffffffffffffff]
 			    forKey: kPAPreferencesGrowlFlagsKey];
+	[preferencesDict writeToFile: [self preferencesFilePath]
+			  atomically: YES];
 }
 
 - (id) init
@@ -113,10 +117,7 @@ static NSString *kPAPreferencesStatusBarEnabledKey	= @"statusBarEnabled";
 
 	if (!preferencesDict) {
 		NSLog(@"Unable to load config file, restoring defaults\n");
-		preferencesDict = [NSMutableDictionary dictionaryWithCapacity: 0];
 		[self makeDefaults];
-		[preferencesDict writeToFile: [self preferencesFilePath]
-				  atomically: YES];
 	}
 	
 	notificationCenter = [[NSDistributedNotificationCenter defaultCenter] retain];
@@ -149,7 +150,7 @@ static NSString *kPAPreferencesStatusBarEnabledKey	= @"statusBarEnabled";
 	return self;
 }
 
-- (NSDistributedNotificationCenter *) getCenter
+- (NSDistributedNotificationCenter *) notificationCenter
 {
 	return notificationCenter;
 }

@@ -113,10 +113,10 @@
 	if ([prefs isStatusBarEnabled])
 		[self showMenu];
 
-	[[prefs getCenter] addObserver: self
-			      selector: @selector(setEnabled:)
-				  name: @"setStatusBarEnabled"
-				object: REMOTE_OBJECT_PREFPANE];	
+	[[prefs notificationCenter] addObserver: self
+				       selector: @selector(setEnabled:)
+					   name: @"setStatusBarEnabled"
+					 object: REMOTE_OBJECT_PREFPANE];	
 }
 
 @end

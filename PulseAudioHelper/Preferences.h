@@ -22,7 +22,7 @@
 	BOOL growlReady;
 }
 
-- (NSDistributedNotificationCenter *) getCenter;
+- (NSDistributedNotificationCenter *) notificationCenter;
 
 /* Growl Notifications */
 - (BOOL) isGrowlEnabled;
