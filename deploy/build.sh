@@ -3,7 +3,7 @@
 targetdir=$1
 
 if [ -z "$targetdir" ]; then
-	echo "Usage: $0 [targetdir]"
+	echo "Usage: $0 <targetdir>"
 	exit 1
 fi
 
@@ -26,6 +26,9 @@ sh $base/build_pulseaudio.sh
 ################################## framework ##################################
 cd $base/../PulseAudio.framework
 ./fixupFramework.sh
+dest=$targetdir/Library/Frameworks/
+mkdir -p $dest
+cp -a /Library/Frameworks/pulse.framework $dest
 
 ################################## HAL plugin ##################################
 cd $base/../HAL/HALPlugin/
