@@ -25,6 +25,7 @@
 	NSData *logoData;
 	UInt64 notificationFlags;
 	BOOL growlReady;
+	BOOL growlEnabled;
 }
 
 - (void) start;

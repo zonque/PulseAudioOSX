@@ -49,6 +49,9 @@ static NSString *kMDNSLocalDomain = @"local.";
 	if (growlReady)
 		flags |= 1ULL << 63;
 	
+	if (growlEnabled)
+		flags |= 1ULL << 62;
+	
 	[userInfo setObject: [NSNumber numberWithUnsignedLongLong: flags]
 		     forKey: @"notificationFlags"];
 
@@ -168,15 +171,14 @@ static NSString *kMDNSLocalDomain = @"local.";
 		description = [NSString stringWithFormat: @"Source appeared: %@", name];
 	}
 	
-	if (notification)
+	if (notification && growlEnabled)
 		[GrowlApplicationBridge notifyWithTitle: @"PulseAudio"
 					    description: description
 				       notificationName: notification
 					       iconData: logoData
 					       priority: 0
 					       isSticky: NO
-					   clickContext: nil];
-	
+					   clickContext: nil];	
 }
 
 - (void) netService: (NSNetService *) sender
@@ -226,7 +228,7 @@ static NSString *kMDNSLocalDomain = @"local.";
 		description = [NSString stringWithFormat: @"Source disappeared: %@", name];
 	}
 	
-	if (notification)
+	if (notification && growlEnabled)
 		[GrowlApplicationBridge notifyWithTitle: @"PulseAudio"
 					    description: description
 				       notificationName: notification
