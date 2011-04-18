@@ -52,6 +52,13 @@
 		[self stop];
 }
 
+- (void) taskTerminated: (NSNotification *) notification {
+	if (!task || [notification object] != task)
+		return;
+
+	NSLog(@"Server task ended.");	
+}
+
 - (id) init
 {
 	[super init];
@@ -61,6 +68,11 @@
 					   name: @"setLocalServerEnabled"
 					 object: REMOTE_OBJECT];	
 
+	[[NSNotificationCenter defaultCenter] addObserver: self
+						 selector: @selector(taskTerminated:)
+						     name: NSTaskDidTerminateNotification
+						   object: nil];
+	
 	if ([prefs isLocalServerEnabled])
 		[self start];
 
