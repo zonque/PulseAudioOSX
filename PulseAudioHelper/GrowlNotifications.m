@@ -11,8 +11,6 @@
 
 #import "GrowlNotifications.h"
 
-#define REMOTE_OBJECT @"PulseAudioPreferencePane"
-
 #define PATHHACK "/Users/daniel/src/pa/PulseAudioOSX/PulseAudioHelper/"
 
 #define defineNotification(x, n) \

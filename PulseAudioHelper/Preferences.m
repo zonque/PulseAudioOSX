@@ -11,7 +11,18 @@
 
 #import "Preferences.h"
 
+static NSString *kPAPreferencesGrowlFlagsKey		= @"growlNotificationFlags";
+static NSString *kPAPreferencesGrowlEnabledKey		= @"growlNotificationsEnabled";
+static NSString *kPAPreferencesLocalServerEnabledKey	= @"localServerEnabled";
+static NSString *kPAPreferencesStatusBarEnabledKey	= @"statusBarEnabled";
+
 @implementation Preferences
+
+- (NSString *) preferencesFilePath
+{
+	return [NSString stringWithFormat: @"%@/Library/Preferences/org.pulseaudio.plist",
+						NSHomeDirectory()];
+}
 
 #pragma mark ### NSDistributedNotificationCenter ###
 
@@ -20,15 +31,18 @@
 - (void) updateGrowlFlags: (NSNotification *) notification
 {
 	NSDictionary *userInfo = [notification userInfo];
-	NSNumber *number = [userInfo objectForKey: @"notificationFlags"];
-	growlNotificationFlags = [number unsignedLongLongValue];
+	[preferencesDict setObject: [userInfo objectForKey: @"notificationFlags"]
+			    forKey: kPAPreferencesGrowlEnabledKey];
+	[preferencesDict writeToFile: [self preferencesFilePath]
+			  atomically: YES];
 }
 
 - (void) queryGrowlFlags: (NSNotification *) notification
 {
 	NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithCapacity: 0];
-	UInt64 flags = growlNotificationFlags;
-	
+	UInt64 flags = [[preferencesDict objectForKey: kPAPreferencesGrowlFlagsKey] unsignedLongLongValue];
+	BOOL growlEnabled = [[preferencesDict objectForKey: kPAPreferencesGrowlEnabledKey] boolValue];
+
 	if (growlReady)
 		flags |= 1ULL << 63;
 	
@@ -49,16 +63,62 @@
 - (void) setLocalServerEnabled: (NSNotification *) notification
 {
 	NSDictionary *userInfo = [notification userInfo];
-	localServerEnabled = [[userInfo objectForKey: @"enabled"] boolValue];
+	[preferencesDict setObject: [userInfo objectForKey: @"enabled"]
+			    forKey: kPAPreferencesLocalServerEnabledKey];
+	[preferencesDict writeToFile: [self preferencesFilePath]
+			  atomically: YES];
+}
+
+#pragma mark ## Status Bar ##
+
+- (void) setStatusBarEnabled: (NSNotification *) notification
+{
+	NSDictionary *userInfo = [notification userInfo];
+	[preferencesDict setObject: [userInfo objectForKey: @"enabled"]
+			    forKey: kPAPreferencesStatusBarEnabledKey];
+	[preferencesDict writeToFile: [self preferencesFilePath]
+			  atomically: YES];
+}
+
+- (void) queryStatusBarEnabled: (NSNotification *) notification
+{
+	NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithCapacity: 0];
+	
+	[userInfo setObject: [preferencesDict objectForKey: kPAPreferencesStatusBarEnabledKey]
+		     forKey: @"enabled"];
+	
+	[notificationCenter postNotificationName: @"setStatusBarEnabled"
+					  object: LOCAL_OBJECT
+					userInfo: userInfo
+			      deliverImmediately: YES];	
+}
+
+- (void) makeDefaults
+{
+	[preferencesDict setObject: [NSNumber numberWithBool: YES]
+			    forKey: kPAPreferencesGrowlEnabledKey];
+	[preferencesDict setObject: [NSNumber numberWithBool: YES]
+			    forKey: kPAPreferencesLocalServerEnabledKey];
+	[preferencesDict setObject: [NSNumber numberWithBool: NO]
+			    forKey: kPAPreferencesStatusBarEnabledKey];
+	[preferencesDict setObject: [NSNumber numberWithUnsignedLongLong: 0xffffffffffffffff]
+			    forKey: kPAPreferencesGrowlFlagsKey];
 }
 
 - (id) init
 {
 	[super init];
 
-	growlNotificationFlags = 0xffffffffffffffff;
-	localServerEnabled = YES;
+	preferencesDict = [NSMutableDictionary dictionaryWithContentsOfFile: [self preferencesFilePath]];
 
+	if (!preferencesDict) {
+		NSLog(@"Unable to load config file, restoring defaults\n");
+		preferencesDict = [NSMutableDictionary dictionaryWithCapacity: 0];
+		[self makeDefaults];
+		[preferencesDict writeToFile: [self preferencesFilePath]
+				  atomically: YES];
+	}
+	
 	notificationCenter = [[NSDistributedNotificationCenter defaultCenter] retain];
 	
 	[notificationCenter addObserver: self
@@ -75,6 +135,16 @@
 			       selector: @selector(setLocalServerEnabled:)
 				   name: @"setLocalServerEnabled"
 				 object: REMOTE_OBJECT_PREFPANE];	
+
+	[notificationCenter addObserver: self
+			       selector: @selector(setStatusBarEnabled:)
+				   name: @"setStatusBarEnabled"
+				 object: REMOTE_OBJECT_PREFPANE];	
+	
+	[notificationCenter addObserver: self
+			       selector: @selector(queryStatusBarEnabled:)
+				   name: @"queryStatusBarEnabled"
+				 object: REMOTE_OBJECT_PREFPANE];	
 	
 	return self;
 }
@@ -88,12 +158,12 @@
 
 - (BOOL) isGrowlEnabled
 {
-	return YES;
+	return [[preferencesDict objectForKey: kPAPreferencesGrowlEnabledKey] boolValue];
 }
 
 - (UInt64) growlNotificationFlags
 {
-	return growlNotificationFlags;
+	return [[preferencesDict objectForKey: kPAPreferencesGrowlFlagsKey] unsignedLongLongValue];
 }
 
 - (void) setGrowlReady: (BOOL) ready
@@ -105,7 +175,14 @@
 
 - (BOOL) isLocalServerEnabled
 {
-	return localServerEnabled;
+	return [[preferencesDict objectForKey: kPAPreferencesLocalServerEnabledKey] boolValue];
+}
+
+#pragma mark ### Status Bar ###
+
+- (BOOL) isStatusBarEnabled
+{
+	return [[preferencesDict objectForKey: kPAPreferencesStatusBarEnabledKey] boolValue];
 }
 
 @end

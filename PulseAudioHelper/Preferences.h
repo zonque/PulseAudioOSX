@@ -13,13 +13,13 @@
 
 #define LOCAL_OBJECT @"PulseAudioHelper"
 #define REMOTE_OBJECT_PREFPANE @"PulseAudioPreferencePane"
+#define REMOTE_OBJECT_HALPLUGIN @"PAHP_Device"
 
 @interface Preferences : NSObject {
 	NSDistributedNotificationCenter *notificationCenter;
-	UInt64 growlNotificationFlags;
-	BOOL growlEnabled;
+	NSMutableDictionary *preferencesDict;
+	
 	BOOL growlReady;
-	BOOL localServerEnabled;
 }
 
 - (NSDistributedNotificationCenter *) getCenter;
@@ -31,5 +31,8 @@
 
 /* Local Server */
 - (BOOL) isLocalServerEnabled;
+
+/* Status Bar */
+- (BOOL) isStatusBarEnabled;
 
 @end

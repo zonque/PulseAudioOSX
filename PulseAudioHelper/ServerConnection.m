@@ -11,8 +11,6 @@
 
 #import "ServerConnection.h"
 
-#define REMOTE_OBJECT @"PAHP_Device"
-
 @implementation ServerConnection
 
 - (void) deviceAnnounced: (NSNotification *) notification
@@ -40,12 +38,12 @@
 	[[prefs getCenter] addObserver: self
 			      selector: @selector(deviceAnnounced:)
 				  name: @"announceDevice"
-				object: REMOTE_OBJECT];	
+				object: REMOTE_OBJECT_HALPLUGIN];	
 	
 	[[prefs getCenter] addObserver: self
 			      selector: @selector(deviceSignedOff:)
 				  name: @"signOffDevice"
-				object: REMOTE_OBJECT];	
+				object: REMOTE_OBJECT_HALPLUGIN];	
 	
 	return self;
 }

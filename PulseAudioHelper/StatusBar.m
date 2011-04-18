@@ -11,8 +11,6 @@
 
 #define PATHHACK "/Users/daniel/src/pa/PulseAudioOSX/PulseAudioHelper/"
 
-#define REMOTE_OBJECT @"PulseAudioPreferencePane"
-
 #import "StatusBar.h"
 
 
@@ -20,7 +18,7 @@
 
 - (void) setPreferences: (Preferences *) newPrefs
 {
-	
+	prefs = newPrefs;
 }
 
 #pragma mark ### NSMenuItem callback selectors ###
@@ -106,38 +104,19 @@
 		[self hideMenu];
 }
 
-- (void) queryEnabled: (NSNotification *) notification
-{
-	NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithCapacity: 0];
-	BOOL enabled = (statusItem != nil);
-	
-	[userInfo setObject: [NSNumber numberWithBool: enabled]
-		     forKey: @"enabled"];
-	
-	[[prefs getCenter] postNotificationName: @"setStatusBarEnabled"
-					 object: LOCAL_OBJECT
-				       userInfo: userInfo
-			     deliverImmediately: YES];	
-}
-
 #pragma mark ### NSApplicationDelegate ###
 
 - (void) applicationDidFinishLaunching: (NSNotification *) aNotification
 {
 	icon = [[NSImage alloc] initWithContentsOfFile: @PATHHACK"statusBar.png"];
 
-	[self showMenu];
-		
+	if ([prefs isStatusBarEnabled])
+		[self showMenu];
+
 	[[prefs getCenter] addObserver: self
 			      selector: @selector(setEnabled:)
 				  name: @"setStatusBarEnabled"
-				object: REMOTE_OBJECT];	
-	
-	[[prefs getCenter] addObserver: self
-			      selector: @selector(queryEnabled:)
-				  name: @"queryStatusBarEnabled"
-				object: REMOTE_OBJECT];	
-	
+				object: REMOTE_OBJECT_PREFPANE];	
 }
 
 @end
