@@ -12,6 +12,10 @@
 #import <PreferencePanes/PreferencePanes.h>
 #import "AudioClients.h"
 
+#define LOCAL_OBJECT @"PulseAudioPreferencePane"
+#define REMOTE_OBJECT_HELPER @"PulseAudioHelper"
+#define REMOTE_OBJECT_HALPLUGIN @"PAHP_Device"
+
 @interface PreferencePane : NSPreferencePane
 {
 	IBOutlet AudioClients *audioClients;

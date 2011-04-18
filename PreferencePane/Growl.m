@@ -10,9 +10,7 @@
  ***/
 
 #import "Growl.h"
-
-#define LOCAL_OBJECT @"PulseAudioPreferencePane"
-#define REMOTE_OBJECT @"PulseAudioHelper"
+#import "PreferencePane.h"
 
 @implementation Growl
 
@@ -38,7 +36,6 @@
 - (void) sendFlags
 {
 	NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithCapacity: 0];
-	BOOL enabled = [tableView isEnabled];
 	UInt64 flags = notificationFlags;
 
 	if (growlEnabled)
@@ -64,12 +61,14 @@
 			 @"Source disappeared",
 			 @"Sink appeared",
 			 @"Sink disappeared",
+			 @"Client connected",
+			 @"Client disconnected",
 			 nil];
-		
+
 	[notificationCenter addObserver: self
 			       selector: @selector(updateGrowlFlags:)
 				   name: @"updateGrowlFlags"
-				 object: REMOTE_OBJECT];
+				 object: REMOTE_OBJECT_HELPER];
 
 	[notificationCenter postNotificationName: @"queryGrowlFlags"
 					  object: LOCAL_OBJECT

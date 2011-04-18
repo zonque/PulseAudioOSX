@@ -10,14 +10,32 @@
  ***/
 
 #import "LocalServer.h"
-
-#define LOCAL_OBJECT @"PulseAudioPreferencePane"
+#import "PreferencePane.h"
 
 @implementation LocalServer
 
+- (void) setLocalServerEnabled: (NSNotification *) notification
+{
+	NSDictionary *userInfo = [notification userInfo];
+	BOOL enabled = [[userInfo objectForKey: @"enabled"] boolValue];
+	[enabledButton setState: enabled ? NSOnState : NSOffState];
+}
+
 - (void) awakeFromNib
 {
-	notificationCenter = [NSDistributedNotificationCenter defaultCenter];	
+	notificationCenter = [NSDistributedNotificationCenter defaultCenter];
+	
+	
+	[notificationCenter addObserver: self
+			       selector: @selector(setLocalServerEnabled:)
+				   name: @"setLocalServerEnabled"
+				 object: REMOTE_OBJECT_HELPER];	
+	
+	[notificationCenter postNotificationName: @"queryLocalServerEnabled"
+					  object: LOCAL_OBJECT
+					userInfo: nil
+			      deliverImmediately: YES];
+	
 }
 
 - (IBAction) setEnabled: (id) sender
@@ -31,7 +49,7 @@
 	[notificationCenter postNotificationName: @"setLocalServerEnabled"
 					  object: LOCAL_OBJECT
 					userInfo: userInfo
-			      deliverImmediately: YES];	
+			      deliverImmediately: YES];
 }
 
 @end

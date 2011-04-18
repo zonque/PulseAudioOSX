@@ -17,16 +17,20 @@
 
 - (void) didSelect
 {
-	[audioClients startTimer];
 }
 
 - (void) didUnselect
 {
-	[audioClients stopTimer];
 }
 
 - (void) mainViewDidLoad
 {
+	NSDistributedNotificationCenter *notificationCenter = [NSDistributedNotificationCenter defaultCenter];
+	
+	[notificationCenter postNotificationName: @"queryStatusBarEnabled"
+					  object: LOCAL_OBJECT
+					userInfo: nil
+			      deliverImmediately: YES];
 }
 
 #pragma mark ### GUI ###
@@ -42,13 +46,7 @@
 	[notificationCenter postNotificationName: @"setStatusBarEnabled"
 					  object: LOCAL_OBJECT
 					userInfo: userInfo
-			      deliverImmediately: YES];	
-
-	[notificationCenter postNotificationName: @"queryStatusBarEnabled"
-					  object: LOCAL_OBJECT
-					userInfo: nil
-			      deliverImmediately: YES];	
-	
+			      deliverImmediately: YES];		
 }
 
 @end

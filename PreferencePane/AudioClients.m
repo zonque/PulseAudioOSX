@@ -10,39 +10,10 @@
  ***/
 
 #import "AudioClients.h"
+#import "PreferencePane.h"
 #import <netinet/in.h>
 
-#define REMOTE_OBJECT @"PAHP_Device"
-
 @implementation AudioClients
-
-- (void) scanClients: (NSTimer *) t
-{
-	NSMutableArray *newClientList = [NSMutableArray arrayWithArray: clientList];
-	NSInteger selected = [clientTableView selectedRow];
-	NSDictionary *selectedClient = nil;
-	BOOL removed = NO;
-	
-	if (selected >= 0)
-		selectedClient = [clientList objectAtIndex: [clientTableView selectedRow]];
-
-	for (NSDictionary *client in clientList) {
-		NSRunningApplication *app = [client objectForKey: @"application"];
-		if (app.terminated) {
-			[newClientList removeObject: client];
-			removed = YES;
-		}
-	}
-	
-	if (removed) {
-		[clientList release];
-		clientList = [newClientList retain];
-		[clientTableView reloadData];
-		
-		if (selectedClient && ![clientList containsObject: selectedClient])
-			[self selectClient: nil];
-	}
-}
 
 - (void) deviceAnnounced: (NSNotification *) notification
 {
@@ -97,22 +68,6 @@
 	}
 }
 
-- (void) startTimer
-{
-	timer = [NSTimer timerWithTimeInterval: 1.0
-					target: self
-				      selector: @selector(scanClients:)
-				      userInfo: nil
-				       repeats: YES];
-	[[NSRunLoop currentRunLoop] addTimer: timer
-				     forMode: NSDefaultRunLoopMode];
-}
-
-- (void) stopTimer
-{
-	[timer invalidate];
-}
-
 - (id) init
 {
 	[super init];	
@@ -134,29 +89,29 @@
 
 	clientList = [[NSMutableArray arrayWithCapacity: 0] retain];
 	serviceDict = [[NSMutableDictionary dictionaryWithCapacity: 0] retain];
-	
+
 	[serverSelectButton removeAllItems];
 	[serverSelectButton addItemWithTitle: @"localhost"];
-	
+
 	netServiceBrowser = [[[NSNetServiceBrowser alloc] init] retain];
 	[netServiceBrowser setDelegate: self];
 	[netServiceBrowser searchForServicesOfType: @"_pulse-server._tcp"
 					  inDomain: @"local."];
-	
+
 	notificationCenter = [NSDistributedNotificationCenter defaultCenter];
-	
+
 	[notificationCenter addObserver: self
 			       selector: @selector(deviceAnnounced:)
 				   name: @"announceDevice"
-				 object: REMOTE_OBJECT];	
-	
+				 object: REMOTE_OBJECT_HALPLUGIN];	
+
 	[notificationCenter addObserver: self
 			       selector: @selector(deviceSignedOff:)
 				   name: @"signOffDevice"
-				 object: REMOTE_OBJECT];	
-	
+				 object: REMOTE_OBJECT_HALPLUGIN];	
+
 	[notificationCenter postNotificationName: @"scanDevices"
-					  object: REMOTE_OBJECT
+					  object: REMOTE_OBJECT_HALPLUGIN
 					userInfo: nil
 			      deliverImmediately: YES];
 	
@@ -311,7 +266,7 @@ enum {
 			     forKey: @"serverPort"];
 	
 	[notificationCenter postNotificationName: @"setConfiguration"
-					  object: REMOTE_OBJECT
+					  object: REMOTE_OBJECT_HELPER
 					userInfo: userInfo
 			      deliverImmediately: YES];
 	

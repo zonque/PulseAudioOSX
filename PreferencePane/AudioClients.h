@@ -32,11 +32,7 @@
 	NSNetServiceBrowser		*netServiceBrowser;	
 	NSMutableArray			*clientList;
 	NSMutableDictionary		*serviceDict;	
-	NSTimer				*timer;
 }
-
-- (void) startTimer;
-- (void) stopTimer;
 
 - (NSString *) ipOfService: (NSNetService *) service;
 
