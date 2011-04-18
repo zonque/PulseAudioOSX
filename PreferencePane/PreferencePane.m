@@ -11,8 +11,6 @@
 
 #import "PreferencePane.h"
 
-#define LOCAL_OBJECT @"PulseAudioPreferencePane"
-
 @implementation PreferencePane
 
 - (void) didSelect

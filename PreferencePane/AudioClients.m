@@ -102,12 +102,12 @@
 
 	[notificationCenter addObserver: self
 			       selector: @selector(deviceAnnounced:)
-				   name: @"announceDevice"
+				   name: MSG_ANNOUNCE_DEVICE
 				 object: REMOTE_OBJECT_HALPLUGIN];	
 
 	[notificationCenter addObserver: self
 			       selector: @selector(deviceSignedOff:)
-				   name: @"signOffDevice"
+				   name: MSG_SIGNOFF_DEVICE
 				 object: REMOTE_OBJECT_HALPLUGIN];	
 
 	[notificationCenter postNotificationName: @"scanDevices"
@@ -265,7 +265,7 @@ enum {
 		[userInfo setObject: serverPort
 			     forKey: @"serverPort"];
 	
-	[notificationCenter postNotificationName: @"setConfiguration"
+	[notificationCenter postNotificationName: MSG_SETCONFIGURATION
 					  object: REMOTE_OBJECT_HELPER
 					userInfo: userInfo
 			      deliverImmediately: YES];
