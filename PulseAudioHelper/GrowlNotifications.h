@@ -1,4 +1,3 @@
-#import <Cocoa/Cocoa.h>
 /***
  This file is part of PulseAudioOSX
  
@@ -10,25 +9,28 @@
  (at your option) any later version.
  ***/
 
+#import <Cocoa/Cocoa.h>
 #import <Growl/Growl.h>
+#import "Preferences.h"
 #import "ServerConnection.h"
 
-@interface Notification : NSObject <
+@interface GrowlNotifications : NSObject <
 				GrowlApplicationBridgeDelegate,
 				ServerConnectionDelegate,
 				NSNetServiceDelegate,
 				NSNetServiceBrowserDelegate
 				>
 {
-	NSDistributedNotificationCenter *notificationCenter;
 	NSNetServiceBrowser *serverBrowser;
 	NSNetServiceBrowser *sourceBrowser;
 	NSNetServiceBrowser *sinkBrowser;
 	NSData *logoData;
-	UInt64 notificationFlags;
 	BOOL growlReady;
-	BOOL growlEnabled;
+	
+	Preferences *prefs;
 }
+
+- (void) setPreferences: (Preferences *) newPrefs;
 
 /* GrowlApplicationBridgeDelegate */
 - (NSString *) applicationNameForGrowl;

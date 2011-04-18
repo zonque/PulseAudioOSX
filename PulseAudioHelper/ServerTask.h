@@ -10,13 +10,14 @@
  ***/
 
 #import <Cocoa/Cocoa.h>
-
+#import "Preferences.h"
 
 @interface ServerTask : NSObject {
 	NSTask *task;
-	NSDistributedNotificationCenter *notificationCenter;
+	Preferences *prefs;
 }
 
+- (void) setPreferences: (Preferences *) newPrefs;
 - (void) start;
 - (void) stop;
 

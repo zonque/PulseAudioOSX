@@ -10,6 +10,7 @@
  ***/
 
 #import <Cocoa/Cocoa.h>
+#import "Preferences.h"
 
 @protocol ServerConnectionDelegate
 @required
@@ -24,9 +25,10 @@
 
 @interface ServerConnection : NSObject {
 	id<ServerConnectionDelegate> delegate;
-	NSDistributedNotificationCenter *notificationCenter;
+	Preferences *prefs;
 }
 
+- (void) setPreferences: (Preferences *) newPrefs;
 - (void) setDelegate: (id<ServerConnectionDelegate>) newDelegate;
 
 @end

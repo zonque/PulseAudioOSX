@@ -10,12 +10,15 @@
  ***/
 
 #import <Cocoa/Cocoa.h>
+#import "Preferences.h"
 
 @interface StatusBar : NSObject<NSApplicationDelegate> {
 	NSStatusItem *statusItem;
 	NSImage *icon;
-	NSDistributedNotificationCenter *notificationCenter;
+	Preferences *prefs;
 }
+
+- (void) setPreferences: (Preferences *) newPrefs;
 
 - (NSMenu *) createMenu;
 

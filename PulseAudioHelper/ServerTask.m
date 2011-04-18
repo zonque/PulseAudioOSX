@@ -15,6 +15,11 @@
 
 @implementation ServerTask
 
+- (void) setPreferences: (Preferences *) newPrefs
+{
+	prefs = newPrefs;
+}
+
 - (void) start
 {
 	NSString *path = @"/Library/Frameworks/pulse.framework/Resources/bin/pulseaudio";
@@ -50,13 +55,11 @@
 - (id) init
 {
 	[super init];
-
-	notificationCenter = [NSDistributedNotificationCenter defaultCenter];
 	
-	[notificationCenter addObserver: self
-			       selector: @selector(setLocalServerEnabled:)
-				   name: @"setLocalServerEnabled"
-				 object: REMOTE_OBJECT];	
+	[[prefs getCenter] addObserver: self
+			      selector: @selector(setLocalServerEnabled:)
+				  name: @"setLocalServerEnabled"
+				object: REMOTE_OBJECT];	
 	
 	[self start];
 

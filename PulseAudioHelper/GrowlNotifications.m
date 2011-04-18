@@ -9,10 +9,9 @@
  (at your option) any later version.
  ***/
 
-#import "Notification.h"
+#import "GrowlNotifications.h"
 
 #define REMOTE_OBJECT @"PulseAudioPreferencePane"
-#define LOCAL_OBJECT @"PulseAudioHelper"
 
 #define PATHHACK "/Users/daniel/src/pa/PulseAudioOSX/PulseAudioHelper/"
 
@@ -33,33 +32,11 @@ static NSString *kMDNSPulseSink   = @"_pulse-sink._tcp";
 static NSString *kMDNSPulseSource = @"_pulse-source._tcp";
 static NSString *kMDNSLocalDomain = @"local.";
 
-@implementation Notification
+@implementation GrowlNotifications
 
-- (void) updateGrowlFlags: (NSNotification *) notification
+- (void) setPreferences: (Preferences *) newPrefs
 {
-	NSDictionary *userInfo = [notification userInfo];
-	NSNumber *number = [userInfo objectForKey: @"notificationFlags"];
-	notificationFlags = [number unsignedLongLongValue];
-}
-
-- (void) queryGrowlFlags: (NSNotification *) notification
-{
-	NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithCapacity: 0];
-	UInt64 flags = notificationFlags;
-	
-	if (growlReady)
-		flags |= 1ULL << 63;
-	
-	if (growlEnabled)
-		flags |= 1ULL << 62;
-	
-	[userInfo setObject: [NSNumber numberWithUnsignedLongLong: flags]
-		     forKey: @"notificationFlags"];
-
-	[notificationCenter postNotificationName: @"updateGrowlFlags"
-					  object: LOCAL_OBJECT
-					userInfo: userInfo
-			      deliverImmediately: YES];
+	prefs = newPrefs;
 }
 
 - (id) init
@@ -68,10 +45,6 @@ static NSString *kMDNSLocalDomain = @"local.";
 
 	NSImage *img = [[NSImage alloc] initWithContentsOfFile: @PATHHACK"PulseAudio.png"];
 	logoData = [[img TIFFRepresentation] retain];
-	
-	/* fixme */
-	notificationFlags = 0xffffffffffffffff;
-	growlEnabled = YES;
 	
 	[GrowlApplicationBridge setGrowlDelegate: self];
 	
@@ -89,19 +62,6 @@ static NSString *kMDNSLocalDomain = @"local.";
 				    inDomain: kMDNSLocalDomain];
 	[sourceBrowser searchForServicesOfType: kMDNSPulseSource
 				      inDomain: kMDNSLocalDomain];
-	
-	notificationCenter = [[NSDistributedNotificationCenter defaultCenter] retain];
-	
-	[notificationCenter addObserver: self
-			       selector: @selector(updateGrowlFlags:)
-				   name: @"updateGrowlFlags"
-				 object: REMOTE_OBJECT];	
-
-	[notificationCenter addObserver: self
-			       selector: @selector(queryGrowlFlags:)
-				   name: @"queryGrowlFlags"
-				 object: REMOTE_OBJECT];
-	
 	
 	ServerConnection *serverConnection = [[ServerConnection alloc] init];
 	[serverConnection setDelegate: self];
@@ -147,7 +107,7 @@ static NSString *kMDNSLocalDomain = @"local.";
 
 - (void) growlIsReady
 {
-	growlReady = YES;
+	[prefs setGrowlReady: YES];
 }
 
 #pragma mark ### ServerConnectionDelegate ###
@@ -156,14 +116,14 @@ static NSString *kMDNSLocalDomain = @"local.";
        newClientAnnounced: (NSString *) name
 		     icon: (NSImage *) icon
 {
-	if (!growlEnabled)
+	if (![prefs isGrowlEnabled])
 		return;
 	
-	if (!(notificationFlags & kPulseAudioClientConnectedFlag))
+	if (!([prefs growlNotificationFlags] & kPulseAudioClientConnectedFlag))
 		return;
 
 	NSString *description = [NSString stringWithFormat: @"New client attached: %@", name];
-	
+
 	[GrowlApplicationBridge notifyWithTitle: @"PulseAudio"
 				    description: description
 			       notificationName: kPulseAudioClientConnected
@@ -171,13 +131,11 @@ static NSString *kMDNSLocalDomain = @"local.";
 				       priority: 0
 				       isSticky: NO
 				   clickContext: nil];
-	
 }
 
 - (void) serverConnection: (id) serverConnection
 	  clientSignedOff: (NSString *) name
 {
-	
 }
 
 #pragma mark ### NSNetServiceDelegate ###
@@ -195,24 +153,24 @@ static NSString *kMDNSLocalDomain = @"local.";
 	NSString *description = nil;
 	
 	if ([type hasPrefix: kMDNSPulseServer] &&
-	    (notificationFlags & kPulseAudioServerAppearedFlag)) {
+	    ([prefs growlNotificationFlags] & kPulseAudioServerAppearedFlag)) {
 		notification = kPulseAudioServerAppeared;
 		description = [NSString stringWithFormat: @"Server appeared: %@", name];
 	}
 	
 	if ([type hasPrefix: kMDNSPulseSink] &&
-	    (notificationFlags & kPulseAudioSinkAppearedFlag)) {
+	    ([prefs growlNotificationFlags] & kPulseAudioSinkAppearedFlag)) {
 		notification = kPulseAudioSinkAppeared;
 		description = [NSString stringWithFormat: @"Sink appeared: %@", name];
 	}
 	
 	if ([type hasPrefix: kMDNSPulseSource] &&
-	    (notificationFlags & kPulseAudioSourceAppearedFlag)) {
+	    ([prefs growlNotificationFlags] & kPulseAudioSourceAppearedFlag)) {
 		notification = kPulseAudioSourceAppeared;
 		description = [NSString stringWithFormat: @"Source appeared: %@", name];
 	}
 	
-	if (notification && growlEnabled)
+	if (notification && [prefs isGrowlEnabled])
 		[GrowlApplicationBridge notifyWithTitle: @"PulseAudio"
 					    description: description
 				       notificationName: notification
@@ -252,24 +210,24 @@ static NSString *kMDNSLocalDomain = @"local.";
 	NSString *description = nil;
 	
 	if ([type hasPrefix: kMDNSPulseServer] &&
-	    (notificationFlags & kPulseAudioServerDisappearedFlag)) {
+	    ([prefs growlNotificationFlags] & kPulseAudioServerDisappearedFlag)) {
 		notification = kPulseAudioServerDisappeared;
 		description = [NSString stringWithFormat: @"Server disappeared: %@", name];
 	}
 	
 	if ([type hasPrefix: kMDNSPulseSink] &&
-	    (notificationFlags & kPulseAudioSinkDisappearedFlag)) {
+	    ([prefs growlNotificationFlags] & kPulseAudioSinkDisappearedFlag)) {
 		notification = kPulseAudioSinkDisappeared;
 		description = [NSString stringWithFormat: @"Sink disappeared: %@", name];
 	}
 	
 	if ([type hasPrefix: kMDNSPulseSource] &&
-	    (notificationFlags & kPulseAudioSourceDisappearedFlag)) {
+	    ([prefs growlNotificationFlags] & kPulseAudioSourceDisappearedFlag)) {
 		notification = kPulseAudioSourceDisappeared;
 		description = [NSString stringWithFormat: @"Source disappeared: %@", name];
 	}
 	
-	if (notification && growlEnabled)
+	if (notification && [prefs isGrowlEnabled])
 		[GrowlApplicationBridge notifyWithTitle: @"PulseAudio"
 					    description: description
 				       notificationName: notification

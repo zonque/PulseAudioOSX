@@ -37,24 +37,27 @@
 {
 	[super init];
 
-	notificationCenter = [NSDistributedNotificationCenter defaultCenter];
-
-	[notificationCenter addObserver: self
-			       selector: @selector(deviceAnnounced:)
-				   name: @"announceDevice"
-				 object: REMOTE_OBJECT];	
+	[[prefs getCenter] addObserver: self
+			      selector: @selector(deviceAnnounced:)
+				  name: @"announceDevice"
+				object: REMOTE_OBJECT];	
 	
-	[notificationCenter addObserver: self
-			       selector: @selector(deviceSignedOff:)
-				   name: @"signOffDevice"
-				 object: REMOTE_OBJECT];	
-
+	[[prefs getCenter] addObserver: self
+			      selector: @selector(deviceSignedOff:)
+				  name: @"signOffDevice"
+				object: REMOTE_OBJECT];	
+	
 	return self;
 }
 
 - (void) setDelegate: (id<ServerConnectionDelegate>) newDelegate
 {
 	delegate = newDelegate;
+}
+
+- (void) setPreferences: (Preferences *) newPrefs
+{
+	prefs = newPrefs;
 }
 
 @end
