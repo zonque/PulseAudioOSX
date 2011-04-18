@@ -39,8 +39,8 @@ private:
 	pa_stream *				PARecordStream;
 	pa_stream *				PAPlaybackStream;
 	
-	unsigned char *				inputBuffer;
-	unsigned char *				outputBuffer;
+	char *					inputDummyBuffer;
+	char *					outputDummyBuffer;
 	
 	MPSemaphoreID				PAContextSemaphore;
 	pa_buffer_attr				bufAttr;

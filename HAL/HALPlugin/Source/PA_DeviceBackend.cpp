@@ -29,7 +29,7 @@
 
 #include "CAHostTimeBase.h"
 
-#define PA_BUFFER_SIZE	(1024 * 256)
+#define PA_DUMMY_BUFFER_SIZE	(1024 * 256)
 
 #pragma mark ### static wrappers ###
 
@@ -96,44 +96,34 @@ PA_DeviceBackend::CallIOProcs(size_t nbytes, CFArrayRef ioProcList)
 	UInt32 frameSize = GetFrameSize();
 	UInt32 ioProcSize = device->GetIOBufferFrameSize() * frameSize;
 
+	nbytes = MIN(nbytes, PA_DUMMY_BUFFER_SIZE);
+	
 	if (ioProcSize > nbytes)
 		return 0;
 	
 	AudioBufferList inputList, outputList;
-	
+
 	memset(&inputList, 0, sizeof(inputList));
 	memset(&outputList, 0, sizeof(outputList));
 	
-	unsigned char *buf, *outputBufferPos;
-
-	char *in = NULL;
+	char *inputBuffer = inputDummyBuffer;
+	char *outputBuffer = outputDummyBuffer;
 	
-	if (PARecordStream && (pa_stream_readable_size(PARecordStream) >= nbytes)) {
-		size_t readSize;
-		pa_stream_peek(PARecordStream, (const void **) &in, &readSize);
-	}
-	
-	char *inputBufferPos = in;
-	
-	//DebugLog("stream %p nbytes %d", PAPlaybackStream, nbytes);
-
-#if 0
-	int ret = pa_stream_begin_write(PAPlaybackStream, (void **) &buf, &nbytes);
-
+	int ret = pa_stream_begin_write(PAPlaybackStream, (void **) &outputBuffer, &nbytes);
 	if (ret < 0) {
 		DebugLog(" XXXXXXXXXXXX ret %d", ret);
 		return 0;
 	}
-	
-	//printf("buf %p, sizeof(void*) %d\n", buf, sizeof(void*));
-#else	
-	buf = outputBuffer;
-#endif
-	
-	outputBufferPos = buf;
+
+	if (PARecordStream && (pa_stream_readable_size(PARecordStream) >= nbytes)) {
+		size_t inputSize = nbytes;
+		pa_stream_peek(PARecordStream, (const void **) &inputBuffer, &inputSize);
+		memset(inputBuffer, 0, inputSize);
+	}
+
+	char *outputBufferPos = outputBuffer;
+
 	size_t count = nbytes;
-	
-	memset(buf, 0, nbytes);
 	
 	AudioTimeStamp now, inputTime, outputTime;
 	memset(&now, 0, sizeof(AudioTimeStamp));
@@ -156,8 +146,8 @@ PA_DeviceBackend::CallIOProcs(size_t nbytes, CFArrayRef ioProcList)
 		outputList.mNumberBuffers = 1;
 		
 		inputList.mBuffers[0].mNumberChannels = 2;
-		inputList.mBuffers[0].mDataByteSize = inputBufferPos ? ioProcSize : 0;
-		inputList.mBuffers[0].mData = inputBufferPos;
+		inputList.mBuffers[0].mDataByteSize = ioProcSize;
+		inputList.mBuffers[0].mData = inputBuffer;
 		inputList.mNumberBuffers = 1;
 		
 		inputTime.mSampleTime = (framesPlayed * usecPerFrame) - 10000;
@@ -184,19 +174,22 @@ PA_DeviceBackend::CallIOProcs(size_t nbytes, CFArrayRef ioProcList)
 					 io->clientData);
 			}
 		}
-		
-		count -= ioProcSize;
-		inputBufferPos += ioProcSize;
+				
+		inputBuffer += ioProcSize;
 		outputBufferPos += ioProcSize;
+		count -= ioProcSize;
 		framesPlayed += ioProcSize / frameSize;
 	}
 
 	//DebugLog("writing %d, count %d", outputBufferPos - buf, count);
 	
-	count = outputBufferPos - buf;
-	pa_stream_write(PAPlaybackStream, buf, count, NULL, 0,
-			(pa_seek_mode_t) PA_SEEK_RELATIVE);
-	if (in)
+	count = outputBufferPos - outputBuffer;
+	
+	if (PAPlaybackStream)
+		pa_stream_write(PAPlaybackStream, outputBuffer, count, NULL, 0,
+				(pa_seek_mode_t) PA_SEEK_RELATIVE);
+
+	if (PARecordStream)
 		pa_stream_drop(PARecordStream);
 	
 	return count;
@@ -207,9 +200,7 @@ PA_DeviceBackend::StreamWriteCallback(pa_stream *stream, size_t nbytes)
 {
 	Assert(stream == PAPlaybackStream, "bogus stream pointer in StreamWriteCallback");
 	
-	CFArrayRef ioProcList = CFArrayCreateCopy(device->GetAllocator(),
-						  device->LockIOProcList());
-	device->UnlockIOProcList();
+	CFArrayRef ioProcList = device->CopyIOProcList();
 
 	UInt32 written = 0;
 
@@ -361,8 +352,8 @@ PA_DeviceBackend::Initialize()
 	PAPlaybackStream = NULL;
 	PARecordStream = NULL;
 
-	inputBuffer = (unsigned char *) pa_xmalloc0(PA_BUFFER_SIZE);
-	outputBuffer = (unsigned char *) pa_xmalloc0(PA_BUFFER_SIZE);
+	inputDummyBuffer = pa_xnew0(char, PA_DUMMY_BUFFER_SIZE);
+	outputDummyBuffer = pa_xnew0(char, PA_DUMMY_BUFFER_SIZE);
 
 	sampleSpec.format = PA_SAMPLE_FLOAT32;
 	sampleSpec.rate = device->GetSampleRate();
@@ -392,11 +383,11 @@ PA_DeviceBackend::Teardown()
 		PAMainLoop = NULL;
 	}
 
-	pa_xfree(inputBuffer);
-	inputBuffer = NULL;
+	pa_xfree(inputDummyBuffer);
+	inputDummyBuffer = NULL;
 
-	pa_xfree(outputBuffer);
-	outputBuffer = NULL;
+	pa_xfree(outputDummyBuffer);
+	outputDummyBuffer = NULL;
 	
 	pa_xfree(connectHost);
 	connectHost = NULL;

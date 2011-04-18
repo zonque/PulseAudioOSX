@@ -300,16 +300,13 @@ PA_Device::FindIOProcByID(AudioDeviceIOProcID inProcID)
 }
 
 CFArrayRef
-PA_Device::LockIOProcList()
+PA_Device::CopyIOProcList()
 {
 	pthread_mutex_lock(&ioProcListMutex);
-	return (CFArrayRef) CFRetain(ioProcList);
-}
-
-void
-PA_Device::UnlockIOProcList()
-{
+	CFArrayRef list = CFArrayCreateCopy(GetAllocator(), ioProcList);
 	pthread_mutex_unlock(&ioProcListMutex);
+
+	return list;
 }
 
 void

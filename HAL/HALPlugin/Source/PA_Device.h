@@ -84,8 +84,7 @@ public:
 	Boolean			IsRunning()			{ return isRunning; };
 	CFAllocatorRef		GetAllocator();
 
-	CFArrayRef		LockIOProcList();
-	void			UnlockIOProcList();
+	CFArrayRef		CopyIOProcList();
 	
 	AudioStreamBasicDescription streamDescription;
 	AudioStreamRangedDescription physicalFormat;
