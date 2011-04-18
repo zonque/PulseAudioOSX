@@ -1,7 +1,11 @@
 #!/bin/sh
 
-rm -fr /tmp/paosx.*
-targetdir=$(mktemp -u /tmp/paosx.XXXXXX)
+targetdir=$1
+
+if [ -z "$targetdir" ]; then
+	echo "Usage: $0 [targetdir]"
+	exit 1
+fi
 
 set -x
 set -e
@@ -43,6 +47,7 @@ XcodeBuild PulseAudioHelper.xcodeproj
 dest=$targetdir/Library/StartupItems/PulseAudioHelper
 mkdir -p $dest
 cp -a build/Release/PulseAudioHelper $dest
+cp -a StartupParameters.plist $dest
 
 ################################## PulseConsole ##################################
 cd $base/../PulseConsole/
@@ -51,7 +56,6 @@ dest=$targetdir/Applications/
 mkdir -p $dest
 cp -a build/Release/PulseConsole.app $dest
 
-#####################
 
 echo "Built and staged into $targetdir"
 
