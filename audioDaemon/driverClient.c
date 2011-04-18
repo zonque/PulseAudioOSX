@@ -72,7 +72,7 @@ serviceMatched (void *refCon, io_iterator_t iterator)
 
 	ret = deviceClientStart();
 	if (ret) {
-		printf("virtualDeviceClientStart() returned %d\n", ret);
+		printf("deviceClientStart() returned %d\n", ret);
 		return;
 	}
 	
