@@ -9,12 +9,12 @@
  (at your option) any later version.
  ***/
 
-#import "PAPreferencePane.h"
+#import "AudioClients.h"
 #import <netinet/in.h>
 
 #define REMOTE_OBJECT @"PAHP_Device"
 
-@implementation PAPreferencePane
+@implementation AudioClients
 
 - (void) scanClients: (NSTimer *) t
 {
@@ -97,7 +97,7 @@
 	}
 }
 
-- (void) didSelect
+- (void) startTimer
 {
 	timer = [NSTimer timerWithTimeInterval: 1.0
 					target: self
@@ -108,12 +108,12 @@
 				     forMode: NSDefaultRunLoopMode];
 }
 
-- (void) didUnselect
+- (void) stopTimer
 {
 	[timer invalidate];
 }
 
-- (void) mainViewDidLoad
+- (void) awakeFromNib
 {
 	[clientDetailsBox selectTabViewItemAtIndex: 1];
 

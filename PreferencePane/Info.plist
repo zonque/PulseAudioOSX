@@ -9,7 +9,7 @@
 	<key>CFBundleIconFile</key>
 	<string></string>
 	<key>CFBundleIdentifier</key>
-	<string>com.yourcompany.prefpanel</string>
+	<string>org.pulseaudio.prefpane</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -29,6 +29,6 @@
 	<key>NSPrefPaneIconLabel</key>
 	<string>PulseAudio</string>
 	<key>NSPrincipalClass</key>
-	<string>PAPreferencePane</string>
+	<string>PreferencePane</string>
 </dict>
 </plist>

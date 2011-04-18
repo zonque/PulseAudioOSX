@@ -21,9 +21,14 @@
 	NSDictionary *userInfo = [notification userInfo];
 	NSNumber *number = [userInfo objectForKey: @"notificationFlags"];
 	notificationFlags = [number unsignedLongLongValue];
-	BOOL enabled = !!(notificationFlags & (1ULL << 63));
+	BOOL growlReady = !!(notificationFlags & (1ULL << 63));
 	
-	if (enabled) {
+	growlEnabled = !!(notificationFlags & (1ULL << 62));
+
+	[enabledButton setEnabled: growlEnabled];
+	[tableView setEnabled: growlEnabled];
+	
+	if (growlReady) {
 		[tabView selectTabViewItemWithIdentifier: @"active"];
 		[tableView reloadData];
 	} else
@@ -34,10 +39,12 @@
 {
 	NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithCapacity: 0];
 	BOOL enabled = [tableView isEnabled];
-	
-	NSLog(@"%s()\n", __func__);
+	UInt64 flags = notificationFlags;
 
-	[userInfo setObject: [NSNumber numberWithUnsignedLongLong: enabled ? notificationFlags : 0]
+	if (growlEnabled)
+		flags |= 1ULL << 62;
+	
+	[userInfo setObject: [NSNumber numberWithUnsignedLongLong: flags]
 		     forKey: @"notificationFlags"];
 	
 	[notificationCenter postNotificationName: @"updateGrowlFlags"
@@ -106,7 +113,8 @@ objectValueForTableColumn:(NSTableColumn *)col
 #pragma mark ### GUI ###
 - (IBAction) setEnabled: (id) sender
 {
-	[tableView setEnabled: [sender state]];
+	growlEnabled = ([sender state] == NSOnState);
+	[tableView setEnabled: growlEnabled];
 	[self sendFlags];
 }
 

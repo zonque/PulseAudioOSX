@@ -19,6 +19,7 @@
 	NSDistributedNotificationCenter *notificationCenter;
 	NSArray *notifications;
 	UInt64 notificationFlags;
+	BOOL growlEnabled;
 }
 
 /* NSTableViewDelegate */

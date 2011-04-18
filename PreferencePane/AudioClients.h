@@ -9,10 +9,11 @@
  (at your option) any later version.
  ***/
 
-#import <PreferencePanes/PreferencePanes.h>
+#import <Cocoa/Cocoa.h>
 #import <Quartz/Quartz.h>
+#import <PreferencePanes/PreferencePanes.h>
 
-@interface PAPreferencePane : NSPreferencePane <NSNetServiceDelegate, NSNetServiceBrowserDelegate>
+@interface AudioClients : NSObject <NSNetServiceDelegate, NSNetServiceBrowserDelegate>
 {
 	IBOutlet NSTableView		*clientTableView;
 	IBOutlet IKImageView		*imageView;
@@ -34,6 +35,9 @@
 	NSTimer				*timer;
 }
 
+- (void) startTimer;
+- (void) stopTimer;
+
 - (NSString *) ipOfService: (NSNetService *) service;
 
 /* NSTableViewDelegate */
@@ -50,8 +54,6 @@ objectValueForTableColumn:(NSTableColumn *)col
 - (void)netServiceDidResolveAddress:(NSNetService *)sender;
 - (void) netService: (NSNetService *) sender
       didNotResolve: (NSDictionary *) errorDict;
-
-- (void)netServiceWillResolve:(NSNetService *)sender;
 - (void)netServiceDidStop:(NSNetService *)sender;
 
 /* NSNetServiceBrowserDelegate */

@@ -12,12 +12,14 @@
 		655316D8135B51B100817E2D /* Growl.h in Headers */ = {isa = PBXBuildFile; fileRef = 655316D6135B51B100817E2D /* Growl.h */; };
 		655316D9135B51B100817E2D /* Growl.m in Sources */ = {isa = PBXBuildFile; fileRef = 655316D7135B51B100817E2D /* Growl.m */; };
 		65531795135B999500817E2D /* Growl_512x512.png in Resources */ = {isa = PBXBuildFile; fileRef = 65531794135B999500817E2D /* Growl_512x512.png */; };
+		65531820135C1D3D00817E2D /* PreferencePane.h in Headers */ = {isa = PBXBuildFile; fileRef = 6553181E135C1D3D00817E2D /* PreferencePane.h */; };
+		65531821135C1D3D00817E2D /* PreferencePane.m in Sources */ = {isa = PBXBuildFile; fileRef = 6553181F135C1D3D00817E2D /* PreferencePane.m */; };
 		8D202CEA0486D31800D8A456 /* PulseAudio_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 32DBCFA20370C41700C91783 /* PulseAudio_Prefix.pch */; };
-		8D202CEB0486D31800D8A456 /* PAPreferencePane.h in Headers */ = {isa = PBXBuildFile; fileRef = F506C03C013D9D7901CA16C8 /* PAPreferencePane.h */; };
+		8D202CEB0486D31800D8A456 /* AudioClients.h in Headers */ = {isa = PBXBuildFile; fileRef = F506C03C013D9D7901CA16C8 /* AudioClients.h */; };
 		8D202CED0486D31800D8A456 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C167DFE841241C02AAC07 /* InfoPlist.strings */; };
 		8D202CEE0486D31800D8A456 /* PAPreferencePane.tiff in Resources */ = {isa = PBXBuildFile; fileRef = F506C040013D9D8001CA16C8 /* PAPreferencePane.tiff */; };
 		8D202CEF0486D31800D8A456 /* PAPreferencePane.nib in Resources */ = {isa = PBXBuildFile; fileRef = F506C042013D9D8C01CA16C8 /* PAPreferencePane.nib */; };
-		8D202CF10486D31800D8A456 /* PAPreferencePane.m in Sources */ = {isa = PBXBuildFile; fileRef = F506C03D013D9D7901CA16C8 /* PAPreferencePane.m */; };
+		8D202CF10486D31800D8A456 /* AudioClients.m in Sources */ = {isa = PBXBuildFile; fileRef = F506C03D013D9D7901CA16C8 /* AudioClients.m */; };
 		8D202CF30486D31800D8A456 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7ADFEA557BF11CA2CBB /* Cocoa.framework */; };
 		8D202CF40486D31800D8A456 /* PreferencePanes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F506C035013D953901CA16C8 /* PreferencePanes.framework */; };
 /* End PBXBuildFile section */
@@ -33,11 +35,13 @@
 		655316D6135B51B100817E2D /* Growl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Growl.h; sourceTree = "<group>"; };
 		655316D7135B51B100817E2D /* Growl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Growl.m; sourceTree = "<group>"; };
 		65531794135B999500817E2D /* Growl_512x512.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Growl_512x512.png; sourceTree = "<group>"; };
+		6553181E135C1D3D00817E2D /* PreferencePane.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferencePane.h; sourceTree = "<group>"; };
+		6553181F135C1D3D00817E2D /* PreferencePane.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreferencePane.m; sourceTree = "<group>"; };
 		8D202CF70486D31800D8A456 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		8D202CF80486D31800D8A456 /* PulseAudio.prefPane */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PulseAudio.prefPane; sourceTree = BUILT_PRODUCTS_DIR; };
 		F506C035013D953901CA16C8 /* PreferencePanes.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PreferencePanes.framework; path = /System/Library/Frameworks/PreferencePanes.framework; sourceTree = "<absolute>"; };
-		F506C03C013D9D7901CA16C8 /* PAPreferencePane.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PAPreferencePane.h; sourceTree = "<group>"; };
-		F506C03D013D9D7901CA16C8 /* PAPreferencePane.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PAPreferencePane.m; sourceTree = "<group>"; };
+		F506C03C013D9D7901CA16C8 /* AudioClients.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioClients.h; sourceTree = "<group>"; };
+		F506C03D013D9D7901CA16C8 /* AudioClients.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AudioClients.m; sourceTree = "<group>"; };
 		F506C040013D9D8001CA16C8 /* PAPreferencePane.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = PAPreferencePane.tiff; sourceTree = "<group>"; };
 		F506C043013D9D8C01CA16C8 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/PAPreferencePane.nib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -93,10 +97,12 @@
 		08FB77AFFE84173DC02AAC07 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				6553181E135C1D3D00817E2D /* PreferencePane.h */,
+				6553181F135C1D3D00817E2D /* PreferencePane.m */,
 				655316D6135B51B100817E2D /* Growl.h */,
 				655316D7135B51B100817E2D /* Growl.m */,
-				F506C03C013D9D7901CA16C8 /* PAPreferencePane.h */,
-				F506C03D013D9D7901CA16C8 /* PAPreferencePane.m */,
+				F506C03C013D9D7901CA16C8 /* AudioClients.h */,
+				F506C03D013D9D7901CA16C8 /* AudioClients.m */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -145,8 +151,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				8D202CEA0486D31800D8A456 /* PulseAudio_Prefix.pch in Headers */,
-				8D202CEB0486D31800D8A456 /* PAPreferencePane.h in Headers */,
+				8D202CEB0486D31800D8A456 /* AudioClients.h in Headers */,
 				655316D8135B51B100817E2D /* Growl.h in Headers */,
+				65531820135C1D3D00817E2D /* PreferencePane.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -226,8 +233,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8D202CF10486D31800D8A456 /* PAPreferencePane.m in Sources */,
+				8D202CF10486D31800D8A456 /* AudioClients.m in Sources */,
 				655316D9135B51B100817E2D /* Growl.m in Sources */,
+				65531821135C1D3D00817E2D /* PreferencePane.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
