@@ -1,0 +1,12 @@
+{
+  Description     = "PulseAudio helper";
+  Provides        = ("PulseAudio");
+  Requires        = ("Resolver");
+  Uses            = ("Network");
+  OrderPreference = "None";
+  Messages =
+  {
+    start = "Starting PulseAudio helper";
+    stop  = "Stopping PulseAudio helper";
+  };
+}
