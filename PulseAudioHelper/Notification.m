@@ -26,6 +26,7 @@ defineNotification(kPulseAudioSourceAppeared,		2);
 defineNotification(kPulseAudioSourceDisappeared,	3);
 defineNotification(kPulseAudioSinkAppeared,		4);
 defineNotification(kPulseAudioSinkDisappeared,		5);
+defineNotification(kPulseAudioClientConnected,		6);
 
 static NSString *kMDNSPulseServer = @"_pulse-server._tcp";
 static NSString *kMDNSPulseSink   = @"_pulse-sink._tcp";
@@ -61,13 +62,16 @@ static NSString *kMDNSLocalDomain = @"local.";
 			      deliverImmediately: YES];
 }
 
-- (void) start
+- (id) init
 {
+	[super init];
+
 	NSImage *img = [[NSImage alloc] initWithContentsOfFile: @PATHHACK"PulseAudio.png"];
 	logoData = [[img TIFFRepresentation] retain];
 	
 	/* fixme */
 	notificationFlags = 0xffffffffffffffff;
+	growlEnabled = YES;
 	
 	[GrowlApplicationBridge setGrowlDelegate: self];
 	
@@ -97,6 +101,12 @@ static NSString *kMDNSLocalDomain = @"local.";
 			       selector: @selector(queryGrowlFlags:)
 				   name: @"queryGrowlFlags"
 				 object: REMOTE_OBJECT];
+	
+	
+	ServerConnection *serverConnection = [[ServerConnection alloc] init];
+	[serverConnection setDelegate: self];
+	
+	return self;
 }
 
 #pragma mark ### GrowlApplicationBridgeDelegate ###
@@ -115,6 +125,7 @@ static NSString *kMDNSLocalDomain = @"local.";
 					kPulseAudioSourceDisappeared,
 					kPulseAudioSinkAppeared,
 					kPulseAudioSinkDisappeared,
+					kPulseAudioClientConnected,
 					nil];
 	
 	NSDictionary *regDict = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -137,6 +148,35 @@ static NSString *kMDNSLocalDomain = @"local.";
 - (void) growlIsReady
 {
 	growlReady = YES;
+}
+
+#pragma mark ### ServerConnectionDelegate ###
+
+- (void) serverConnection: (id) serverConnection
+       newClientAnnounced: (NSString *) name
+{
+	if (!growlEnabled)
+		return;
+	
+	if (!(notificationFlags & kPulseAudioClientConnectedFlag))
+		return;
+
+	NSString *description = [NSString stringWithFormat: @"New client attached: %@", name];
+	
+	[GrowlApplicationBridge notifyWithTitle: @"PulseAudio"
+				    description: description
+			       notificationName: kPulseAudioClientConnected
+				       iconData: logoData
+				       priority: 0
+				       isSticky: NO
+				   clickContext: nil];
+	
+}
+
+- (void) serverConnection: (id) serverConnection
+	  clientSignedOff: (NSString *) name
+{
+	
 }
 
 #pragma mark ### NSNetServiceDelegate ###

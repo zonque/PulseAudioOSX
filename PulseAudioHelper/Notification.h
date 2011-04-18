@@ -11,9 +11,11 @@
  ***/
 
 #import <Growl/Growl.h>
+#import "ServerConnection.h"
 
 @interface Notification : NSObject <
 				GrowlApplicationBridgeDelegate,
+				ServerConnectionDelegate,
 				NSNetServiceDelegate,
 				NSNetServiceBrowserDelegate
 				>
@@ -28,13 +30,17 @@
 	BOOL growlEnabled;
 }
 
-- (void) start;
-
 /* GrowlApplicationBridgeDelegate */
 - (NSString *) applicationNameForGrowl;
 - (NSDictionary *) registrationDictionaryForGrowl;
 - (NSData *) applicationIconDataForGrowl;
 - (void) growlIsReady;
+
+/* ServerConnectionDelegate */
+- (void) serverConnection: (id) serverConnection
+       newClientAnnounced: (NSString *) name;
+- (void) serverConnection: (id) serverConnection
+	  clientSignedOff: (NSString *) name;
 
 /* NSNetServiceDelegate */
 - (void)netServiceDidResolveAddress:(NSNetService *)sender;

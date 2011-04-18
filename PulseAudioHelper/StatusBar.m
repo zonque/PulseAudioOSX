@@ -19,6 +19,11 @@
 
 @implementation StatusBar
 
+- (void) openPreferences: (id) sender {
+        NSString *prefPane = @"/Library/PreferencePanes/PulseAudio.prefPane";
+        [[NSWorkspace sharedWorkspace] openFile:prefPane];
+}
+
 - (NSMenu *) createMenu
 {
 	NSZone *zone = [NSMenu menuZone];
@@ -32,7 +37,20 @@
         [item setTarget: self];
         [item setTag: 1];
 
+	[m addItem:[NSMenuItem separatorItem]];
+
+	item = [m addItemWithTitle: @"Open Preferences ..."
+			    action: @selector(openPreferences:)
+		     keyEquivalent: @""];
+        [item setTarget: self];
+        [item setTag: 2];
+	
 	return m;
+}
+
+- (BOOL) validateMenuItem:(NSMenuItem *)item
+{
+	return YES;
 }
 
 - (void) showMenu

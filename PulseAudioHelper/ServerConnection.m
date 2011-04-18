@@ -11,6 +11,49 @@
 
 #import "ServerConnection.h"
 
+#define REMOTE_OBJECT @"PAHP_Device"
+
 @implementation ServerConnection
+
+- (void) deviceAnnounced: (NSNotification *) notification
+{
+	NSDictionary *userInfo = [notification userInfo];
+	pid_t pid = [[userInfo objectForKey: @"pid"] intValue];
+	
+	NSRunningApplication *app = [NSRunningApplication runningApplicationWithProcessIdentifier: pid];
+	
+	if (app) {
+		[delegate serverConnection: self
+			newClientAnnounced: app.localizedName];
+	}
+}
+
+- (void) deviceSignedOff: (NSNotification *) notification
+{
+}
+
+- (id) init
+{
+	[super init];
+
+	notificationCenter = [NSDistributedNotificationCenter defaultCenter];
+
+	[notificationCenter addObserver: self
+			       selector: @selector(deviceAnnounced:)
+				   name: @"announceDevice"
+				 object: REMOTE_OBJECT];	
+	
+	[notificationCenter addObserver: self
+			       selector: @selector(deviceSignedOff:)
+				   name: @"signOffDevice"
+				 object: REMOTE_OBJECT];	
+
+	return self;
+}
+
+- (void) setDelegate: (id<ServerConnectionDelegate>) newDelegate
+{
+	delegate = newDelegate;
+}
 
 @end
