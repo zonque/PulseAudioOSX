@@ -10,7 +10,6 @@
 		655315AE135B0BF500817E2D /* GrowlNotifications.m in Sources */ = {isa = PBXBuildFile; fileRef = 655315AD135B0BF500817E2D /* GrowlNotifications.m */; };
 		655315BC135B0D9800817E2D /* Growl.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 655315BB135B0D9800817E2D /* Growl.framework */; };
 		655315C5135B0DC000817E2D /* Growl.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 655315BB135B0D9800817E2D /* Growl.framework */; };
-		6553163E135B16D300817E2D /* PulseAudio.png in CopyFiles */ = {isa = PBXBuildFile; fileRef = 6553163D135B16CE00817E2D /* PulseAudio.png */; };
 		65531648135B174500817E2D /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65531647135B174500817E2D /* AppKit.framework */; };
 		655317A9135B9CCF00817E2D /* ServerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 655317A8135B9CCF00817E2D /* ServerConnection.m */; };
 		655317D6135BA57900817E2D /* StatusBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 655317D5135BA57900817E2D /* StatusBar.m */; };
@@ -28,7 +27,6 @@
 			dstPath = /usr/share/man/man1/;
 			dstSubfolderSpec = 0;
 			files = (
-				6553163E135B16D300817E2D /* PulseAudio.png in CopyFiles */,
 				655315BC135B0D9800817E2D /* Growl.framework in CopyFiles */,
 				8DD76F9F0486AA7600D96B5E /* PulseAudioHelper.1 in CopyFiles */,
 			);
@@ -40,10 +38,10 @@
 		08FB7796FE84155DC02AAC07 /* PulseAudioHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PulseAudioHelper.m; sourceTree = "<group>"; };
 		08FB779EFE84155DC02AAC07 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		32A70AAB03705E1F00C91783 /* PulseAudioHelper_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PulseAudioHelper_Prefix.pch; sourceTree = "<group>"; };
+		6510AFF9135DA1BB002A5B90 /* Pathes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Pathes.h; sourceTree = "<group>"; };
 		655315AC135B0BF500817E2D /* GrowlNotifications.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GrowlNotifications.h; sourceTree = "<group>"; };
 		655315AD135B0BF500817E2D /* GrowlNotifications.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GrowlNotifications.m; sourceTree = "<group>"; };
 		655315BB135B0D9800817E2D /* Growl.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Growl.framework; path = /Library/Frameworks/Growl.framework; sourceTree = "<absolute>"; };
-		6553163D135B16CE00817E2D /* PulseAudio.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = PulseAudio.png; sourceTree = "<group>"; };
 		65531647135B174500817E2D /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		655317A7135B9CCF00817E2D /* ServerConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServerConnection.h; sourceTree = "<group>"; };
 		655317A8135B9CCF00817E2D /* ServerConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ServerConnection.m; sourceTree = "<group>"; };
@@ -76,7 +74,6 @@
 			isa = PBXGroup;
 			children = (
 				65531BA9135D803E00817E2D /* ObjectNames.h */,
-				6553163D135B16CE00817E2D /* PulseAudio.png */,
 				08FB7795FE84155DC02AAC07 /* Source */,
 				C6859EA2029092E104C91782 /* Documentation */,
 				08FB779DFE84155DC02AAC07 /* External Frameworks and Libraries */,
@@ -92,6 +89,7 @@
 				655317D5135BA57900817E2D /* StatusBar.m */,
 				655319DE135C537600817E2D /* Preferences.h */,
 				655319DF135C537600817E2D /* Preferences.m */,
+				6510AFF9135DA1BB002A5B90 /* Pathes.h */,
 			);
 			name = PulseAudioHelper;
 			sourceTree = "<group>";

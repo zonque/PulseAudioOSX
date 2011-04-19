@@ -13,6 +13,7 @@
 
 #import "StatusBar.h"
 #import "ObjectNames.h"
+#import "Pathes.h"
 
 @implementation StatusBar
 
@@ -25,13 +26,13 @@
 
 - (void) openPreferences: (id) sender
 {
-        NSString *file = @"/Library/PreferencePanes/PulseAudio.prefPane";
+        NSString *file = PAOSX_ConfigFile;
         [[NSWorkspace sharedWorkspace] openFile: file];
 }
 
 - (void) openPulseConsole: (id) sender
 {
-        NSString *file = @"/Applications/PulseConsole.app";
+        NSString *file = PAOSX_PulseConsoleBundle;
         [[NSWorkspace sharedWorkspace] openFile: file];	
 }
 
@@ -108,7 +109,7 @@
 
 - (void) applicationDidFinishLaunching: (NSNotification *) aNotification
 {
-	icon = [[NSImage alloc] initWithContentsOfFile: @PATHHACK"statusBar.png"];
+	icon = [[NSImage alloc] initWithContentsOfFile: PAOSX_StatusBarIconFile];
 
 	if ([prefs isStatusBarEnabled])
 		[self showMenu];

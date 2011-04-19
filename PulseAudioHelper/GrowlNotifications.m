@@ -10,8 +10,7 @@
  ***/
 
 #import "GrowlNotifications.h"
-
-#define PATHHACK "/Users/daniel/src/pa/PulseAudioOSX/PulseAudioHelper/"
+#import "Pathes.h"
 
 #define defineNotification(x, n) \
 	static NSString *x = @ #x; \
@@ -43,7 +42,7 @@ static NSString *kMDNSLocalDomain = @"local.";
 {
 	[super init];
 
-	NSImage *img = [[NSImage alloc] initWithContentsOfFile: @PATHHACK"PulseAudio.png"];
+	NSImage *img = [[NSImage alloc] initWithContentsOfFile: PAOSX_GrowlIconFile];
 	logoData = [[img TIFFRepresentation] retain];
 	
 	[GrowlApplicationBridge setGrowlDelegate: self];

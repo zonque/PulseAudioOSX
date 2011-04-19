@@ -24,14 +24,14 @@ cd $base/../../pulseaudio/
 sh $base/build_pulseaudio.sh
 
 ################################## framework ##################################
-cd $base/../PulseAudio.framework
+cd $base/../Framework
 ./fixupFramework.sh
 dest=$targetdir/Library/Frameworks/
 mkdir -p $dest
 cp -a /Library/Frameworks/pulse.framework $dest
 
 ################################## HAL plugin ##################################
-cd $base/../HAL/HALPlugin/
+cd $base/../HALPlugin/
 XcodeBuild HALPlugin.xcodeproj
 dest=$targetdir/Library/Audio/Plugins/HAL/
 mkdir -p $dest

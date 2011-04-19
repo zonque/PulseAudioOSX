@@ -69,6 +69,10 @@ cat template/Info.plist | \
 	sed -e "s/##version##/$version/g" \
 	> $framework/Versions/A/Resources/Info.plist
 
+# copy static resources
+
+cp -a Resources/* ${resources}
+
 # resolve library dependencies
 
 function copy_with_symlinks()
