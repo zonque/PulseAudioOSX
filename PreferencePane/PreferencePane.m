@@ -10,6 +10,7 @@
  ***/
 
 #import "PreferencePane.h"
+#import "ObjectNames.h"
 
 @implementation PreferencePane
 
@@ -25,8 +26,8 @@
 {
 	NSDistributedNotificationCenter *notificationCenter = [NSDistributedNotificationCenter defaultCenter];
 	
-	[notificationCenter postNotificationName: @"queryStatusBarEnabled"
-					  object: LOCAL_OBJECT
+	[notificationCenter postNotificationName: @PAOSX_HelperMsgQueryStatusBarEnabled
+					  object: @PAOSX_PreferencePaneName
 					userInfo: nil
 			      deliverImmediately: YES];
 }
@@ -41,8 +42,8 @@
 	[userInfo setObject: [NSNumber numberWithBool: enabled]
 		     forKey: @"enabled"];
 	
-	[notificationCenter postNotificationName: @"setStatusBarEnabled"
-					  object: LOCAL_OBJECT
+	[notificationCenter postNotificationName: @PAOSX_HelperMsgSetStatusBarEnabled
+					  object: @PAOSX_PreferencePaneName
 					userInfo: userInfo
 			      deliverImmediately: YES];		
 }

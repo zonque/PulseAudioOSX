@@ -53,6 +53,7 @@
 		6553193C135C3B9E00817E2D /* ServerTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ServerTask.m; sourceTree = "<group>"; };
 		655319DE135C537600817E2D /* Preferences.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Preferences.h; sourceTree = "<group>"; };
 		655319DF135C537600817E2D /* Preferences.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Preferences.m; sourceTree = "<group>"; };
+		65531BA9135D803E00817E2D /* ObjectNames.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ObjectNames.h; path = ../Shared/ObjectNames.h; sourceTree = SOURCE_ROOT; };
 		8DD76FA10486AA7600D96B5E /* PulseAudioHelper */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = PulseAudioHelper; sourceTree = BUILT_PRODUCTS_DIR; };
 		C6859EA3029092ED04C91782 /* PulseAudioHelper.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = PulseAudioHelper.1; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -74,6 +75,7 @@
 		08FB7794FE84155DC02AAC07 /* PulseAudioHelper */ = {
 			isa = PBXGroup;
 			children = (
+				65531BA9135D803E00817E2D /* ObjectNames.h */,
 				6553163D135B16CE00817E2D /* PulseAudio.png */,
 				08FB7795FE84155DC02AAC07 /* Source */,
 				C6859EA2029092E104C91782 /* Documentation */,

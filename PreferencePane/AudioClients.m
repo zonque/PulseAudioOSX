@@ -10,7 +10,7 @@
  ***/
 
 #import "AudioClients.h"
-#import "PreferencePane.h"
+#import "ObjectNames.h"
 #import <netinet/in.h>
 
 @implementation AudioClients
@@ -102,16 +102,16 @@
 
 	[notificationCenter addObserver: self
 			       selector: @selector(deviceAnnounced:)
-				   name: MSG_ANNOUNCE_DEVICE
-				 object: REMOTE_OBJECT_HALPLUGIN];	
+				   name: @PAOSX_HALPluginMsgAnnounceDevice
+				 object: @PAOSX_HALPluginName];	
 
 	[notificationCenter addObserver: self
 			       selector: @selector(deviceSignedOff:)
-				   name: MSG_SIGNOFF_DEVICE
-				 object: REMOTE_OBJECT_HALPLUGIN];	
+				   name: @PAOSX_HALPluginMsgSignOffDevice
+				 object: @PAOSX_HALPluginName];	
 
-	[notificationCenter postNotificationName: @"scanDevices"
-					  object: REMOTE_OBJECT_HALPLUGIN
+	[notificationCenter postNotificationName: @PAOSX_HALPluginMsgScanDevices
+					  object: @PAOSX_PreferencePaneName
 					userInfo: nil
 			      deliverImmediately: YES];
 	
@@ -265,8 +265,8 @@ enum {
 		[userInfo setObject: serverPort
 			     forKey: @"serverPort"];
 	
-	[notificationCenter postNotificationName: MSG_SETCONFIGURATION
-					  object: REMOTE_OBJECT_HELPER
+	[notificationCenter postNotificationName: @PAOSX_HALPluginMsgSetConfiguration
+					  object: @PAOSX_PreferencePaneName
 					userInfo: userInfo
 			      deliverImmediately: YES];
 	

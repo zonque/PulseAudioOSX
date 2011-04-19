@@ -1,0 +1,20 @@
+#ifndef PAOSX_SHARED_OBJECT_NAMES_H
+#define PAOSX_SHARED_OBJECT_NAMES_H
+
+#define PAOSX_HALPluginName			"org.pulseaudio.HALPlugin"
+#define PAOSX_HALPluginMsgScanDevices		"org.pulseaudio.HALPlugin.scanDevices"
+#define PAOSX_HALPluginMsgAnnounceDevice	"org.pulseaudio.HALPlugin.announceDevice"
+#define PAOSX_HALPluginMsgSignOffDevice		"org.pulseaudio.HALPlugin.signOffDevice"
+#define PAOSX_HALPluginMsgSetConfiguration	"org.pulseaudio.HALPlugin.setConfiguation"
+
+#define PAOSX_HelperName			"org.pulseaudio.PulseAudioHelper"
+#define PAOSX_HelperMsgSetLocalServerEnabled	"org.pulseaudio.PulseAudioHelper.setLocalServerEnabled"
+#define PAOSX_HelperMsgQueryLocalServerEnabled	"org.pulseaudio.PulseAudioHelper.queryLocalServerEnabled"
+#define PAOSX_HelperMsgSetStatusBarEnabled	"org.pulseaudio.PulseAudioHelper.setStatusBarEnabled"
+#define PAOSX_HelperMsgQueryStatusBarEnabled	"org.pulseaudio.PulseAudioHelper.queryStatusBarEnabled"
+#define PAOSX_HelperMsgSetGrowlFlags		"org.pulseaudio.PulseAudioHelper.setGrowlFlags"
+#define PAOSX_HelperMsgQueryGrowlFlags		"org.pulseaudio.PulseAudioHelper.queryGrowlFlags"
+
+#define PAOSX_PreferencePaneName		"org.pulseaudio.PulseAudioPreferencePane"
+
+#endif /* PAOSX_SHARED_OBJECT_NAMES_H */

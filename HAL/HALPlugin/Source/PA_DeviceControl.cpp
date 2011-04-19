@@ -21,12 +21,11 @@
 
 #define CLASS_NAME "PA_DeviceControl"
 
-#define LOCAL_OBJECT CFSTR("PAHP_Device")
-
 #include <IOKit/IOKitLib.h>
 #include "PA_DeviceControl.h"
 #include "PA_DeviceBackend.h"
 #include "PA_Device.h"
+#include "ObjectNames.h"
 
 #pragma mark ### static wrappers ###
 
@@ -119,8 +118,8 @@ PA_DeviceControl::AnnounceDevice()
 	DebugLog();
 
 	CFNotificationCenterPostNotification(CFNotificationCenterGetDistributedCenter(),
-					     CFSTR("announceDevice"),
-					     LOCAL_OBJECT,
+					     CFSTR(PAOSX_HALPluginMsgAnnounceDevice),
+					     CFSTR(PAOSX_HALPluginName),
 					     userInfo,
 					     true);
 	CFRelease(userInfo);
@@ -140,8 +139,8 @@ PA_DeviceControl::SignOffDevice()
 	CFRelease(number);
 	
 	CFNotificationCenterPostNotification(CFNotificationCenterGetDistributedCenter(),
-					     CFSTR("signOffDevice"),
-					     LOCAL_OBJECT,
+					     CFSTR(PAOSX_HALPluginMsgSignOffDevice),
+					     CFSTR(PAOSX_HALPluginName),
 					     userInfo,
 					     true);
 	CFRelease(userInfo);
@@ -194,45 +193,48 @@ PA_DeviceControl::Initialize()
 	
 	CFNotificationCenterAddObserver(center, this,
 					staticScanDevices,
-					CFSTR("scanDevices"),
-					CFSTR("PAHP_Device"),
+					CFSTR(PAOSX_HALPluginMsgScanDevices),
+					NULL,
 					CFNotificationSuspensionBehaviorDeliverImmediately);
 	
 	CFNotificationCenterAddObserver(center, this,
 					staticSetConfig,
-					CFSTR("setConfiguration"),
-					CFSTR("PAHP_Device"),
+					CFSTR(PAOSX_HALPluginMsgSetConfiguration),
+					NULL,
 					CFNotificationSuspensionBehaviorDeliverImmediately);
 	
+	/*
 	CFNotificationCenterAddObserver(center, this,
 					staticStreamVolumeChanged,
-					CFSTR("updateStreamVolume"),
-					CFSTR("PAHP_LevelControl"),
+					MSG_UPDATEVOLUME,
+					NULL,
 					CFNotificationSuspensionBehaviorDeliverImmediately);
 	
 	CFNotificationCenterAddObserver(center, this,
 					staticStreamMuteChanged,
-					CFSTR("updateMuteVolume"),
-					CFSTR("PAHP_BooleanControl"),
+					MSG_UPDATEMUTE,
+					NULL,
 					CFNotificationSuspensionBehaviorDeliverImmediately);
+	 */
 }
 
 void
 PA_DeviceControl::Teardown()
 {
 	CFNotificationCenterRemoveObserver(center, this,
-					   CFSTR("scanDevices"),
-					   CFSTR("PAHP_Device"));
+					   CFSTR(PAOSX_HALPluginMsgScanDevices),
+					   NULL);
 
 	CFNotificationCenterRemoveObserver(center, this,
-					   CFSTR("setConfiguration"),
-					   CFSTR("PAHP_Device"));
+					   CFSTR(PAOSX_HALPluginMsgSetConfiguration),
+					   NULL);
+/*
+	CFNotificationCenterRemoveObserver(center, this,
+					   MSG_UPDATEVOLUME,
+					   REMOTE_OBJECT_LEVELCONTROL);
 
 	CFNotificationCenterRemoveObserver(center, this,
-					   CFSTR("updateStreamVolume"),
-					   CFSTR("PAHP_LevelControl"));
-
-	CFNotificationCenterRemoveObserver(center, this,
-					   CFSTR("updateMuteVolume"),
-					   CFSTR("PAHP_LevelControl"));
+					   MSG_UPDATEMUTE,
+					   REMOTE_OBJECT_MUTECONTROL);
+ */
 }

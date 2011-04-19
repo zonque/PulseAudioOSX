@@ -10,6 +10,7 @@
  ***/
 
 #import "Preferences.h"
+#import "ObjectNames.h"
 
 static NSString *kPAPreferencesGrowlFlagsKey		= @"growlNotificationFlags";
 static NSString *kPAPreferencesGrowlEnabledKey		= @"growlNotificationsEnabled";
@@ -52,8 +53,8 @@ static NSString *kPAPreferencesStatusBarEnabledKey	= @"statusBarEnabled";
 	[userInfo setObject: [NSNumber numberWithUnsignedLongLong: flags]
 		     forKey: @"notificationFlags"];
 	
-	[notificationCenter postNotificationName: @"updateGrowlFlags"
-					  object: LOCAL_OBJECT
+	[notificationCenter postNotificationName: @PAOSX_HelperMsgSetGrowlFlags
+					  object: @PAOSX_HelperName
 					userInfo: userInfo
 			      deliverImmediately: YES];
 }
@@ -87,8 +88,8 @@ static NSString *kPAPreferencesStatusBarEnabledKey	= @"statusBarEnabled";
 	[userInfo setObject: [preferencesDict objectForKey: kPAPreferencesStatusBarEnabledKey]
 		     forKey: @"enabled"];
 	
-	[notificationCenter postNotificationName: @"setStatusBarEnabled"
-					  object: LOCAL_OBJECT
+	[notificationCenter postNotificationName: @PAOSX_HelperMsgSetStatusBarEnabled
+					  object: @PAOSX_HelperName
 					userInfo: userInfo
 			      deliverImmediately: YES];	
 }
@@ -124,28 +125,28 @@ static NSString *kPAPreferencesStatusBarEnabledKey	= @"statusBarEnabled";
 	
 	[notificationCenter addObserver: self
 			       selector: @selector(updateGrowlFlags:)
-				   name: @"updateGrowlFlags"
-				 object: REMOTE_OBJECT_PREFPANE];	
+				   name: @PAOSX_HelperMsgSetGrowlFlags
+				 object: nil];	
 	
 	[notificationCenter addObserver: self
 			       selector: @selector(queryGrowlFlags:)
-				   name: @"queryGrowlFlags"
-				 object: REMOTE_OBJECT_PREFPANE];
+				   name: @PAOSX_HelperMsgQueryGrowlFlags
+				 object: nil];
 
 	[notificationCenter addObserver: self
 			       selector: @selector(setLocalServerEnabled:)
-				   name: @"setLocalServerEnabled"
-				 object: REMOTE_OBJECT_PREFPANE];	
+				   name: @PAOSX_HelperMsgSetLocalServerEnabled
+				 object: nil];	
 
 	[notificationCenter addObserver: self
 			       selector: @selector(setStatusBarEnabled:)
-				   name: @"setStatusBarEnabled"
-				 object: REMOTE_OBJECT_PREFPANE];	
+				   name: @PAOSX_HelperMsgSetStatusBarEnabled
+				 object: nil];	
 	
 	[notificationCenter addObserver: self
 			       selector: @selector(queryStatusBarEnabled:)
-				   name: @"queryStatusBarEnabled"
-				 object: REMOTE_OBJECT_PREFPANE];	
+				   name: @PAOSX_HelperMsgQueryStatusBarEnabled
+				 object: nil];	
 	
 	return self;
 }

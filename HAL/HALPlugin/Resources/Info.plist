@@ -19,7 +19,7 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>1.0</string>
+	<string>0.1.0</string>
 	<key>CFPlugInFactories</key>
 	<dict>
 		<key>45F4645C-E875-4364-9296-95837C4B7291</key>

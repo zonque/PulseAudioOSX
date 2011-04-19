@@ -10,6 +10,7 @@
  ***/
 
 #import "ServerTask.h"
+#import "ObjectNames.h"
 
 #define REMOTE_OBJECT @"PulseAudioPreferencePane"
 
@@ -65,8 +66,8 @@
 	
 	[[prefs notificationCenter] addObserver: self
 				       selector: @selector(setLocalServerEnabled:)
-					   name: @"setLocalServerEnabled"
-					 object: REMOTE_OBJECT];	
+					   name: @PAOSX_HelperMsgSetLocalServerEnabled
+					 object: nil];	
 
 	[[NSNotificationCenter defaultCenter] addObserver: self
 						 selector: @selector(taskTerminated:)

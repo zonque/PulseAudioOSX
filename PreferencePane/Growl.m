@@ -10,7 +10,7 @@
  ***/
 
 #import "Growl.h"
-#import "PreferencePane.h"
+#import "ObjectNames.h"
 
 @implementation Growl
 
@@ -45,7 +45,7 @@
 		     forKey: @"notificationFlags"];
 	
 	[notificationCenter postNotificationName: @"updateGrowlFlags"
-					  object: LOCAL_OBJECT
+					  object: @PAOSX_PreferencePaneName
 					userInfo: userInfo
 			      deliverImmediately: YES];
 }
@@ -67,11 +67,11 @@
 
 	[notificationCenter addObserver: self
 			       selector: @selector(updateGrowlFlags:)
-				   name: @"updateGrowlFlags"
-				 object: REMOTE_OBJECT_HELPER];
+				   name: @PAOSX_HelperMsgSetGrowlFlags
+				 object: nil];
 
-	[notificationCenter postNotificationName: @"queryGrowlFlags"
-					  object: LOCAL_OBJECT
+	[notificationCenter postNotificationName: @PAOSX_HelperMsgQueryGrowlFlags
+					  object: @PAOSX_PreferencePaneName
 					userInfo: nil
 			      deliverImmediately: YES];
 }

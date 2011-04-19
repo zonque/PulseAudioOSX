@@ -10,7 +10,7 @@
  ***/
 
 #import "LocalServer.h"
-#import "PreferencePane.h"
+#import "ObjectNames.h"
 
 @implementation LocalServer
 
@@ -28,11 +28,11 @@
 	
 	[notificationCenter addObserver: self
 			       selector: @selector(setLocalServerEnabled:)
-				   name: @"setLocalServerEnabled"
-				 object: REMOTE_OBJECT_HELPER];	
+				   name: @PAOSX_HelperMsgSetLocalServerEnabled
+				 object: nil];	
 	
-	[notificationCenter postNotificationName: @"queryLocalServerEnabled"
-					  object: LOCAL_OBJECT
+	[notificationCenter postNotificationName: @PAOSX_HelperMsgQueryLocalServerEnabled
+					  object: @PAOSX_PreferencePaneName
 					userInfo: nil
 			      deliverImmediately: YES];
 	
@@ -46,8 +46,8 @@
 	[userInfo setObject: [NSNumber numberWithBool: enabled]
 		     forKey: @"enabled"];
 	
-	[notificationCenter postNotificationName: @"setLocalServerEnabled"
-					  object: LOCAL_OBJECT
+	[notificationCenter postNotificationName: @PAOSX_HelperMsgSetLocalServerEnabled
+					  object: @PAOSX_PreferencePaneName
 					userInfo: userInfo
 			      deliverImmediately: YES];
 }

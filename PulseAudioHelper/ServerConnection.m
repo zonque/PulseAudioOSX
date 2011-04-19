@@ -11,6 +11,7 @@
 
 #import "ServerConnection.h"
 #import "Preferences.h"
+#import "ObjectNames.h"
 
 @implementation ServerConnection
 
@@ -21,8 +22,8 @@
 							     forKey: @"pid"];
 
 	// send on behalf of the HAL plugin
-	[[prefs notificationCenter] postNotificationName: MSG_SIGNOFF_DEVICE
-						  object: REMOTE_OBJECT_HALPLUGIN
+	[[prefs notificationCenter] postNotificationName: @PAOSX_HALPluginMsgSignOffDevice
+						  object: @PAOSX_HALPluginName
 						userInfo: userInfo
 				      deliverImmediately: YES];	
 	
@@ -130,13 +131,13 @@
 
 	[[prefs notificationCenter] addObserver: self
 				       selector: @selector(deviceAnnounced:)
-					   name: MSG_ANNOUNCE_DEVICE
-					 object: REMOTE_OBJECT_HALPLUGIN];	
+					   name: @PAOSX_HALPluginMsgAnnounceDevice
+					 object: @PAOSX_HALPluginName];	
 	
 	[[prefs notificationCenter] addObserver: self
 				       selector: @selector(deviceSignedOff:)
-					   name: MSG_SIGNOFF_DEVICE
-					 object: REMOTE_OBJECT_HALPLUGIN];	
+					   name: @PAOSX_HALPluginMsgSignOffDevice
+					 object: @PAOSX_HALPluginName];	
 }
 
 @end

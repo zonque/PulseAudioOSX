@@ -12,7 +12,7 @@
 #define PATHHACK "/Users/daniel/src/pa/PulseAudioOSX/PulseAudioHelper/"
 
 #import "StatusBar.h"
-
+#import "ObjectNames.h"
 
 @implementation StatusBar
 
@@ -115,8 +115,8 @@
 
 	[[prefs notificationCenter] addObserver: self
 				       selector: @selector(setEnabled:)
-					   name: @"setStatusBarEnabled"
-					 object: REMOTE_OBJECT_PREFPANE];	
+					   name: @PAOSX_HelperMsgSetStatusBarEnabled
+					 object: nil];	
 }
 
 @end
