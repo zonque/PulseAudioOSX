@@ -21,13 +21,20 @@ fi
 
 ./updateReleaseNotes.sh $targetdir $version
 
+outdir=output/
+pkgname=PulseAudioOSX-Installer-${version}.pkg
+zipname=${pkgname/.pkg/.zip}
+
 /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker \
-	--out output/PulseAudioOSX-Installer-${version}.pkg	\
 	--id org.pulseaudio.PulseAudioOSX.installer-${version}	\
-	--title "PulseAudio for Mac OS X"	\
+	--title "PulseAudio for Mac OS X v${version}"	\
 	--resources InstallerResources/		\
+	--out ${outdir}/${pkgname}	\
 	--version ${version}	\
 	--root ${targetdir}	\
 	--root-volume-only	\
 	--verbose
+
+cd ${outdir}
+zip -r -9 $zipname $pkgname
 

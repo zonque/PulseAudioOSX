@@ -1,7 +1,7 @@
 #!/bin/sh
 
-version=$1
-targetdir=$2
+targetdir=$1
+version=$2
 
 if [ -z "${targetdir}" ]; then
 	echo "Usage: $0 <version> <targetdir>"
