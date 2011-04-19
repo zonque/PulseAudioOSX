@@ -11,6 +11,7 @@
 
 #import "ServerTask.h"
 #import "ObjectNames.h"
+#import "Pathes.h"
 
 #define REMOTE_OBJECT @"PulseAudioPreferencePane"
 
@@ -26,7 +27,7 @@
 	NSString *path = @"/Library/Frameworks/pulse.framework/Resources/bin/pulseaudio";
 	NSArray *args = [NSArray arrayWithObjects:
 			 @"-n",
-			 @"-F", @"/Users/daniel/src/pa/pulseaudio/src/macosx.pa",
+			 @"-F", PAOSX_PulseAudioControlFile,
 			 nil];
 	task = [NSTask launchedTaskWithLaunchPath: path
 					arguments: args];

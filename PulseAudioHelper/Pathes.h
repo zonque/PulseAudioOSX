@@ -14,3 +14,4 @@
 #define PAOSX_FrameworkBundle		@"/Library/Frameworks/pulse.framework/"
 #define PAOSX_StatusBarIconFile		@"/Library/Frameworks/pulse.framework/Resources/statusBar.png"
 #define PAOSX_GrowlIconFile		@"/Library/Frameworks/pulse.framework/Resources/PulseAudio.png"
+#define PAOSX_PulseAudioControlFile	@"/Library/Frameworks/pulse.framework/etc/macosx.pa"
