@@ -1,41 +1,4 @@
-README for PulseAudioOSX
+Please see the Wiki on the GitHub project page:
 
-[DISCLAIMER - please note that this documentation is about how things
- are supposed to work. By far not all of this is yet implemented.
- Stay tuned.]
-
-
-PulseAudioOSX is a suite of Mac OS X specific software packages that aim
-to make PulseAudio fully supported on this platform.
-
-...
-
-
-The PulseAudioOSX package consists of the following components.
-
-...
-
-3. PAPreferencePane
-
-A PreferencePane for SystemPreferences.app which lets the user add and
-remove virtual audio devices, configure their number of input and output
-channels and the PulseAudio instance to connect to.
-
-Another function is to configure the local PA daemon, if any.
-
-
-4. PulseConsole
-
-A Cocoa bases application that connects to a PulseAudio daemon (either
-local or remote) and that allows inspection of the sound server details.
-Another function is to control the volumes of the available sound sources
-and sinks.
-
-...
-
-[tbc]
-
-[See other READMEs in subdirs]
-
-2011, Daniel Mack
+  https://github.com/zonque/PulseAudioOSX/wiki
 
