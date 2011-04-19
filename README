@@ -8,59 +8,12 @@ README for PulseAudioOSX
 PulseAudioOSX is a suite of Mac OS X specific software packages that aim
 to make PulseAudio fully supported on this platform.
 
-Users are able to use a configurable number of virtual audio devices,
-either as default system output or configured specifically for certain
-audio software only. Both playback and record is supported. The audio
-streams are caught/fed by a userspace daemon and routed to a PulseAudio
-server instance, no matter whether locally or remotely. All this is
-configurable via a PulseAudio preference pane.
-
-A PulseAudio sound daemon can be run locally to take streams from local
-sources such as the audioDaemon that communicates with the kernel extension.
-Other local sources are of course also supported, like applications running
-in a X11 environment. Modules for CoreAudio devices already exist, so the
-locally attached sound hardware can be used for both playback and record.
-
-To control local and remote server instances, a Cocoa based tool named
-PulseConsole is being worked on. It allows inspection of server details and
-control of individual volumes for sinks and sources.
-
 ...
 
 
 The PulseAudioOSX package consists of the following components.
 
-
-1. PulseAudioKext - the kernel extension
-
-The kernel extension registers any number of virtual sound devices that
-can be used to playback on or record from. Each audio device has a
-configurable number of input and output channels. Any CoreAudio
-application can use these devices.
-
-The buffer used to keep the audio data is exported to userspace as
-shared memory and is forwarded to PulseAudio from there. The only
-userspace that attaches to this driver is the PADaemon. See below for
-more details.
-
-Audio data can either be clocked by the kernel driver itself or by
-PulseAudio.
-
-
-2. PADaemon - the kernel driver counterpart
-
-The driver needs to have a userspace part which is implemented in
-PADaemon. This is also the only userspace client allowed. All other
-clients communicate with the daemon, not with the driver directly.
-
-The daemon is a StartupItem which is loaded automatically on system
-start. Upon startup, the daemon reads a plist file to restore the
-previously configured audio devices.
-
-For each newly created audio device, the shared memory buffer exported
-by the driver is mapped and the connection to either a local or a remote 
-PulseAudio daemon is opened.
-
+...
 
 3. PAPreferencePane
 
@@ -84,5 +37,5 @@ and sinks.
 
 [See other READMEs in subdirs]
 
-2010, Daniel Mack
+2011, Daniel Mack
 
