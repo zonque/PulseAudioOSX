@@ -12,5 +12,5 @@
 #define PAOSX_ConfigFile		@"/Library/PreferencePanes/PulseAudio.prefPane"
 #define PAOSX_PulseConsoleBundle	@"/Applications/PulseConsole.app"
 #define PAOSX_FrameworkBundle		@"/Library/Frameworks/pulse.framework/"
-#define PAOSX_StatusBarIconFile		@"/Library/Frameworks/pulse.framework/statusBar.png"
-#define PAOSX_GrowlIconFile		@"/Library/Frameworks/pulse.framework/PulseAudio.png"
+#define PAOSX_StatusBarIconFile		@"/Library/Frameworks/pulse.framework/Resources/statusBar.png"
+#define PAOSX_GrowlIconFile		@"/Library/Frameworks/pulse.framework/Resources/PulseAudio.png"
