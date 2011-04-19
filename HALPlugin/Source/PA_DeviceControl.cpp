@@ -21,11 +21,12 @@
 
 #define CLASS_NAME "PA_DeviceControl"
 
+#include "ObjectNames.h"
+
 #include <IOKit/IOKitLib.h>
 #include "PA_DeviceControl.h"
 #include "PA_DeviceBackend.h"
 #include "PA_Device.h"
-#include "ObjectNames.h"
 
 #pragma mark ### static wrappers ###
 

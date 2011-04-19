@@ -10,6 +10,7 @@
 		2DF7BC5408DA4CCA00EE5510 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2DF7BC5308DA4CCA00EE5510 /* CoreAudio.framework */; };
 		2DF7BD0C08DA584F00EE5510 /* CAHostTimeBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BCD108DA584F00EE5510 /* CAHostTimeBase.cpp */; };
 		2DF7BD0D08DA584F00EE5510 /* CAHostTimeBase.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCD208DA584F00EE5510 /* CAHostTimeBase.h */; };
+		6510B01B135DA8F6002A5B90 /* ObjectNames.h in Headers */ = {isa = PBXBuildFile; fileRef = 6510B01A135DA8F6002A5B90 /* ObjectNames.h */; };
 		65474231134F01D70030DDFF /* PA_PlugInInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65474230134F01D70030DDFF /* PA_PlugInInterface.cpp */; };
 		65474246134F0B680030DDFF /* PA_Plugin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65474245134F0B680030DDFF /* PA_Plugin.cpp */; };
 		65474249134F108C0030DDFF /* PA_PlugInInterface.h in Headers */ = {isa = PBXBuildFile; fileRef = 65474248134F108C0030DDFF /* PA_PlugInInterface.h */; };
@@ -24,7 +25,6 @@
 		65474534134F80FB0030DDFF /* PA_DeviceBackend.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65474532134F80FB0030DDFF /* PA_DeviceBackend.cpp */; };
 		6547460113507DA50030DDFF /* PA_DeviceControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 654745FF13507DA50030DDFF /* PA_DeviceControl.h */; };
 		6547460213507DA50030DDFF /* PA_DeviceControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6547460013507DA50030DDFF /* PA_DeviceControl.cpp */; };
-		65531BDF135D893C00817E2D /* ObjectNames.h in Headers */ = {isa = PBXBuildFile; fileRef = 65531BDE135D893C00817E2D /* ObjectNames.h */; };
 		65EAD98C1356F2A800FAB132 /* PA_MuteControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 65EAD98A1356F2A800FAB132 /* PA_MuteControl.h */; };
 		65EAD98D1356F2A800FAB132 /* PA_MuteControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65EAD98B1356F2A800FAB132 /* PA_MuteControl.cpp */; };
 		65EAD9BE1356F84800FAB132 /* PA_VolumeControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 65EAD9BC1356F84800FAB132 /* PA_VolumeControl.h */; };
@@ -39,6 +39,7 @@
 		2DF7BC7D08DA4E0700EE5510 /* HALPlugin.exp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.exports; path = HALPlugin.exp; sourceTree = "<group>"; };
 		2DF7BCD108DA584F00EE5510 /* CAHostTimeBase.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = CAHostTimeBase.cpp; sourceTree = "<group>"; };
 		2DF7BCD208DA584F00EE5510 /* CAHostTimeBase.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CAHostTimeBase.h; sourceTree = "<group>"; };
+		6510B01A135DA8F6002A5B90 /* ObjectNames.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ObjectNames.h; path = ../Shared/ObjectNames.h; sourceTree = SOURCE_ROOT; };
 		65474230134F01D70030DDFF /* PA_PlugInInterface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PA_PlugInInterface.cpp; sourceTree = "<group>"; };
 		65474245134F0B680030DDFF /* PA_Plugin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PA_Plugin.cpp; sourceTree = "<group>"; };
 		65474248134F108C0030DDFF /* PA_PlugInInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PA_PlugInInterface.h; sourceTree = "<group>"; };
@@ -53,7 +54,6 @@
 		65474532134F80FB0030DDFF /* PA_DeviceBackend.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PA_DeviceBackend.cpp; sourceTree = "<group>"; };
 		654745FF13507DA50030DDFF /* PA_DeviceControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PA_DeviceControl.h; sourceTree = "<group>"; };
 		6547460013507DA50030DDFF /* PA_DeviceControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PA_DeviceControl.cpp; sourceTree = "<group>"; };
-		65531BDE135D893C00817E2D /* ObjectNames.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ObjectNames.h; path = ../../Shared/ObjectNames.h; sourceTree = SOURCE_ROOT; };
 		65EAD98A1356F2A800FAB132 /* PA_MuteControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PA_MuteControl.h; sourceTree = "<group>"; };
 		65EAD98B1356F2A800FAB132 /* PA_MuteControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PA_MuteControl.cpp; sourceTree = "<group>"; };
 		65EAD9BC1356F84800FAB132 /* PA_VolumeControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PA_VolumeControl.h; sourceTree = "<group>"; };
@@ -104,7 +104,7 @@
 		08FB77AFFE84173DC02AAC07 /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				65531BDE135D893C00817E2D /* ObjectNames.h */,
+				6510B01A135DA8F6002A5B90 /* ObjectNames.h */,
 				2DF7BC7D08DA4E0700EE5510 /* HALPlugin.exp */,
 				65474230134F01D70030DDFF /* PA_PlugInInterface.cpp */,
 				65474248134F108C0030DDFF /* PA_PlugInInterface.h */,
@@ -171,7 +171,7 @@
 				6547460113507DA50030DDFF /* PA_DeviceControl.h in Headers */,
 				65EAD98C1356F2A800FAB132 /* PA_MuteControl.h in Headers */,
 				65EAD9BE1356F84800FAB132 /* PA_VolumeControl.h in Headers */,
-				65531BDF135D893C00817E2D /* ObjectNames.h in Headers */,
+				6510B01B135DA8F6002A5B90 /* ObjectNames.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
