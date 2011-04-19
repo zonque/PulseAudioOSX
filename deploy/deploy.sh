@@ -25,7 +25,7 @@ outdir=output/
 pkgname=PulseAudioOSX-Installer-${version}.pkg
 zipname=${pkgname/.pkg/.zip}
 
-test -d ${output} || mkdir ${output}
+test -d ${outdir} || mkdir ${outdir}
 
 /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker \
 	--id org.pulseaudio.PulseAudioOSX.installer-${version}	\

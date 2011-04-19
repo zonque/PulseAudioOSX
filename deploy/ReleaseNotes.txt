@@ -1,6 +1,30 @@
 Version 0.1.1
 
   This package version contains the following components
+    - PulseAudio daemon and tools:  1.0-dev-263-g166b
+    - HAL plugin:                   1.0.0
+    - Preference Pane:              0.1.0
+    - PulseConsole:                 0.1
+
+Version 0.1.1
+
+  This package version contains the following components
+    - PulseAudio daemon and tools:  1.0-dev-263-g166b
+    - HAL plugin:                   1.0.0
+    - Preference Pane:              0.1.0
+    - PulseConsole:                 0.1
+
+Version 0.1.1
+
+  This package version contains the following components
+    - PulseAudio daemon and tools:  1.0-dev-255-g9b1b3
+    - HAL plugin:                   1.0.0
+    - Preference Pane:              0.1.0
+    - PulseConsole:                 0.1
+
+Version 0.1.1
+
+  This package version contains the following components
     - PulseAudio daemon and tools:  1.0-dev-255-g9b1b3
     - HAL plugin:                   1.0.0
     - Preference Pane:              0.1.0
