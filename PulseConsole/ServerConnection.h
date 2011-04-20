@@ -25,11 +25,21 @@
 
 #import <Cocoa/Cocoa.h>
 
+@protocol ServerConnectionDelegate
+@optional
+
+- (void) cardAdded: (NSDictionary *) newItem;
+
+@end
+
+
 @interface ServerConnection : NSObject {
 	pa_mainloop *mainloop;
 	pa_context *context;
 	char *connectRequest;
 	NSThread *thread;
+	
+	id<ServerConnectionDelegate> delegate;
 	
 	NSMutableDictionary *statisticDict;    
 	NSMutableDictionary *serverinfo;
@@ -45,7 +55,9 @@
 @property (nonatomic, retain) NSArray *outlineToplevel;
 @property (nonatomic, retain) NSDictionary *statisticDict;
 @property (nonatomic, retain) NSDictionary *serverinfo;
+@property (nonatomic, retain) NSArray *sinks;
 
+- (void) setDelegate: (id<ServerConnectionDelegate>) newDelegate;
 - (void) connectToServer: (NSString *) server;
 - (void) reloadStatistics;
 - (void) getServerInfo;

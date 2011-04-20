@@ -26,30 +26,32 @@
 
 - (id) initWithFrame: (NSRect) rect
 {
-    [super initWithFrame: rect];
-
+	[super initWithFrame: rect];
+	
 	streamViewItems = [[NSMutableArray alloc] initWithCapacity: 0]; 
 	
 	return self;
 }
 
 - (void) addStreamView: (const void *) pa_info
-				ofType: (NSInteger) type
-				  name: (NSString *) name;
+		ofType: (NSInteger) type
+		  name: (NSString *) name;
 {
 	NSRect frame = [self frame];
-    NSScrollView *enclosingScrollView = [self enclosingScrollView];
+	NSScrollView *enclosingScrollView = [self enclosingScrollView];
 	NSEnumerator *enumerator = [streamViewItems objectEnumerator];
 	NSView *object;
 	float height = 0.0f;
+	
+	printf("DEBUG: %s name >%s< type %d\n", __func__, [name cString], type);
 	
 	while (object = [enumerator nextObject])
 		height += [object frame].size.height;
 
 	StreamView *view = [[StreamView alloc] initWithFrame: NSMakeRect(0.0, height, frame.size.width, 70.0)
-													type: type
-													name: name
-													info: pa_info];
+							type: type
+							name: name
+							info: pa_info];
 	
 	// need to encapsulate in a NSDictionary
 	[self addSubview: view];

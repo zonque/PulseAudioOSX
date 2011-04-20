@@ -96,6 +96,18 @@
 	[window setTitle: [NSString stringWithFormat: @"%@@%@",
 			   [serverConnection.serverinfo valueForKey: @"Server Name"],
 			   [serverConnection.serverinfo valueForKey: @"Host Name"]]];
+
+	[sinkStreamListView removeAllStreams];
+	[sourceStreamListView removeAllStreams];
+	[playbackStreamListView removeAllStreams];
+	[recordStreamListView removeAllStreams];	
+	
+	NSDictionary *item;
+
+	for (item in serverConnection.sinks)
+		[sinkStreamListView addStreamView: [[item objectForKey: @"infoPointer"] pointerValue]
+					   ofType: StreamTypeSink
+					     name: [item objectForKey: @"label"]];
 }
 
 - (void) bonjourServiceAdded: (NSNotification *) notification
@@ -136,11 +148,6 @@
 						 selector: @selector(bonjourServiceAdded:)
 						     name: @"serviceAdded"
 						   object: listener];
-	
-	//    [serverSelector addItemWithTitle: @"daniel@ubuntu.local."];
-	//    [serverSelector addItemWithTitle: @"172.16.193.164"];
-	//[serverSelector addItemWithTitle: @"172.31.0.
-	
 	
 	[serverConnection connectToServer: @"localhost"];
 	[listener start];
@@ -214,13 +221,13 @@
 - (void)tableView:(NSTableView *)aTableView
    setObjectValue:obj
    forTableColumn:(NSTableColumn *)col
-	      row:(int)rowIndex
+	      row:(NSInteger)rowIndex
 {
 }
 
 - (id)tableView:(NSTableView *)tableView
 objectValueForTableColumn:(NSTableColumn *)col
-	    row:(int)rowIndex
+	    row:(NSInteger)rowIndex
 {
 	NSDictionary *item = nil;
 	
@@ -246,7 +253,7 @@ objectValueForTableColumn:(NSTableColumn *)col
 	return @"";
 }
 
-- (int) numberOfRowsInTableView:(NSTableView *)tableView
+- (NSInteger) numberOfRowsInTableView:(NSTableView *)tableView
 {
 	NSDictionary *item = nil;
 	
@@ -291,12 +298,7 @@ objectValueForTableColumn:(NSTableColumn *)col
 #pragma mark ### IBActions ###
 
 - (IBAction) connectToServerAction: (id) sender
-{
-	[sinkStreamListView removeAllStreams];
-	[sourceStreamListView removeAllStreams];
-	[playbackStreamListView removeAllStreams];
-	[recordStreamListView removeAllStreams];
-	
+{	
 	[outlineView setEnabled: NO];
 	[parameterTableView setEnabled: NO];
 	[propertyTableView setEnabled: NO];
@@ -308,8 +310,8 @@ objectValueForTableColumn:(NSTableColumn *)col
 - (IBAction) displayAbout: (id) sender
 {
 	NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity: 0];
-	[d setValue: @"(c) 2009-2011 Daniel Mack"
-	     forKey: @"Copyright"];
+	//[d setValue: @"(c) 2009-2011 Daniel Mack"
+	//     forKey: @"Copyright"];
 	[d setValue: [NSString stringWithFormat: @"pulseaudio library version %s", pa_get_library_version()]
 	     forKey: @"Copyright"];
 	

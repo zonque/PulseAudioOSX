@@ -26,6 +26,7 @@
 @synthesize outlineToplevel;
 @synthesize statisticDict;
 @synthesize serverinfo;
+@synthesize sinks;
 
 #pragma mark ### static forwards ###
 
@@ -181,6 +182,8 @@ static void pa_sample_info_cb	(pa_context *c, const struct pa_sample_info *i, in
 	[d setObject: parameters forKey: @"parameters"];
 	[d setObject: [self createDictionaryFromProplist: info->proplist]
 	      forKey: @"properties"];
+	[d setObject: [NSValue valueWithPointer: info]
+	      forKey: @"infoPointer"];
 	
 	[sinks addObject: d];
 }
@@ -214,12 +217,12 @@ static void pa_sample_info_cb	(pa_context *c, const struct pa_sample_info *i, in
 	[d setObject: [NSString stringWithCString: info->description
 					 encoding: NSUTF8StringEncoding]
 	      forKey: @"label"];
-	
 	[d setObject: parameters
 	      forKey: @"parameters"];
-	
 	[d setObject: [self createDictionaryFromProplist: info->proplist]
 	      forKey: @"properties"];
+	[d setObject: [NSValue valueWithPointer: info]
+	      forKey: @"infoPointer"];
 	
 	[sources addObject: d];
 }
@@ -519,6 +522,11 @@ static void pa_sample_info_cb(pa_context *c, const struct pa_sample_info *i, int
 }
 
 #pragma mark ### fooo ###
+
+- (void) setDelegate: (id<ServerConnectionDelegate>) newDelegate
+{
+	delegate = newDelegate;
+}
 
 - (void) PAMainloopThread : (id) param
 {

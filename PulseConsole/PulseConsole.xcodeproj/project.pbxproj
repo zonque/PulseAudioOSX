@@ -72,6 +72,10 @@
 				65287260111EF7A600C40D7B /* MeterView.m */,
 				65B0A812132F9D12009BA485 /* ServerConnection.h */,
 				65B0A813132F9D12009BA485 /* ServerConnection.m */,
+				65A09CE010F74DF300D07CF1 /* StreamListView.h */,
+				65A09CE110F74DF300D07CF1 /* StreamListView.m */,
+				65A09CC110F72B3300D07CF1 /* StreamView.h */,
+				65A09CC210F72B3300D07CF1 /* StreamView.m */,
 				6515ED1C10D13D930048DEB5 /* WindowController.h */,
 				6515ED1D10D13D930048DEB5 /* WindowController.m */,
 			);
@@ -107,8 +111,6 @@
 		29B97314FDCFA39411CA2CEA /* PulseConsole */ = {
 			isa = PBXGroup;
 			children = (
-				6515F1D810D397D60048DEB5 /* logo.icns */,
-				6515F1CB10D3926C0048DEB5 /* Credits.rtf */,
 				080E96DDFE201D6D7F000001 /* Classes */,
 				29B97315FDCFA39411CA2CEA /* Other Sources */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
@@ -130,13 +132,11 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				65A09CE010F74DF300D07CF1 /* StreamListView.h */,
-				65A09CE110F74DF300D07CF1 /* StreamListView.m */,
+				6515F1D810D397D60048DEB5 /* logo.icns */,
+				6515F1CB10D3926C0048DEB5 /* Credits.rtf */,
 				8D1107310486CEB800E47090 /* Info.plist */,
 				089C165CFE840E0CC02AAC07 /* InfoPlist.strings */,
 				29B97318FDCFA39411CA2CEA /* MainMenu.nib */,
-				65A09CC110F72B3300D07CF1 /* StreamView.h */,
-				65A09CC210F72B3300D07CF1 /* StreamView.m */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -279,6 +279,7 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = PulseConsole;
+				VALID_ARCHS = "i386 x86_64";
 			};
 			name = Release;
 		};
