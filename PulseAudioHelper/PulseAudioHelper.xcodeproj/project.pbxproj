@@ -17,6 +17,7 @@
 		6510B054135ECADF002A5B90 /* ServerTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 6553193C135C3B9E00817E2D /* ServerTask.m */; };
 		6510B055135ECADF002A5B90 /* StatusBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 655317D5135BA57900817E2D /* StatusBar.m */; };
 		6510B192135ECAFF002A5B90 /* Growl.framework in Resources */ = {isa = PBXBuildFile; fileRef = 655315BB135B0D9800817E2D /* Growl.framework */; };
+		6510B1E0135ECD27002A5B90 /* logo.icns in Resources */ = {isa = PBXBuildFile; fileRef = 6510B1DF135ECD27002A5B90 /* logo.icns */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +27,7 @@
 		6510AFF9135DA1BB002A5B90 /* Pathes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Pathes.h; sourceTree = "<group>"; };
 		6510B046135ECABD002A5B90 /* PulseAudioHelper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PulseAudioHelper.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6510B048135ECABD002A5B90 /* PulseAudioHelper-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "PulseAudioHelper-Info.plist"; sourceTree = "<group>"; };
+		6510B1DF135ECD27002A5B90 /* logo.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = logo.icns; sourceTree = "<group>"; };
 		655315AC135B0BF500817E2D /* GrowlNotifications.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GrowlNotifications.h; sourceTree = "<group>"; };
 		655315AD135B0BF500817E2D /* GrowlNotifications.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GrowlNotifications.m; sourceTree = "<group>"; };
 		655315BB135B0D9800817E2D /* Growl.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Growl.framework; path = /Library/Frameworks/Growl.framework; sourceTree = "<absolute>"; };
@@ -58,6 +60,7 @@
 		08FB7794FE84155DC02AAC07 /* PulseAudioHelper */ = {
 			isa = PBXGroup;
 			children = (
+				6510B1DF135ECD27002A5B90 /* logo.icns */,
 				6510B193135ECB36002A5B90 /* Resources */,
 				65531BA9135D803E00817E2D /* ObjectNames.h */,
 				08FB7795FE84155DC02AAC07 /* Source */,
@@ -163,6 +166,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6510B192135ECAFF002A5B90 /* Growl.framework in Resources */,
+				6510B1E0135ECD27002A5B90 /* logo.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
