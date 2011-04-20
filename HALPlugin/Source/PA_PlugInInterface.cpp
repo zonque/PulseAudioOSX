@@ -364,6 +364,7 @@ PA_PlugInInterface::PA_PlugInInterface(CFAllocatorRef inAllocator)
 
 	//	HAL Plug-In Routines
 	staticInterface->Initialize			= Interface_Initialize;
+	staticInterface->InitializeWithObjectID		= Interface_InitializeWithObjectID;
 	staticInterface->Teardown			= Interface_Teardown;
 	staticInterface->DeviceAddIOProc		= Interface_DeviceAddIOProc;
 	staticInterface->DeviceRemoveIOProc		= Interface_DeviceRemoveIOProc;
@@ -375,20 +376,19 @@ PA_PlugInInterface::PA_PlugInInterface(CFAllocatorRef inAllocator)
 	staticInterface->DeviceGetPropertyInfo		= Interface_DeviceGetPropertyInfo;
 	staticInterface->DeviceGetProperty		= Interface_DeviceGetProperty;
 	staticInterface->DeviceSetProperty		= Interface_DeviceSetProperty;
+	staticInterface->DeviceCreateIOProcID		= Interface_DeviceCreateIOProcID;
+	staticInterface->DeviceDestroyIOProcID		= Interface_DeviceDestroyIOProcID;
+	staticInterface->DeviceStartAtTime		= Interface_DeviceStartAtTime;
+	staticInterface->DeviceGetNearestStartTime	= Interface_DeviceGetNearestStartTime;
 	staticInterface->StreamGetPropertyInfo		= Interface_StreamGetPropertyInfo;
 	staticInterface->StreamGetProperty		= Interface_StreamGetProperty;
 	staticInterface->StreamSetProperty		= Interface_StreamSetProperty;
-	staticInterface->DeviceStartAtTime		= Interface_DeviceStartAtTime;
-	staticInterface->DeviceGetNearestStartTime	= Interface_DeviceGetNearestStartTime;
-	staticInterface->InitializeWithObjectID		= Interface_InitializeWithObjectID;
 	staticInterface->ObjectShow			= Interface_ObjectShow;
 	staticInterface->ObjectHasProperty		= Interface_ObjectHasProperty;
 	staticInterface->ObjectIsPropertySettable	= Interface_ObjectIsPropertySettable;
 	staticInterface->ObjectGetPropertyDataSize	= Interface_ObjectGetPropertyDataSize;
 	staticInterface->ObjectGetPropertyData		= Interface_ObjectGetPropertyData;
 	staticInterface->ObjectSetPropertyData		= Interface_ObjectSetPropertyData;
-	staticInterface->DeviceCreateIOProcID		= Interface_DeviceCreateIOProcID;
-	staticInterface->DeviceDestroyIOProcID		= Interface_DeviceDestroyIOProcID;
 
 	plugin = new PA_Plugin(inAllocator, GetInterface());
 }
