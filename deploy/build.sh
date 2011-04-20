@@ -34,12 +34,12 @@ cp -a /Library/Frameworks/pulse.framework ${dest}/
 cd ${base}/../PulseAudioHelper/
 XcodeBuild PulseAudioHelper.xcodeproj
 dest=${targetdir}/Library/Frameworks/pulse.framework/bin
-cp -a build/Release/PulseAudioHelper ${dest}/
+cp -a build/Release/PulseAudioHelper.app ${dest}/
 
 ################################## HAL plugin ##################################
 cd ${base}/../HALPlugin/
 XcodeBuild HALPlugin.xcodeproj
-dest=${targetdir}/Library/Audio/Plugins/HAL
+dest=${targetdir}/Library/Audio/Plug-Ins/HAL
 mkdir -p ${dest}
 cp -a build/Release/PulseAudio.plugin ${dest}/
 
