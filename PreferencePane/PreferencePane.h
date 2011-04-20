@@ -10,14 +10,15 @@
  ***/
 
 #import <PreferencePanes/PreferencePanes.h>
-#import "AudioClients.h"
+#import "LoginItemController.h"
 
 @interface PreferencePane : NSPreferencePane
 {
-	IBOutlet AudioClients *audioClients;
 	IBOutlet NSButton *statusBarEnabledButton;
+	IBOutlet LoginItemController *loginItemController;
 }
 
+- (IBAction) setPulseAudioEnabled: (id) sender;
 - (IBAction) setStatusBarEnabled: (id) sender;
 
 @end

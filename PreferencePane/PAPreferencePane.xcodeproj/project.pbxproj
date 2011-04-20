@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		650E30FC1338F4BB009ACF12 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 650E30FB1338F4BB009ACF12 /* IOKit.framework */; };
+		6510B1EB135F08B9002A5B90 /* LoginItemController.h in Headers */ = {isa = PBXBuildFile; fileRef = 6510B1E9135F08B9002A5B90 /* LoginItemController.h */; };
+		6510B1EC135F08B9002A5B90 /* LoginItemController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6510B1EA135F08B9002A5B90 /* LoginItemController.m */; };
 		6547ABD5134C9B040097578F /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6547ABD4134C9B040097578F /* Quartz.framework */; };
 		655316D8135B51B100817E2D /* Growl.h in Headers */ = {isa = PBXBuildFile; fileRef = 655316D6135B51B100817E2D /* Growl.h */; };
 		655316D9135B51B100817E2D /* Growl.m in Sources */ = {isa = PBXBuildFile; fileRef = 655316D7135B51B100817E2D /* Growl.m */; };
@@ -34,6 +36,8 @@
 		1058C7ADFEA557BF11CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		32DBCFA20370C41700C91783 /* PulseAudio_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PulseAudio_Prefix.pch; sourceTree = "<group>"; };
 		650E30FB1338F4BB009ACF12 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = /System/Library/Frameworks/IOKit.framework; sourceTree = "<absolute>"; };
+		6510B1E9135F08B9002A5B90 /* LoginItemController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoginItemController.h; sourceTree = "<group>"; };
+		6510B1EA135F08B9002A5B90 /* LoginItemController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LoginItemController.m; sourceTree = "<group>"; };
 		6547ABD4134C9B040097578F /* Quartz.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quartz.framework; path = /System/Library/Frameworks/Quartz.framework; sourceTree = "<absolute>"; };
 		655316D6135B51B100817E2D /* Growl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Growl.h; sourceTree = "<group>"; };
 		655316D7135B51B100817E2D /* Growl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Growl.m; sourceTree = "<group>"; };
@@ -103,6 +107,8 @@
 		08FB77AFFE84173DC02AAC07 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				6510B1E9135F08B9002A5B90 /* LoginItemController.h */,
+				6510B1EA135F08B9002A5B90 /* LoginItemController.m */,
 				6553181E135C1D3D00817E2D /* PreferencePane.h */,
 				6553181F135C1D3D00817E2D /* PreferencePane.m */,
 				65531972135C3F8B00817E2D /* LocalServer.h */,
@@ -165,6 +171,7 @@
 				65531820135C1D3D00817E2D /* PreferencePane.h in Headers */,
 				65531974135C3F8B00817E2D /* LocalServer.h in Headers */,
 				65531BB2135D810400817E2D /* ObjectNames.h in Headers */,
+				6510B1EB135F08B9002A5B90 /* LoginItemController.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -248,6 +255,7 @@
 				655316D9135B51B100817E2D /* Growl.m in Sources */,
 				65531821135C1D3D00817E2D /* PreferencePane.m in Sources */,
 				65531975135C3F8B00817E2D /* LocalServer.m in Sources */,
+				6510B1EC135F08B9002A5B90 /* LoginItemController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -48,4 +48,9 @@
 			      deliverImmediately: YES];		
 }
 
+- (IBAction) setPulseAudioEnabled: (id) sender
+{
+	[loginItemController toggleLoginItem: sender];
+}
+
 @end
