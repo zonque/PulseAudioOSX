@@ -32,11 +32,12 @@
 #include "CAHostTimeBase.h"
 
 #define super PA_Object
-#define TraceCall(x) printf("PA_Device::%s() :%d\n", __func__, __LINE__);
 
-#if 1
+#ifdef ENABLE_DEBUG
+#define TraceCall(x) printf("PA_Device::%s() :%d\n", __func__, __LINE__)
 #define DebugIOProc(x...) DebugLog(x)
 #else
+#define TraceCall(x) do {} while(0)
 #define DebugIOProc(x...) do {} while(0)
 #endif
 
@@ -631,7 +632,8 @@ PA_Device::HasProperty(const AudioObjectPropertyAddress *inAddress)
                 case kAudioObjectPropertyManufacturer:
                 case kAudioObjectPropertyName:
 		case kAudioDevicePropertyAvailableNominalSampleRates:
-		
+		case kAudioDevicePropertyUsesVariableBufferFrameSizes:
+
 		// stream properties
 		case kAudioStreamPropertyAvailableVirtualFormats:
 		case kAudioStreamPropertyAvailablePhysicalFormats:
@@ -699,6 +701,7 @@ PA_Device::GetPropertyDataSize(const AudioObjectPropertyAddress *inAddress,
 		case kAudioDevicePropertyBufferFrameSize:
 		case kAudioDevicePropertySafetyOffset:
 		case kAudioDevicePropertyBufferSize:
+		case kAudioDevicePropertyUsesVariableBufferFrameSizes:
 			*outDataSize = sizeof(UInt32);
 			return kAudioHardwareNoError;
 			
@@ -813,6 +816,7 @@ PA_Device::GetPropertyData(const AudioObjectPropertyAddress *inAddress,
 			return kAudioHardwareNoError;
 			
 		case kAudioDevicePropertyIsHidden:
+		case kAudioDevicePropertyUsesVariableBufferFrameSizes:
 			/* "always false" */
 			*static_cast<UInt32*>(outData) = 0;
 			return kAudioHardwareNoError;
@@ -918,9 +922,9 @@ PA_Device::SetPropertyData(const AudioObjectPropertyAddress *inAddress,
 			return kAudioHardwareNoError;
 
 		case kAudioDevicePropertyBufferSize:
-			SetBufferSize((*(UInt32 *) inData) * 8);
+			SetBufferSize((*(UInt32 *) inData) / deviceBackend->GetFrameSize());
 			return kAudioHardwareNoError;
-			
+
 		case kAudioDevicePropertyNominalSampleRate:
 			sampleRate = *static_cast<const Float64*>(inData);
 			DebugLog("SETTING sample rate %f", sampleRate);

@@ -31,9 +31,13 @@
 #error CLASS_NAME undefined
 #endif
 
+#ifdef ENABLE_DEBUG
 #define DebugLog(format, args...) \
 	printf("%s::%s(), line %d: " format "\n", \
 		CLASS_NAME, __func__, __LINE__, ## args);
+#else
+#define DebugLog(format, args...) do {} while(0)
+#endif
 
 class PA_Object
 {

@@ -27,11 +27,11 @@
 
 #include <pulse/pulseaudio.h>
 
-#define TraceCall(x) printf("%s::%s() :%d\n", CLASS_NAME, __func__, __LINE__);
-
-#if 0
+#ifdef ENABLE_DEBUG
+#define TraceCall(x) printf("%s::%s() :%d\n", CLASS_NAME, __func__, __LINE__)
 #define DebugProperty(x...) DebugLog(x)
 #else
+#define TraceCall(x) do {} while(0)
 #define DebugProperty(x...) do {} while(0)
 #endif
 
@@ -540,7 +540,6 @@ PA_Plugin::DeviceTranslateTime(AudioDeviceID inDeviceID,
 			       const AudioTimeStamp *inTime,
 			       AudioTimeStamp *outTime)
 {
-	TraceCall();
 	PA_Device *device = GetDeviceById(inDeviceID);
 	OSStatus ret;
 	
