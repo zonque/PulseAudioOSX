@@ -24,7 +24,7 @@
 		08FB779EFE84155DC02AAC07 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		32A70AAB03705E1F00C91783 /* PulseAudioHelper_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PulseAudioHelper_Prefix.pch; sourceTree = "<group>"; };
 		6510AFF9135DA1BB002A5B90 /* Pathes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Pathes.h; sourceTree = "<group>"; };
-		6510B046135ECABD002A5B90 /* PulseAudioHelperApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PulseAudioHelperApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		6510B046135ECABD002A5B90 /* PulseAudioHelper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PulseAudioHelper.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6510B048135ECABD002A5B90 /* PulseAudioHelper-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "PulseAudioHelper-Info.plist"; sourceTree = "<group>"; };
 		655315AC135B0BF500817E2D /* GrowlNotifications.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GrowlNotifications.h; sourceTree = "<group>"; };
 		655315AD135B0BF500817E2D /* GrowlNotifications.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GrowlNotifications.m; sourceTree = "<group>"; };
@@ -100,7 +100,7 @@
 		1AB674ADFE9D54B511CA2CBB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				6510B046135ECABD002A5B90 /* PulseAudioHelperApp.app */,
+				6510B046135ECABD002A5B90 /* PulseAudioHelper.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -129,8 +129,8 @@
 			dependencies = (
 			);
 			name = PulseAudioHelper;
-			productName = PulseAudioHelperApp;
-			productReference = 6510B046135ECABD002A5B90 /* PulseAudioHelperApp.app */;
+			productName = PulseAudioHelper;
+			productReference = 6510B046135ECABD002A5B90 /* PulseAudioHelper.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -231,7 +231,7 @@
 					AppKit,
 				);
 				PREBINDING = NO;
-				PRODUCT_NAME = PulseAudioHelperApp;
+				PRODUCT_NAME = PulseAudioHelper;
 			};
 			name = Debug;
 		};
@@ -254,7 +254,7 @@
 					AppKit,
 				);
 				PREBINDING = NO;
-				PRODUCT_NAME = PulseAudioHelperApp;
+				PRODUCT_NAME = PulseAudioHelper;
 				ZERO_LINK = NO;
 			};
 			name = Release;
