@@ -2,5 +2,5 @@
 
 dest=/Library/Frameworks/pulse.framework/Resources/bin
 
-cp build/Debug/PulseAudioHelper $dest
+cp -a build/Debug/PulseAudioHelper.app $dest
 
