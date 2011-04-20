@@ -25,7 +25,7 @@ set -e
 
 pa_version=$(extractXML ${targetdir}/Library/Frameworks/pulse.framework/Resources/Info.plist CFBundleShortVersionString)
 pulseconsle_version=$(extractXML ${targetdir}/Applications/PulseConsole.app/Contents/Info.plist CFBundleVersion)
-halplugin_version=$(extractXML ${targetdir}/Library/Audio/Plugins/HAL/PulseAudio.plugin/Contents/Info.plist CFBundleShortVersionString)
+halplugin_version=$(extractXML ${targetdir}/Library/Audio/Plug-Ins/HAL/PulseAudio.plugin/Contents/Info.plist CFBundleShortVersionString)
 prefpane_version=$(extractXML ${targetdir}/Library/PreferencePanes/PulseAudio.prefPane/Contents/Info.plist CFBundleVersion)
 
 cat > ${targetdir}/rn <<EOF__
