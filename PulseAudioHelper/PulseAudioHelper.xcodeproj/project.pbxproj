@@ -7,38 +7,25 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		655315AE135B0BF500817E2D /* GrowlNotifications.m in Sources */ = {isa = PBXBuildFile; fileRef = 655315AD135B0BF500817E2D /* GrowlNotifications.m */; };
-		655315BC135B0D9800817E2D /* Growl.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 655315BB135B0D9800817E2D /* Growl.framework */; };
-		655315C5135B0DC000817E2D /* Growl.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 655315BB135B0D9800817E2D /* Growl.framework */; };
-		65531648135B174500817E2D /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65531647135B174500817E2D /* AppKit.framework */; };
-		655317A9135B9CCF00817E2D /* ServerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 655317A8135B9CCF00817E2D /* ServerConnection.m */; };
-		655317D6135BA57900817E2D /* StatusBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 655317D5135BA57900817E2D /* StatusBar.m */; };
-		6553193D135C3B9E00817E2D /* ServerTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 6553193C135C3B9E00817E2D /* ServerTask.m */; };
-		655319E0135C537600817E2D /* Preferences.m in Sources */ = {isa = PBXBuildFile; fileRef = 655319DF135C537600817E2D /* Preferences.m */; };
-		8DD76F9A0486AA7600D96B5E /* PulseAudioHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 08FB7796FE84155DC02AAC07 /* PulseAudioHelper.m */; settings = {ATTRIBUTES = (); }; };
-		8DD76F9C0486AA7600D96B5E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 08FB779EFE84155DC02AAC07 /* Foundation.framework */; };
-		8DD76F9F0486AA7600D96B5E /* PulseAudioHelper.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = C6859EA3029092ED04C91782 /* PulseAudioHelper.1 */; };
+		6510B04C135ECADF002A5B90 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65531647135B174500817E2D /* AppKit.framework */; };
+		6510B04D135ECADF002A5B90 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 08FB779EFE84155DC02AAC07 /* Foundation.framework */; };
+		6510B04E135ECADF002A5B90 /* Growl.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 655315BB135B0D9800817E2D /* Growl.framework */; };
+		6510B04F135ECADF002A5B90 /* GrowlNotifications.m in Sources */ = {isa = PBXBuildFile; fileRef = 655315AD135B0BF500817E2D /* GrowlNotifications.m */; };
+		6510B050135ECADF002A5B90 /* Preferences.m in Sources */ = {isa = PBXBuildFile; fileRef = 655319DF135C537600817E2D /* Preferences.m */; };
+		6510B052135ECADF002A5B90 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 08FB7796FE84155DC02AAC07 /* main.m */; };
+		6510B053135ECADF002A5B90 /* ServerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 655317A8135B9CCF00817E2D /* ServerConnection.m */; };
+		6510B054135ECADF002A5B90 /* ServerTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 6553193C135C3B9E00817E2D /* ServerTask.m */; };
+		6510B055135ECADF002A5B90 /* StatusBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 655317D5135BA57900817E2D /* StatusBar.m */; };
+		6510B192135ECAFF002A5B90 /* Growl.framework in Resources */ = {isa = PBXBuildFile; fileRef = 655315BB135B0D9800817E2D /* Growl.framework */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXCopyFilesBuildPhase section */
-		8DD76F9E0486AA7600D96B5E /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 8;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
-			files = (
-				655315BC135B0D9800817E2D /* Growl.framework in CopyFiles */,
-				8DD76F9F0486AA7600D96B5E /* PulseAudioHelper.1 in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 1;
-		};
-/* End PBXCopyFilesBuildPhase section */
-
 /* Begin PBXFileReference section */
-		08FB7796FE84155DC02AAC07 /* PulseAudioHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PulseAudioHelper.m; sourceTree = "<group>"; };
+		08FB7796FE84155DC02AAC07 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		08FB779EFE84155DC02AAC07 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		32A70AAB03705E1F00C91783 /* PulseAudioHelper_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PulseAudioHelper_Prefix.pch; sourceTree = "<group>"; };
 		6510AFF9135DA1BB002A5B90 /* Pathes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Pathes.h; sourceTree = "<group>"; };
+		6510B046135ECABD002A5B90 /* PulseAudioHelperApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PulseAudioHelperApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		6510B048135ECABD002A5B90 /* PulseAudioHelper-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "PulseAudioHelper-Info.plist"; sourceTree = "<group>"; };
 		655315AC135B0BF500817E2D /* GrowlNotifications.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GrowlNotifications.h; sourceTree = "<group>"; };
 		655315AD135B0BF500817E2D /* GrowlNotifications.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GrowlNotifications.m; sourceTree = "<group>"; };
 		655315BB135B0D9800817E2D /* Growl.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Growl.framework; path = /Library/Frameworks/Growl.framework; sourceTree = "<absolute>"; };
@@ -52,18 +39,16 @@
 		655319DE135C537600817E2D /* Preferences.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Preferences.h; sourceTree = "<group>"; };
 		655319DF135C537600817E2D /* Preferences.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Preferences.m; sourceTree = "<group>"; };
 		65531BA9135D803E00817E2D /* ObjectNames.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ObjectNames.h; path = ../Shared/ObjectNames.h; sourceTree = SOURCE_ROOT; };
-		8DD76FA10486AA7600D96B5E /* PulseAudioHelper */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = PulseAudioHelper; sourceTree = BUILT_PRODUCTS_DIR; };
-		C6859EA3029092ED04C91782 /* PulseAudioHelper.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = PulseAudioHelper.1; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		8DD76F9B0486AA7600D96B5E /* Frameworks */ = {
+		6510B044135ECABD002A5B90 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				655315C5135B0DC000817E2D /* Growl.framework in Frameworks */,
-				8DD76F9C0486AA7600D96B5E /* Foundation.framework in Frameworks */,
-				65531648135B174500817E2D /* AppKit.framework in Frameworks */,
+				6510B04C135ECADF002A5B90 /* AppKit.framework in Frameworks */,
+				6510B04D135ECADF002A5B90 /* Foundation.framework in Frameworks */,
+				6510B04E135ECADF002A5B90 /* Growl.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -73,12 +58,20 @@
 		08FB7794FE84155DC02AAC07 /* PulseAudioHelper */ = {
 			isa = PBXGroup;
 			children = (
+				6510B193135ECB36002A5B90 /* Resources */,
 				65531BA9135D803E00817E2D /* ObjectNames.h */,
 				08FB7795FE84155DC02AAC07 /* Source */,
-				C6859EA2029092E104C91782 /* Documentation */,
 				08FB779DFE84155DC02AAC07 /* External Frameworks and Libraries */,
 				1AB674ADFE9D54B511CA2CBB /* Products */,
-				08FB7796FE84155DC02AAC07 /* PulseAudioHelper.m */,
+			);
+			name = PulseAudioHelper;
+			sourceTree = "<group>";
+		};
+		08FB7795FE84155DC02AAC07 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				32A70AAB03705E1F00C91783 /* PulseAudioHelper_Prefix.pch */,
+				08FB7796FE84155DC02AAC07 /* main.m */,
 				655315AC135B0BF500817E2D /* GrowlNotifications.h */,
 				655315AD135B0BF500817E2D /* GrowlNotifications.m */,
 				655317A7135B9CCF00817E2D /* ServerConnection.h */,
@@ -90,14 +83,6 @@
 				655319DE135C537600817E2D /* Preferences.h */,
 				655319DF135C537600817E2D /* Preferences.m */,
 				6510AFF9135DA1BB002A5B90 /* Pathes.h */,
-			);
-			name = PulseAudioHelper;
-			sourceTree = "<group>";
-		};
-		08FB7795FE84155DC02AAC07 /* Source */ = {
-			isa = PBXGroup;
-			children = (
-				32A70AAB03705E1F00C91783 /* PulseAudioHelper_Prefix.pch */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -115,39 +100,38 @@
 		1AB674ADFE9D54B511CA2CBB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				8DD76FA10486AA7600D96B5E /* PulseAudioHelper */,
+				6510B046135ECABD002A5B90 /* PulseAudioHelperApp.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		C6859EA2029092E104C91782 /* Documentation */ = {
+		6510B193135ECB36002A5B90 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				C6859EA3029092ED04C91782 /* PulseAudioHelper.1 */,
+				6510B048135ECABD002A5B90 /* PulseAudioHelper-Info.plist */,
 			);
-			name = Documentation;
+			name = Resources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		8DD76F960486AA7600D96B5E /* PulseAudioHelper */ = {
+		6510B045135ECABD002A5B90 /* PulseAudioHelper */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 1DEB927408733DD40010E9CD /* Build configuration list for PBXNativeTarget "PulseAudioHelper" */;
+			buildConfigurationList = 6510B04B135ECABD002A5B90 /* Build configuration list for PBXNativeTarget "PulseAudioHelper" */;
 			buildPhases = (
-				8DD76F990486AA7600D96B5E /* Sources */,
-				8DD76F9B0486AA7600D96B5E /* Frameworks */,
-				8DD76F9E0486AA7600D96B5E /* CopyFiles */,
+				6510B042135ECABD002A5B90 /* Resources */,
+				6510B043135ECABD002A5B90 /* Sources */,
+				6510B044135ECABD002A5B90 /* Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			name = PulseAudioHelper;
-			productInstallPath = "$(HOME)/bin";
-			productName = PulseAudioHelper;
-			productReference = 8DD76FA10486AA7600D96B5E /* PulseAudioHelper */;
-			productType = "com.apple.product-type.tool";
+			productName = PulseAudioHelperApp;
+			productReference = 6510B046135ECABD002A5B90 /* PulseAudioHelperApp.app */;
+			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
@@ -168,57 +152,39 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				8DD76F960486AA7600D96B5E /* PulseAudioHelper */,
+				6510B045135ECABD002A5B90 /* PulseAudioHelper */,
 			);
 		};
 /* End PBXProject section */
 
+/* Begin PBXResourcesBuildPhase section */
+		6510B042135ECABD002A5B90 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6510B192135ECAFF002A5B90 /* Growl.framework in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
-		8DD76F990486AA7600D96B5E /* Sources */ = {
+		6510B043135ECABD002A5B90 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8DD76F9A0486AA7600D96B5E /* PulseAudioHelper.m in Sources */,
-				655315AE135B0BF500817E2D /* GrowlNotifications.m in Sources */,
-				655317A9135B9CCF00817E2D /* ServerConnection.m in Sources */,
-				655317D6135BA57900817E2D /* StatusBar.m in Sources */,
-				6553193D135C3B9E00817E2D /* ServerTask.m in Sources */,
-				655319E0135C537600817E2D /* Preferences.m in Sources */,
+				6510B04F135ECADF002A5B90 /* GrowlNotifications.m in Sources */,
+				6510B050135ECADF002A5B90 /* Preferences.m in Sources */,
+				6510B052135ECADF002A5B90 /* main.m in Sources */,
+				6510B053135ECADF002A5B90 /* ServerConnection.m in Sources */,
+				6510B054135ECADF002A5B90 /* ServerTask.m in Sources */,
+				6510B055135ECADF002A5B90 /* StatusBar.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		1DEB927508733DD40010E9CD /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = PulseAudioHelper_Prefix.pch;
-				INSTALL_PATH = /usr/local/bin;
-				PRODUCT_NAME = PulseAudioHelper;
-			};
-			name = Debug;
-		};
-		1DEB927608733DD40010E9CD /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = PulseAudioHelper_Prefix.pch;
-				INSTALL_PATH = /usr/local/bin;
-				PRODUCT_NAME = PulseAudioHelper;
-			};
-			name = Release;
-		};
 		1DEB927908733DD40010E9CD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -245,23 +211,71 @@
 			};
 			name = Release;
 		};
+		6510B049135ECABD002A5B90 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INFOPLIST_FILE = "PulseAudioHelper-Info.plist";
+				INSTALL_PATH = "$(HOME)/Applications";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = PulseAudioHelperApp;
+			};
+			name = Debug;
+		};
+		6510B04A135ECABD002A5B90 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INFOPLIST_FILE = "PulseAudioHelper-Info.plist";
+				INSTALL_PATH = "$(HOME)/Applications";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = PulseAudioHelperApp;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		1DEB927408733DD40010E9CD /* Build configuration list for PBXNativeTarget "PulseAudioHelper" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				1DEB927508733DD40010E9CD /* Debug */,
-				1DEB927608733DD40010E9CD /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		1DEB927808733DD40010E9CD /* Build configuration list for PBXProject "PulseAudioHelper" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1DEB927908733DD40010E9CD /* Debug */,
 				1DEB927A08733DD40010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6510B04B135ECABD002A5B90 /* Build configuration list for PBXNativeTarget "PulseAudioHelper" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6510B049135ECABD002A5B90 /* Debug */,
+				6510B04A135ECABD002A5B90 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

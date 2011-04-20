@@ -54,7 +54,8 @@
 		[self stop];
 }
 
-- (void) taskTerminated: (NSNotification *) notification {
+- (void) taskTerminated: (NSNotification *) notification
+{
 	if (!task || [notification object] != task)
 		return;
 

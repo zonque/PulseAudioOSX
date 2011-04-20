@@ -58,7 +58,7 @@
 {
 	NSMutableArray *newClientList = [NSMutableArray arrayWithArray: clientList];
 	BOOL removed = NO;
-	
+
 	for (NSDictionary *client in clientList) {
 		NSRunningApplication *app = [client objectForKey: @"application"];
 		if (app.terminated) {
