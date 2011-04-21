@@ -28,10 +28,13 @@
 
 PA_SocketConnection::PA_SocketConnection()
 {
+	callbackArray = CFArrayCreateMutable(NULL, 0, &kCFTypeArrayCallBacks);
 }
 
 PA_SocketConnection::~PA_SocketConnection()
 {
+	CFRelease(callbackArray);
+	
 	if (source)
 		CFRunLoopRemoveSource(CFRunLoopGetCurrent(), source, kCFRunLoopCommonModes);
 
@@ -81,10 +84,34 @@ PA_SocketConnection::socketCallback(CFSocketRef s,
 				CFShow(errorString);
 				return;
 			}
+			
+			CFStringRef messageName = (CFStringRef) CFDictionaryGetValue(userInfo, CFSTR(PAOSX_MessageNameKey));
+			
+			CFShow(callbackArray);
+			
+			for (SInt32 i = 0; i < CFArrayGetCount(callbackArray); i++) {
+				CFDictionaryRef dict = (CFDictionaryRef) CFArrayGetValueAtIndex(callbackArray, i);
+				CFStringRef name = (CFStringRef) CFDictionaryGetValue(dict, CFSTR("messageName"));
 
-			CFNotificationCenterPostNotification(CFNotificationCenterGetLocalCenter(),
-							     kSocketConnectionMessageReceived,
-							     this, userInfo, true);
+				CFShow(dict);
+
+				if (CFStringCompare(name, messageName, 0) == 0) {
+					CFNumberRef number;
+					PA_SocketConnectionCallback callback;
+					void *info;
+					
+					number = (CFNumberRef) CFDictionaryGetValue(dict, "callback");
+					CFNumberGetValue(number, kCFNumberLongType, &callback);
+					CFRelease(number);
+
+					number = (CFNumberRef) CFDictionaryGetValue(dict, "info");
+					CFNumberGetValue(number, kCFNumberLongType, &info);
+					CFRelease(number);
+					
+					callback(this, messageName, userInfo, info);
+				}
+			}
+
 			CFRelease(userInfo);
 
 			break;
@@ -134,10 +161,27 @@ PA_SocketConnection::sendMessage(CFStringRef name, CFDictionaryRef userInfo)
 	return ret == noErr;
 }
 
-Boolean
-PA_SocketConnection::setClientType(CFStringRef type)
+void
+PA_SocketConnection::RegisterCallback(CFStringRef messageName,
+				      PA_SocketConnectionCallback callback,
+				      void *info)
 {
-	return 0;
+	CFNumberRef number;
+	CFMutableDictionaryRef dict = CFDictionaryCreateMutable(NULL, 0,
+								&kCFTypeDictionaryKeyCallBacks,
+								&kCFTypeDictionaryValueCallBacks);
+	
+	CFDictionarySetValue(dict, CFSTR("messageName"), messageName);
+
+	number = CFNumberCreate(NULL, kCFNumberLongType, &callback);
+	CFDictionarySetValue(dict, CFSTR("callback"), number);
+	CFRelease(number);
+
+	number = CFNumberCreate(NULL, kCFNumberLongType, info);
+	CFDictionarySetValue(dict, CFSTR("info"), number);
+	CFRelease(number);
+	
+	CFArrayAppendValue(callbackArray, dict);
 }
 
 Boolean
@@ -164,7 +208,7 @@ PA_SocketConnection::Connect()
 	signature.socketType = SOCK_STREAM;
 	signature.protocol = 0;
 	signature.address = serverAddress;
-	
+
 	socket = CFSocketCreateConnectedToSocketSignature(NULL, &signature, 
 							  kCFSocketDataCallBack | kCFSocketConnectCallBack,
 							  staticSocketCallback,

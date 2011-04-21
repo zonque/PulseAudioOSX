@@ -52,17 +52,6 @@ staticSocketConnectionDiedCallback(CFNotificationCenterRef /* center */,
 }
 
 static void
-staticSocketConnectionMessageDispatch(CFNotificationCenterRef /* center */,
-				      void *observer,
-				      CFStringRef /* name */,
-				      const void * /* object */,
-				      CFDictionaryRef userInfo)
-{
-	PA_Plugin *plugin = (PA_Plugin *) observer;
-	plugin->SocketConnectionMessageDispatch(userInfo);	
-}
-
-static void
 staticHelperServiceStarted(CFNotificationCenterRef /* center */,
 			   void *observer,
 			   CFStringRef /* name */,
@@ -209,13 +198,6 @@ PA_Plugin::SocketConnectionDiedCallback()
 }
 
 void
-PA_Plugin::SocketConnectionMessageDispatch(CFDictionaryRef userInfo)
-{
-	DebugLog();
-	CFShow(userInfo);
-}
-
-void
 PA_Plugin::HelperServiceStarted()
 {
 	if (socketConnection->IsConnected())
@@ -259,13 +241,6 @@ PA_Plugin::InitializeWithObjectID(AudioObjectID inObjectID)
 					this,
 					staticSocketConnectionDiedCallback,
 					kSocketConnectionDiedMessage,
-					socketConnection,
-					CFNotificationSuspensionBehaviorDeliverImmediately);
-
-	CFNotificationCenterAddObserver(CFNotificationCenterGetLocalCenter(),
-					this,
-					staticSocketConnectionMessageDispatch,
-					kSocketConnectionMessageReceived,
 					socketConnection,
 					CFNotificationSuspensionBehaviorDeliverImmediately);
 	

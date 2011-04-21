@@ -27,12 +27,20 @@
 #define kSocketConnectionDiedMessage		CFSTR("kSocketConnectionDiedMessage")
 #define kSocketConnectionMessageReceived	CFSTR("kSocketConnectionMessageReceived")
 
+class PA_SocketConnection;
+
+typedef void (*PA_SocketConnectionCallback) (PA_SocketConnection *connection,
+					     CFStringRef messageName,
+					     CFDictionaryRef userInfo,
+					     void *info);
+
 class PA_SocketConnection
 {
 private:
 	CFSocketRef socket;
 	CFDataRef serverAddress;
 	CFRunLoopSourceRef source;
+	CFMutableArrayRef callbackArray;
 
 public:
 	void socketCallback(CFSocketRef s,
@@ -48,6 +56,9 @@ public:
 	
 	Boolean sendMessage(CFStringRef name, CFDictionaryRef userInfo);
 	Boolean setClientType(CFStringRef type);
+	void RegisterCallback(CFStringRef messageName,
+			      PA_SocketConnectionCallback callback,
+			      void *info);
 };
 
 #endif /* PA_SOCKET_CONNECTION_H_ */

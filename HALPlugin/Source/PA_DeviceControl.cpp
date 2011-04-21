@@ -43,20 +43,15 @@ static void staticScanDevices(CFNotificationCenterRef /* center */,
 		control->AnnounceDevice();
 }
 
-static void staticSetConfig(CFNotificationCenterRef /* center */,
-			    void *observer,
-			    CFStringRef /* name */,
-			    const void * /* object */,
-			    CFDictionaryRef userInfo)
+static void staticSetConfig(PA_SocketConnection * /* connection */,
+			    CFStringRef /* messageName */,
+			    CFDictionaryRef userInfo,
+			    void *info)
 {
-	CFNumberRef number = (CFNumberRef) CFDictionaryGetValue(userInfo, CFSTR("pid"));
-	pid_t pid;
-
-	CFNumberGetValue(number, kCFNumberIntType, &pid);
-	if (pid == getpid()) {
-		PA_DeviceControl *control = static_cast<PA_DeviceControl *>(observer);
-		control->SetConfig(userInfo);
-	}
+	PA_DeviceControl *control = static_cast<PA_DeviceControl *>(info);
+	control->SetConfig(userInfo);
+	
+	DebugLog();
 }
 
 static void staticStreamVolumeChanged(CFNotificationCenterRef /* center */,
@@ -184,20 +179,19 @@ PA_DeviceControl::~PA_DeviceControl()
 void
 PA_DeviceControl::Initialize()
 {
+	PA_SocketConnection *connection = device->GetSocketConnection();
 	center = CFNotificationCenterGetDistributedCenter();
+
+	connection->RegisterCallback(CFSTR(PAOSX_SocketConnectionSetConfigMessage),
+				     staticSetConfig,
+				     this);
 	
 	CFNotificationCenterAddObserver(center, this,
 					staticScanDevices,
 					CFSTR(PAOSX_HALPluginMsgScanDevices),
 					NULL,
 					CFNotificationSuspensionBehaviorDeliverImmediately);
-	
-	CFNotificationCenterAddObserver(center, this,
-					staticSetConfig,
-					CFSTR(PAOSX_HALPluginMsgSetConfiguration),
-					NULL,
-					CFNotificationSuspensionBehaviorDeliverImmediately);
-	
+
 	/*
 	CFNotificationCenterAddObserver(center, this,
 					staticStreamVolumeChanged,
