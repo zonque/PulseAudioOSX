@@ -10,14 +10,20 @@
  ***/
 
 #import <Cocoa/Cocoa.h>
+#import "SocketCommunicationDefs.h"
 
 #define kSocketServerNotificationMessageReceived @"messageReceived"
+#define kSocketServerNotificationConnectionDied	 @"connectionDied"
+
+#define kSocketServerCookieKey	@"__cookie"
 
 @interface SocketServer : NSObject {
 	NSFileHandle *serverSocketHandle;
 	NSMutableArray *endPoints;
 }
 
+- (BOOL) start;
+- (void) stop;
 - (void) postMessageName: (NSString *) name
 		userInfo: (NSDictionary *) userInfo;
 

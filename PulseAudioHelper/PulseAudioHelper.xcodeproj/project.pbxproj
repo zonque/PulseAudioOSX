@@ -19,6 +19,7 @@
 		6510B192135ECAFF002A5B90 /* Growl.framework in Resources */ = {isa = PBXBuildFile; fileRef = 655315BB135B0D9800817E2D /* Growl.framework */; };
 		6510B1E0135ECD27002A5B90 /* logo.icns in Resources */ = {isa = PBXBuildFile; fileRef = 6510B1DF135ECD27002A5B90 /* logo.icns */; };
 		65BFDF3513603CF9002B818E /* SocketServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 65BFDF3413603CF9002B818E /* SocketServer.m */; };
+		65BFE06413605C0B002B818E /* AudioDeviceClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE06313605C0B002B818E /* AudioDeviceClient.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -45,6 +46,8 @@
 		65BFDF3213603C90002B818E /* SocketCommunicationDefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SocketCommunicationDefs.h; path = ../Shared/SocketCommunicationDefs.h; sourceTree = SOURCE_ROOT; };
 		65BFDF3313603CF9002B818E /* SocketServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SocketServer.h; sourceTree = "<group>"; };
 		65BFDF3413603CF9002B818E /* SocketServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SocketServer.m; sourceTree = "<group>"; };
+		65BFE06213605C0B002B818E /* AudioDeviceClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioDeviceClient.h; sourceTree = "<group>"; };
+		65BFE06313605C0B002B818E /* AudioDeviceClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AudioDeviceClient.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -80,6 +83,8 @@
 			children = (
 				32A70AAB03705E1F00C91783 /* PulseAudioHelper_Prefix.pch */,
 				08FB7796FE84155DC02AAC07 /* main.m */,
+				65BFE06213605C0B002B818E /* AudioDeviceClient.h */,
+				65BFE06313605C0B002B818E /* AudioDeviceClient.m */,
 				655315AC135B0BF500817E2D /* GrowlNotifications.h */,
 				655315AD135B0BF500817E2D /* GrowlNotifications.m */,
 				655317A7135B9CCF00817E2D /* ServerConnection.h */,
@@ -191,6 +196,7 @@
 				6510B054135ECADF002A5B90 /* ServerTask.m in Sources */,
 				6510B055135ECADF002A5B90 /* StatusBar.m in Sources */,
 				65BFDF3513603CF9002B818E /* SocketServer.m in Sources */,
+				65BFE06413605C0B002B818E /* AudioDeviceClient.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

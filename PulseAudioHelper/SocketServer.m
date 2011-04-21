@@ -12,50 +12,12 @@
 #import <netinet/in.h>
 #import <sys/socket.h>
 #import <sys/un.h>
+#import <sys/ioctl.h>
 
 #import "SocketServer.h"
 #import "ObjectNames.h"
-#import "SocketCommunicationDefs.h"
 
 @implementation SocketServer
-
-- (void) connectionEOF: (NSNotification *) notification
-{
-	NSDictionary *userInfo = [notification userInfo];
-	NSFileHandle *handle = [userInfo objectForKey: NSFileHandleNotificationFileHandleItem];
-
-	NSLog(@"%s() handle %p\n", __func__, handle);
-	
-	[endPoints removeObject: handle];
-}
-
-- (void) dataAvailable: (NSNotification *) notification
-{
-	NSData *data = [[notification object] availableData];
-	
-	if ([data length] == 0) {
-		[self connectionEOF: notification];
-		return;
-	}
-
-	NSString *errorString = nil;
-	NSDictionary *dict = [NSPropertyListSerialization propertyListFromData: data
-							      mutabilityOption: NSPropertyListImmutable
-									format: NULL
-							      errorDescription: &errorString];
-	
-	if (errorString || !dict) {
-		NSLog(@"ERROR: %@\n", errorString);
-		return;
-	}
-
-	[[NSNotificationCenter defaultCenter] postNotificationName: kSocketServerNotificationMessageReceived
-							    object: self
-							  userInfo: dict];
-	
-	[dict release];
-	NSLog(@"%s() %@\n", __func__, dict);
-}
 
 - (void) postMessageName: (NSString *) name
 		userInfo: (NSDictionary *) userInfo
@@ -87,46 +49,88 @@
 	[data release];
 }
 
+- (void) threadEntry: (NSFileHandle *) handle
+{
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	NSData *data;
+	
+	while (data = [handle availableData]) {
+
+		if ([data length] == 0) {
+			[endPoints performSelectorOnMainThread: @selector(removeObject:)
+						    withObject: handle
+						 waitUntilDone: YES];
+
+			NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObject: [NSValue valueWithPointer: handle]
+										       forKey: kSocketServerCookieKey];
+
+			NSNotification *notification = [NSNotification notificationWithName: kSocketServerNotificationConnectionDied
+										     object: self
+										   userInfo: dict];
+			
+			[[NSNotificationCenter defaultCenter] performSelectorOnMainThread: @selector(postNotification:)
+									       withObject: notification
+									    waitUntilDone: YES];
+
+			[pool release];
+			return;
+		}
+		
+		NSLog(@" .. %d\n", [data length]);
+		
+		NSString *errorString = nil;
+		NSMutableDictionary *dict = [NSPropertyListSerialization propertyListFromData: data
+									     mutabilityOption: NSPropertyListImmutable
+										       format: NULL
+									     errorDescription: &errorString];
+		if (errorString || !dict) {
+			NSLog(@"ERROR: %@\n", errorString);
+			continue;
+		}
+		
+		[dict setObject: [NSValue valueWithPointer: handle]
+			 forKey: kSocketServerCookieKey];
+		
+		NSNotification *notification = [NSNotification notificationWithName: kSocketServerNotificationMessageReceived
+									     object: self
+									   userInfo: dict];
+
+		[[NSNotificationCenter defaultCenter] performSelectorOnMainThread: @selector(postNotification:)
+								       withObject: notification
+								    waitUntilDone: YES];
+	}
+	
+	[pool release];
+}
+
 - (void) connectionAccepted: (NSNotification *) notification
 {
 	NSDictionary *userInfo = [notification userInfo];
 	NSFileHandle *handle = [userInfo objectForKey: NSFileHandleNotificationFileHandleItem];
 	
-	NSLog(@"%s() handle = %p\n", __func__, handle);
-
 	if ([endPoints containsObject: handle]) {
 		NSLog(@"%s(): object already known?\n", __func__);
 		return;
 	}
 
 	[endPoints addObject: handle];
+
+	[NSThread detachNewThreadSelector: @selector(threadEntry:)
+				 toTarget: self
+			       withObject: handle];
 	
-	[[NSNotificationCenter defaultCenter] addObserver: self
-						 selector: @selector(dataAvailable:) 
-						     name: NSFileHandleDataAvailableNotification
-						   object: handle];
-	
-	[[NSNotificationCenter defaultCenter] addObserver: self
-						 selector: @selector(connectionEOF:) 
-						     name: NSFileHandleReadToEndOfFileCompletionNotification
-						   object: handle];
-	
-	[handle waitForDataInBackgroundAndNotify];
+	[serverSocketHandle acceptConnectionInBackgroundAndNotify];
 }
 
-- (id) init
+- (BOOL) start
 {
-	[super init];
-	
-	endPoints = [[NSMutableArray arrayWithCapacity: 0] retain];
-
 	unlink(PAOSX_HelperSocketName);
-
+	
 	struct sockaddr_un server;
 	server.sun_family = AF_UNIX;
 	server.sun_len = sizeof(server);
 	strlcpy(server.sun_path, PAOSX_HelperSocketName, sizeof(server.sun_path));
-
+	
 	NSData *address = [NSData dataWithBytes: &server
 					 length: sizeof(server)];
 	
@@ -143,20 +147,34 @@
 						 selector: @selector(connectionAccepted:) 
 						     name: NSFileHandleConnectionAcceptedNotification
 						   object: serverSocketHandle];
-
+	
 	[serverSocketHandle acceptConnectionInBackgroundAndNotify];
-
+	
 	[[NSDistributedNotificationCenter defaultCenter] postNotificationName: @PAOSX_HelperMsgServiceStarted
 								       object: @PAOSX_HelperName
 								     userInfo: nil
-							   deliverImmediately: YES];	
+							   deliverImmediately: YES];
+	
+	return YES;
+}
+
+- (void) stop
+{
+	[serverSocketHandle release];	
+}
+
+- (id) init
+{
+	[super init];
+	
+	endPoints = [[NSMutableArray arrayWithCapacity: 0] retain];
 	
 	return self;
 }
 
 - (void) dealloc
 {
-	[serverSocketHandle release];
+	[self stop];
 	[endPoints release];
 	[super dealloc];
 }
