@@ -12,7 +12,12 @@
 #ifndef PAOSX_SOCKET_COMMUNICATION_DEFS_H
 #define PAOSX_SOCKET_COMMUNICATION_DEFS_H
 
-#define PAOSX_HelperSocketName	"/tmp/pulseaudio-osx-helper.socket"
-#define PAOSX_MessageNameKey	"__messageName"
+#define PAOSX_HelperSocketName		"/tmp/pulseaudio-osx-helper.socket"
+#define PAOSX_MessageNameKey		"__messageName"
+#define PAOSX_MessageClientType		"__clientType"
+
+#define PAOSX_SocketConnectionAnnounceMessage	"AnnounceClient"
+#define PAOSX_SocketConnectionSignOffMessage	"SignOffClient"
+#define PAOSX_SocketConnectionSetConfigMessage	"SetConfig"
 
 #endif /* PAOSX_SOCKET_COMMUNICATION_DEFS_H */

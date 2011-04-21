@@ -13,6 +13,13 @@
 
 @implementation AudioDeviceClient
 
+- (void) announceAudioClientList
+{
+	NSLog(@" --- \n");
+	CFShow(audioClients);
+	NSLog(@" === \n");
+}
+
 - (void) connectionDied: (NSNotification *) notification
 {
 	NSDictionary *userInfo = [notification userInfo];
@@ -35,8 +42,7 @@
 		[audioClients release];
 		audioClients = [newClients retain];
 		
-		CFShow(audioClients);
-		// ...
+		[self announceAudioClientList];
 	}	
 }
 
@@ -48,8 +54,13 @@
 	NSMutableArray *newClients = [NSMutableArray arrayWithArray: audioClients];
 	BOOL modified = NO;
 	
-	if ([messageName isEqualToString: @PAOSX_SocketConnectionAnnounceMessage])
+	if ([messageName isEqualToString: @PAOSX_SocketConnectionAnnounceMessage]) {
 		[audioClients addObject: userInfo];
+		[self announceAudioClientList];
+		
+		[server postMessageName: @PAOSX_SocketConnectionSetConfigMessage
+			       userInfo: nil];
+	}
 
 	if ([messageName isEqualToString: @PAOSX_SocketConnectionSignOffMessage]) {
 		for (NSDictionary *d in audioClients) {
@@ -61,15 +72,13 @@
 			}
 		}
 	}
-
-	
 	
 	if (modified) {
 		[audioClients release];
 		audioClients = [newClients retain];
 		
 		CFShow(audioClients);
-		// ...
+		[self announceAudioClientList];
 	}
 	
 	CFShow(userInfo);
