@@ -3,6 +3,7 @@
 #import "ServerTask.h"
 #import "Preferences.h"
 #import "GrowlNotifications.h"
+#import "SocketServer.h"
 
 int main (int argc, const char * argv[]) {
 	NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
@@ -16,13 +17,15 @@ int main (int argc, const char * argv[]) {
 	StatusBar *bar = [[[StatusBar alloc] init] autorelease];
 	[bar setPreferences: prefs];
 
-	ServerTask *server = [[[ServerTask alloc] init] autorelease];
-	[server setPreferences: prefs];
+	ServerTask *task = [[[ServerTask alloc] init] autorelease];
+	[task setPreferences: prefs];
 
+	SocketServer *server = [[SocketServer alloc] init];
+	
 	[NSApp setDelegate: bar];
 	[NSApp run];
 	
-	[server stop];
+	[task stop];
 
 	[pool drain];
 	return 0;

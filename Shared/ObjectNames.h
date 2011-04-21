@@ -18,7 +18,9 @@
 #define PAOSX_HALPluginMsgSignOffDevice		"org.pulseaudio.HALPlugin.signOffDevice"
 #define PAOSX_HALPluginMsgSetConfiguration	"org.pulseaudio.HALPlugin.setConfiguation"
 
-#define PAOSX_HelperName			"org.pulseaudio.PulseAudioHelper"
+#define PAOSX_HelperName		"org.pulseaudio.PulseAudioHelper"
+#define PAOSX_HelperMsgServiceStarted	"org.pulseaudio.PulseAudioHelper.serviceStarted"
+
 #define PAOSX_HelperMsgSetLocalServerEnabled	"org.pulseaudio.PulseAudioHelper.setLocalServerEnabled"
 #define PAOSX_HelperMsgQueryLocalServerEnabled	"org.pulseaudio.PulseAudioHelper.queryLocalServerEnabled"
 #define PAOSX_HelperMsgSetStatusBarEnabled	"org.pulseaudio.PulseAudioHelper.setStatusBarEnabled"
