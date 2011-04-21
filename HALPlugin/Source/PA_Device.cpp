@@ -72,6 +72,12 @@ PA_Device::ReportOwnedObjects(std::vector<AudioObjectID> &arr)
 			arr.push_back(outputStreams[i]->GetObjectID());
 }
 
+PA_SocketConnection *
+PA_Device::GetSocketConnection()
+{
+	return plugin->GetSocketConnection();
+}
+
 OSStatus
 PA_Device::PublishObjects(Boolean active)
 {

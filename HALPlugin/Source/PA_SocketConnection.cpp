@@ -25,8 +25,6 @@
 #include <sys/un.h>
 
 #include "PA_SocketConnection.h"
-#include "SocketCommunicationDefs.h"
-
 
 PA_SocketConnection::PA_SocketConnection()
 {
@@ -134,6 +132,12 @@ PA_SocketConnection::sendMessage(CFStringRef name, CFDictionaryRef userInfo)
 	CFRelease(data);
 	
 	return ret == noErr;
+}
+
+Boolean
+PA_SocketConnection::setClientType(CFStringRef type)
+{
+	return 0;
 }
 
 Boolean

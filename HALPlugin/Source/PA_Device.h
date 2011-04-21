@@ -27,6 +27,7 @@
 #include <CarbonCore/Multiprocessing.h>
 
 #include "PA_Object.h"
+#include "PA_SocketConnection.h"
 
 class PA_Plugin;
 class PA_Stream;
@@ -179,6 +180,8 @@ public:
 	OSStatus	DoStop(AudioDeviceIOProcID procID);
 	OSStatus	SendAsyncMessage(SInt32 command, CFDataRef data);
 
+	PA_SocketConnection *GetSocketConnection();
+	
 	virtual void ReportOwnedObjects(std::vector<AudioObjectID> &arr);
 	virtual PA_Object *FindObjectByID(AudioObjectID searchID);
 	virtual const char *ClassName();

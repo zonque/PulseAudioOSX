@@ -19,6 +19,11 @@
  USA.
  ***/
 
+#ifndef PA_SOCKET_CONNECTION_H_
+#define PA_SOCKET_CONNECTION_H_
+
+#include "SocketCommunicationDefs.h"
+
 #define kSocketConnectionDiedMessage		CFSTR("kSocketConnectionDiedMessage")
 #define kSocketConnectionMessageReceived	CFSTR("kSocketConnectionMessageReceived")
 
@@ -42,4 +47,7 @@ public:
 	Boolean	IsConnected();
 	
 	Boolean sendMessage(CFStringRef name, CFDictionaryRef userInfo);
+	Boolean setClientType(CFStringRef type);
 };
+
+#endif /* PA_SOCKET_CONNECTION_H_ */

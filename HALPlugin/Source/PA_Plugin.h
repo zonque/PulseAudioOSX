@@ -172,8 +172,9 @@ public:
 	PA_Object *FindObjectByID(AudioObjectID searchID);
 
 	virtual void ReportOwnedObjects(std::vector<AudioObjectID> &arr);
-	AudioHardwarePlugInRef GetInterface()	{ return plugin; };
-	CFAllocatorRef GetAllocator()		{ return allocator; };
+	AudioHardwarePlugInRef GetInterface()		{ return plugin; };
+	CFAllocatorRef GetAllocator()			{ return allocator; };
+	PA_SocketConnection *GetSocketConnection()	{ return socketConnection; };
 	virtual const char *ClassName();
 	
 	void SocketConnectionDiedCallback();

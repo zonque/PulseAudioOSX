@@ -118,11 +118,8 @@ PA_DeviceControl::AnnounceDevice()
 	
 	DebugLog();
 
-	CFNotificationCenterPostNotification(CFNotificationCenterGetDistributedCenter(),
-					     CFSTR(PAOSX_HALPluginMsgAnnounceDevice),
-					     CFSTR(PAOSX_HALPluginName),
-					     userInfo,
-					     true);
+	PA_SocketConnection *conn = device->GetSocketConnection();
+	conn->sendMessage(CFSTR(PAOSX_SocketConnectionAnnounceMessage), userInfo);
 	CFRelease(userInfo);
 }
 
@@ -139,11 +136,8 @@ PA_DeviceControl::SignOffDevice()
 	CFDictionarySetValue(userInfo, CFSTR("pid"), number);
 	CFRelease(number);
 	
-	CFNotificationCenterPostNotification(CFNotificationCenterGetDistributedCenter(),
-					     CFSTR(PAOSX_HALPluginMsgSignOffDevice),
-					     CFSTR(PAOSX_HALPluginName),
-					     userInfo,
-					     true);
+	PA_SocketConnection *conn = device->GetSocketConnection();
+	conn->sendMessage(CFSTR(PAOSX_SocketConnectionSignOffMessage), userInfo);
 	CFRelease(userInfo);
 }
 
