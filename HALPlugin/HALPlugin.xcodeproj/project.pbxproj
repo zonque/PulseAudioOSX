@@ -25,6 +25,9 @@
 		65474534134F80FB0030DDFF /* PA_DeviceBackend.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65474532134F80FB0030DDFF /* PA_DeviceBackend.cpp */; };
 		6547460113507DA50030DDFF /* PA_DeviceControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 654745FF13507DA50030DDFF /* PA_DeviceControl.h */; };
 		6547460213507DA50030DDFF /* PA_DeviceControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6547460013507DA50030DDFF /* PA_DeviceControl.cpp */; };
+		65BFDF4E13604504002B818E /* PA_SocketConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = 65BFDF4C13604504002B818E /* PA_SocketConnection.h */; };
+		65BFDF4F13604504002B818E /* PA_SocketConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65BFDF4D13604504002B818E /* PA_SocketConnection.cpp */; };
+		65BFDF5313604747002B818E /* SocketCommunicationDefs.h in Headers */ = {isa = PBXBuildFile; fileRef = 65BFDF5213604747002B818E /* SocketCommunicationDefs.h */; };
 		65EAD98C1356F2A800FAB132 /* PA_MuteControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 65EAD98A1356F2A800FAB132 /* PA_MuteControl.h */; };
 		65EAD98D1356F2A800FAB132 /* PA_MuteControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65EAD98B1356F2A800FAB132 /* PA_MuteControl.cpp */; };
 		65EAD9BE1356F84800FAB132 /* PA_VolumeControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 65EAD9BC1356F84800FAB132 /* PA_VolumeControl.h */; };
@@ -54,6 +57,9 @@
 		65474532134F80FB0030DDFF /* PA_DeviceBackend.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PA_DeviceBackend.cpp; sourceTree = "<group>"; };
 		654745FF13507DA50030DDFF /* PA_DeviceControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PA_DeviceControl.h; sourceTree = "<group>"; };
 		6547460013507DA50030DDFF /* PA_DeviceControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PA_DeviceControl.cpp; sourceTree = "<group>"; };
+		65BFDF4C13604504002B818E /* PA_SocketConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PA_SocketConnection.h; sourceTree = "<group>"; };
+		65BFDF4D13604504002B818E /* PA_SocketConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PA_SocketConnection.cpp; sourceTree = "<group>"; };
+		65BFDF5213604747002B818E /* SocketCommunicationDefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SocketCommunicationDefs.h; path = ../Shared/SocketCommunicationDefs.h; sourceTree = SOURCE_ROOT; };
 		65EAD98A1356F2A800FAB132 /* PA_MuteControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PA_MuteControl.h; sourceTree = "<group>"; };
 		65EAD98B1356F2A800FAB132 /* PA_MuteControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PA_MuteControl.cpp; sourceTree = "<group>"; };
 		65EAD9BC1356F84800FAB132 /* PA_VolumeControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PA_VolumeControl.h; sourceTree = "<group>"; };
@@ -105,6 +111,7 @@
 			isa = PBXGroup;
 			children = (
 				6510B01A135DA8F6002A5B90 /* ObjectNames.h */,
+				65BFDF5213604747002B818E /* SocketCommunicationDefs.h */,
 				2DF7BC7D08DA4E0700EE5510 /* HALPlugin.exp */,
 				65474230134F01D70030DDFF /* PA_PlugInInterface.cpp */,
 				65474248134F108C0030DDFF /* PA_PlugInInterface.h */,
@@ -118,6 +125,8 @@
 				6547431D134F2FB30030DDFF /* PA_Stream.h */,
 				65474531134F80FB0030DDFF /* PA_DeviceBackend.h */,
 				65474532134F80FB0030DDFF /* PA_DeviceBackend.cpp */,
+				65BFDF4C13604504002B818E /* PA_SocketConnection.h */,
+				65BFDF4D13604504002B818E /* PA_SocketConnection.cpp */,
 				654745FF13507DA50030DDFF /* PA_DeviceControl.h */,
 				6547460013507DA50030DDFF /* PA_DeviceControl.cpp */,
 				65EAD98A1356F2A800FAB132 /* PA_MuteControl.h */,
@@ -172,6 +181,8 @@
 				65EAD98C1356F2A800FAB132 /* PA_MuteControl.h in Headers */,
 				65EAD9BE1356F84800FAB132 /* PA_VolumeControl.h in Headers */,
 				6510B01B135DA8F6002A5B90 /* ObjectNames.h in Headers */,
+				65BFDF4E13604504002B818E /* PA_SocketConnection.h in Headers */,
+				65BFDF5313604747002B818E /* SocketCommunicationDefs.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -235,6 +246,7 @@
 				6547460213507DA50030DDFF /* PA_DeviceControl.cpp in Sources */,
 				65EAD98D1356F2A800FAB132 /* PA_MuteControl.cpp in Sources */,
 				65EAD9BF1356F84800FAB132 /* PA_VolumeControl.cpp in Sources */,
+				65BFDF4F13604504002B818E /* PA_SocketConnection.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -292,7 +304,7 @@
 					CoreServices,
 				);
 				PRODUCT_NAME = PulseAudio;
-				SDKROOT = /Developer/SDKs/MacOSX10.5.sdk;
+				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.6.sdk";
 				VALID_ARCHS = "i386 x86_64";
 				WRAPPER_EXTENSION = plugin;
 			};
@@ -345,7 +357,7 @@
 					CoreServices,
 				);
 				PRODUCT_NAME = PulseAudio;
-				SDKROOT = /Developer/SDKs/MacOSX10.5.sdk;
+				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.6.sdk";
 				VALID_ARCHS = "i386 x86_64";
 				WRAPPER_EXTENSION = plugin;
 			};

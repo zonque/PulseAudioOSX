@@ -24,6 +24,7 @@
 #include "PA_Plugin.h"
 #include "PA_Device.h"
 #include "PA_Stream.h"
+#include "ObjectNames.h"
 
 #include <pulse/pulseaudio.h>
 
@@ -36,6 +37,41 @@
 #endif
 
 // All methods of this class are just wrappers to call our child classes
+
+#pragma mark ### static wrappers ###
+
+static void
+staticSocketConnectionDiedCallback(CFNotificationCenterRef /* center */,
+				   void *observer,
+				   CFStringRef /* name */,
+				   const void * /* object */,
+				   CFDictionaryRef /* userInfo */)
+{
+	PA_Plugin *plugin = (PA_Plugin *) observer;
+	plugin->SocketConnectionDiedCallback();
+}
+
+static void
+staticSocketConnectionMessageDispatch(CFNotificationCenterRef /* center */,
+				      void *observer,
+				      CFStringRef /* name */,
+				      const void * /* object */,
+				      CFDictionaryRef userInfo)
+{
+	PA_Plugin *plugin = (PA_Plugin *) observer;
+	plugin->SocketConnectionMessageDispatch(userInfo);	
+}
+
+static void
+staticHelperServiceStarted(CFNotificationCenterRef /* center */,
+			   void *observer,
+			   CFStringRef /* name */,
+			   const void * /* object */,
+			   CFDictionaryRef /* userInfo */)
+{
+	PA_Plugin *plugin = (PA_Plugin *) observer;
+	plugin->HelperServiceStarted();
+}
 
 #pragma mark ### internal Operations ###
 
@@ -120,6 +156,75 @@ PA_Plugin::FindObjectByID(AudioObjectID searchID)
 	return o;
 }
 
+void
+PA_Plugin::CreateDevices()
+{
+	PA_Device *dev = new PA_Device(this);
+	CFArrayAppendValue(devices, dev);
+	dev->Initialize();
+	
+	std::vector<AudioStreamID> deviceIDs;
+	deviceIDs.clear();
+	ReportOwnedObjects(deviceIDs);
+	
+	// publish device objects
+	if (deviceIDs.size() != 0)
+		AudioObjectsPublishedAndDied(GetInterface(),
+					     kAudioObjectSystemObject,
+					     deviceIDs.size(), &(deviceIDs.front()),
+					     0, NULL);
+	
+	dev->PublishObjects(true);
+}
+
+void
+PA_Plugin::TeardownDevices()
+{
+	std::vector<AudioStreamID> deviceIDs;
+	deviceIDs.clear();
+
+	for (SInt32 i = 0; i < CFArrayGetCount(devices); i++) {
+		PA_Device *dev = (PA_Device *) CFArrayGetValueAtIndex(devices, i);
+		deviceIDs.push_back(dev->GetObjectID());
+		dev->Teardown();
+		delete dev;
+	}
+	
+	CFArrayRemoveAllValues(devices);
+	
+	if (deviceIDs.size() != 0)
+		AudioObjectsPublishedAndDied(GetInterface(),
+					     kAudioObjectSystemObject,
+					     0, NULL,
+					     deviceIDs.size(), &(deviceIDs.front()));
+}
+
+#pragma mark ### Socket Connection callbacks ###
+
+void
+PA_Plugin::SocketConnectionDiedCallback()
+{
+	DebugLog();
+	TeardownDevices();
+}
+
+void
+PA_Plugin::SocketConnectionMessageDispatch(CFDictionaryRef userInfo)
+{
+	DebugLog();
+	CFShow(userInfo);
+}
+
+void
+PA_Plugin::HelperServiceStarted()
+{
+	if (socketConnection->IsConnected())
+		return;
+	
+	if (socketConnection->Connect())
+		CreateDevices();
+}
+
 #pragma mark ### PlugIn Operations ###
 
 ULONG
@@ -148,23 +253,34 @@ PA_Plugin::InitializeWithObjectID(AudioObjectID inObjectID)
 	SetObjectID(inObjectID);
 
 	devices = CFArrayCreateMutable(allocator, 0, NULL);
-	PA_Device *dev = new PA_Device(this);
-	CFArrayAppendValue(devices, dev);
-	dev->Initialize();
+	socketConnection = new PA_SocketConnection();
 
-	std::vector<AudioStreamID> deviceIDs;
-	deviceIDs.clear();
-	ReportOwnedObjects(deviceIDs);
-		
-	// publish device objects
-	if (deviceIDs.size() != 0)
-		AudioObjectsPublishedAndDied(GetInterface(),
-					     kAudioObjectSystemObject,
-					     deviceIDs.size(), &(deviceIDs.front()),
-					     0, NULL);
+	CFNotificationCenterAddObserver(CFNotificationCenterGetLocalCenter(),
+					this,
+					staticSocketConnectionDiedCallback,
+					kSocketConnectionDiedMessage,
+					socketConnection,
+					CFNotificationSuspensionBehaviorDeliverImmediately);
+
+	CFNotificationCenterAddObserver(CFNotificationCenterGetLocalCenter(),
+					this,
+					staticSocketConnectionMessageDispatch,
+					kSocketConnectionMessageReceived,
+					socketConnection,
+					CFNotificationSuspensionBehaviorDeliverImmediately);
 	
-	dev->PublishObjects(true);
-
+	/* distributed notification center */
+	CFNotificationCenterAddObserver(CFNotificationCenterGetDistributedCenter(),
+					this,
+					staticHelperServiceStarted,
+					CFSTR(PAOSX_HelperMsgServiceStarted),
+					NULL,
+					CFNotificationSuspensionBehaviorDeliverImmediately);
+	
+	
+	if (socketConnection->Connect())
+		CreateDevices();
+	
 	return kAudioHardwareNoError;
 }
 

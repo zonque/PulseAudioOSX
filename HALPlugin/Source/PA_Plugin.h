@@ -26,6 +26,7 @@
 #include "PA_Device.h"
 #include "PA_Stream.h"
 #include "PA_Object.h"
+#include "PA_SocketConnection.h"
 
 class PA_Plugin : public PA_Object {
 
@@ -38,7 +39,12 @@ private:
 	
 	AudioHardwarePlugInRef plugin;
 	CFAllocatorRef allocator;
+	
+	PA_SocketConnection *socketConnection;
 
+	void CreateDevices();
+	void TeardownDevices();
+	
 public:
 	PA_Plugin(CFAllocatorRef inAllocator, AudioHardwarePlugInRef inPlugin);
 	~PA_Plugin();
@@ -169,6 +175,10 @@ public:
 	AudioHardwarePlugInRef GetInterface()	{ return plugin; };
 	CFAllocatorRef GetAllocator()		{ return allocator; };
 	virtual const char *ClassName();
+	
+	void SocketConnectionDiedCallback();
+	void SocketConnectionMessageDispatch(CFDictionaryRef userInfo);
+	void HelperServiceStarted();
 };
 
 #endif // PA_PLUGIN_H_
