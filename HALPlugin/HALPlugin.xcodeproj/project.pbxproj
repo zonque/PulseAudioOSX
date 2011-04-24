@@ -28,6 +28,7 @@
 		65BFDF4E13604504002B818E /* PA_SocketConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = 65BFDF4C13604504002B818E /* PA_SocketConnection.h */; };
 		65BFDF4F13604504002B818E /* PA_SocketConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65BFDF4D13604504002B818E /* PA_SocketConnection.cpp */; };
 		65BFDF5313604747002B818E /* SocketCommunicationDefs.h in Headers */ = {isa = PBXBuildFile; fileRef = 65BFDF5213604747002B818E /* SocketCommunicationDefs.h */; };
+		65BFE2A413648256002B818E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65BFE2A313648256002B818E /* Foundation.framework */; };
 		65EAD98C1356F2A800FAB132 /* PA_MuteControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 65EAD98A1356F2A800FAB132 /* PA_MuteControl.h */; };
 		65EAD98D1356F2A800FAB132 /* PA_MuteControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65EAD98B1356F2A800FAB132 /* PA_MuteControl.cpp */; };
 		65EAD9BE1356F84800FAB132 /* PA_VolumeControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 65EAD9BC1356F84800FAB132 /* PA_VolumeControl.h */; };
@@ -60,6 +61,7 @@
 		65BFDF4C13604504002B818E /* PA_SocketConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PA_SocketConnection.h; sourceTree = "<group>"; };
 		65BFDF4D13604504002B818E /* PA_SocketConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PA_SocketConnection.cpp; sourceTree = "<group>"; };
 		65BFDF5213604747002B818E /* SocketCommunicationDefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SocketCommunicationDefs.h; path = ../Shared/SocketCommunicationDefs.h; sourceTree = SOURCE_ROOT; };
+		65BFE2A313648256002B818E /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		65EAD98A1356F2A800FAB132 /* PA_MuteControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PA_MuteControl.h; sourceTree = "<group>"; };
 		65EAD98B1356F2A800FAB132 /* PA_MuteControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PA_MuteControl.cpp; sourceTree = "<group>"; };
 		65EAD9BC1356F84800FAB132 /* PA_VolumeControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PA_VolumeControl.h; sourceTree = "<group>"; };
@@ -78,6 +80,7 @@
 				8D576314048677EA00EA77CD /* CoreFoundation.framework in Frameworks */,
 				2DF7BC5408DA4CCA00EE5510 /* CoreAudio.framework in Frameworks */,
 				65F4FCDB133BCFAE00E72096 /* pulse.framework in Frameworks */,
+				65BFE2A413648256002B818E /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -99,6 +102,7 @@
 		089C1671FE841209C02AAC07 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				65BFE2A313648256002B818E /* Foundation.framework */,
 				65F40146133F7B7A00E72096 /* CoreServices.framework */,
 				65F4FCDA133BCFAE00E72096 /* pulse.framework */,
 				2DF7BC5308DA4CCA00EE5510 /* CoreAudio.framework */,

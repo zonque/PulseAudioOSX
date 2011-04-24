@@ -43,15 +43,15 @@ static void staticScanDevices(CFNotificationCenterRef /* center */,
 		control->AnnounceDevice();
 }
 
-static void staticSetConfig(PA_SocketConnection * /* connection */,
+static void staticSetConfig(PA_SocketConnection *connection,
 			    CFStringRef /* messageName */,
 			    CFDictionaryRef userInfo,
 			    void *info)
 {
+	DebugLog("connection %p info %p", connection, info);
+
 	PA_DeviceControl *control = static_cast<PA_DeviceControl *>(info);
-	control->SetConfig(userInfo);
-	
-	DebugLog();
+	control->SetConfig(userInfo);	
 }
 
 static void staticStreamVolumeChanged(CFNotificationCenterRef /* center */,
@@ -182,6 +182,7 @@ PA_DeviceControl::Initialize()
 	PA_SocketConnection *connection = device->GetSocketConnection();
 	center = CFNotificationCenterGetDistributedCenter();
 
+	DebugLog("connection %p this %p", connection, this);
 	connection->RegisterCallback(CFSTR(PAOSX_SocketConnectionSetConfigMessage),
 				     staticSetConfig,
 				     this);

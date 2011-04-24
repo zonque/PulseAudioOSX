@@ -100,13 +100,11 @@ PA_SocketConnection::socketCallback(CFSocketRef s,
 					PA_SocketConnectionCallback callback;
 					void *info;
 					
-					number = (CFNumberRef) CFDictionaryGetValue(dict, "callback");
+					number = (CFNumberRef) CFDictionaryGetValue(dict, CFSTR("callback"));
 					CFNumberGetValue(number, kCFNumberLongType, &callback);
-					CFRelease(number);
 
-					number = (CFNumberRef) CFDictionaryGetValue(dict, "info");
+					number = (CFNumberRef) CFDictionaryGetValue(dict, CFSTR("info"));
 					CFNumberGetValue(number, kCFNumberLongType, &info);
-					CFRelease(number);
 					
 					callback(this, messageName, userInfo, info);
 				}
@@ -177,8 +175,11 @@ PA_SocketConnection::RegisterCallback(CFStringRef messageName,
 	CFDictionarySetValue(dict, CFSTR("callback"), number);
 	CFRelease(number);
 
-	number = CFNumberCreate(NULL, kCFNumberLongType, info);
+	unsigned long *p = (unsigned long *) info;
+	unsigned long n = *p;
+	number = CFNumberCreate(NULL, kCFNumberLongType, &n);
 	CFDictionarySetValue(dict, CFSTR("info"), number);
+	CFShow(number);
 	CFRelease(number);
 	
 	CFArrayAppendValue(callbackArray, dict);
