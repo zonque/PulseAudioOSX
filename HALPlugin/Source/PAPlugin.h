@@ -32,8 +32,6 @@
 - (void) publishOwnedObjects;
 - (void) depublishOwnedObjects;
 
-- (PAObject *) findObjectByID: (AudioObjectID) searchID;
-
 #pragma mark ### Plugin interface ###
 
 - (OSStatus) initialize;

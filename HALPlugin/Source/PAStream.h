@@ -34,8 +34,6 @@
 	      isInput: (BOOL) isInput
       startingChannel: (UInt32) startingChannel;
 
-- (PAObject *) findObjectByID: (AudioObjectID) searchID;
-
 #pragma mark ### properties ###
 
 - (BOOL) hasProperty: (const AudioObjectPropertyAddress *) address;

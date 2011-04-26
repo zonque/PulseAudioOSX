@@ -49,14 +49,6 @@
 
 #pragma mark ### PAObject ###
 
-- (PAObject *) findObjectByID: (AudioObjectID) searchID
-{
-	if (self.objectID == searchID)
-		return self;
-	
-	return nil;
-}
-
 #pragma mark ### properties ###
 
 - (BOOL) hasProperty: (const AudioObjectPropertyAddress *) address

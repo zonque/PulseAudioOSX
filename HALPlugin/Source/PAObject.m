@@ -38,6 +38,8 @@
 
 - (void) dealloc
 {
+	DebugLog();
+
 	[lock release];
 	[super dealloc];
 }
@@ -52,9 +54,37 @@
 	[lock unlock];
 }
 
+/*
+- (id) retain
+{
+	DebugLog(" retainCount %d (%@)", [self retainCount], [self className])
+	[super retain];
+	return self;
+}
+
+- (void) release
+{
+	DebugLog(" retainCount %d (%@)", [self retainCount], [self className])
+	[super release];
+}
+*/
+
 - (PAObject *) findObjectByID: (AudioObjectID) searchID
 {
-	return nil;
+	if (objectID == searchID)
+		return self;
+	
+	PAObject *ret = nil;
+	NSMutableArray *array = [NSMutableArray arrayWithCapacity: 0];
+	[self addOwnedObjectsToArray: array];
+	
+	for (PAObject *o in array)
+		if (o.objectID == searchID) {
+			ret = o;
+			break;
+		}
+
+	return ret;
 }
 
 - (void) addOwnedObjectsToArray: (NSMutableArray *) array
@@ -71,9 +101,7 @@
 	
 	for (PAObject *o in array)
 		list[count++] = o.objectID;
-	
-	[array release];
-	
+		
 	DebugLog("publishing %d objects", count);
 	for (UInt32 i = 0; i < count; i++)
 		DebugLog(" ... %d", list[i]);
@@ -94,9 +122,7 @@
 	
 	for (PAObject *o in array)
 		list[count++] = o.objectID;
-	
-	[array release];
-	
+		
 	if (count)
 		AudioObjectsPublishedAndDied(pluginRef,
 					     kAudioObjectSystemObject,
@@ -144,7 +170,6 @@
 			NSMutableArray *array = [NSMutableArray arrayWithCapacity: 0];
 			[self addOwnedObjectsToArray: array];
 			*outDataSize = sizeof(AudioObjectID) * [array count];
-			[array release];
 			return kAudioHardwareNoError;
 		}
 		case kAudioObjectPropertyListenerAdded:
@@ -180,7 +205,6 @@
 			for (PAObject *o in array)
 				*out++ = o.objectID;
 			
-			[array release];
 			return kAudioHardwareNoError;
 		}			
 		case kAudioObjectPropertyListenerAdded:

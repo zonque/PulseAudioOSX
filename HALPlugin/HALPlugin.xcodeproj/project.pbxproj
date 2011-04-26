@@ -8,8 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		2DF7BC5408DA4CCA00EE5510 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2DF7BC5308DA4CCA00EE5510 /* CoreAudio.framework */; };
-		2DF7BD0C08DA584F00EE5510 /* CAHostTimeBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BCD108DA584F00EE5510 /* CAHostTimeBase.cpp */; };
-		2DF7BD0D08DA584F00EE5510 /* CAHostTimeBase.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCD208DA584F00EE5510 /* CAHostTimeBase.h */; };
 		6510B01B135DA8F6002A5B90 /* ObjectNames.h in Headers */ = {isa = PBXBuildFile; fileRef = 6510B01A135DA8F6002A5B90 /* ObjectNames.h */; };
 		65474231134F01D70030DDFF /* PAPlugInInterface.m in Sources */ = {isa = PBXBuildFile; fileRef = 65474230134F01D70030DDFF /* PAPlugInInterface.m */; };
 		65474249134F108C0030DDFF /* PAPlugInInterface.h in Headers */ = {isa = PBXBuildFile; fileRef = 65474248134F108C0030DDFF /* PAPlugInInterface.h */; };
@@ -195,7 +193,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2DF7BD0D08DA584F00EE5510 /* CAHostTimeBase.h in Headers */,
 				65474249134F108C0030DDFF /* PAPlugInInterface.h in Headers */,
 				6510B01B135DA8F6002A5B90 /* ObjectNames.h in Headers */,
 				65BFE2A91364829C002B818E /* PAPlugin.h in Headers */,
@@ -255,7 +252,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2DF7BD0C08DA584F00EE5510 /* CAHostTimeBase.cpp in Sources */,
 				65474231134F01D70030DDFF /* PAPlugInInterface.m in Sources */,
 				65BFE2AA1364829C002B818E /* PAPlugin.m in Sources */,
 				65BFE2AE136482C3002B818E /* PAObject.m in Sources */,

@@ -25,10 +25,11 @@
 
 @interface PAPlugInInterface : NSObject {
 	PAPlugin *plugin;
+	NSAutoreleasePool *pool;
 	@public AudioHardwarePlugInInterface *staticInterface;
 }
 
-@property (readonly, retain) PAPlugin *plugin;
+@property (readonly) PAPlugin *plugin;
 
 - (AudioHardwarePlugInRef) getInterface;
 

@@ -22,6 +22,7 @@
 #import "PAPlugin.h"
 #import "PADevice.h"
 #import "PAStream.h"
+#import "ObjectNames.h"
 
 #ifdef ENABLE_DEBUG
 #define DebugProperty(x...) DebugLog(x)
@@ -78,26 +79,14 @@
 
 - (void) dealloc
 {
+	DebugLog();
+
 	if (devicesArray) {
 		[devicesArray release];
 		devicesArray = nil;
 	}
 
 	[super dealloc];
-}
-
-- (PAObject *) findObjectByID: (AudioObjectID) searchID
-{
-	if (self.objectID == searchID)
-		return self;
-	
-	for (PADevice *dev in devicesArray) {
-		PAObject *o = [dev findObjectByID: searchID];
-		if (o)
-			return o;
-	}
-	
-	return nil;
 }
 
 - (PADevice *) findDeviceByID: (AudioObjectID) searchID
@@ -125,6 +114,12 @@
 	[array addObjectsFromArray: devicesArray];
 }
 
+#pragma mark ### callbacks ###
+
+- (void) helperServiceStarted: (NSNotification *) notification
+{
+}
+
 #pragma mark ### PlugIn Operations ###
 
 - (OSStatus) initialize
@@ -137,6 +132,12 @@
 	self.objectID = oid;
 	
 	[self createDevices];
+
+	[[NSDistributedNotificationCenter defaultCenter] addObserver: self
+							    selector: @selector(helperServiceStarted:)
+								name: @PAOSX_HelperMsgServiceStarted
+							      object: NULL
+						  suspensionBehavior: NSNotificationSuspensionBehaviorDeliverImmediately];
 	
 	return kAudioHardwareNoError;
 }

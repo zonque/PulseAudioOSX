@@ -80,6 +80,7 @@ Interface_Initialize(AudioHardwarePlugInRef inSelf)
 {
 	TraceCall();
 	PAPlugin *plugin = to_plugin(inSelf);
+	[plugin retain];
 	return [plugin initialize];
 }
 
@@ -87,14 +88,15 @@ static OSStatus
 Interface_InitializeWithObjectID(AudioHardwarePlugInRef inSelf, AudioObjectID inObjectID)
 {
 	TraceCall();
-
 	PAPlugin *plugin = to_plugin(inSelf);
+	[plugin retain];
 	return [plugin initializeWithObjectID: inObjectID];
 }
 
 static OSStatus
 Interface_Teardown(AudioHardwarePlugInRef inSelf)
 {
+	TraceCall();
 	PAPlugin *plugin = to_plugin(inSelf);
 	[plugin release];
 	return kAudioHardwareNoError;
@@ -106,6 +108,7 @@ static void
 Interface_ObjectShow(AudioHardwarePlugInRef inSelf,
 		     AudioObjectID inObjectID)
 {
+	TraceCall();
 	PAPlugin *plugin = to_plugin(inSelf);
 	[plugin objectShow: inObjectID];
 }
@@ -115,6 +118,7 @@ Interface_ObjectHasProperty(AudioHardwarePlugInRef inSelf,
 			    AudioObjectID inObjectID,
 			    const AudioObjectPropertyAddress *inAddress)
 {
+	TraceCall();
 	PAPlugin *plugin = to_plugin(inSelf);
 	return [plugin objectHasProperty: inObjectID
 				propertyID: inAddress];
@@ -126,6 +130,7 @@ Interface_ObjectIsPropertySettable(AudioHardwarePlugInRef inSelf,
 				   const AudioObjectPropertyAddress *inAddress,
 				   Boolean *outIsSettable)
 {
+	TraceCall();
 	PAPlugin *plugin = to_plugin(inSelf);
 	return [plugin objectIsPropertySettable: inObjectID
 				       propertyID: inAddress
@@ -140,6 +145,7 @@ Interface_ObjectGetPropertyDataSize(AudioHardwarePlugInRef inSelf,
 				    const void *inQualifierData,
 				    UInt32 *outDataSize)
 {
+	TraceCall();
 	PAPlugin *plugin = to_plugin(inSelf);
 	return [plugin objectGetPropertyDataSize: inObjectID
 					propertyID: inAddress
@@ -157,6 +163,7 @@ Interface_ObjectGetPropertyData(AudioHardwarePlugInRef inSelf,
 				UInt32 *ioDataSize,
 				void *outData)
 {
+	TraceCall();
 	PAPlugin *plugin = to_plugin(inSelf);
 	return [plugin objectGetPropertyData: inObjectID
 				    propertyID: inAddress
@@ -175,6 +182,7 @@ Interface_ObjectSetPropertyData(AudioHardwarePlugInRef inSelf,
 				UInt32 inDataSize,
 				const void *inData)
 {
+	TraceCall();
 	PAPlugin *plugin = to_plugin(inSelf);
 	return [plugin objectSetPropertyData: inObjectID
 				    propertyID: inAddress
@@ -421,9 +429,11 @@ Interface_StreamSetProperty(AudioHardwarePlugInRef inSelf,
 				    data: inPropertyData];
 }
 
-- (id) init
+- (id) initWithPool: (NSAutoreleasePool *) _pool
 {
 	[super init];
+	
+	pool = _pool;
 	
 	staticInterface = pa_xnew0(AudioHardwarePlugInInterface, 1);
 
@@ -468,7 +478,8 @@ Interface_StreamSetProperty(AudioHardwarePlugInRef inSelf,
 - (void) dealloc
 {
 	[plugin release];
-	pa_xfree(staticInterface);	
+	pa_xfree(staticInterface);
+	[pool release];
 	[super dealloc];
 }
 
@@ -483,10 +494,10 @@ Interface_StreamSetProperty(AudioHardwarePlugInRef inSelf,
 void *
 New_PAHAL_PlugIn(CFAllocatorRef *allocator, CFUUIDRef requestedTypeUUID) 
 {
-	[[NSAutoreleasePool alloc] init];
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
 	if (CFEqual(requestedTypeUUID, kAudioHardwarePlugInTypeID)) {
-		PAPlugInInterface *interface = [[PAPlugInInterface alloc] init];
+		PAPlugInInterface *interface = [[PAPlugInInterface alloc] initWithPool: pool];
 		return [interface getInterface];
 	}
 	

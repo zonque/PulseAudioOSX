@@ -20,6 +20,7 @@
  ***/
 
 #import "PADevice.h"
+#import <mach/mach_time.h>
 
 @implementation PADevice
 
@@ -58,14 +59,6 @@
 	return nil;
 }
 
-- (PAObject *) findObjectByID: (AudioObjectID) searchID
-{
-	if (objectID == searchID)
-		return self;
-	
-	return [self findStreamByID: searchID];
-}
-
 - (void) addOwnedObjectsToArray: (NSMutableArray *) array
 {
 	[array addObjectsFromArray: inputStreamArray];
@@ -76,14 +69,6 @@
 {
 	[super initWithPluginRef: ref];
 	
-	deviceName = @"PulseAudio";
-	deviceManufacturer = @"pulseaudio.org";
-	modelUID = [NSString stringWithFormat: @"%@:1,1", deviceName];
-	deviceUID = [NSString stringWithFormat: @"org.pulseaudio.HALPlugin.%@", modelUID];
-	
-	inputStreamArray = [NSMutableArray arrayWithCapacity: 0];
-	outputStreamArray = [NSMutableArray arrayWithCapacity: 0];
-
 	OSStatus ret = AudioObjectCreate(pluginRef,
 					 kAudioObjectSystemObject,
 					 kAudioDeviceClassID,
@@ -111,7 +96,10 @@
 	physicalFormat.mSampleRateRange.mMinimum = sampleRate;
 	physicalFormat.mSampleRateRange.mMaximum = sampleRate;
 	memcpy(&physicalFormat.mFormat, &streamDescription, sizeof(streamDescription));
-		
+	
+	inputStreamArray = [[NSMutableArray arrayWithCapacity: 0] retain];
+	outputStreamArray = [[NSMutableArray arrayWithCapacity: 0] retain];
+	
 	PAStream *stream;
 	stream = [[PAStream alloc] initWithDevice: self
 					  isInput: YES
@@ -124,7 +112,15 @@
 				  startingChannel: 1];	
 	[outputStreamArray addObject: stream];
 	[stream release];
-
+	
+	deviceName = @"PulseAudio";
+	deviceManufacturer = @"pulseaudio.org";
+	modelUID = [NSString stringWithFormat: @"%@:%d,%d",
+					deviceName,
+					[inputStreamArray count],
+					[outputStreamArray count]];
+	deviceUID = [NSString stringWithFormat: @"org.pulseaudio.HALPlugin.%@", modelUID];
+	
 	return self;
 }
 
@@ -183,20 +179,30 @@
 	return kAudioHardwareNoError;
 }
 
+#pragma mark ### time related ###
+
 - (OSStatus) getCurrentTime: (AudioTimeStamp *) outTime
 {
+	memset(outTime, 0, sizeof(*outTime));
+	
+	outTime->mRateScalar = 1.0;
+	outTime->mHostTime = mach_absolute_time();
+	outTime->mFlags = kAudioTimeStampHostTimeValid | kAudioTimeStampRateScalarValid;
+	
 	return kAudioHardwareNoError;
 }
 
 - (OSStatus) translateTime: (const AudioTimeStamp *) inTime
 		   outTime: (AudioTimeStamp *) outTime
 {
+	memcpy(outTime, inTime, sizeof(*outTime));
 	return kAudioHardwareNoError;
 }
 
 - (OSStatus) getNearestStartTime: (AudioTimeStamp *) ioRequestedStartTime
 			   flags: (UInt32) flags
 {
+	memset(ioRequestedStartTime, 0, sizeof(*ioRequestedStartTime));
 	return kAudioHardwareNoError;
 }
 
@@ -229,7 +235,7 @@
 		case kAudioDevicePropertyNominalSampleRate:
 		//case kAudioDevicePropertyRelatedDevices:
                 case kAudioDevicePropertySafetyOffset:
-                case kAudioDevicePropertyStreamConfiguration:
+                //case kAudioDevicePropertyStreamConfiguration:
                 case kAudioDevicePropertyStreams:
                 case kAudioDevicePropertyTransportType:
                 case kAudioObjectPropertyManufacturer:
