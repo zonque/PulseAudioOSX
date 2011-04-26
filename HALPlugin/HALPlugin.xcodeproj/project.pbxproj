@@ -11,28 +11,17 @@
 		2DF7BD0C08DA584F00EE5510 /* CAHostTimeBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7BCD108DA584F00EE5510 /* CAHostTimeBase.cpp */; };
 		2DF7BD0D08DA584F00EE5510 /* CAHostTimeBase.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DF7BCD208DA584F00EE5510 /* CAHostTimeBase.h */; };
 		6510B01B135DA8F6002A5B90 /* ObjectNames.h in Headers */ = {isa = PBXBuildFile; fileRef = 6510B01A135DA8F6002A5B90 /* ObjectNames.h */; };
-		65474231134F01D70030DDFF /* PA_PlugInInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65474230134F01D70030DDFF /* PA_PlugInInterface.cpp */; };
-		65474246134F0B680030DDFF /* PA_Plugin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65474245134F0B680030DDFF /* PA_Plugin.cpp */; };
-		65474249134F108C0030DDFF /* PA_PlugInInterface.h in Headers */ = {isa = PBXBuildFile; fileRef = 65474248134F108C0030DDFF /* PA_PlugInInterface.h */; };
-		6547424D134F146A0030DDFF /* PA_Plugin.h in Headers */ = {isa = PBXBuildFile; fileRef = 6547424C134F146A0030DDFF /* PA_Plugin.h */; };
-		654742B6134F1FAA0030DDFF /* PA_Object.h in Headers */ = {isa = PBXBuildFile; fileRef = 654742B4134F1FAA0030DDFF /* PA_Object.h */; };
-		654742B7134F1FAA0030DDFF /* PA_Object.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 654742B5134F1FAA0030DDFF /* PA_Object.cpp */; };
-		654742C5134F244C0030DDFF /* PA_Device.h in Headers */ = {isa = PBXBuildFile; fileRef = 654742C3134F244C0030DDFF /* PA_Device.h */; };
-		654742C6134F244C0030DDFF /* PA_Device.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 654742C4134F244C0030DDFF /* PA_Device.cpp */; };
-		6547431F134F2FB30030DDFF /* PA_Stream.h in Headers */ = {isa = PBXBuildFile; fileRef = 6547431D134F2FB30030DDFF /* PA_Stream.h */; };
-		6547439D134F3EBD0030DDFF /* PA_Stream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6547439C134F3EBD0030DDFF /* PA_Stream.cpp */; };
-		65474533134F80FB0030DDFF /* PA_DeviceBackend.h in Headers */ = {isa = PBXBuildFile; fileRef = 65474531134F80FB0030DDFF /* PA_DeviceBackend.h */; };
-		65474534134F80FB0030DDFF /* PA_DeviceBackend.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65474532134F80FB0030DDFF /* PA_DeviceBackend.cpp */; };
-		6547460113507DA50030DDFF /* PA_DeviceControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 654745FF13507DA50030DDFF /* PA_DeviceControl.h */; };
-		6547460213507DA50030DDFF /* PA_DeviceControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6547460013507DA50030DDFF /* PA_DeviceControl.cpp */; };
-		65BFDF4E13604504002B818E /* PA_SocketConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = 65BFDF4C13604504002B818E /* PA_SocketConnection.h */; };
-		65BFDF4F13604504002B818E /* PA_SocketConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65BFDF4D13604504002B818E /* PA_SocketConnection.cpp */; };
-		65BFDF5313604747002B818E /* SocketCommunicationDefs.h in Headers */ = {isa = PBXBuildFile; fileRef = 65BFDF5213604747002B818E /* SocketCommunicationDefs.h */; };
+		65474231134F01D70030DDFF /* PAPlugInInterface.m in Sources */ = {isa = PBXBuildFile; fileRef = 65474230134F01D70030DDFF /* PAPlugInInterface.m */; };
+		65474249134F108C0030DDFF /* PAPlugInInterface.h in Headers */ = {isa = PBXBuildFile; fileRef = 65474248134F108C0030DDFF /* PAPlugInInterface.h */; };
 		65BFE2A413648256002B818E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65BFE2A313648256002B818E /* Foundation.framework */; };
-		65EAD98C1356F2A800FAB132 /* PA_MuteControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 65EAD98A1356F2A800FAB132 /* PA_MuteControl.h */; };
-		65EAD98D1356F2A800FAB132 /* PA_MuteControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65EAD98B1356F2A800FAB132 /* PA_MuteControl.cpp */; };
-		65EAD9BE1356F84800FAB132 /* PA_VolumeControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 65EAD9BC1356F84800FAB132 /* PA_VolumeControl.h */; };
-		65EAD9BF1356F84800FAB132 /* PA_VolumeControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65EAD9BD1356F84800FAB132 /* PA_VolumeControl.cpp */; };
+		65BFE2A91364829C002B818E /* PAPlugin.h in Headers */ = {isa = PBXBuildFile; fileRef = 65BFE2A71364829C002B818E /* PAPlugin.h */; };
+		65BFE2AA1364829C002B818E /* PAPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE2A81364829C002B818E /* PAPlugin.m */; };
+		65BFE2AD136482C3002B818E /* PAObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 65BFE2AB136482C3002B818E /* PAObject.h */; };
+		65BFE2AE136482C3002B818E /* PAObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE2AC136482C3002B818E /* PAObject.m */; };
+		65CCF7711365C20300834815 /* PADevice.h in Headers */ = {isa = PBXBuildFile; fileRef = 65CCF76F1365C20300834815 /* PADevice.h */; };
+		65CCF7721365C20300834815 /* PADevice.m in Sources */ = {isa = PBXBuildFile; fileRef = 65CCF7701365C20300834815 /* PADevice.m */; };
+		65CCF7B91365DF8500834815 /* PAStream.h in Headers */ = {isa = PBXBuildFile; fileRef = 65CCF7B71365DF8500834815 /* PAStream.h */; };
+		65CCF7BA1365DF8500834815 /* PAStream.m in Sources */ = {isa = PBXBuildFile; fileRef = 65CCF7B81365DF8500834815 /* PAStream.m */; };
 		65F4FCDB133BCFAE00E72096 /* pulse.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65F4FCDA133BCFAE00E72096 /* pulse.framework */; };
 		8D576314048677EA00EA77CD /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0AA1909FFE8422F4C02AAC07 /* CoreFoundation.framework */; };
 /* End PBXBuildFile section */
@@ -40,13 +29,13 @@
 /* Begin PBXFileReference section */
 		0AA1909FFE8422F4C02AAC07 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = /System/Library/Frameworks/CoreFoundation.framework; sourceTree = "<absolute>"; };
 		2DF7BC5308DA4CCA00EE5510 /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = /System/Library/Frameworks/CoreAudio.framework; sourceTree = "<absolute>"; };
-		2DF7BC7D08DA4E0700EE5510 /* HALPlugin.exp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.exports; path = HALPlugin.exp; sourceTree = "<group>"; };
+		2DF7BC7D08DA4E0700EE5510 /* HALPlugin.exp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.exports; name = HALPlugin.exp; path = ../Source/HALPlugin.exp; sourceTree = "<group>"; };
 		2DF7BCD108DA584F00EE5510 /* CAHostTimeBase.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = CAHostTimeBase.cpp; sourceTree = "<group>"; };
 		2DF7BCD208DA584F00EE5510 /* CAHostTimeBase.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CAHostTimeBase.h; sourceTree = "<group>"; };
 		6510B01A135DA8F6002A5B90 /* ObjectNames.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ObjectNames.h; path = ../Shared/ObjectNames.h; sourceTree = SOURCE_ROOT; };
-		65474230134F01D70030DDFF /* PA_PlugInInterface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PA_PlugInInterface.cpp; sourceTree = "<group>"; };
+		65474230134F01D70030DDFF /* PAPlugInInterface.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PAPlugInInterface.m; path = Source/PAPlugInInterface.m; sourceTree = "<group>"; };
 		65474245134F0B680030DDFF /* PA_Plugin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PA_Plugin.cpp; sourceTree = "<group>"; };
-		65474248134F108C0030DDFF /* PA_PlugInInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PA_PlugInInterface.h; sourceTree = "<group>"; };
+		65474248134F108C0030DDFF /* PAPlugInInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PAPlugInInterface.h; path = Source/PAPlugInInterface.h; sourceTree = "<group>"; };
 		6547424C134F146A0030DDFF /* PA_Plugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PA_Plugin.h; sourceTree = "<group>"; };
 		654742B4134F1FAA0030DDFF /* PA_Object.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PA_Object.h; sourceTree = "<group>"; };
 		654742B5134F1FAA0030DDFF /* PA_Object.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PA_Object.cpp; sourceTree = "<group>"; };
@@ -62,6 +51,14 @@
 		65BFDF4D13604504002B818E /* PA_SocketConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PA_SocketConnection.cpp; sourceTree = "<group>"; };
 		65BFDF5213604747002B818E /* SocketCommunicationDefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SocketCommunicationDefs.h; path = ../Shared/SocketCommunicationDefs.h; sourceTree = SOURCE_ROOT; };
 		65BFE2A313648256002B818E /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
+		65BFE2A71364829C002B818E /* PAPlugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PAPlugin.h; path = Source/PAPlugin.h; sourceTree = "<group>"; };
+		65BFE2A81364829C002B818E /* PAPlugin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PAPlugin.m; path = Source/PAPlugin.m; sourceTree = "<group>"; };
+		65BFE2AB136482C3002B818E /* PAObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PAObject.h; path = Source/PAObject.h; sourceTree = "<group>"; };
+		65BFE2AC136482C3002B818E /* PAObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PAObject.m; path = Source/PAObject.m; sourceTree = "<group>"; };
+		65CCF76F1365C20300834815 /* PADevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PADevice.h; path = Source/PADevice.h; sourceTree = "<group>"; };
+		65CCF7701365C20300834815 /* PADevice.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PADevice.m; path = Source/PADevice.m; sourceTree = "<group>"; };
+		65CCF7B71365DF8500834815 /* PAStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PAStream.h; path = Source/PAStream.h; sourceTree = "<group>"; };
+		65CCF7B81365DF8500834815 /* PAStream.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PAStream.m; path = Source/PAStream.m; sourceTree = "<group>"; };
 		65EAD98A1356F2A800FAB132 /* PA_MuteControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PA_MuteControl.h; sourceTree = "<group>"; };
 		65EAD98B1356F2A800FAB132 /* PA_MuteControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PA_MuteControl.cpp; sourceTree = "<group>"; };
 		65EAD9BC1356F84800FAB132 /* PA_VolumeControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PA_VolumeControl.h; sourceTree = "<group>"; };
@@ -90,6 +87,8 @@
 		089C166AFE841209C02AAC07 /* PulseAudio */ = {
 			isa = PBXGroup;
 			children = (
+				65BFE2EC1365A7C7002B818E /* Shared */,
+				65BFE2EB1365A7BC002B818E /* ObjC */,
 				08FB77AFFE84173DC02AAC07 /* Source */,
 				2DF7BC3008DA4A5400EE5510 /* PublicUtility */,
 				2DF7BC7008DA4D5100EE5510 /* Resources */,
@@ -114,11 +113,7 @@
 		08FB77AFFE84173DC02AAC07 /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				6510B01A135DA8F6002A5B90 /* ObjectNames.h */,
 				65BFDF5213604747002B818E /* SocketCommunicationDefs.h */,
-				2DF7BC7D08DA4E0700EE5510 /* HALPlugin.exp */,
-				65474230134F01D70030DDFF /* PA_PlugInInterface.cpp */,
-				65474248134F108C0030DDFF /* PA_PlugInInterface.h */,
 				65474245134F0B680030DDFF /* PA_Plugin.cpp */,
 				6547424C134F146A0030DDFF /* PA_Plugin.h */,
 				654742C4134F244C0030DDFF /* PA_Device.cpp */,
@@ -162,10 +157,36 @@
 		2DF7BC7008DA4D5100EE5510 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				2DF7BC7D08DA4E0700EE5510 /* HALPlugin.exp */,
 				8D576317048677EA00EA77CD /* Info.plist */,
 			);
 			path = Resources;
 			sourceTree = SOURCE_ROOT;
+		};
+		65BFE2EB1365A7BC002B818E /* ObjC */ = {
+			isa = PBXGroup;
+			children = (
+				65474230134F01D70030DDFF /* PAPlugInInterface.m */,
+				65474248134F108C0030DDFF /* PAPlugInInterface.h */,
+				65BFE2A71364829C002B818E /* PAPlugin.h */,
+				65BFE2A81364829C002B818E /* PAPlugin.m */,
+				65BFE2AB136482C3002B818E /* PAObject.h */,
+				65BFE2AC136482C3002B818E /* PAObject.m */,
+				65CCF76F1365C20300834815 /* PADevice.h */,
+				65CCF7701365C20300834815 /* PADevice.m */,
+				65CCF7B71365DF8500834815 /* PAStream.h */,
+				65CCF7B81365DF8500834815 /* PAStream.m */,
+			);
+			name = ObjC;
+			sourceTree = "<group>";
+		};
+		65BFE2EC1365A7C7002B818E /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				6510B01A135DA8F6002A5B90 /* ObjectNames.h */,
+			);
+			name = Shared;
+			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
@@ -175,18 +196,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				2DF7BD0D08DA584F00EE5510 /* CAHostTimeBase.h in Headers */,
-				65474249134F108C0030DDFF /* PA_PlugInInterface.h in Headers */,
-				6547424D134F146A0030DDFF /* PA_Plugin.h in Headers */,
-				654742B6134F1FAA0030DDFF /* PA_Object.h in Headers */,
-				654742C5134F244C0030DDFF /* PA_Device.h in Headers */,
-				6547431F134F2FB30030DDFF /* PA_Stream.h in Headers */,
-				65474533134F80FB0030DDFF /* PA_DeviceBackend.h in Headers */,
-				6547460113507DA50030DDFF /* PA_DeviceControl.h in Headers */,
-				65EAD98C1356F2A800FAB132 /* PA_MuteControl.h in Headers */,
-				65EAD9BE1356F84800FAB132 /* PA_VolumeControl.h in Headers */,
+				65474249134F108C0030DDFF /* PAPlugInInterface.h in Headers */,
 				6510B01B135DA8F6002A5B90 /* ObjectNames.h in Headers */,
-				65BFDF4E13604504002B818E /* PA_SocketConnection.h in Headers */,
-				65BFDF5313604747002B818E /* SocketCommunicationDefs.h in Headers */,
+				65BFE2A91364829C002B818E /* PAPlugin.h in Headers */,
+				65BFE2AD136482C3002B818E /* PAObject.h in Headers */,
+				65CCF7711365C20300834815 /* PADevice.h in Headers */,
+				65CCF7B91365DF8500834815 /* PAStream.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -241,16 +256,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				2DF7BD0C08DA584F00EE5510 /* CAHostTimeBase.cpp in Sources */,
-				65474231134F01D70030DDFF /* PA_PlugInInterface.cpp in Sources */,
-				65474246134F0B680030DDFF /* PA_Plugin.cpp in Sources */,
-				654742B7134F1FAA0030DDFF /* PA_Object.cpp in Sources */,
-				654742C6134F244C0030DDFF /* PA_Device.cpp in Sources */,
-				6547439D134F3EBD0030DDFF /* PA_Stream.cpp in Sources */,
-				65474534134F80FB0030DDFF /* PA_DeviceBackend.cpp in Sources */,
-				6547460213507DA50030DDFF /* PA_DeviceControl.cpp in Sources */,
-				65EAD98D1356F2A800FAB132 /* PA_MuteControl.cpp in Sources */,
-				65EAD9BF1356F84800FAB132 /* PA_VolumeControl.cpp in Sources */,
-				65BFDF4F13604504002B818E /* PA_SocketConnection.cpp in Sources */,
+				65474231134F01D70030DDFF /* PAPlugInInterface.m in Sources */,
+				65BFE2AA1364829C002B818E /* PAPlugin.m in Sources */,
+				65BFE2AE136482C3002B818E /* PAObject.m in Sources */,
+				65CCF7721365C20300834815 /* PADevice.m in Sources */,
+				65CCF7BA1365DF8500834815 /* PAStream.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -296,7 +306,7 @@
 				GCC_WARN_UNKNOWN_PRAGMAS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_LABEL = YES;
-				GCC_WARN_UNUSED_PARAMETER = YES;
+				GCC_WARN_UNUSED_PARAMETER = NO;
 				GCC_WARN_UNUSED_VALUE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = Resources/Info.plist;
@@ -349,7 +359,7 @@
 				GCC_WARN_UNKNOWN_PRAGMAS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_LABEL = YES;
-				GCC_WARN_UNUSED_PARAMETER = YES;
+				GCC_WARN_UNUSED_PARAMETER = NO;
 				GCC_WARN_UNUSED_VALUE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = Resources/Info.plist;

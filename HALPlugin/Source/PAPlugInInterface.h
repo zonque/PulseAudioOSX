@@ -19,20 +19,17 @@
  USA.
  ***/
 
-#include <CoreAudio/AudioHardwarePlugIn.h>
-#include "PA_Plugin.h"
+#import <Foundation/Foundation.h>
+#import <CoreAudio/AudioHardwarePlugIn.h>
+#import "PAPlugin.h"
 
-class PA_PlugInInterface
-{
-private:
-	AudioHardwarePlugInInterface *staticInterface;
-	
-public:
-	PA_PlugInInterface(CFAllocatorRef inAllocator);
-	~PA_PlugInInterface();
-	
-	PA_Plugin *plugin;
-	
-	AudioHardwarePlugInRef GetInterface() { return &staticInterface; }
+@interface PAPlugInInterface : NSObject {
+	PAPlugin *plugin;
+	@public AudioHardwarePlugInInterface *staticInterface;
+}
 
-};
+@property (readonly, retain) PAPlugin *plugin;
+
+- (AudioHardwarePlugInRef) getInterface;
+
+@end

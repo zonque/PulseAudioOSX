@@ -19,51 +19,59 @@
  USA.
  ***/
 
-#define CLASS_NAME "PA_PlugInInterface"
+#import <CoreAudio/AudioHardwarePlugIn.h>
+#import <pulse/pulseaudio.h>
 
-#include <CoreAudio/AudioHardwarePlugIn.h>
-#include <pulse/pulseaudio.h>
-
-#include "PA_PlugInInterface.h"
+#import "PAPlugInInterface.h"
 
 #define TraceCall(x) printf("%s() :%d\n", __func__, __LINE__);
 
 // simple hack to extrapolate from a given pluginRef to our interface
 
-static inline PA_Plugin *to_plugin(AudioHardwarePlugInRef ref)
-{	
-	PA_PlugInInterface *interface = (PA_PlugInInterface *) ref;
-	UInt32 offset = ((Byte *) interface->GetInterface() - (Byte *) interface);
-	interface = (PA_PlugInInterface *) ((Byte *) ref - offset);
-	return interface->plugin;
+static inline PAPlugin *to_plugin(AudioHardwarePlugInRef ref)
+{
+	PAPlugInInterface *interface = (PAPlugInInterface *) ref;
+	UInt32 offset = ((Byte *) &interface->staticInterface - (Byte *) interface);
+	interface = (PAPlugInInterface *) ((Byte *) ref - offset);	
+	return interface.plugin;
 }
 
+@implementation PAPlugInInterface
+
+@synthesize plugin;
+
 // all these static functions are simply wrappers to call into the
-// appropriate methods of our actual implementation (PA_Plugin)
+// appropriate methods of our actual implementation (PAPlugin)
 
 static ULONG
 Interface_AddRef(AudioHardwarePlugInRef inSelf)
 {
 	TraceCall();
-	PA_Plugin *plugin = to_plugin(inSelf);
-	return plugin->AddRef();
+	PAPlugin *plugin = to_plugin(inSelf);
+	[plugin retain];
+	return [plugin retainCount];
 }
 
 static ULONG
 Interface_Release(AudioHardwarePlugInRef inSelf)
 {
 	TraceCall();
-	PA_Plugin *plugin = to_plugin(inSelf);
-	return plugin->Release();
+	PAPlugin *plugin = to_plugin(inSelf);
+	[plugin release];
+	return [plugin retainCount];
 }
 
 static HRESULT
 Interface_QueryInterface(AudioHardwarePlugInRef inSelf,
-			 REFIID /* inUUID */,
+			 REFIID inUUID,
 			 LPVOID *outInterface)
 {
 	TraceCall();
 	*outInterface = inSelf;
+	
+	PAPlugin *plugin = to_plugin(inSelf);
+	[plugin retain];
+	
 	return kAudioHardwareNoError;
 }
 
@@ -71,23 +79,25 @@ static OSStatus
 Interface_Initialize(AudioHardwarePlugInRef inSelf)
 {
 	TraceCall();
-	PA_Plugin *plugin = to_plugin(inSelf);
-	return plugin->Initialize();
+	PAPlugin *plugin = to_plugin(inSelf);
+	return [plugin initialize];
 }
 
-static OSStatus	Interface_InitializeWithObjectID(AudioHardwarePlugInRef inSelf, AudioObjectID inObjectID)
+static OSStatus
+Interface_InitializeWithObjectID(AudioHardwarePlugInRef inSelf, AudioObjectID inObjectID)
 {
 	TraceCall();
 
-	PA_Plugin *plugin = to_plugin(inSelf);
-	return plugin->InitializeWithObjectID(inObjectID);
+	PAPlugin *plugin = to_plugin(inSelf);
+	return [plugin initializeWithObjectID: inObjectID];
 }
 
 static OSStatus
 Interface_Teardown(AudioHardwarePlugInRef inSelf)
 {
-	PA_Plugin *plugin = to_plugin(inSelf);
-	return plugin->Teardown();
+	PAPlugin *plugin = to_plugin(inSelf);
+	[plugin release];
+	return kAudioHardwareNoError;
 }
 
 #pragma mark ### AudioObject Operations ###
@@ -96,8 +106,8 @@ static void
 Interface_ObjectShow(AudioHardwarePlugInRef inSelf,
 		     AudioObjectID inObjectID)
 {
-	PA_Plugin *plugin = to_plugin(inSelf);
-	plugin->ObjectShow(inObjectID);
+	PAPlugin *plugin = to_plugin(inSelf);
+	[plugin objectShow: inObjectID];
 }
 
 static Boolean
@@ -105,8 +115,9 @@ Interface_ObjectHasProperty(AudioHardwarePlugInRef inSelf,
 			    AudioObjectID inObjectID,
 			    const AudioObjectPropertyAddress *inAddress)
 {
-	PA_Plugin *plugin = to_plugin(inSelf);
-	return plugin->ObjectHasProperty(inObjectID, inAddress);
+	PAPlugin *plugin = to_plugin(inSelf);
+	return [plugin objectHasProperty: inObjectID
+				propertyID: inAddress];
 }
 
 static OSStatus
@@ -115,8 +126,10 @@ Interface_ObjectIsPropertySettable(AudioHardwarePlugInRef inSelf,
 				   const AudioObjectPropertyAddress *inAddress,
 				   Boolean *outIsSettable)
 {
-	PA_Plugin *plugin = to_plugin(inSelf);
-	return plugin->ObjectIsPropertySettable(inObjectID, inAddress, outIsSettable);
+	PAPlugin *plugin = to_plugin(inSelf);
+	return [plugin objectIsPropertySettable: inObjectID
+				       propertyID: inAddress
+			  outIsPropertySettable: (BOOL *) outIsSettable];
 }
 
 static OSStatus
@@ -127,9 +140,12 @@ Interface_ObjectGetPropertyDataSize(AudioHardwarePlugInRef inSelf,
 				    const void *inQualifierData,
 				    UInt32 *outDataSize)
 {
-	PA_Plugin *plugin = to_plugin(inSelf);
-	return plugin->ObjectGetPropertyDataSize(inObjectID, inAddress,
-						 inQualifierDataSize, inQualifierData, outDataSize);
+	PAPlugin *plugin = to_plugin(inSelf);
+	return [plugin objectGetPropertyDataSize: inObjectID
+					propertyID: inAddress
+			       qualifierDataSize: inQualifierDataSize
+				   qualifierData: inQualifierData
+			     outPropertyDataSize: outDataSize];
 }
 
 static OSStatus
@@ -141,9 +157,13 @@ Interface_ObjectGetPropertyData(AudioHardwarePlugInRef inSelf,
 				UInt32 *ioDataSize,
 				void *outData)
 {
-	PA_Plugin *plugin = to_plugin(inSelf);
-	return plugin->ObjectGetPropertyData(inObjectID, inAddress,
-					     inQualifierDataSize, inQualifierData, ioDataSize, outData);
+	PAPlugin *plugin = to_plugin(inSelf);
+	return [plugin objectGetPropertyData: inObjectID
+				    propertyID: inAddress
+			   qualifierDataSize: inQualifierDataSize
+			       qualifierData: inQualifierData
+				  ioDataSize: ioDataSize
+				     outData: outData];
 }
 
 static OSStatus
@@ -155,9 +175,13 @@ Interface_ObjectSetPropertyData(AudioHardwarePlugInRef inSelf,
 				UInt32 inDataSize,
 				const void *inData)
 {
-	PA_Plugin *plugin = to_plugin(inSelf);
-	return plugin->ObjectSetPropertyData(inObjectID, inAddress,
-					     inQualifierDataSize, inQualifierData, inDataSize, inData);
+	PAPlugin *plugin = to_plugin(inSelf);
+	return [plugin objectSetPropertyData: inObjectID
+				    propertyID: inAddress
+			   qualifierDataSize: inQualifierDataSize
+			       qualifierData: inQualifierData
+				    dataSize: inDataSize
+					data: inData];
 }
 
 #pragma mark ### AudioDevice Operations ###
@@ -169,8 +193,11 @@ Interface_DeviceCreateIOProcID(AudioHardwarePlugInRef inSelf,
 			       void *inClientData,
 			       AudioDeviceIOProcID *outIOProcID)
 {
-	PA_Plugin *plugin = to_plugin(inSelf);
-	return plugin->DeviceCreateIOProcID(inDeviceID, inProc, inClientData, outIOProcID);	
+	PAPlugin *plugin = to_plugin(inSelf);
+	return [plugin deviceCreateIOProcID: inDeviceID
+				       proc: inProc
+				 clientData: inClientData
+				outIOProcID: outIOProcID];
 }
 
 static OSStatus
@@ -178,8 +205,9 @@ Interface_DeviceDestroyIOProcID(AudioHardwarePlugInRef inSelf,
 				AudioDeviceID inDeviceID,
 				AudioDeviceIOProcID inIOProcID)
 {
-	PA_Plugin *plugin = to_plugin(inSelf);
-	return plugin->DeviceDestroyIOProcID(inDeviceID, inIOProcID);
+	PAPlugin *plugin = to_plugin(inSelf);
+	return [plugin deviceDestroyIOProcID: inDeviceID
+				      procID: inIOProcID];
 }
 
 static OSStatus
@@ -188,8 +216,10 @@ Interface_DeviceAddIOProc(AudioHardwarePlugInRef inSelf,
 			  AudioDeviceIOProc inProc, 
 			  void *inClientData)
 {
-	PA_Plugin *plugin = to_plugin(inSelf);
-	return plugin->DeviceAddIOProc(inDeviceID, inProc, inClientData);
+	PAPlugin *plugin = to_plugin(inSelf);
+	return [plugin deviceAddIOProc: inDeviceID
+				  proc: inProc
+			    clientData: inClientData];
 }
 
 static OSStatus
@@ -197,8 +227,9 @@ Interface_DeviceRemoveIOProc(AudioHardwarePlugInRef inSelf,
 			     AudioDeviceID inDeviceID,
 			     AudioDeviceIOProc inProc)
 {
-	PA_Plugin *plugin = to_plugin(inSelf);
-	return plugin->DeviceRemoveIOProc(inDeviceID, inProc);
+	PAPlugin *plugin = to_plugin(inSelf);
+	return [plugin deviceRemoveIOProc: inDeviceID
+				     proc: inProc];
 }
 
 static OSStatus
@@ -206,8 +237,9 @@ Interface_DeviceStart(AudioHardwarePlugInRef inSelf,
 		      AudioDeviceID inDeviceID,
 		      AudioDeviceIOProcID inProcID)
 {
-	PA_Plugin *plugin = to_plugin(inSelf);
-	return plugin->DeviceStart(inDeviceID, inProcID);
+	PAPlugin *plugin = to_plugin(inSelf);
+	return [plugin deviceStart: inDeviceID
+			    procID: inProcID];
 }
 
 static OSStatus
@@ -217,8 +249,11 @@ Interface_DeviceStartAtTime(AudioHardwarePlugInRef inSelf,
 			    AudioTimeStamp *ioRequestedStartTime,
 			    UInt32 inFlags)
 {
-	PA_Plugin *plugin = to_plugin(inSelf);
-	return plugin->DeviceStartAtTime(inDeviceID, inProcID, ioRequestedStartTime, inFlags);
+	PAPlugin *plugin = to_plugin(inSelf);
+	return [plugin deviceStartAtTime: inDeviceID
+				  procID: inProcID
+		      requestedStartTime: ioRequestedStartTime
+				   flags: inFlags];
 }
 
 static OSStatus
@@ -226,8 +261,9 @@ Interface_DeviceStop(AudioHardwarePlugInRef inSelf,
 		     AudioDeviceID inDeviceID,
 		     AudioDeviceIOProcID inProcID)
 {
-	PA_Plugin *plugin = to_plugin(inSelf);
-	return plugin->DeviceStop(inDeviceID, inProcID);
+	PAPlugin *plugin = to_plugin(inSelf);
+	return [plugin deviceStop: inDeviceID
+			   procID: inProcID];
 }
 
 static OSStatus
@@ -236,8 +272,10 @@ Interface_DeviceRead(AudioHardwarePlugInRef inSelf,
 		     const AudioTimeStamp *inStartTime,
 		     AudioBufferList *outData)
 {
-	PA_Plugin *plugin = to_plugin(inSelf);
-	return plugin->DeviceRead(inDeviceID, inStartTime, outData);
+	PAPlugin *plugin = to_plugin(inSelf);
+	return [plugin deviceRead: inDeviceID
+			startTime: inStartTime
+			  outData: outData];
 }
 
 static OSStatus
@@ -245,8 +283,9 @@ Interface_DeviceGetCurrentTime(AudioHardwarePlugInRef inSelf,
 			       AudioDeviceID inDeviceID,
 			       AudioTimeStamp *outTime)
 {
-	PA_Plugin *plugin = to_plugin(inSelf);
-	return plugin->DeviceGetCurrentTime(inDeviceID, outTime);
+	PAPlugin *plugin = to_plugin(inSelf);
+	return [plugin deviceGetCurrentTime: inDeviceID
+				    outTime: outTime];
 }
 
 static OSStatus	Interface_DeviceTranslateTime(AudioHardwarePlugInRef inSelf,
@@ -254,8 +293,10 @@ static OSStatus	Interface_DeviceTranslateTime(AudioHardwarePlugInRef inSelf,
 					      const AudioTimeStamp *inTime,
 					      AudioTimeStamp *outTime)
 {
-	PA_Plugin *plugin = to_plugin(inSelf);
-	return plugin->DeviceTranslateTime(inDeviceID, inTime, outTime);
+	PAPlugin *plugin = to_plugin(inSelf);
+	return [plugin deviceTranslateTime: inDeviceID
+				    inTime: inTime
+				   outTime: outTime];
 }
 
 static OSStatus
@@ -264,8 +305,10 @@ Interface_DeviceGetNearestStartTime(AudioHardwarePlugInRef inSelf,
 				    AudioTimeStamp *ioRequestedStartTime,
 				    UInt32 inFlags)
 {
-	PA_Plugin *plugin = to_plugin(inSelf);
-	return plugin->DeviceGetNearestStartTime(inDeviceID, ioRequestedStartTime, inFlags);
+	PAPlugin *plugin = to_plugin(inSelf);
+	return [plugin deviceGetNearestStartTime: inDeviceID
+			      requestedStartTime: ioRequestedStartTime
+					   flags: inFlags];
 }
 
 static OSStatus
@@ -277,9 +320,13 @@ Interface_DeviceGetPropertyInfo(AudioHardwarePlugInRef inSelf,
 				UInt32 *outSize,
 				Boolean *outWritable)
 {
-	PA_Plugin *plugin = to_plugin(inSelf);
-	return plugin->DeviceGetPropertyInfo(inDeviceID, inChannel, isInput,
-					     inPropertyID, outSize, outWritable);
+	PAPlugin *plugin = to_plugin(inSelf);
+	return [plugin deviceGetPropertyInfo: inDeviceID
+				     channel: inChannel
+				     isInput: isInput
+				    propertyID: inPropertyID
+			     outSize: outSize
+			 outIsWritable: (BOOL *) outWritable];
 }
 
 static OSStatus
@@ -291,9 +338,13 @@ Interface_DeviceGetProperty(AudioHardwarePlugInRef inSelf,
 			    UInt32 *ioPropertyDataSize,
 			    void *outPropertyData)
 {
-	PA_Plugin *plugin = to_plugin(inSelf);
-	return plugin->DeviceGetProperty(inDeviceID, inChannel, isInput,
-					 inPropertyID, ioPropertyDataSize, outPropertyData);
+	PAPlugin *plugin = to_plugin(inSelf);
+	return [plugin deviceGetProperty: inDeviceID
+				 channel: inChannel
+				 isInput: !!isInput
+				propertyID: inPropertyID
+			      ioDataSize: ioPropertyDataSize
+				 outData: outPropertyData];
 }
 
 static OSStatus
@@ -306,9 +357,14 @@ Interface_DeviceSetProperty(AudioHardwarePlugInRef inSelf,
 			    UInt32 inPropertyDataSize,
 			    const void *inPropertyData)
 {
-	PA_Plugin *plugin = to_plugin(inSelf);
-	return plugin->DeviceSetProperty(inDeviceID, inWhen, inChannel, isInput,
-					 inPropertyID, inPropertyDataSize, inPropertyData);
+	PAPlugin *plugin = to_plugin(inSelf);
+	return [plugin deviceSetProperty: inDeviceID
+				    when: inWhen
+				 channel: inChannel
+				 isInput: !!isInput
+				propertyID: inPropertyID
+			dataSize: inPropertyDataSize
+			    data: inPropertyData];	
 }
 
 #pragma mark ### AudioStream Operations ###
@@ -321,9 +377,12 @@ Interface_StreamGetPropertyInfo(AudioHardwarePlugInRef inSelf,
 				UInt32 *outSize,
 				Boolean *outWritable)
 {
-	PA_Plugin *plugin = to_plugin(inSelf);
-	return plugin->StreamGetPropertyInfo(inStreamID, inChannel,
-					     inPropertyID, outSize, outWritable);	
+	PAPlugin *plugin = to_plugin(inSelf);
+	return [plugin streamGetPropertyInfo: inStreamID
+				     channel: inChannel
+				    propertyID: inPropertyID
+				     outSize: outSize
+				 outIsWritable: (BOOL *) outWritable];
 }
 
 static OSStatus
@@ -334,9 +393,14 @@ Interface_StreamGetProperty(AudioHardwarePlugInRef inSelf,
 			    UInt32 *ioPropertyDataSize,
 			    void *outPropertyData)
 {
-	PA_Plugin *plugin = to_plugin(inSelf);
-	return plugin->StreamGetProperty(inStreamID, inChannel,
-					 inPropertyID, ioPropertyDataSize, outPropertyData);	
+	PAPlugin *plugin = to_plugin(inSelf);
+	return [plugin streamGetProperty: inStreamID
+				 channel: inChannel
+				propertyID: inPropertyID
+			      ioDataSize: ioPropertyDataSize
+				 outData: outPropertyData];
+	
+	
 }
 
 static OSStatus
@@ -348,13 +412,19 @@ Interface_StreamSetProperty(AudioHardwarePlugInRef inSelf,
 			    UInt32 inPropertyDataSize,
 			    const void *inPropertyData)
 {
-	PA_Plugin *plugin = to_plugin(inSelf);
-	return plugin->StreamSetProperty(inStreamID, inWhen, inChannel,
-					 inPropertyID, inPropertyDataSize, inPropertyData);	
+	PAPlugin *plugin = to_plugin(inSelf);
+	return [plugin streamSetProperty: inStreamID
+				    when: inWhen
+				 channel: inChannel
+				propertyID: inPropertyID
+				dataSize: inPropertyDataSize
+				    data: inPropertyData];
 }
 
-PA_PlugInInterface::PA_PlugInInterface(CFAllocatorRef inAllocator)
+- (id) init
 {
+	[super init];
+	
 	staticInterface = pa_xnew0(AudioHardwarePlugInInterface, 1);
 
 	//	IUnknown Routines
@@ -390,23 +460,35 @@ PA_PlugInInterface::PA_PlugInInterface(CFAllocatorRef inAllocator)
 	staticInterface->ObjectGetPropertyData		= Interface_ObjectGetPropertyData;
 	staticInterface->ObjectSetPropertyData		= Interface_ObjectSetPropertyData;
 
-	plugin = new PA_Plugin(inAllocator, GetInterface());
+	plugin = [[PAPlugin alloc] initWithPluginRef: &staticInterface];
+	
+	return self;
 }
 
-PA_PlugInInterface::~PA_PlugInInterface()
+- (void) dealloc
 {
-	delete plugin;
-	pa_xfree(staticInterface);
+	[plugin release];
+	pa_xfree(staticInterface);	
+	[super dealloc];
 }
 
-extern "C" void*
+- (AudioHardwarePlugInRef) getInterface
+{
+	DebugLog("self %p, &staticInterface %p", self, staticInterface);
+	return &staticInterface;
+}
+
+@end
+
+void *
 New_PAHAL_PlugIn(CFAllocatorRef *allocator, CFUUIDRef requestedTypeUUID) 
 {
-	if (CFEqual(requestedTypeUUID, kAudioHardwarePlugInTypeID)) {
-		PA_PlugInInterface *interface =
-			new PA_PlugInInterface(allocator ? *allocator : NULL);
-		return interface->GetInterface();
-	}
+	[[NSAutoreleasePool alloc] init];
 
+	if (CFEqual(requestedTypeUUID, kAudioHardwarePlugInTypeID)) {
+		PAPlugInInterface *interface = [[PAPlugInInterface alloc] init];
+		return [interface getInterface];
+	}
+	
 	return NULL;
 }
