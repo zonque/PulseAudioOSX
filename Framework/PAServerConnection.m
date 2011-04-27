@@ -1,45 +1,28 @@
 /***
- This file is part of the PulseAudio HAL plugin project
+ This file is part of PulseAudioOSX
  
  Copyright 2010,2011 Daniel Mack <pulseaudio@zonque.de>
  
- The PulseAudio HAL plugin project is free software; you can redistribute it and/or modify
+ PulseAudioOSX is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 2.1 of the License, or
  (at your option) any later version.
- 
- The PulseAudio HAL plugin project is distributed in the hope that it will be useful, but
- WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- General Public License for more details.
- 
- You should have received a copy of the GNU General Public License
- along with PulseAudio; if not, write to the Free Software
- Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
- USA.
  ***/
 
 #import <pulse/pulseaudio.h>
 
 #import "PulseAudio.h"
+#import "PAServerConnectionAudio.h"
 
 #pragma mark ### hidden interface ###
 
 @interface PAServerConnection (hidden)
-
 	char			 procName[100];
-	MPSemaphoreID		 PAContextSemaphore;
-	pa_buffer_attr		 bufAttr;
-	pa_sample_spec		 sampleSpec;
 
 	pa_threaded_mainloop	*PAMainLoop;
 	pa_context		*PAContext;
 
-	Float32			 sampleRate;
-	UInt32			 ioBufferFrameSize;
-
-	pa_stream		*PARecordStream;
-	pa_stream		*PAPlaybackStream;
+	PAServerConnectionAudio *audio;
 
 // context
 - (void) contextStateCallback;
@@ -47,19 +30,6 @@
 			    index: (UInt32) index;
 - (void) contextEventCallback: (const char *) name
 		     propList: (pa_proplist *) propList;
-
-// streams
-- (void) streamStartedCallback: (pa_stream *) stream;
-- (void) streamWriteCallback: (pa_stream *) stream
-		      nBytes: (size_t) nBytes;
-- (void) streamReadCallback: (pa_stream *) stream
-		     nBytes: (size_t) nBytes;
-- (void) streamOverflowCallback: (pa_stream *) stream;
-- (void) streamUnderflowCallback: (pa_stream *) stream;
-- (void) streamEventCallback: (pa_stream *) stream
-			name: (const char *) name
-		    propList: (pa_proplist *) propList;
-- (void) streamBufferAttrCallback: (pa_stream *) stream;
 
 // info
 
@@ -101,53 +71,6 @@ static void staticContextEventCallback(pa_context *c, const char *name, pa_propl
 	PAServerConnection *sc = userdata;
 	[sc contextEventCallback: name
 			propList: p];	 
-}
-
-// streams
-static void staticStreamStartedCallback(pa_stream *stream, void *userdata)
-{
-	PAServerConnection *sc = userdata;
-	[sc streamStartedCallback: stream];
-}
-
-static void staticStreamWriteCallback(pa_stream *stream, size_t nbytes, void *userdata)
-{
-	PAServerConnection *sc = userdata;
-	[sc streamWriteCallback: stream
-			 nBytes: nbytes];
-}
-
-static void staticStreamReadCallback(pa_stream *stream, size_t nbytes, void *userdata)
-{
-	PAServerConnection *sc = userdata;
-	[sc streamReadCallback: stream
-			nBytes: nbytes];
-}
-
-static void staticStreamOverflowCallback(pa_stream *stream, void *userdata)
-{
-	PAServerConnection *sc = userdata;
-	[sc streamOverflowCallback: stream];
-}
-
-static void staticStreamUnderflowCallback(pa_stream *stream, void *userdata)
-{
-	PAServerConnection *sc = userdata;
-	[sc streamUnderflowCallback: stream];
-}
-
-static void staticStreamEventCallback(pa_stream *stream, const char *name, pa_proplist *pl, void *userdata)
-{
-	PAServerConnection *sc = userdata;
-	[sc streamEventCallback: stream
-			   name: name
-		       propList: pl];
-}
-
-static void staticStreamBufferAttrCallback(pa_stream *stream, void *userdata)
-{
-	PAServerConnection *sc = userdata;
-	[sc streamBufferAttrCallback: stream];
 }
 
 // info callbacks
@@ -209,49 +132,6 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 #pragma mark ### hidden implementation ###
 
 @implementation PAServerConnection (hidden)
-
-- (void) initHidden
-{
-	sampleSpec.format = PA_SAMPLE_FLOAT32;
-	sampleSpec.rate = sampleRate;
-	sampleSpec.channels = 2;
-
-	bufAttr.tlength = ioBufferFrameSize * pa_frame_size(&sampleSpec);
-	bufAttr.maxlength = -1;
-	bufAttr.minreq = -1;
-	bufAttr.prebuf = -1;
-
-	OSStatus ret = MPCreateSemaphore(UINT_MAX, 0, &PAContextSemaphore);
-	if (ret != 0)
-		NSLog(@"MPCreateSemaphore() failed");
-
-	pa_get_binary_name(procName, sizeof(procName));
-	NSLog(@"binary name >%s<", procName);
-}
-
-- (void) deallocHidden
-{
-	if (PAMainLoop) {
-		pa_threaded_mainloop_lock(PAMainLoop);
-		pa_threaded_mainloop_unlock(PAMainLoop);
-		pa_threaded_mainloop_stop(PAMainLoop);
-		pa_threaded_mainloop_free(PAMainLoop);		
-		PAMainLoop = NULL;
-	}
-
-	/*
-	pa_xfree(inputDummyBuffer);
-	inputDummyBuffer = NULL;
-	
-	pa_xfree(outputDummyBuffer);
-	outputDummyBuffer = NULL;
-	
-	pa_xfree(connectHost);
-	connectHost = NULL;
-	*/
-
-	MPDeleteSemaphore(PAContextSemaphore);
-}
 
 #pragma mark ### delegate handling ###
 
@@ -352,18 +232,15 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 
 - (void) contextStateCallback
 {
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+
 	int state = pa_context_get_state(PAContext);
 	
 	NSLog(@"Context state changed to %d", state);
 	
 	switch (state) {
 		case PA_CONTEXT_READY:
-		{
 			NSLog(@"Connection ready.");
-			[self performSelectorOnMainThread: @selector(sendDelegateConnectionEstablished)
-					       withObject: nil
-					    waitUntilDone: YES];
-
 			pa_context_get_sink_info_list(PAContext, staticSinkInfoCallback, self);
 			pa_context_get_source_info_list(PAContext, staticSourceInfoCallback, self);
 			pa_context_get_module_info_list(PAContext, staticModuleInfoCallback, self);
@@ -371,8 +248,10 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 			pa_context_get_sample_info_list(PAContext, staticSampleInfoCallback, self);
 			pa_context_get_card_info_list(PAContext, staticCardInfoCallback, self);
 			pa_context_get_server_info(PAContext, staticServerInfoCallback, self);
+			[self performSelectorOnMainThread: @selector(sendDelegateConnectionEstablished)
+					       withObject: nil
+					    waitUntilDone: NO];
 			break;
-		}
 		case PA_CONTEXT_TERMINATED:
 			NSLog(@"Connection terminated.");
 			[self performSelectorOnMainThread: @selector(sendDelegateConnectionEnded)
@@ -391,12 +270,16 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 			break;
 		default:
 			break;
-	}	
+	}
+	
+	[pool release];
 }
 
 - (void) contextSubscribeCallback: (pa_subscription_event_type_t) type
 			    index: (UInt32) index
 {
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+
 	switch (type & ~PA_SUBSCRIPTION_EVENT_TYPE_MASK) {
 		case PA_SUBSCRIPTION_EVENT_SINK:
 			[sinks removeAllObjects];
@@ -428,44 +311,14 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 			break;
 
 		default:
-			return;
+			break;
 	}
+	
+	[pool release];
 }
 
 - (void) contextEventCallback: (const char *) name
 		     propList: (pa_proplist *) propList
-{
-}
-
-- (void) streamStartedCallback: (pa_stream *) stream
-{
-}
-
-- (void) streamWriteCallback: (pa_stream *) stream
-		      nBytes: (size_t) nBytes
-{
-}
-
-- (void) streamReadCallback: (pa_stream *) stream
-		     nBytes: (size_t) nBytes
-{
-}
-
-- (void) streamOverflowCallback: (pa_stream *) stream
-{
-}
-
-- (void) streamUnderflowCallback: (pa_stream *) stream
-{
-}
-
-- (void) streamEventCallback: (pa_stream *) stream
-			name: (const char *) name
-		    propList: (pa_proplist *) propList
-{
-}
-
-- (void) streamBufferAttrCallback: (pa_stream *) stream
 {
 }
 
@@ -477,6 +330,8 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 
 - (void) serverInfoCallback: (const pa_server_info *) info
 {
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+
 	char tmp[0x100];
 	
 	serverInfo.userName = [NSString stringWithCString: info->user_name
@@ -499,159 +354,196 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 
 	[self performSelectorOnMainThread: @selector(sendDelegateServerInfoChanged)
 			       withObject: nil
-			    waitUntilDone: YES];
+			    waitUntilDone: NO];
+	
+	[pool release];
 }
 
 - (void) cardInfoCallback: (const pa_card_info *) info
 		      eol: (BOOL) eol
 {
-	PACardInfo *card = [[PACardInfo alloc] init];	
-	
-	card.name = [NSString stringWithCString: info->name
-				       encoding: NSUTF8StringEncoding];
-	
-	if (info->driver)
-		card.driver = [NSString stringWithCString: info->driver
-						 encoding: NSUTF8StringEncoding];
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
-	card.properties = [self createDictionaryFromProplist: info->proplist];
-	
-	[cards addObject: card];
+	if (info) {
+		PACardInfo *card = [[PACardInfo alloc] init];	
+		
+		card.name = [NSString stringWithCString: info->name
+					       encoding: NSUTF8StringEncoding];
+		
+		if (info->driver)
+			card.driver = [NSString stringWithCString: info->driver
+							 encoding: NSUTF8StringEncoding];
 
+		card.properties = [self createDictionaryFromProplist: info->proplist];
+		
+		[cards addObject: card];
+	}
+	
 	if (eol) {
 		[self performSelectorOnMainThread: @selector(sendDelegateCardsChanged)
 				       withObject: nil
-				    waitUntilDone: YES];		
+				    waitUntilDone: NO];		
 	}
+	
+	[pool release];
 }
 
 - (void) sinkInfoCallback: (const pa_sink_info *) info
 		      eol: (BOOL) eol
 {
-	PASinkInfo *sink = [[PASinkInfo alloc] init];
-	char tmp[0x100];
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
-	sink.name = [NSString stringWithCString: info->name
-				       encoding: NSUTF8StringEncoding];
-	sink.description = [NSString stringWithCString: info->description
-					      encoding: NSUTF8StringEncoding];
-	sink.sampleSpec = [NSString stringWithCString: pa_sample_spec_snprint(tmp, sizeof(tmp), &info->sample_spec)
-					     encoding: NSUTF8StringEncoding];
-	sink.channelMap = [NSString stringWithCString: pa_channel_map_snprint(tmp, sizeof(tmp), &info->channel_map)
-					     encoding: NSUTF8StringEncoding];
-	sink.driver = [NSString stringWithCString: info->driver
-					 encoding: NSUTF8StringEncoding];
-		
-	sink.latency = info->latency;
-	sink.configuredLatency = info->configured_latency;
-	sink.nVolumeSteps = info->n_volume_steps;
-	sink.volume = pa_cvolume_avg(&info->volume);	
-	sink.properties = [self createDictionaryFromProplist: info->proplist];
+	if (info) {
+		PASinkInfo *sink = [[PASinkInfo alloc] init];
+		char tmp[0x100];
 
-	[sinks addObject: sink];
-	
+		sink.name = [NSString stringWithCString: info->name
+					       encoding: NSUTF8StringEncoding];
+		sink.description = [NSString stringWithCString: info->description
+						      encoding: NSUTF8StringEncoding];
+		sink.sampleSpec = [NSString stringWithCString: pa_sample_spec_snprint(tmp, sizeof(tmp), &info->sample_spec)
+						     encoding: NSUTF8StringEncoding];
+		sink.channelMap = [NSString stringWithCString: pa_channel_map_snprint(tmp, sizeof(tmp), &info->channel_map)
+						     encoding: NSUTF8StringEncoding];
+		sink.driver = [NSString stringWithCString: info->driver
+						 encoding: NSUTF8StringEncoding];
+			
+		sink.latency = info->latency;
+		sink.configuredLatency = info->configured_latency;
+		sink.nVolumeSteps = info->n_volume_steps;
+		sink.volume = pa_cvolume_avg(&info->volume);	
+		sink.properties = [self createDictionaryFromProplist: info->proplist];
+
+		[sinks addObject: sink];
+	}
+
 	if (eol) {
 		[self performSelectorOnMainThread: @selector(sendDelegateSinksChanged)
 				       withObject: nil
-				    waitUntilDone: YES];		
+				    waitUntilDone: NO];		
 	}
+	
+	[pool release];
 }
 
 - (void) sourceInfoCallback: (const pa_source_info *) info
 			eol: (BOOL) eol
 {
-	PASourceInfo *source = [[PASourceInfo alloc] init];
-	char tmp[0x100];
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
-	source.name = [NSString stringWithCString: info->name
-					 encoding: NSUTF8StringEncoding];
-	source.description = [NSString stringWithCString: info->description
-						encoding: NSUTF8StringEncoding];
-	source.sampleSpec = [NSString stringWithCString: pa_sample_spec_snprint(tmp, sizeof(tmp), &info->sample_spec)
-					       encoding: NSUTF8StringEncoding];
-	source.channelMap = [NSString stringWithCString: pa_channel_map_snprint(tmp, sizeof(tmp), &info->channel_map)
-					       encoding: NSUTF8StringEncoding];
-	source.driver = [NSString stringWithCString: info->driver
-					   encoding: NSUTF8StringEncoding];
-	source.latency = info->latency;
-	source.configuredLatency = info->configured_latency;
-	source.properties = [self createDictionaryFromProplist: info->proplist];
-	[sources addObject: source];
+	if (info) {
+		PASourceInfo *source = [[PASourceInfo alloc] init];
+		char tmp[0x100];
+
+		source.name = [NSString stringWithCString: info->name
+						 encoding: NSUTF8StringEncoding];
+		source.description = [NSString stringWithCString: info->description
+							encoding: NSUTF8StringEncoding];
+		source.sampleSpec = [NSString stringWithCString: pa_sample_spec_snprint(tmp, sizeof(tmp), &info->sample_spec)
+						       encoding: NSUTF8StringEncoding];
+		source.channelMap = [NSString stringWithCString: pa_channel_map_snprint(tmp, sizeof(tmp), &info->channel_map)
+						       encoding: NSUTF8StringEncoding];
+		source.driver = [NSString stringWithCString: info->driver
+						   encoding: NSUTF8StringEncoding];
+		source.latency = info->latency;
+		source.configuredLatency = info->configured_latency;
+		source.properties = [self createDictionaryFromProplist: info->proplist];
+		[sources addObject: source];
+	}
 	
 	if (eol) {
 		[self performSelectorOnMainThread: @selector(sendDelegateSourcesChanged)
 				       withObject: nil
-				    waitUntilDone: YES];		
+				    waitUntilDone: NO];		
 	}
 	
+	[pool release];
 }
 
 - (void) clientInfoCallback: (const pa_client_info *) info
 			eol: (BOOL) eol
 {
-	PAClientInfo *client = [[PAClientInfo alloc] init];
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
-	client.name = [NSString stringWithCString: info->name
-					 encoding: NSUTF8StringEncoding];
-	client.driver = [NSString stringWithCString: info->driver
-					   encoding: NSUTF8StringEncoding];
-	client.properties = [self createDictionaryFromProplist: info->proplist];
-	[clients addObject: client];
+	if (info) {
+		PAClientInfo *client = [[PAClientInfo alloc] init];
+
+		client.name = [NSString stringWithCString: info->name
+						 encoding: NSUTF8StringEncoding];
+		client.driver = [NSString stringWithCString: info->driver
+						   encoding: NSUTF8StringEncoding];
+		client.properties = [self createDictionaryFromProplist: info->proplist];
+		[clients addObject: client];
+	}
 	
 	if (eol) {
 		[self performSelectorOnMainThread: @selector(sendDelegateClientsChanged)
 				       withObject: nil
-				    waitUntilDone: YES];		
+				    waitUntilDone: NO];		
 	}
+	
+	[pool release];
 }
 
 - (void) moduleInfoCallback: (const pa_module_info *) info
 			eol: (BOOL) eol
 {
-	PAModuleInfo *module = [[PAClientInfo alloc] init];
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
-	module.name = [NSString stringWithCString: info->name
-					 encoding: NSUTF8StringEncoding];
-	if (info->argument)
-		module.argument = [NSString stringWithCString: info->argument
-						     encoding: NSUTF8StringEncoding];
-	module.useCount = info->n_used;
-	module.properties = [self createDictionaryFromProplist: info->proplist];
-	
-	[modules addObject: module];
-	
+	if (info) {
+		PAModuleInfo *module = [[PAModuleInfo alloc] init];
+
+		module.name = [NSString stringWithCString: info->name
+						 encoding: NSUTF8StringEncoding];
+		if (info->argument)
+			module.argument = [NSString stringWithCString: info->argument
+							     encoding: NSUTF8StringEncoding];
+		module.useCount = info->n_used;
+		module.properties = [self createDictionaryFromProplist: info->proplist];
+		
+		[modules addObject: module];
+	}
+
 	if (eol) {
 		[self performSelectorOnMainThread: @selector(sendDelegateModulesChanged)
 				       withObject: nil
-				    waitUntilDone: YES];		
+				    waitUntilDone: NO];		
 	}
+	
+	[pool release];
 }
 
 - (void) sampleInfoCallback: (const pa_sample_info *) info
 			eol: (BOOL) eol
 {
-	PASampleInfo *sample = [[PASampleInfo alloc] init];
-	char tmp[100];
-	
-	sample.name = [NSString stringWithCString: info->name 
-					 encoding: NSUTF8StringEncoding];
-	sample.sampleSpec = [NSString stringWithCString: pa_sample_spec_snprint(tmp, sizeof(tmp), &info->sample_spec)
-					       encoding: NSUTF8StringEncoding];
-	sample.channelMap = [NSString stringWithCString: pa_channel_map_snprint(tmp, sizeof(tmp), &info->channel_map)
-					       encoding: NSUTF8StringEncoding];
-	sample.fileName = [NSString stringWithCString: info->filename
-					     encoding: NSUTF8StringEncoding];
-	sample.duration = info->duration;
-	sample.bytes = info->bytes;
-	sample.lazy = info->lazy;
-	
-	[samples addObject: sample];
-	
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+
+	if (info) {
+		PASampleInfo *sample = [[PASampleInfo alloc] init];
+		char tmp[100];
+		
+		sample.name = [NSString stringWithCString: info->name 
+						 encoding: NSUTF8StringEncoding];
+		sample.sampleSpec = [NSString stringWithCString: pa_sample_spec_snprint(tmp, sizeof(tmp), &info->sample_spec)
+						       encoding: NSUTF8StringEncoding];
+		sample.channelMap = [NSString stringWithCString: pa_channel_map_snprint(tmp, sizeof(tmp), &info->channel_map)
+						       encoding: NSUTF8StringEncoding];
+		sample.fileName = [NSString stringWithCString: info->filename
+						     encoding: NSUTF8StringEncoding];
+		sample.duration = info->duration;
+		sample.bytes = info->bytes;
+		sample.lazy = info->lazy;
+		
+		[samples addObject: sample];
+	}
+
 	if (eol) {
 		[self performSelectorOnMainThread: @selector(sendDelegateSamplesChanged)
 				       withObject: nil
-				    waitUntilDone: YES];				
+				    waitUntilDone: NO];				
 	}
+	
+	[pool release];
 }
 
 @end
@@ -671,7 +563,6 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 - (id) init
 {
 	[super init];
-	[self initHidden];
 	
 	serverInfo = [[PAServerInfo alloc] init];
 
@@ -682,7 +573,26 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 	modules = [NSMutableArray arrayWithCapacity: 0];
 	samples = [NSMutableArray arrayWithCapacity: 0];
 	
+	pa_get_binary_name(procName, sizeof(procName));
+
 	return self;
+}
+
+- (void) dealloc
+{
+	if (PAMainLoop) {
+		pa_threaded_mainloop_lock(PAMainLoop);
+		
+		if (audio)
+			[audio release];
+		
+		pa_threaded_mainloop_unlock(PAMainLoop);
+		pa_threaded_mainloop_stop(PAMainLoop);
+		pa_threaded_mainloop_free(PAMainLoop);		
+		PAMainLoop = NULL;
+	}
+	
+	[super dealloc];
 }
 
 - (void) connectToHost: (NSString *) hostName
@@ -741,49 +651,22 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 {
 	if (![self isConnected])
 		return NO;
+	
+	if (audio)
+		return YES;
 
-	char tmp[sizeof(procName) + 10];
-	int ret;
-	
-	snprintf(tmp, sizeof(tmp), "%s playback", procName);
-	
 	pa_threaded_mainloop_lock(PAMainLoop);
-	PAPlaybackStream = pa_stream_new(PAContext, tmp, &sampleSpec, NULL);
-	
-	if (!PAPlaybackStream) {
-		pa_threaded_mainloop_unlock(PAMainLoop);
-		return NO;
-	}
-
-	pa_stream_set_event_callback(PAPlaybackStream, staticStreamEventCallback, self);
-	pa_stream_set_write_callback(PAPlaybackStream, staticStreamWriteCallback, self);
-	pa_stream_set_started_callback(PAPlaybackStream, staticStreamStartedCallback, self);
-	pa_stream_set_overflow_callback(PAPlaybackStream, staticStreamOverflowCallback, self);
-	pa_stream_set_underflow_callback(PAPlaybackStream, staticStreamUnderflowCallback, self);
-	pa_stream_set_buffer_attr_callback(PAPlaybackStream, staticStreamBufferAttrCallback, self);
-	ret = pa_stream_connect_playback(PAPlaybackStream, NULL, &bufAttr,
-					 (pa_stream_flags_t)  (PA_STREAM_INTERPOLATE_TIMING |
-							       PA_STREAM_AUTO_TIMING_UPDATE),
-					 NULL, NULL);
+	audio = [[PAServerConnectionAudio alloc] initWithPAServerConnection: self
+								    context: PAContext];
 	pa_threaded_mainloop_unlock(PAMainLoop);
+	
+	return audio != nil;
+}
 
-	if (ret != 0)
-		return NO;
-	
-	/*
-	 snprintf(tmp, sizeof(tmp), "%s record", procName);
-	 pa_threaded_mainloop_lock(PAMainLoop);
-	 PARecordStream = pa_stream_new(PAContext, tmp, &sampleSpec, NULL);
-	 //pa_stream_set_read_callback(PARecordStream, staticStreamReadCallback, self);
-	 pa_stream_set_event_callback(PARecordStream, staticStreamEventCallback, self);
-	 pa_stream_set_overflow_callback(PARecordStream, staticStreamOverflowCallback, self);
-	 pa_stream_set_underflow_callback(PARecordStream, staticStreamUnderflowCallback, self);
-	 pa_stream_set_buffer_attr_callback(PARecordStream, staticStreamBufferAttrCallback, self);
-	 pa_stream_connect_record(PARecordStream, NULL, &bufAttr, (pa_stream_flags_t) 0);
-	 pa_threaded_mainloop_unlock(PAMainLoop);
-	 */
-	
-	return YES;
+- (NSString *) clientName
+{
+	return [NSString stringWithCString: procName
+				  encoding: NSASCIIStringEncoding];
 }
 
 @end

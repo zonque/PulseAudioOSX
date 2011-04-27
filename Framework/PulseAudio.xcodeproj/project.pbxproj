@@ -1,0 +1,375 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 45;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		6571514D13683F4A00D60887 /* PAServerConnectionAudio.h in Headers */ = {isa = PBXBuildFile; fileRef = 6571514B13683F4A00D60887 /* PAServerConnectionAudio.h */; };
+		6571514E13683F4A00D60887 /* PAServerConnectionAudio.m in Sources */ = {isa = PBXBuildFile; fileRef = 6571514C13683F4A00D60887 /* PAServerConnectionAudio.m */; };
+		65CCFBFF1366CF1E00834815 /* PAServerConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = 65CCFBFD1366CF1E00834815 /* PAServerConnection.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		65CCFC001366CF1E00834815 /* PAServerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 65CCFBFE1366CF1E00834815 /* PAServerConnection.m */; };
+		65CCFC151366D14700834815 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0867D69BFE84028FC02AAC07 /* Foundation.framework */; };
+		65CCFC881366DA0600834815 /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65CCFC871366DA0600834815 /* CoreServices.framework */; };
+		65CCFCB21367180C00834815 /* PAServerInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 65CCFCB01367180C00834815 /* PAServerInfo.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		65CCFCB31367180C00834815 /* PAServerInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 65CCFCB11367180C00834815 /* PAServerInfo.m */; };
+		65CCFCC113671A5F00834815 /* PACardInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 65CCFCBF13671A5F00834815 /* PACardInfo.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		65CCFCC213671A5F00834815 /* PACardInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 65CCFCC013671A5F00834815 /* PACardInfo.m */; };
+		65CCFCC513671B3900834815 /* PASinkInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 65CCFCC313671B3900834815 /* PASinkInfo.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		65CCFCC613671B3900834815 /* PASinkInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 65CCFCC413671B3900834815 /* PASinkInfo.m */; };
+		65CCFCC913671B3D00834815 /* PASourceInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 65CCFCC713671B3D00834815 /* PASourceInfo.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		65CCFCCA13671B3D00834815 /* PASourceInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 65CCFCC813671B3D00834815 /* PASourceInfo.m */; };
+		65CCFCCD13671B4300834815 /* PAModuleInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 65CCFCCB13671B4300834815 /* PAModuleInfo.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		65CCFCCE13671B4300834815 /* PAModuleInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 65CCFCCC13671B4300834815 /* PAModuleInfo.m */; };
+		65CCFCD113671B4A00834815 /* PAClientInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 65CCFCCF13671B4A00834815 /* PAClientInfo.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		65CCFCD213671B4A00834815 /* PAClientInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 65CCFCD013671B4A00834815 /* PAClientInfo.m */; };
+		65CCFCD513671B5000834815 /* PASampleInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 65CCFCD313671B5000834815 /* PASampleInfo.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		65CCFCD613671B5000834815 /* PASampleInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 65CCFCD413671B5000834815 /* PASampleInfo.m */; };
+		65CCFCE413671BF400834815 /* PulseAudio.h in Headers */ = {isa = PBXBuildFile; fileRef = 65CCFCE313671BF400834815 /* PulseAudio.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		8DC2EF530486A6940098B216 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C1666FE841158C02AAC07 /* InfoPlist.strings */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0867D69BFE84028FC02AAC07 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
+		0867D6A5FE840307C02AAC07 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
+		089C1667FE841158C02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		32DBCF5E0370ADEE00C91783 /* PulseAudio_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PulseAudio_Prefix.pch; sourceTree = "<group>"; };
+		6571514B13683F4A00D60887 /* PAServerConnectionAudio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PAServerConnectionAudio.h; sourceTree = "<group>"; };
+		6571514C13683F4A00D60887 /* PAServerConnectionAudio.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PAServerConnectionAudio.m; sourceTree = "<group>"; };
+		65CCFBFD1366CF1E00834815 /* PAServerConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PAServerConnection.h; sourceTree = "<group>"; };
+		65CCFBFE1366CF1E00834815 /* PAServerConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PAServerConnection.m; sourceTree = "<group>"; };
+		65CCFC871366DA0600834815 /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = /System/Library/Frameworks/CoreServices.framework; sourceTree = "<absolute>"; };
+		65CCFCB01367180C00834815 /* PAServerInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PAServerInfo.h; sourceTree = "<group>"; };
+		65CCFCB11367180C00834815 /* PAServerInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PAServerInfo.m; sourceTree = "<group>"; };
+		65CCFCBF13671A5F00834815 /* PACardInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PACardInfo.h; sourceTree = "<group>"; };
+		65CCFCC013671A5F00834815 /* PACardInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PACardInfo.m; sourceTree = "<group>"; };
+		65CCFCC313671B3900834815 /* PASinkInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PASinkInfo.h; sourceTree = "<group>"; };
+		65CCFCC413671B3900834815 /* PASinkInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PASinkInfo.m; sourceTree = "<group>"; };
+		65CCFCC713671B3D00834815 /* PASourceInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PASourceInfo.h; sourceTree = "<group>"; };
+		65CCFCC813671B3D00834815 /* PASourceInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PASourceInfo.m; sourceTree = "<group>"; };
+		65CCFCCB13671B4300834815 /* PAModuleInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PAModuleInfo.h; sourceTree = "<group>"; };
+		65CCFCCC13671B4300834815 /* PAModuleInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PAModuleInfo.m; sourceTree = "<group>"; };
+		65CCFCCF13671B4A00834815 /* PAClientInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PAClientInfo.h; sourceTree = "<group>"; };
+		65CCFCD013671B4A00834815 /* PAClientInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PAClientInfo.m; sourceTree = "<group>"; };
+		65CCFCD313671B5000834815 /* PASampleInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PASampleInfo.h; sourceTree = "<group>"; };
+		65CCFCD413671B5000834815 /* PASampleInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PASampleInfo.m; sourceTree = "<group>"; };
+		65CCFCE313671BF400834815 /* PulseAudio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PulseAudio.h; sourceTree = "<group>"; };
+		8DC2EF5A0486A6940098B216 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		8DC2EF5B0486A6940098B216 /* PulseAudio.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = PulseAudio.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D2F7E79907B2D74100F64583 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = /System/Library/Frameworks/CoreData.framework; sourceTree = "<absolute>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		8DC2EF560486A6940098B216 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				65CCFC151366D14700834815 /* Foundation.framework in Frameworks */,
+				65CCFC881366DA0600834815 /* CoreServices.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		034768DFFF38A50411DB9C8B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8DC2EF5B0486A6940098B216 /* PulseAudio.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		0867D691FE84028FC02AAC07 /* PulseAudio */ = {
+			isa = PBXGroup;
+			children = (
+				08FB77AEFE84172EC02AAC07 /* Classes */,
+				32C88DFF0371C24200C91783 /* Other Sources */,
+				089C1665FE841158C02AAC07 /* Resources */,
+				0867D69AFE84028FC02AAC07 /* External Frameworks and Libraries */,
+				034768DFFF38A50411DB9C8B /* Products */,
+			);
+			name = PulseAudio;
+			sourceTree = "<group>";
+		};
+		0867D69AFE84028FC02AAC07 /* External Frameworks and Libraries */ = {
+			isa = PBXGroup;
+			children = (
+				1058C7B0FEA5585E11CA2CBB /* Linked Frameworks */,
+				1058C7B2FEA5585E11CA2CBB /* Other Frameworks */,
+			);
+			name = "External Frameworks and Libraries";
+			sourceTree = "<group>";
+		};
+		089C1665FE841158C02AAC07 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				8DC2EF5A0486A6940098B216 /* Info.plist */,
+				089C1666FE841158C02AAC07 /* InfoPlist.strings */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		08FB77AEFE84172EC02AAC07 /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				65CCFCBF13671A5F00834815 /* PACardInfo.h */,
+				65CCFCC013671A5F00834815 /* PACardInfo.m */,
+				65CCFCCF13671B4A00834815 /* PAClientInfo.h */,
+				65CCFCD013671B4A00834815 /* PAClientInfo.m */,
+				65CCFCCB13671B4300834815 /* PAModuleInfo.h */,
+				65CCFCCC13671B4300834815 /* PAModuleInfo.m */,
+				65CCFCD313671B5000834815 /* PASampleInfo.h */,
+				65CCFCD413671B5000834815 /* PASampleInfo.m */,
+				65CCFCB01367180C00834815 /* PAServerInfo.h */,
+				65CCFCB11367180C00834815 /* PAServerInfo.m */,
+				65CCFBFD1366CF1E00834815 /* PAServerConnection.h */,
+				65CCFBFE1366CF1E00834815 /* PAServerConnection.m */,
+				65CCFCC313671B3900834815 /* PASinkInfo.h */,
+				65CCFCC413671B3900834815 /* PASinkInfo.m */,
+				65CCFCC713671B3D00834815 /* PASourceInfo.h */,
+				65CCFCC813671B3D00834815 /* PASourceInfo.m */,
+				65CCFCE313671BF400834815 /* PulseAudio.h */,
+				6571514B13683F4A00D60887 /* PAServerConnectionAudio.h */,
+				6571514C13683F4A00D60887 /* PAServerConnectionAudio.m */,
+			);
+			name = Classes;
+			sourceTree = "<group>";
+		};
+		1058C7B0FEA5585E11CA2CBB /* Linked Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				65CCFC871366DA0600834815 /* CoreServices.framework */,
+				0867D6A5FE840307C02AAC07 /* AppKit.framework */,
+				D2F7E79907B2D74100F64583 /* CoreData.framework */,
+				0867D69BFE84028FC02AAC07 /* Foundation.framework */,
+			);
+			name = "Linked Frameworks";
+			sourceTree = "<group>";
+		};
+		1058C7B2FEA5585E11CA2CBB /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		32C88DFF0371C24200C91783 /* Other Sources */ = {
+			isa = PBXGroup;
+			children = (
+				32DBCF5E0370ADEE00C91783 /* PulseAudio_Prefix.pch */,
+			);
+			name = "Other Sources";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		8DC2EF500486A6940098B216 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				65CCFBFF1366CF1E00834815 /* PAServerConnection.h in Headers */,
+				65CCFCB21367180C00834815 /* PAServerInfo.h in Headers */,
+				65CCFCC113671A5F00834815 /* PACardInfo.h in Headers */,
+				65CCFCC513671B3900834815 /* PASinkInfo.h in Headers */,
+				65CCFCC913671B3D00834815 /* PASourceInfo.h in Headers */,
+				65CCFCCD13671B4300834815 /* PAModuleInfo.h in Headers */,
+				65CCFCD113671B4A00834815 /* PAClientInfo.h in Headers */,
+				65CCFCD513671B5000834815 /* PASampleInfo.h in Headers */,
+				65CCFCE413671BF400834815 /* PulseAudio.h in Headers */,
+				6571514D13683F4A00D60887 /* PAServerConnectionAudio.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		8DC2EF4F0486A6940098B216 /* PulseAudio */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1DEB91AD08733DA50010E9CD /* Build configuration list for PBXNativeTarget "PulseAudio" */;
+			buildPhases = (
+				8DC2EF500486A6940098B216 /* Headers */,
+				8DC2EF520486A6940098B216 /* Resources */,
+				8DC2EF540486A6940098B216 /* Sources */,
+				8DC2EF560486A6940098B216 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PulseAudio;
+			productInstallPath = "$(HOME)/Library/Frameworks";
+			productName = PulseAudio;
+			productReference = 8DC2EF5B0486A6940098B216 /* PulseAudio.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		0867D690FE84028FC02AAC07 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = 1DEB91B108733DA50010E9CD /* Build configuration list for PBXProject "PulseAudio" */;
+			compatibilityVersion = "Xcode 3.1";
+			developmentRegion = English;
+			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+			);
+			mainGroup = 0867D691FE84028FC02AAC07 /* PulseAudio */;
+			productRefGroup = 034768DFFF38A50411DB9C8B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				8DC2EF4F0486A6940098B216 /* PulseAudio */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		8DC2EF520486A6940098B216 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8DC2EF530486A6940098B216 /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		8DC2EF540486A6940098B216 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				65CCFC001366CF1E00834815 /* PAServerConnection.m in Sources */,
+				65CCFCB31367180C00834815 /* PAServerInfo.m in Sources */,
+				65CCFCC213671A5F00834815 /* PACardInfo.m in Sources */,
+				65CCFCC613671B3900834815 /* PASinkInfo.m in Sources */,
+				65CCFCCA13671B3D00834815 /* PASourceInfo.m in Sources */,
+				65CCFCCE13671B4300834815 /* PAModuleInfo.m in Sources */,
+				65CCFCD213671B4A00834815 /* PAClientInfo.m in Sources */,
+				65CCFCD613671B5000834815 /* PASampleInfo.m in Sources */,
+				6571514E13683F4A00D60887 /* PAServerConnectionAudio.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		089C1666FE841158C02AAC07 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				089C1667FE841158C02AAC07 /* English */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		1DEB91AE08733DA50010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				DEPLOYMENT_LOCATION = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_VERSION = A;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = PulseAudio_Prefix.pch;
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = /Library/Frameworks;
+				PRODUCT_NAME = PulseAudio;
+				VALID_ARCHS = "i386 x86_64";
+				WRAPPER_EXTENSION = framework;
+			};
+			name = Debug;
+		};
+		1DEB91AF08733DA50010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEPLOYMENT_LOCATION = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_VERSION = A;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = PulseAudio_Prefix.pch;
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = /Library/Frameworks;
+				PRODUCT_NAME = PulseAudio;
+				VALID_ARCHS = "i386 x86_64";
+				WRAPPER_EXTENSION = framework;
+			};
+			name = Release;
+		};
+		1DEB91B208733DA50010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = /opt/local/pulseaudio/include/;
+				LIBRARY_SEARCH_PATHS = /opt/local/pulseaudio/lib/;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "-lpulse";
+				PREBINDING = NO;
+				SDKROOT = macosx10.6;
+			};
+			name = Debug;
+		};
+		1DEB91B308733DA50010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = /opt/local/pulseaudio/include/;
+				LIBRARY_SEARCH_PATHS = /opt/local/pulseaudio/lib/;
+				OTHER_LDFLAGS = "-lpulse";
+				PREBINDING = NO;
+				SDKROOT = macosx10.6;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1DEB91AD08733DA50010E9CD /* Build configuration list for PBXNativeTarget "PulseAudio" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB91AE08733DA50010E9CD /* Debug */,
+				1DEB91AF08733DA50010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1DEB91B108733DA50010E9CD /* Build configuration list for PBXProject "PulseAudio" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB91B208733DA50010E9CD /* Debug */,
+				1DEB91B308733DA50010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 0867D690FE84028FC02AAC07 /* Project object */;
+}
