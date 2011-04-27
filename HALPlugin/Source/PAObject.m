@@ -1,22 +1,12 @@
 /***
- This file is part of the PulseAudio HAL plugin project
+ This file is part of PulseAudioOSX
  
  Copyright 2010,2011 Daniel Mack <pulseaudio@zonque.de>
  
- The PulseAudio HAL plugin project is free software; you can redistribute it and/or modify
+ PulseAudioOSX is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 2.1 of the License, or
  (at your option) any later version.
- 
- The PulseAudio HAL plugin project is distributed in the hope that it will be useful, but
- WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- General Public License for more details.
- 
- You should have received a copy of the GNU General Public License
- along with PulseAudio; if not, write to the Free Software
- Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
- USA.
  ***/
 
 #import "PAObject.h"
@@ -25,6 +15,7 @@
 
 @synthesize pluginRef;
 @synthesize objectID;
+@synthesize owningObjectID;
 
 - (id) initWithPluginRef: (AudioHardwarePlugInRef) ref
 {
@@ -32,6 +23,7 @@
 
 	lock = [[NSLock alloc] init];
 	pluginRef = ref;
+	owningObjectID = kAudioObjectSystemObject;
 	
 	return self;
 }
@@ -78,11 +70,11 @@
 	NSMutableArray *array = [NSMutableArray arrayWithCapacity: 0];
 	[self addOwnedObjectsToArray: array];
 	
-	for (PAObject *o in array)
-		if (o.objectID == searchID) {
-			ret = o;
+	for (PAObject *o in array) {
+		ret = [o findObjectByID: searchID];
+		if (ret)
 			break;
-		}
+	}
 
 	return ret;
 }
@@ -102,13 +94,13 @@
 	for (PAObject *o in array)
 		list[count++] = o.objectID;
 		
-	DebugLog("publishing %d objects", count);
+	DebugLog("publishing %d objects with pluginRef %p", count, pluginRef);
 	for (UInt32 i = 0; i < count; i++)
 		DebugLog(" ... %d", list[i]);
 	
 	if (count)
 		AudioObjectsPublishedAndDied(pluginRef,
-					     kAudioObjectSystemObject,
+					     owningObjectID,
 					     count, list,
 					     0, NULL);
 }
@@ -122,10 +114,14 @@
 	
 	for (PAObject *o in array)
 		list[count++] = o.objectID;
+
+	DebugLog("DEpublishing %d objects with pluginRef %p", count, pluginRef);
+	for (UInt32 i = 0; i < count; i++)
+		DebugLog(" ... %d", list[i]);
 		
 	if (count)
 		AudioObjectsPublishedAndDied(pluginRef,
-					     kAudioObjectSystemObject,
+					     owningObjectID,
 					     0, NULL,
 					     count, list);
 }

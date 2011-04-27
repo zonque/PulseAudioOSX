@@ -1,28 +1,24 @@
 /***
- This file is part of the PulseAudio HAL plugin project
+ This file is part of PulseAudioOSX
  
  Copyright 2010,2011 Daniel Mack <pulseaudio@zonque.de>
  
- The PulseAudio HAL plugin project is free software; you can redistribute it and/or modify
+ PulseAudioOSX is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 2.1 of the License, or
  (at your option) any later version.
- 
- The PulseAudio HAL plugin project is distributed in the hope that it will be useful, but
- WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- General Public License for more details.
- 
- You should have received a copy of the GNU General Public License
- along with PulseAudio; if not, write to the Free Software
- Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
- USA.
  ***/
 
-#import "PADevice.h"
 #import <mach/mach_time.h>
 
+#import "PADevice.h"
+#import "PADeviceAudio.h"
+#import "PAStream.h"
+#import "PAPlugin.h"
+
 @implementation PADevice
+
+@synthesize serverConnection;
 
 - (void) publishOwnedObjects
 {
@@ -55,7 +51,7 @@
 	for (PAStream *stream in outputStreamArray)
 		if (stream.objectID == searchID)
 			return stream;
-	
+
 	return nil;
 }
 
@@ -104,12 +100,14 @@
 	stream = [[PAStream alloc] initWithDevice: self
 					  isInput: YES
 				  startingChannel: 1];
+	stream.owningObjectID = self.objectID;
 	[inputStreamArray addObject: stream];
 	[stream release];
 
 	stream = [[PAStream alloc] initWithDevice: self
 					  isInput: NO
-				  startingChannel: 1];	
+				  startingChannel: 1];
+	stream.owningObjectID = self.objectID;
 	[outputStreamArray addObject: stream];
 	[stream release];
 	
@@ -120,12 +118,26 @@
 					[inputStreamArray count],
 					[outputStreamArray count]];
 	deviceUID = [NSString stringWithFormat: @"org.pulseaudio.HALPlugin.%@", modelUID];
+
+	
+	serverConnection = [[PAServerConnection alloc] init];
+	serverConnection.delegate = self;
+
+	deviceAudio = [[PADeviceAudio alloc] initWithPADevice: self];
+
+	[serverConnection connectToHost: nil
+				   port: -1];	
 	
 	return self;
 }
 
 - (void) dealloc
 {
+	if (deviceAudio) {
+		[deviceAudio release];
+		deviceAudio = nil;
+	}
+	
 	[inputStreamArray release];
 	[outputStreamArray release];
 	[super dealloc];
@@ -135,29 +147,43 @@
 
 - (OSStatus) createIOProcID: (AudioDeviceIOProc) proc
 		 clientData: (void *) clientData
-		outIOProcID: (AudioDeviceIOProcID *) outIOProcID
+		outIOProcID: (AudioDeviceIOProcID *) outProcID
 {
+	AudioDeviceIOProcID pid = [deviceAudio createIOProcID: proc
+						   clientData: clientData];
+	if (!pid)
+		return kAudioHardwareIllegalOperationError;
+	
+	if (outProcID)
+		*outProcID = pid;
+
 	return kAudioHardwareNoError;
 }
 
-- (OSStatus) destroyIOProcID: (AudioDeviceIOProcID) inIOProcID
+- (OSStatus) destroyIOProcID: (AudioDeviceIOProcID) procID
 {
+	[deviceAudio removeIOProcID: procID];
 	return kAudioHardwareNoError;
 }
 
 - (OSStatus) addIOProc: (AudioDeviceIOProc) proc
 	    clientData: (void *) clientData
 {
+	[deviceAudio createIOProcID: proc
+			 clientData: clientData];
 	return kAudioHardwareNoError;
 }
 
 - (OSStatus) removeIOProc: (AudioDeviceIOProc) proc
 {
+	[deviceAudio removeIOProcID: proc];
 	return kAudioHardwareNoError;
 }
 
-- (OSStatus) start: (AudioDeviceIOProc) inProcID
+- (OSStatus) start: (AudioDeviceIOProc) procID
 {
+	[deviceAudio setIOProcIDEnabled: procID
+				enabled: YES];
 	return kAudioHardwareNoError;
 }
 
@@ -165,18 +191,23 @@
     ioRequestedStartTime: (AudioTimeStamp *) ioRequestedStartTime
 		   flags: (UInt32) flags
 {
+	[deviceAudio setStartTimeForProcID: procID
+				 timeStamp: ioRequestedStartTime
+				     flags: flags];
 	return kAudioHardwareNoError;
 }
 
 - (OSStatus) stop: (AudioDeviceIOProc) procID
 {
+	[deviceAudio setIOProcIDEnabled: procID
+				enabled: NO];	
 	return kAudioHardwareNoError;
 }
 
 - (OSStatus) read: (const AudioTimeStamp *) startTime
 	  outData: (AudioBufferList *) outData
 {
-	return kAudioHardwareNoError;
+	return kAudioHardwareUnsupportedOperationError;
 }
 
 #pragma mark ### time related ###
@@ -285,7 +316,7 @@
 		case kAudioDevicePropertyConfigurationApplication:
 		case kAudioDevicePropertyDeviceUID:
 		case kAudioDevicePropertyModelUID:
-			*outSize = sizeof(CFStringRef);
+			*outSize = sizeof(NSString *);
 			return kAudioHardwareNoError;
 			
 		case kAudioDevicePropertyRelatedDevices:
@@ -401,7 +432,7 @@
 			memset(outData, 0, *ioDataSize);
 			[deviceName getCString: tmp
 				     maxLength: sizeof(tmp)
-				      encoding: kCFStringEncodingASCII];
+				      encoding: NSASCIIStringEncoding];
 			memcpy(outData, tmp, *ioDataSize);
 			return kAudioHardwareNoError;
 			
@@ -410,7 +441,7 @@
 			memset(outData, 0, *ioDataSize);
 			[deviceManufacturer getCString: tmp
 					     maxLength: sizeof(tmp)
-					      encoding: kCFStringEncodingASCII];
+					      encoding: NSASCIIStringEncoding];
 			memcpy(outData, tmp, *ioDataSize);
 			return kAudioHardwareNoError;
 			
@@ -593,6 +624,37 @@
 		       qualifierData: NULL
 			    dataSize: dataSize
 				data: data];
+}
+
+#pragma mark ### PAServerConnectionDelegate ###
+
+- (void) PAServerConnectionEstablished: (PAServerConnection *) connection
+{
+	NSLog(@"%s()", __func__);
+	BOOL ret = [serverConnection addAudioStreams];
+	if (!ret)
+		NSLog(@"%s(): addAudioStreams failed!?", __func__);	
+}
+
+- (void) PAServerConnectionFailed: (PAServerConnection *) connection
+{
+	NSLog(@"%s()", __func__);
+}
+
+- (void) PAServerConnectionEnded: (PAServerConnection *) connection
+{
+	NSLog(@"%s()", __func__);
+}
+
+- (UInt32) PAServerConnection: (PAServerConnection *) connection
+	      hasPlaybackData: (Byte *) playbackData
+		   recordData: (const Byte *) recordData
+		     byteSize: (UInt32) byteSize
+{
+	return [deviceAudio PAServerConnection: connection
+			       hasPlaybackData: playbackData
+				    recordData: recordData
+				      byteSize: byteSize];
 }
 
 @end

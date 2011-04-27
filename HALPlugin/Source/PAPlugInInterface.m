@@ -1,26 +1,15 @@
 /***
- This file is part of the PulseAudio HAL plugin project
+ This file is part of PulseAudioOSX
  
  Copyright 2010,2011 Daniel Mack <pulseaudio@zonque.de>
  
- The PulseAudio HAL plugin project is free software; you can redistribute it and/or modify
+ PulseAudioOSX is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 2.1 of the License, or
  (at your option) any later version.
- 
- The PulseAudio HAL plugin project is distributed in the hope that it will be useful, but
- WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- General Public License for more details.
- 
- You should have received a copy of the GNU General Public License
- along with PulseAudio; if not, write to the Free Software
- Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
- USA.
  ***/
 
 #import <CoreAudio/AudioHardwarePlugIn.h>
-#import <pulse/pulseaudio.h>
 
 #import "PAPlugInInterface.h"
 
@@ -121,7 +110,7 @@ Interface_ObjectHasProperty(AudioHardwarePlugInRef inSelf,
 	TraceCall();
 	PAPlugin *plugin = to_plugin(inSelf);
 	return [plugin objectHasProperty: inObjectID
-				propertyID: inAddress];
+			      propertyID: inAddress];
 }
 
 static OSStatus
@@ -148,7 +137,7 @@ Interface_ObjectGetPropertyDataSize(AudioHardwarePlugInRef inSelf,
 	TraceCall();
 	PAPlugin *plugin = to_plugin(inSelf);
 	return [plugin objectGetPropertyDataSize: inObjectID
-					propertyID: inAddress
+				      propertyID: inAddress
 			       qualifierDataSize: inQualifierDataSize
 				   qualifierData: inQualifierData
 			     outPropertyDataSize: outDataSize];
@@ -166,7 +155,7 @@ Interface_ObjectGetPropertyData(AudioHardwarePlugInRef inSelf,
 	TraceCall();
 	PAPlugin *plugin = to_plugin(inSelf);
 	return [plugin objectGetPropertyData: inObjectID
-				    propertyID: inAddress
+				  propertyID: inAddress
 			   qualifierDataSize: inQualifierDataSize
 			       qualifierData: inQualifierData
 				  ioDataSize: ioDataSize
@@ -185,7 +174,7 @@ Interface_ObjectSetPropertyData(AudioHardwarePlugInRef inSelf,
 	TraceCall();
 	PAPlugin *plugin = to_plugin(inSelf);
 	return [plugin objectSetPropertyData: inObjectID
-				    propertyID: inAddress
+				  propertyID: inAddress
 			   qualifierDataSize: inQualifierDataSize
 			       qualifierData: inQualifierData
 				    dataSize: inDataSize
@@ -350,7 +339,7 @@ Interface_DeviceGetProperty(AudioHardwarePlugInRef inSelf,
 	return [plugin deviceGetProperty: inDeviceID
 				 channel: inChannel
 				 isInput: !!isInput
-				propertyID: inPropertyID
+			      propertyID: inPropertyID
 			      ioDataSize: ioPropertyDataSize
 				 outData: outPropertyData];
 }
@@ -370,7 +359,7 @@ Interface_DeviceSetProperty(AudioHardwarePlugInRef inSelf,
 				    when: inWhen
 				 channel: inChannel
 				 isInput: !!isInput
-				propertyID: inPropertyID
+			      propertyID: inPropertyID
 			dataSize: inPropertyDataSize
 			    data: inPropertyData];	
 }
@@ -388,7 +377,7 @@ Interface_StreamGetPropertyInfo(AudioHardwarePlugInRef inSelf,
 	PAPlugin *plugin = to_plugin(inSelf);
 	return [plugin streamGetPropertyInfo: inStreamID
 				     channel: inChannel
-				    propertyID: inPropertyID
+				  propertyID: inPropertyID
 				     outSize: outSize
 				 outIsWritable: (BOOL *) outWritable];
 }
@@ -404,7 +393,7 @@ Interface_StreamGetProperty(AudioHardwarePlugInRef inSelf,
 	PAPlugin *plugin = to_plugin(inSelf);
 	return [plugin streamGetProperty: inStreamID
 				 channel: inChannel
-				propertyID: inPropertyID
+			      propertyID: inPropertyID
 			      ioDataSize: ioPropertyDataSize
 				 outData: outPropertyData];
 	
@@ -424,7 +413,7 @@ Interface_StreamSetProperty(AudioHardwarePlugInRef inSelf,
 	return [plugin streamSetProperty: inStreamID
 				    when: inWhen
 				 channel: inChannel
-				propertyID: inPropertyID
+			      propertyID: inPropertyID
 				dataSize: inPropertyDataSize
 				    data: inPropertyData];
 }
@@ -435,8 +424,9 @@ Interface_StreamSetProperty(AudioHardwarePlugInRef inSelf,
 	
 	pool = _pool;
 	
-	staticInterface = pa_xnew0(AudioHardwarePlugInInterface, 1);
-
+	staticInterface = (AudioHardwarePlugInInterface *) malloc(sizeof(AudioHardwarePlugInInterface));
+	bzero(staticInterface, sizeof(*staticInterface));
+	
 	//	IUnknown Routines
 	staticInterface->QueryInterface	= (HRESULT (*)(void*, CFUUIDBytes, void**)) Interface_QueryInterface;
 	staticInterface->AddRef		= (ULONG (*)(void*)) Interface_AddRef;
@@ -477,9 +467,7 @@ Interface_StreamSetProperty(AudioHardwarePlugInRef inSelf,
 
 - (void) dealloc
 {
-	[plugin release];
-	pa_xfree(staticInterface);
-	[pool release];
+	free(staticInterface);
 	[super dealloc];
 }
 
