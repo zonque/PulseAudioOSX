@@ -18,6 +18,7 @@
 		6510B055135ECADF002A5B90 /* StatusBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 655317D5135BA57900817E2D /* StatusBar.m */; };
 		6510B192135ECAFF002A5B90 /* Growl.framework in Resources */ = {isa = PBXBuildFile; fileRef = 655315BB135B0D9800817E2D /* Growl.framework */; };
 		6510B1E0135ECD27002A5B90 /* logo.icns in Resources */ = {isa = PBXBuildFile; fileRef = 6510B1DF135ECD27002A5B90 /* logo.icns */; };
+		65714F431367507400D60887 /* ConnectionServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 65714F421367507400D60887 /* ConnectionServer.m */; };
 		65BFDF3513603CF9002B818E /* SocketServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 65BFDF3413603CF9002B818E /* SocketServer.m */; };
 		65BFE06413605C0B002B818E /* AudioDeviceClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE06313605C0B002B818E /* AudioDeviceClient.m */; };
 /* End PBXBuildFile section */
@@ -43,6 +44,8 @@
 		655319DE135C537600817E2D /* Preferences.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Preferences.h; sourceTree = "<group>"; };
 		655319DF135C537600817E2D /* Preferences.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Preferences.m; sourceTree = "<group>"; };
 		65531BA9135D803E00817E2D /* ObjectNames.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ObjectNames.h; path = ../Shared/ObjectNames.h; sourceTree = SOURCE_ROOT; };
+		65714F411367507400D60887 /* ConnectionServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConnectionServer.h; sourceTree = "<group>"; };
+		65714F421367507400D60887 /* ConnectionServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConnectionServer.m; sourceTree = "<group>"; };
 		65BFDF3213603C90002B818E /* SocketCommunicationDefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SocketCommunicationDefs.h; path = ../Shared/SocketCommunicationDefs.h; sourceTree = SOURCE_ROOT; };
 		65BFDF3313603CF9002B818E /* SocketServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SocketServer.h; sourceTree = "<group>"; };
 		65BFDF3413603CF9002B818E /* SocketServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SocketServer.m; sourceTree = "<group>"; };
@@ -98,6 +101,8 @@
 				655319DE135C537600817E2D /* Preferences.h */,
 				655319DF135C537600817E2D /* Preferences.m */,
 				6510AFF9135DA1BB002A5B90 /* Pathes.h */,
+				65714F411367507400D60887 /* ConnectionServer.h */,
+				65714F421367507400D60887 /* ConnectionServer.m */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -197,6 +202,7 @@
 				6510B055135ECADF002A5B90 /* StatusBar.m in Sources */,
 				65BFDF3513603CF9002B818E /* SocketServer.m in Sources */,
 				65BFE06413605C0B002B818E /* AudioDeviceClient.m in Sources */,
+				65714F431367507400D60887 /* ConnectionServer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -242,6 +248,8 @@
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
 				INFOPLIST_FILE = "PulseAudioHelper-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
+				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
@@ -250,6 +258,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = PulseAudioHelper;
+				SDKROOT = macosx10.6;
 			};
 			name = Debug;
 		};
@@ -265,6 +274,8 @@
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
 				INFOPLIST_FILE = "PulseAudioHelper-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
+				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
@@ -273,6 +284,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = PulseAudioHelper;
+				SDKROOT = macosx10.6;
 				ZERO_LINK = NO;
 			};
 			name = Release;

@@ -5,11 +5,15 @@
 #import "GrowlNotifications.h"
 #import "SocketServer.h"
 #import "AudioDeviceClient.h"
+#import "ConnectionServer.h"
 
 int main (int argc, const char * argv[]) {
 	NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
         [NSApplication sharedApplication];
 
+	ConnectionServer *cs = [[[ConnectionServer alloc] init] autorelease];
+
+	
 	SocketServer *server = [[[SocketServer alloc] init] autorelease];
 	Preferences *prefs = [[[Preferences alloc] init] autorelease];
 
