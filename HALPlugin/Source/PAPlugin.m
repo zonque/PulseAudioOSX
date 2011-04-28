@@ -12,9 +12,9 @@
 #import "PAPlugin.h"
 #import "PADevice.h"
 #import "PAStream.h"
-#import "ObjectNames.h"
+#import "PADeviceAudio.h"
 
-#ifdef ENABLE_DEBUG
+#ifdef ENABLE_DEBUGX
 #define DebugProperty(x...) DebugLog(x)
 #else
 #define DebugProperty(x...) do {} while(0)
@@ -135,12 +135,33 @@
 
 - (void) deviceStarted: (PADevice *) device
 {
-	[helperConnection deviceStarted: device];
+	if (![helperConnection isConnected])
+		return;
+
+	PADeviceAudio *audio = device.deviceAudio;
+	if (!audio)
+		return;
+	
+	NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithCapacity: 0];
+	
+	[dict setObject: [NSNumber numberWithInt: getpid()]
+		 forKey: @"pid"];
+	[dict setObject: [NSNumber numberWithInt: audio.ioProcBufferSize]
+		 forKey: @"ioProcBufferSize"];
+	[dict setObject: [NSNumber numberWithFloat: audio.sampleRate]
+		 forKey: @"sampleRate"];
+	[dict setObject: device.name
+		 forKey: @"deviceName"];
+	
+	[helperConnection.serverProxy announceDevice: dict];
 }
 
 - (void) deviceStopped: (PADevice *) device
 {
-	[helperConnection deviceStopped: device];	
+	if (![helperConnection isConnected])
+		return;
+	
+	[helperConnection.serverProxy signOffDevice: device.name];
 }
 
 #pragma mark ### PlugIn Operations ###
@@ -156,7 +177,7 @@
 	
 	[[NSDistributedNotificationCenter defaultCenter] addObserver: self
 							    selector: @selector(helperServiceStarted:)
-								name: @PAOSX_HelperMsgServiceStarted
+								name: PAOSX_HelperMsgServiceStarted
 							      object: NULL
 						  suspensionBehavior: NSNotificationSuspensionBehaviorDeliverImmediately];
 

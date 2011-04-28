@@ -10,8 +10,9 @@
  ***/
 
 #import <Foundation/Foundation.h>
+#import <PulseAudio/PAHelperConnection.h>
 #import "PAObject.h"
-#import "PAHelperConnection.h"
+#import "PADevice.h"
 
 @interface PAPlugin : PAObject <PAHelperConnectionDelegate, PADeviceDelegate>
 {
