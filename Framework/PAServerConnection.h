@@ -74,6 +74,7 @@
 
 - (void) connectToHost: (NSString *) hostName
 		  port: (int) port;
+- (void) disconnect;
 - (BOOL) isConnected;
 - (BOOL) addAudioStreams: (UInt32) nChannels
 	      sampleRate: (Float32) sampleRate

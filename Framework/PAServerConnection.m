@@ -137,9 +137,6 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 
 - (void) sendDelegateConnectionEstablished
 {
-	NSLog(@"%s() :%d", __func__, __LINE__);
-	NSLog(@"%@", delegate);
-	
 	if (delegate && [delegate respondsToSelector: @selector(PAServerConnectionEstablished:)])
 		[delegate PAServerConnectionEstablished: self];
 }
@@ -584,17 +581,8 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 
 - (void) dealloc
 {
-	if (PAMainLoop) {
-		pa_threaded_mainloop_lock(PAMainLoop);
-		
-		if (audio)
-			[audio release];
-		
-		pa_threaded_mainloop_unlock(PAMainLoop);
-		pa_threaded_mainloop_stop(PAMainLoop);
-		pa_threaded_mainloop_free(PAMainLoop);		
-		PAMainLoop = NULL;
-	}
+	if (audio)
+		[audio release];
 	
 	[cards release];
 	[sinks release];
@@ -646,6 +634,30 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 	
 	pa_threaded_mainloop_unlock(PAMainLoop);
 }
+
+- (void) disconnect
+{
+	if (!PAMainLoop)
+		return;
+
+	if (PAContext) {
+		pa_threaded_mainloop_lock(PAMainLoop);
+		
+		if (audio) {
+			[audio release];
+			audio = nil;
+		}
+	
+		pa_context_disconnect(PAContext);
+		//pa_context_unref(PAContext);
+		PAContext = nil;
+		pa_threaded_mainloop_unlock(PAMainLoop);
+	}
+	
+	pa_threaded_mainloop_stop(PAMainLoop);
+	pa_threaded_mainloop_free(PAMainLoop);		
+	PAMainLoop = NULL;	
+}	
 
 - (BOOL) isConnected
 {
