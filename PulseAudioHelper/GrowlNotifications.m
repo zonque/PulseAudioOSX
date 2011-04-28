@@ -35,7 +35,7 @@ static NSString *kMDNSLocalDomain = @"local.";
 - (void) setPreferences: (Preferences *) newPrefs
 {
 	prefs = newPrefs;
-	[serverConnection setPreferences: prefs];
+	//[serverConnection setPreferences: prefs];
 }
 
 - (id) init
@@ -62,9 +62,6 @@ static NSString *kMDNSLocalDomain = @"local.";
 	[sourceBrowser searchForServicesOfType: kMDNSPulseSource
 				      inDomain: kMDNSLocalDomain];
 	
-	serverConnection = [[ServerConnection alloc] init];
-	[serverConnection setDelegate: self];
-
 	return self;
 }
 

@@ -10,12 +10,20 @@
  ***/
 
 #import <Foundation/Foundation.h>
+#import "ObjectNames.h"
 
-@interface ConnectionServer : NSObject <NSConnectionDelegate>
+@interface ConnectionServer : NSObject <NSConnectionDelegate, PAHelperConnection>
 {
 	NSMutableArray *clientObjects;
+	NSMutableArray *audioClients;
+	
+	NSConnection *currentConnection;
 }
 
-- (BOOL)connection:(NSConnection *)parentConnection shouldMakeNewConnection:(NSConnection *)newConnnection;
+@property (assign) NSConnection *currentConnection;
+
+- (void) start;
+- (BOOL) connection: (NSConnection *) parentConnection
+	shouldMakeNewConnection: (NSConnection *) newConnnection;
 
 @end

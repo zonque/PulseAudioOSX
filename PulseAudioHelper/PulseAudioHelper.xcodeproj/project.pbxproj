@@ -13,14 +13,11 @@
 		6510B04F135ECADF002A5B90 /* GrowlNotifications.m in Sources */ = {isa = PBXBuildFile; fileRef = 655315AD135B0BF500817E2D /* GrowlNotifications.m */; };
 		6510B050135ECADF002A5B90 /* Preferences.m in Sources */ = {isa = PBXBuildFile; fileRef = 655319DF135C537600817E2D /* Preferences.m */; };
 		6510B052135ECADF002A5B90 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 08FB7796FE84155DC02AAC07 /* main.m */; };
-		6510B053135ECADF002A5B90 /* ServerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 655317A8135B9CCF00817E2D /* ServerConnection.m */; };
 		6510B054135ECADF002A5B90 /* ServerTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 6553193C135C3B9E00817E2D /* ServerTask.m */; };
 		6510B055135ECADF002A5B90 /* StatusBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 655317D5135BA57900817E2D /* StatusBar.m */; };
 		6510B192135ECAFF002A5B90 /* Growl.framework in Resources */ = {isa = PBXBuildFile; fileRef = 655315BB135B0D9800817E2D /* Growl.framework */; };
 		6510B1E0135ECD27002A5B90 /* logo.icns in Resources */ = {isa = PBXBuildFile; fileRef = 6510B1DF135ECD27002A5B90 /* logo.icns */; };
 		65714F431367507400D60887 /* ConnectionServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 65714F421367507400D60887 /* ConnectionServer.m */; };
-		65BFDF3513603CF9002B818E /* SocketServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 65BFDF3413603CF9002B818E /* SocketServer.m */; };
-		65BFE06413605C0B002B818E /* AudioDeviceClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE06313605C0B002B818E /* AudioDeviceClient.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -35,8 +32,6 @@
 		655315AD135B0BF500817E2D /* GrowlNotifications.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GrowlNotifications.m; sourceTree = "<group>"; };
 		655315BB135B0D9800817E2D /* Growl.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Growl.framework; path = /Library/Frameworks/Growl.framework; sourceTree = "<absolute>"; };
 		65531647135B174500817E2D /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
-		655317A7135B9CCF00817E2D /* ServerConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServerConnection.h; sourceTree = "<group>"; };
-		655317A8135B9CCF00817E2D /* ServerConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ServerConnection.m; sourceTree = "<group>"; };
 		655317D4135BA57900817E2D /* StatusBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StatusBar.h; sourceTree = "<group>"; };
 		655317D5135BA57900817E2D /* StatusBar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StatusBar.m; sourceTree = "<group>"; };
 		6553193B135C3B9E00817E2D /* ServerTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServerTask.h; sourceTree = "<group>"; };
@@ -47,10 +42,6 @@
 		65714F411367507400D60887 /* ConnectionServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConnectionServer.h; sourceTree = "<group>"; };
 		65714F421367507400D60887 /* ConnectionServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConnectionServer.m; sourceTree = "<group>"; };
 		65BFDF3213603C90002B818E /* SocketCommunicationDefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SocketCommunicationDefs.h; path = ../Shared/SocketCommunicationDefs.h; sourceTree = SOURCE_ROOT; };
-		65BFDF3313603CF9002B818E /* SocketServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SocketServer.h; sourceTree = "<group>"; };
-		65BFDF3413603CF9002B818E /* SocketServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SocketServer.m; sourceTree = "<group>"; };
-		65BFE06213605C0B002B818E /* AudioDeviceClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioDeviceClient.h; sourceTree = "<group>"; };
-		65BFE06313605C0B002B818E /* AudioDeviceClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AudioDeviceClient.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -70,10 +61,8 @@
 		08FB7794FE84155DC02AAC07 /* PulseAudioHelper */ = {
 			isa = PBXGroup;
 			children = (
-				6510B1DF135ECD27002A5B90 /* logo.icns */,
 				6510B193135ECB36002A5B90 /* Resources */,
-				65531BA9135D803E00817E2D /* ObjectNames.h */,
-				65BFDF3213603C90002B818E /* SocketCommunicationDefs.h */,
+				6571567713698F3E00D60887 /* Shared */,
 				08FB7795FE84155DC02AAC07 /* Source */,
 				08FB779DFE84155DC02AAC07 /* External Frameworks and Libraries */,
 				1AB674ADFE9D54B511CA2CBB /* Products */,
@@ -86,23 +75,17 @@
 			children = (
 				32A70AAB03705E1F00C91783 /* PulseAudioHelper_Prefix.pch */,
 				08FB7796FE84155DC02AAC07 /* main.m */,
-				65BFE06213605C0B002B818E /* AudioDeviceClient.h */,
-				65BFE06313605C0B002B818E /* AudioDeviceClient.m */,
+				6510AFF9135DA1BB002A5B90 /* Pathes.h */,
+				65714F411367507400D60887 /* ConnectionServer.h */,
+				65714F421367507400D60887 /* ConnectionServer.m */,
 				655315AC135B0BF500817E2D /* GrowlNotifications.h */,
 				655315AD135B0BF500817E2D /* GrowlNotifications.m */,
-				655317A7135B9CCF00817E2D /* ServerConnection.h */,
-				655317A8135B9CCF00817E2D /* ServerConnection.m */,
 				6553193B135C3B9E00817E2D /* ServerTask.h */,
 				6553193C135C3B9E00817E2D /* ServerTask.m */,
-				65BFDF3313603CF9002B818E /* SocketServer.h */,
-				65BFDF3413603CF9002B818E /* SocketServer.m */,
 				655317D4135BA57900817E2D /* StatusBar.h */,
 				655317D5135BA57900817E2D /* StatusBar.m */,
 				655319DE135C537600817E2D /* Preferences.h */,
 				655319DF135C537600817E2D /* Preferences.m */,
-				6510AFF9135DA1BB002A5B90 /* Pathes.h */,
-				65714F411367507400D60887 /* ConnectionServer.h */,
-				65714F421367507400D60887 /* ConnectionServer.m */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -128,9 +111,19 @@
 		6510B193135ECB36002A5B90 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				6510B1DF135ECD27002A5B90 /* logo.icns */,
 				6510B048135ECABD002A5B90 /* PulseAudioHelper-Info.plist */,
 			);
 			name = Resources;
+			sourceTree = "<group>";
+		};
+		6571567713698F3E00D60887 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				65531BA9135D803E00817E2D /* ObjectNames.h */,
+				65BFDF3213603C90002B818E /* SocketCommunicationDefs.h */,
+			);
+			name = Shared;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -197,11 +190,8 @@
 				6510B04F135ECADF002A5B90 /* GrowlNotifications.m in Sources */,
 				6510B050135ECADF002A5B90 /* Preferences.m in Sources */,
 				6510B052135ECADF002A5B90 /* main.m in Sources */,
-				6510B053135ECADF002A5B90 /* ServerConnection.m in Sources */,
 				6510B054135ECADF002A5B90 /* ServerTask.m in Sources */,
 				6510B055135ECADF002A5B90 /* StatusBar.m in Sources */,
-				65BFDF3513603CF9002B818E /* SocketServer.m in Sources */,
-				65BFE06413605C0B002B818E /* AudioDeviceClient.m in Sources */,
 				65714F431367507400D60887 /* ConnectionServer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

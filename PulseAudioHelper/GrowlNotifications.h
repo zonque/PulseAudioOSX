@@ -12,11 +12,9 @@
 #import <Cocoa/Cocoa.h>
 #import <Growl/Growl.h>
 #import "Preferences.h"
-#import "ServerConnection.h"
 
 @interface GrowlNotifications : NSObject <
 				GrowlApplicationBridgeDelegate,
-				ServerConnectionDelegate,
 				NSNetServiceDelegate,
 				NSNetServiceBrowserDelegate
 				>
@@ -26,7 +24,7 @@
 	NSNetServiceBrowser *sinkBrowser;
 	NSData *logoData;
 	BOOL growlReady;
-	ServerConnection *serverConnection;
+	//ServerConnection *serverConnection;
 	Preferences *prefs;
 }
 

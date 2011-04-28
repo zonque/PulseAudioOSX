@@ -1,25 +1,19 @@
 #import <Foundation/Foundation.h>
+
 #import "StatusBar.h"
 #import "ServerTask.h"
 #import "Preferences.h"
 #import "GrowlNotifications.h"
-#import "SocketServer.h"
-#import "AudioDeviceClient.h"
 #import "ConnectionServer.h"
+#import "ObjectNames.h"
 
 int main (int argc, const char * argv[]) {
 	NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
         [NSApplication sharedApplication];
 
-	ConnectionServer *cs = [[[ConnectionServer alloc] init] autorelease];
-
-	
-	SocketServer *server = [[[SocketServer alloc] init] autorelease];
+	ConnectionServer *server = [[[ConnectionServer alloc] init] autorelease];
 	Preferences *prefs = [[[Preferences alloc] init] autorelease];
 
-	AudioDeviceClient *deviceClient = [[AudioDeviceClient alloc] init];
-	[deviceClient setSocketServer: server];
-	
 	GrowlNotifications *gn = [[[GrowlNotifications alloc] init] autorelease];
 	[gn setPreferences: prefs];
 
@@ -30,13 +24,19 @@ int main (int argc, const char * argv[]) {
 	[task setPreferences: prefs];
 
 	[server start];
-	
+
+#if 0
+	[[prefs notificationCenter] postNotificationName: @PAOSX_HelperMsgServiceStarted
+						  object: @PAOSX_HelperName
+						userInfo: nil
+				      deliverImmediately: YES];	
+#endif
+
 	[NSApp setDelegate: bar];
 	[NSApp run];
 	
-	[server stop];
 	[task stop];
 
-	[pool drain];
+	[pool release];
 	return 0;
 }

@@ -14,6 +14,58 @@
 
 @implementation ConnectionServer
 
+@synthesize currentConnection;
+
+#pragma mark ### PAHelperConnection protocol ###
+
+- (void) audioClientsChanged
+{
+	for (id<PAHelperConnection> o in clientObjects)
+		[o audioClientsChanged: audioClients];
+}
+
+- (void) registerClientWithName: (NSString *) name
+{
+	id proxy = [NSConnection rootProxyForConnectionWithRegisteredName: name
+								     host: nil];
+
+	NSLog(@"%s() %@", __func__, name);
+
+	if (proxy)
+		[clientObjects addObject: proxy];
+}
+
+- (void) announceDevice: (NSDictionary *) device
+{
+	NSMutableDictionary *entry = [NSMutableDictionary dictionaryWithDictionary: device];
+
+	[entry setObject: currentConnection
+		  forKey: @"connection"];
+	
+	[audioClients addObject: entry];
+	
+//	NSLog(@" %s(): %@", __func__, device);
+}
+
+- (void) signOffDevice: (NSString *) signedOffName
+{	
+	NSLog(@" %s(): %@", __func__, signedOffName);
+
+	for (NSDictionary *entry in audioClients) {
+		NSString *name = [entry objectForKey: @"deviceName"];
+		NSConnection *connection = [entry objectForKey: @"connection"];
+
+		if ([name isEqualToString: signedOffName] &&
+		    connection == currentConnection) {
+			[audioClients removeObject: entry];
+			NSLog(@"removing ...");
+			return;
+		}
+	}
+}
+
+#pragma mark ### NSConnection callbacks ###
+
 - (void) connectionDied: (NSNotification *) notification
 {
 	NSConnection *connection = [notification object];
@@ -24,53 +76,67 @@
 			[clientObjects removeObject: o];
 			return;
 		}
-}
-
-- (void) registerClientWithName: (NSString *) name
-{
-	NSDistantObject *proxy = [NSConnection rootProxyForConnectionWithRegisteredName: name
-										   host: nil];
-
-	NSLog(@"%s() %@", __func__, name);
-
-	if (proxy)
-		[clientObjects addObject: proxy];
 	
-	[proxy test: @"1235"];
+	for (NSDictionary *entry in audioClients) {
+		NSConnection *c = [entry objectForKey: @"connection"];
+		
+		if (c == connection) {
+			[audioClients removeObject: entry];
+			return;
+		}
+	}
 }
 
-- (BOOL) connection: (NSConnection *) parentConnection
-	shouldMakeNewConnection: (NSConnection *) newConnnection
-{
-	[[NSNotificationCenter defaultCenter] addObserver: self
-						 selector: @selector(connectionDied:)
-						     name: NSConnectionDidDieNotification
-						   object: newConnnection];
-
-	return YES;
-}
-
-- (BOOL) connection: (NSConnection *) conn
-      handleRequest: (NSDistantObjectRequest *) doReq
+- (void) connectionInitialized: (NSNotification *) notification
 {
 	NSLog(@"%s()", __func__);
-	return NO;
+	//NSConnection *connection = [notification object];
+	//[connection crea
 }
 
 - (id) init
 {
 	[super init];
 
-	clientObjects = [NSMutableArray arrayWithCapacity: 0];
-
-	NSConnection *connection = [NSConnection serviceConnectionWithName: @PAOSX_HelperName
-								rootObject: self];	
-	[connection setDelegate: self];
-	
-	[connection addRunLoop: [NSRunLoop currentRunLoop]];
-	NSLog(@" conn = %p", connection);
+	clientObjects = [[NSMutableArray arrayWithCapacity: 0] retain];
+	audioClients = [[NSMutableArray arrayWithCapacity: 0] retain];
 	
 	return self;
+}
+
+- (void) start
+{
+	NSConnection *connection = [NSConnection serviceConnectionWithName: @PAOSX_HelperName
+								rootObject: self];	
+	[connection setDelegate: self];	
+	[connection addRunLoop: [NSRunLoop currentRunLoop]];
+}
+
+#pragma mark ### NSConnectionDelegate ###
+
+- (BOOL) connection: (NSConnection *) parentConnection
+shouldMakeNewConnection: (NSConnection *) newConnnection
+{
+	[[NSNotificationCenter defaultCenter] addObserver: self
+						 selector: @selector(connectionInitialized:)
+						     name: NSConnectionDidInitializeNotification
+						   object: newConnnection];
+	[[NSNotificationCenter defaultCenter] addObserver: self
+						 selector: @selector(connectionDied:)
+						     name: NSConnectionDidDieNotification
+						   object: newConnnection];
+	
+	return YES;
+}
+
+- (BOOL) connection: (NSConnection *) conn
+      handleRequest: (NSDistantObjectRequest *) doReq
+{
+	ConnectionServer *server = [conn rootObject];
+	server.currentConnection = conn;
+	
+	NSLog(@"%s() conn %p", __func__, conn);
+	return NO;
 }
 
 @end
