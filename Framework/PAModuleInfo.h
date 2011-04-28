@@ -20,9 +20,9 @@
 	NSDictionary *properties;
 }
 
-@property (assign) NSString *name;
-@property (assign) NSString *argument;
-@property (assign) UInt32 useCount;
-@property (assign) NSDictionary *properties;
+@property (nonatomic, retain) NSString *name;
+@property (nonatomic, retain) NSString *argument;
+@property (nonatomic, assign) UInt32 useCount;
+@property (nonatomic, retain) NSDictionary *properties;
 
 @end

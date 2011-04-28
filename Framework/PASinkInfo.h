@@ -26,15 +26,15 @@
 	NSDictionary *properties;
 }
 
-@property (assign) NSString *name;
-@property (assign) NSString *description;
-@property (assign) NSString *sampleSpec;
-@property (assign) NSString *channelMap;
-@property (assign) NSString *driver;
-@property (assign) UInt32 latency;
-@property (assign) UInt32 configuredLatency;
-@property (assign) UInt32 nVolumeSteps;
-@property (assign) UInt32 volume;
-@property (assign) NSDictionary *properties;
+@property (nonatomic, retain) NSString *name;
+@property (nonatomic, retain) NSString *description;
+@property (nonatomic, retain) NSString *sampleSpec;
+@property (nonatomic, retain) NSString *channelMap;
+@property (nonatomic, retain) NSString *driver;
+@property (nonatomic, assign) UInt32 latency;
+@property (nonatomic, assign) UInt32 configuredLatency;
+@property (nonatomic, assign) UInt32 nVolumeSteps;
+@property (nonatomic, assign) UInt32 volume;
+@property (nonatomic, retain) NSDictionary *properties;
 
 @end

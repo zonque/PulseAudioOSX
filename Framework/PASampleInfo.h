@@ -24,13 +24,13 @@
 	BOOL lazy;
 }
 
-@property (assign) NSString *name;
-@property (assign) NSString *sampleSpec;
-@property (assign) NSString *channelMap;
-@property (assign) NSString *fileName;
-@property (assign) UInt64 duration;
-@property (assign) UInt64 bytes;
-@property (assign) BOOL lazy;
+@property (nonatomic, retain) NSString *name;
+@property (nonatomic, retain) NSString *sampleSpec;
+@property (nonatomic, retain) NSString *channelMap;
+@property (nonatomic, retain) NSString *fileName;
+@property (nonatomic, assign) UInt64 duration;
+@property (nonatomic, assign) UInt64 bytes;
+@property (nonatomic, assign) BOOL lazy;
 
 
 @end

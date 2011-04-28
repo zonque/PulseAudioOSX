@@ -63,14 +63,14 @@
 	NSMutableArray *samples;
 }
 
-@property (assign) NSObject <PAServerConnectionDelegate> *delegate;
-@property (readonly) PAServerInfo *serverInfo;
-@property (readonly) NSArray *cards;
-@property (readonly) NSArray *sinks;
-@property (readonly) NSArray *sources;
-@property (readonly) NSArray *clients;
-@property (readonly) NSArray *modules;
-@property (readonly) NSArray *samples;
+@property (nonatomic, assign) NSObject <PAServerConnectionDelegate> *delegate;
+@property (nonatomic, readonly) PAServerInfo *serverInfo;
+@property (nonatomic, readonly) NSArray *cards;
+@property (nonatomic, readonly) NSArray *sinks;
+@property (nonatomic, readonly) NSArray *sources;
+@property (nonatomic, readonly) NSArray *clients;
+@property (nonatomic, readonly) NSArray *modules;
+@property (nonatomic, readonly) NSArray *samples;
 
 - (void) connectToHost: (NSString *) hostName
 		  port: (int) port;

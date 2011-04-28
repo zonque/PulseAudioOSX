@@ -19,8 +19,8 @@
 	NSDictionary *properties;
 }
 
-@property (assign) NSString *name;
-@property (assign) NSString *driver;
-@property (assign) NSDictionary *properties;
+@property (nonatomic, retain) NSString *name;
+@property (nonatomic, retain) NSString *driver;
+@property (nonatomic, retain) NSDictionary *properties;
 
 @end

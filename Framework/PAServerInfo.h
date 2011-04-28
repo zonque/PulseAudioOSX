@@ -25,14 +25,14 @@
 	UInt32 cookie;
 }
 
-@property (assign) NSString *userName;
-@property (assign) NSString *hostName;
-@property (assign) NSString *serverName;
-@property (assign) NSString *version;
-@property (assign) NSString *sampleSpec;
-@property (assign) NSString *channelMap;
-@property (assign) NSString *defaultSinkName;
-@property (assign) NSString *defaultSourceName;
-@property (assign) UInt32 cookie;
+@property (nonatomic, retain) NSString *userName;
+@property (nonatomic, retain) NSString *hostName;
+@property (nonatomic, retain) NSString *serverName;
+@property (nonatomic, retain) NSString *version;
+@property (nonatomic, retain) NSString *sampleSpec;
+@property (nonatomic, retain) NSString *channelMap;
+@property (nonatomic, retain) NSString *defaultSinkName;
+@property (nonatomic, retain) NSString *defaultSourceName;
+@property (nonatomic, assign) UInt32 cookie;
 
 @end

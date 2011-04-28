@@ -307,7 +307,6 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 			pa_context_get_sample_info_list(PAContext, staticSampleInfoCallback, self);
 			break;
 		case PA_SUBSCRIPTION_EVENT_SERVER:
-			//[serverinfo removeAllObjects];
 			pa_context_get_server_info(PAContext, staticServerInfoCallback, self);
 			break;
 		case PA_SUBSCRIPTION_EVENT_CARD:
@@ -569,7 +568,7 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 {
 	[super init];
 	
-	serverInfo = [[PAServerInfo alloc] init];
+	serverInfo = [[[PAServerInfo alloc] init] retain];
 
 	cards = [[NSMutableArray arrayWithCapacity: 0] retain];
 	sinks = [[NSMutableArray arrayWithCapacity: 0] retain];
@@ -603,6 +602,7 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 	[clients release];
 	[modules release];
 	[samples release];
+	[serverInfo release];
 	
 	[super dealloc];
 }
