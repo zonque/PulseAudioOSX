@@ -32,8 +32,6 @@
 		0AA1909FFE8422F4C02AAC07 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = /System/Library/Frameworks/CoreFoundation.framework; sourceTree = "<absolute>"; };
 		2DF7BC5308DA4CCA00EE5510 /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = /System/Library/Frameworks/CoreAudio.framework; sourceTree = "<absolute>"; };
 		2DF7BC7D08DA4E0700EE5510 /* HALPlugin.exp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.exports; name = HALPlugin.exp; path = ../Source/HALPlugin.exp; sourceTree = "<group>"; };
-		2DF7BCD108DA584F00EE5510 /* CAHostTimeBase.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = CAHostTimeBase.cpp; sourceTree = "<group>"; };
-		2DF7BCD208DA584F00EE5510 /* CAHostTimeBase.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CAHostTimeBase.h; sourceTree = "<group>"; };
 		6510B01A135DA8F6002A5B90 /* ObjectNames.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ObjectNames.h; path = ../Shared/ObjectNames.h; sourceTree = SOURCE_ROOT; };
 		65474230134F01D70030DDFF /* PAPlugInInterface.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PAPlugInInterface.m; path = Source/PAPlugInInterface.m; sourceTree = "<group>"; };
 		65474245134F0B680030DDFF /* PA_Plugin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PA_Plugin.cpp; sourceTree = "<group>"; };
@@ -96,7 +94,6 @@
 				65BFE2EC1365A7C7002B818E /* Shared */,
 				65BFE2EB1365A7BC002B818E /* ObjC */,
 				08FB77AFFE84173DC02AAC07 /* Source */,
-				2DF7BC3008DA4A5400EE5510 /* PublicUtility */,
 				2DF7BC7008DA4D5100EE5510 /* Resources */,
 				089C1671FE841209C02AAC07 /* Frameworks */,
 				19C28FB6FE9D52B211CA2CBB /* Products */,
@@ -149,16 +146,6 @@
 			);
 			name = Products;
 			sourceTree = "<group>";
-		};
-		2DF7BC3008DA4A5400EE5510 /* PublicUtility */ = {
-			isa = PBXGroup;
-			children = (
-				2DF7BCD108DA584F00EE5510 /* CAHostTimeBase.cpp */,
-				2DF7BCD208DA584F00EE5510 /* CAHostTimeBase.h */,
-			);
-			name = PublicUtility;
-			path = Extras/CoreAudio/PublicUtility;
-			sourceTree = SYSTEM_DEVELOPER_DIR;
 		};
 		2DF7BC7008DA4D5100EE5510 /* Resources */ = {
 			isa = PBXGroup;

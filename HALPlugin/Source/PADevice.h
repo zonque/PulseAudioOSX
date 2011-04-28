@@ -29,9 +29,6 @@
 	
 	BOOL isRunning;
 	
-	UInt32 ioBufferFrameSize;
-	Float64 sampleRate;
-	
 	AudioStreamBasicDescription streamDescription;
 	AudioStreamRangedDescription physicalFormat;
 	
@@ -39,9 +36,11 @@
 	PADeviceAudio *deviceAudio;
 }
 
-@property (readonly) PAServerConnection *serverConnection;
-
 - (PAStream *) findStreamByID: (AudioObjectID) searchID;
+- (void) connectToServer;
+- (void) disconnectFromServer;
+
+#pragma mark ### PAObject ###
 
 - (void) publishOwnedObjects;
 - (void) depublishOwnedObjects;

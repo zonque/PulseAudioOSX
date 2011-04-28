@@ -46,7 +46,7 @@
 	PADevice *dev = [[PADevice alloc] initWithPluginRef: pluginRef];
 	dev.owningObjectID = self.objectID;
 	[devicesArray addObject: dev];
-	//[dev release]; // the array holds a reference now
+	[dev release]; // the array holds a reference now
 	
 	[self publishOwnedObjects];
 }
@@ -169,7 +169,7 @@
 		[o unlock];
 
 		if (!ret) {
-			DebugProperty("id %d (%s) has NO property '%c%c%c%c'",
+			DebugProperty("id %d (%@) has NO property '%c%c%c%c'",
 				      (int) oid, [o className],
 				      ((int) address->mSelector >> 24) & 0xff,
 				      ((int) address->mSelector >> 16) & 0xff,
@@ -195,7 +195,7 @@
 		*outIsPropertySettable = [o isPropertySettable: address];
 		[o unlock];
 
-		DebugProperty("asked id %d (%s) for '%c%c%c%c', -> %s",
+		DebugProperty("asked id %d (%@) for '%c%c%c%c', -> %s",
 			      (int) oid, [o className],
 			      ((int) address->mSelector >> 24) & 0xff,
 			      ((int) address->mSelector >> 16) & 0xff,
@@ -228,7 +228,7 @@
 				     outSize: outSize];
 		[o unlock];
 
-		DebugProperty("asked id %d (%s) for '%c%c%c%c' -> %d",
+		DebugProperty("asked id %d (%@) for '%c%c%c%c' -> %d",
 			      (int) oid, [o className],
 			      ((int) address->mSelector >> 24) & 0xff,
 			      ((int) address->mSelector >> 16) & 0xff,
@@ -261,7 +261,7 @@
 				 outData: outData];
 		[o unlock];
 		
-		DebugProperty("asked id %d (%s) for '%c%c%c%c'",
+		DebugProperty("asked id %d (%@) for '%c%c%c%c'",
 			      (int) oid, [o className],
 			      ((int) address->mSelector >> 24) & 0xff,
 			      ((int) address->mSelector >> 16) & 0xff,
@@ -285,7 +285,7 @@
 	PAObject *o = [self findObjectByID: oid];
 	
 	if (o) {
-		DebugProperty("asked id %d (%s) for '%c%c%c%c'",
+		DebugProperty("asked id %d (%@) for '%c%c%c%c'",
 			      (int) oid, [o className],
 			      ((int) address->mSelector >> 24) & 0xff,
 			      ((int) address->mSelector >> 16) & 0xff,

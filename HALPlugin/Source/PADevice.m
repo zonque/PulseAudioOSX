@@ -18,7 +18,7 @@
 
 @implementation PADevice
 
-@synthesize serverConnection;
+#pragma mark ### audio object handling ###
 
 - (void) publishOwnedObjects
 {
@@ -61,6 +61,46 @@
 	[array addObjectsFromArray: outputStreamArray];
 }
 
+#pragma mark ### connect/disconnect ###
+
+- (void) connectToServer
+{
+	if (!serverConnection) {
+		serverConnection = [[PAServerConnection alloc] init];
+		serverConnection.delegate = self;
+		[serverConnection retain];
+	}
+
+	if (![serverConnection isConnected])
+		[serverConnection connectToHost: nil
+					   port: -1];
+}
+
+- (void) disconnectFromServer
+{
+	if (serverConnection)
+		[serverConnection release];
+	
+	serverConnection = nil;
+}
+
+- (void) checkConnection
+{
+	// AudioDeviceStop() is likely to be called from the IOProc thread, so
+	// we have to dispatch these calls in from the main thread context.
+
+	if ([deviceAudio hasActiveProcs])
+		[self performSelectorOnMainThread: @selector(connectToServer)
+				       withObject: nil
+				    waitUntilDone: YES];
+	else
+		[self performSelectorOnMainThread: @selector(disconnectFromServer)
+				       withObject: nil
+				    waitUntilDone: YES];	
+}
+
+#pragma mark ### PADevice ###
+
 - (id) initWithPluginRef: (AudioHardwarePlugInRef) ref
 {
 	[super initWithPluginRef: ref];
@@ -74,23 +114,24 @@
 		DebugLog("AudioObjectCreate() failed");
 
 	isRunning = NO;
-	ioBufferFrameSize = 1024;
-	sampleRate = 44100.0f;
 	
 	memset(&streamDescription, 0, sizeof(streamDescription));
 	memset(&physicalFormat, 0, sizeof(physicalFormat));
 	
-	streamDescription.mSampleRate = sampleRate;
+	deviceAudio = [[PADeviceAudio alloc] initWithPADevice: self];
+
+	streamDescription.mSampleRate = deviceAudio.sampleRate;
 	streamDescription.mFormatID = kAudioFormatLinearPCM;
 	streamDescription.mFormatFlags = kAudioFormatFlagsCanonical;
 	streamDescription.mBitsPerChannel = 32;
 	streamDescription.mChannelsPerFrame = 2;
 	streamDescription.mFramesPerPacket = 1;
-	streamDescription.mBytesPerFrame = 8;
-	streamDescription.mBytesPerPacket = 8;
-	
-	physicalFormat.mSampleRateRange.mMinimum = sampleRate;
-	physicalFormat.mSampleRateRange.mMaximum = sampleRate;
+	streamDescription.mBytesPerFrame = deviceAudio.bytesPerSampleFrame;
+	streamDescription.mBytesPerPacket = streamDescription.mFramesPerPacket *
+					    streamDescription.mBytesPerFrame;
+
+	physicalFormat.mSampleRateRange.mMinimum = deviceAudio.sampleRate;
+	physicalFormat.mSampleRateRange.mMaximum = deviceAudio.sampleRate;
 	memcpy(&physicalFormat.mFormat, &streamDescription, sizeof(streamDescription));
 	
 	inputStreamArray = [[NSMutableArray arrayWithCapacity: 0] retain];
@@ -118,26 +159,14 @@
 					[inputStreamArray count],
 					[outputStreamArray count]];
 	deviceUID = [NSString stringWithFormat: @"org.pulseaudio.HALPlugin.%@", modelUID];
-
-	
-	serverConnection = [[PAServerConnection alloc] init];
-	serverConnection.delegate = self;
-
-	deviceAudio = [[PADeviceAudio alloc] initWithPADevice: self];
-
-	[serverConnection connectToHost: nil
-				   port: -1];	
 	
 	return self;
 }
 
 - (void) dealloc
 {
-	if (deviceAudio) {
-		[deviceAudio release];
-		deviceAudio = nil;
-	}
-	
+	[self disconnectFromServer];
+	[deviceAudio release];
 	[inputStreamArray release];
 	[outputStreamArray release];
 	[super dealloc];
@@ -149,6 +178,8 @@
 		 clientData: (void *) clientData
 		outIOProcID: (AudioDeviceIOProcID *) outProcID
 {
+	DebugLog();
+
 	AudioDeviceIOProcID pid = [deviceAudio createIOProcID: proc
 						   clientData: clientData];
 	if (!pid)
@@ -162,13 +193,18 @@
 
 - (OSStatus) destroyIOProcID: (AudioDeviceIOProcID) procID
 {
+	DebugLog();
+
 	[deviceAudio removeIOProcID: procID];
+	[self checkConnection];
 	return kAudioHardwareNoError;
 }
 
 - (OSStatus) addIOProc: (AudioDeviceIOProc) proc
 	    clientData: (void *) clientData
 {
+	DebugLog();
+
 	[deviceAudio createIOProcID: proc
 			 clientData: clientData];
 	return kAudioHardwareNoError;
@@ -176,14 +212,21 @@
 
 - (OSStatus) removeIOProc: (AudioDeviceIOProc) proc
 {
+	DebugLog();
+
 	[deviceAudio removeIOProcID: proc];
+	[self checkConnection];
 	return kAudioHardwareNoError;
 }
 
 - (OSStatus) start: (AudioDeviceIOProc) procID
 {
+	DebugLog();
+
 	[deviceAudio setIOProcIDEnabled: procID
 				enabled: YES];
+	
+	[self checkConnection];
 	return kAudioHardwareNoError;
 }
 
@@ -191,16 +234,22 @@
     ioRequestedStartTime: (AudioTimeStamp *) ioRequestedStartTime
 		   flags: (UInt32) flags
 {
+	DebugLog();
+
 	[deviceAudio setStartTimeForProcID: procID
 				 timeStamp: ioRequestedStartTime
 				     flags: flags];
+	[self checkConnection];
 	return kAudioHardwareNoError;
 }
 
 - (OSStatus) stop: (AudioDeviceIOProc) procID
 {
+	DebugLog();
+
 	[deviceAudio setIOProcIDEnabled: procID
-				enabled: NO];	
+				enabled: NO];
+	[self checkConnection];
 	return kAudioHardwareNoError;
 }
 
@@ -259,14 +308,14 @@
                 case kAudioDevicePropertyDeviceManufacturer:
                 case kAudioDevicePropertyDeviceName:
                 case kAudioDevicePropertyDeviceUID:
-		//case kAudioDevicePropertyIOProcStreamUsage:
+		case kAudioDevicePropertyIOProcStreamUsage:
 		case kAudioDevicePropertyIsHidden:
                 case kAudioDevicePropertyLatency:
                 case kAudioDevicePropertyModelUID:
 		case kAudioDevicePropertyNominalSampleRate:
 		//case kAudioDevicePropertyRelatedDevices:
                 case kAudioDevicePropertySafetyOffset:
-                //case kAudioDevicePropertyStreamConfiguration:
+                case kAudioDevicePropertyStreamConfiguration:
                 case kAudioDevicePropertyStreams:
                 case kAudioDevicePropertyTransportType:
                 case kAudioObjectPropertyManufacturer:
@@ -354,8 +403,7 @@
 			return kAudioHardwareNoError;
 			
 		case kAudioDevicePropertyIOProcStreamUsage:
-			//theAnswer = SizeOf32(void*) + SizeOf32(UInt32) + (GetNumberStreams(isInput) * SizeOf32(UInt32));
-			*outSize = 0;
+			*outSize = 0; //sizeof(AudioHardwareIOProcStreamUsage) - sizeof(UInt32[kVariableLengthArray]);
 			return kAudioHardwareNoError;
 			
 		case kAudioDevicePropertyNominalSampleRate:
@@ -375,10 +423,10 @@
 			*outSize = sizeof(AudioValueRange);
 			return kAudioHardwareNoError;			
 			
-			//case kAudioDevicePropertyIcon:
-			//	return sizeof(CFURLRef);
+		//case kAudioDevicePropertyIcon:
+		//	return sizeof(CFURLRef);
 			
-			// Stream properties
+		// Stream properties
 		case kAudioStreamPropertyAvailableVirtualFormats:
 		case kAudioStreamPropertyAvailablePhysicalFormats:
 			*outSize = sizeof(AudioStreamRangedDescription);
@@ -466,15 +514,26 @@
 		case kAudioDevicePropertyDeviceIsRunningSomewhere:
 			*(UInt32 *) outData = isRunning;
 			return kAudioHardwareNoError;			
-			
+
 		case kAudioDevicePropertyBufferFrameSize:
-			*(UInt32 *) outData = ioBufferFrameSize;
+			*(UInt32 *) outData = deviceAudio.ioProcBufferSize;
 			return kAudioHardwareNoError;
-			
+
 		case kAudioDevicePropertyBufferSize:
-			*(UInt32 *) outData = ioBufferFrameSize * 8; //deviceBackend->GetFrameSize();
+			*(UInt32 *) outData = deviceAudio.ioProcBufferSize * deviceAudio.bytesPerSampleFrame;
 			return kAudioHardwareNoError;
-			
+
+		case kAudioDevicePropertyIOProcStreamUsage: {
+			AudioHardwareIOProcStreamUsage *usage = outData;
+			NSArray *streamArray = isInput ? inputStreamArray : outputStreamArray;
+			usage->mNumberStreams = [streamArray count];
+
+			for (UInt32 i = 0; i < usage->mNumberStreams; i++)
+				usage->mStreamIsOn[i] = [deviceAudio channelIsActive: i];
+
+			return kAudioHardwareNoError;
+		}
+
 		case kAudioDevicePropertyBufferFrameSizeRange: {
 			AudioValueRange *range = outData;
 			// FIXME
@@ -485,14 +544,14 @@
 			
 		case kAudioDevicePropertyAvailableNominalSampleRates: {
 			AudioValueRange *range = outData;
-			range->mMinimum = sampleRate;
-			range->mMaximum = sampleRate;
+			range->mMinimum = deviceAudio.sampleRate;
+			range->mMaximum = deviceAudio.sampleRate;
 			return kAudioHardwareNoError;
 		}
 			
 		case kAudioDevicePropertyActualSampleRate:
 		case kAudioDevicePropertyNominalSampleRate:
-			*(Float64 *) outData = sampleRate;
+			*(Float64 *) outData = deviceAudio.sampleRate;
 			return kAudioHardwareNoError;
 			
 		case kAudioDevicePropertyClockDomain:
@@ -521,7 +580,7 @@
 			memset(list, 0, sizeof(*list));
 			list->mNumberBuffers = 1;
 			list->mBuffers[0].mNumberChannels = (isInput ? [inputStreamArray count] : [outputStreamArray count]) * 2;
-			list->mBuffers[0].mDataByteSize = ioBufferFrameSize * 8; //deviceBackend->GetFrameSize();
+			list->mBuffers[0].mDataByteSize = deviceAudio.ioProcBufferSize * deviceAudio.bytesPerSampleFrame;
 			*ioDataSize = sizeof(*list);
 			return kAudioHardwareNoError;
 		}
@@ -554,7 +613,39 @@
 		    dataSize: (UInt32) dataSize
 			data: (const void *) data
 {
-	return kAudioHardwareNoError;
+	switch (address->mSelector) {
+		case kAudioDevicePropertyDeviceIsRunning:
+			[deviceAudio setAllIOProcs: (BOOL) *(UInt32 *) data];
+			[self checkConnection];
+			return kAudioHardwareNoError;
+			
+		case kAudioDevicePropertyBufferFrameSize:
+			deviceAudio.ioProcBufferSize = *(UInt32 *) data;
+			return kAudioHardwareNoError;
+			
+		case kAudioDevicePropertyBufferSize:
+			deviceAudio.ioProcBufferSize = (*(UInt32 *) data) / deviceAudio.bytesPerSampleFrame;
+			return kAudioHardwareNoError;
+			
+		case kAudioDevicePropertyNominalSampleRate:
+			deviceAudio.sampleRate = *(const Float64*) data;
+			DebugLog("SETTING sample rate %f", deviceAudio.sampleRate);
+			return kAudioHardwareNoError;
+			
+		case kAudioStreamPropertyPhysicalFormat:
+			return kAudioHardwareNoError;
+			
+		//case kAudioDevicePropertyStreamFormat:
+		//	inDataSize = MIN(inDataSize, sizeof(streamDescription));
+		//	memcpy(&streamDescription, inData, inDataSize);
+		//	return kAudioHardwareNoError;
+	}
+	
+	return [super setPropertyData: address
+		    qualifierDataSize: qualifierDataSize
+			qualifierData: qualifierData
+			     dataSize: dataSize
+				 data: data];
 }
 
 #pragma mark ### properties (legacy interface) ###
@@ -631,7 +722,9 @@
 - (void) PAServerConnectionEstablished: (PAServerConnection *) connection
 {
 	NSLog(@"%s()", __func__);
-	BOOL ret = [serverConnection addAudioStreams];
+	BOOL ret = [serverConnection addAudioStreams: [deviceAudio countActiveChannels]
+					  sampleRate: deviceAudio.sampleRate
+				    ioProcBufferSize: deviceAudio.ioProcBufferSize];
 	if (!ret)
 		NSLog(@"%s(): addAudioStreams failed!?", __func__);	
 }

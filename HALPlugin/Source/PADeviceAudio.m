@@ -19,6 +19,10 @@
 
 @implementation PADeviceAudio
 
+@synthesize ioProcBufferSize;
+@synthesize sampleRate;
+@synthesize bytesPerSampleFrame;
+
 struct IOProcTracker
 {
 	AudioDeviceIOProc proc;
@@ -43,6 +47,9 @@ struct IOProcTracker
 
 	device = _device;
 	lock = [NSLock alloc];
+	ioProcBufferSize = 1024;
+	sampleRate = 44100.0f;
+	bytesPerSampleFrame = sizeof(Float32) * 2;
 
 	return self;
 }
@@ -75,6 +82,15 @@ struct IOProcTracker
 	[lock unlock];
 
 	return NULL;
+}
+
+- (BOOL) hasActiveProcs
+{
+	for (IOProcTracker *t = tracker; tracker; tracker = tracker->next)
+		if (t->enabled)
+			return YES;
+	
+	return NO;
 }
 
 - (AudioDeviceIOProcID) createIOProcID: (AudioDeviceIOProc) proc
@@ -145,6 +161,16 @@ struct IOProcTracker
 	}
 }
 
+- (void) setAllIOProcs: (BOOL) enabled
+{
+	[lock lock];
+
+	for (IOProcTracker *t = tracker; tracker; tracker = tracker->next)
+		t->enabled = enabled;
+	
+	[lock unlock];
+}
+
 - (void) setStartTimeForProcID: (AudioDeviceIOProcID) procID
 		     timeStamp: (AudioTimeStamp *) timeStamp
 			 flags: (UInt32) flags
@@ -160,6 +186,23 @@ struct IOProcTracker
 	[lock unlock];
 }
 
+#pragma mark stream configuration handling ###
+
+- (UInt32) countActiveChannels
+{
+	return 2;
+}
+
+- (BOOL) channelIsActive: (UInt32) channel
+{
+	return YES;
+}
+
+- (void) setChannelActive: (UInt32) channel
+		   active: (BOOL) active
+{
+}
+
 #pragma mark ### audio processing ###
 
 - (UInt32) PAServerConnection: (PAServerConnection *) connection
@@ -167,9 +210,8 @@ struct IOProcTracker
 		   recordData: (const Byte *) recordData
 		     byteSize: (UInt32) byteSize
 {
-	Float64 usecPerFrame = 1000000.0 / 44100.0;
-	UInt32 frameSize = 1024;
-	UInt32 ioProcSize = frameSize * 8;
+	Float64 usecPerFrame = 1000000.0 / sampleRate;
+	UInt32 ioProcSize = ioProcBufferSize * bytesPerSampleFrame;
 
 	AudioBufferList inputList, outputList;	
 	memset(&inputList, 0, sizeof(inputList));
@@ -229,10 +271,10 @@ struct IOProcTracker
 		//inputBuffer += ioProcSize;
 		playbackData += ioProcSize;
 		count += ioProcSize;
-		framesPlayed += ioProcSize / frameSize;
+		framesPlayed += ioProcSize / ioProcBufferSize;
 	}
 		
-		//DebugLog("writing %d, count %d", outputBufferPos - buf, count);
+	//DebugLog("writing %d, count %d", outputBufferPos - buf, count);
 		
 	return count;
 }
