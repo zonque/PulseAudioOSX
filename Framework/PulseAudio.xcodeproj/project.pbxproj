@@ -9,8 +9,8 @@
 /* Begin PBXBuildFile section */
 		6571514D13683F4A00D60887 /* PAServerConnectionAudio.h in Headers */ = {isa = PBXBuildFile; fileRef = 6571514B13683F4A00D60887 /* PAServerConnectionAudio.h */; };
 		6571514E13683F4A00D60887 /* PAServerConnectionAudio.m in Sources */ = {isa = PBXBuildFile; fileRef = 6571514C13683F4A00D60887 /* PAServerConnectionAudio.m */; };
-		657153AD136962BC00D60887 /* PulseAudio.png in Resources */ = {isa = PBXBuildFile; fileRef = 657153AB136962BC00D60887 /* PulseAudio.png */; };
-		657153AE136962BC00D60887 /* statusBar.png in Resources */ = {isa = PBXBuildFile; fileRef = 657153AC136962BC00D60887 /* statusBar.png */; };
+		657159771369B34600D60887 /* PAHelperConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = 657159751369B34600D60887 /* PAHelperConnection.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		657159781369B34600D60887 /* PAHelperConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 657159761369B34600D60887 /* PAHelperConnection.m */; };
 		65CCFBFF1366CF1E00834815 /* PAServerConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = 65CCFBFD1366CF1E00834815 /* PAServerConnection.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		65CCFC001366CF1E00834815 /* PAServerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 65CCFBFE1366CF1E00834815 /* PAServerConnection.m */; };
 		65CCFC151366D14700834815 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0867D69BFE84028FC02AAC07 /* Foundation.framework */; };
@@ -38,8 +38,8 @@
 		32DBCF5E0370ADEE00C91783 /* PulseAudio_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PulseAudio_Prefix.pch; sourceTree = "<group>"; };
 		6571514B13683F4A00D60887 /* PAServerConnectionAudio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PAServerConnectionAudio.h; sourceTree = "<group>"; };
 		6571514C13683F4A00D60887 /* PAServerConnectionAudio.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PAServerConnectionAudio.m; sourceTree = "<group>"; };
-		657153AB136962BC00D60887 /* PulseAudio.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = PulseAudio.png; path = ../_framework/Resources/PulseAudio.png; sourceTree = SOURCE_ROOT; };
-		657153AC136962BC00D60887 /* statusBar.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = statusBar.png; path = ../_framework/Resources/statusBar.png; sourceTree = SOURCE_ROOT; };
+		657159751369B34600D60887 /* PAHelperConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PAHelperConnection.h; sourceTree = "<group>"; };
+		657159761369B34600D60887 /* PAHelperConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PAHelperConnection.m; sourceTree = "<group>"; };
 		65CCFBFD1366CF1E00834815 /* PAServerConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PAServerConnection.h; sourceTree = "<group>"; };
 		65CCFBFE1366CF1E00834815 /* PAServerConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PAServerConnection.m; sourceTree = "<group>"; };
 		65CCFCB01367180C00834815 /* PAServerInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PAServerInfo.h; sourceTree = "<group>"; };
@@ -106,8 +106,6 @@
 		089C1665FE841158C02AAC07 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				657153AB136962BC00D60887 /* PulseAudio.png */,
-				657153AC136962BC00D60887 /* statusBar.png */,
 				8DC2EF5A0486A6940098B216 /* Info.plist */,
 				089C1666FE841158C02AAC07 /* InfoPlist.strings */,
 			);
@@ -136,6 +134,8 @@
 				65CCFCE313671BF400834815 /* PulseAudio.h */,
 				6571514B13683F4A00D60887 /* PAServerConnectionAudio.h */,
 				6571514C13683F4A00D60887 /* PAServerConnectionAudio.m */,
+				657159751369B34600D60887 /* PAHelperConnection.h */,
+				657159761369B34600D60887 /* PAHelperConnection.m */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -181,6 +181,7 @@
 				65CCFCD513671B5000834815 /* PASampleInfo.h in Headers */,
 				65CCFCE413671BF400834815 /* PulseAudio.h in Headers */,
 				6571514D13683F4A00D60887 /* PAServerConnectionAudio.h in Headers */,
+				657159771369B34600D60887 /* PAHelperConnection.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -237,8 +238,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				8DC2EF530486A6940098B216 /* InfoPlist.strings in Resources */,
-				657153AD136962BC00D60887 /* PulseAudio.png in Resources */,
-				657153AE136962BC00D60887 /* statusBar.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -258,6 +257,7 @@
 				65CCFCD213671B4A00834815 /* PAClientInfo.m in Sources */,
 				65CCFCD613671B5000834815 /* PASampleInfo.m in Sources */,
 				6571514E13683F4A00D60887 /* PAServerConnectionAudio.m in Sources */,
+				657159781369B34600D60887 /* PAHelperConnection.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
