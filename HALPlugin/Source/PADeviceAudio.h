@@ -26,9 +26,9 @@ typedef struct IOProcTracker IOProcTracker;
 	Float64 sampleRate;
 }
 
-@property (assign) UInt32 ioProcBufferSize;
-@property (readonly) UInt32 bytesPerSampleFrame;
-@property (assign) Float64 sampleRate;
+@property (nonatomic, assign) UInt32 ioProcBufferSize;
+@property (nonatomic, readonly) UInt32 bytesPerSampleFrame;
+@property (nonatomic, assign) Float64 sampleRate;
 
 - (id) initWithPADevice: (PADevice *) device;
 

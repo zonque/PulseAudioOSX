@@ -28,8 +28,8 @@
 }
 
 @property (readonly) AudioHardwarePlugInRef pluginRef;
-@property AudioObjectID objectID;
-@property AudioObjectID owningObjectID;
+@property (nonatomic, assign) AudioObjectID objectID;
+@property (nonatomic, assign) AudioObjectID owningObjectID;
 
 - (id) initWithPluginRef: (AudioHardwarePlugInRef) ref;
 

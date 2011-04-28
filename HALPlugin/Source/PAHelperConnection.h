@@ -25,7 +25,7 @@
 	NSObject <PAHelperConnectionDelegate> *delegate;
 }
 
-@property (assign) NSObject <PAHelperConnectionDelegate> *delegate;
+@property (nonatomic, assign) NSObject <PAHelperConnectionDelegate> *delegate;
 
 - (BOOL) connect;
 - (BOOL) isConnected;
