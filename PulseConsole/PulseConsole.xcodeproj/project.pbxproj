@@ -11,11 +11,10 @@
 		6515F1CC10D3926C0048DEB5 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 6515F1CB10D3926C0048DEB5 /* Credits.rtf */; };
 		6515F1D910D397D60048DEB5 /* logo.icns in Resources */ = {isa = PBXBuildFile; fileRef = 6515F1D810D397D60048DEB5 /* logo.icns */; };
 		65287261111EF7A600C40D7B /* MeterView.m in Sources */ = {isa = PBXBuildFile; fileRef = 65287260111EF7A600C40D7B /* MeterView.m */; };
-		6545582E10D4FA9200E3839A /* BonjourListener.m in Sources */ = {isa = PBXBuildFile; fileRef = 6545582D10D4FA9200E3839A /* BonjourListener.m */; };
+		6571552813696D7900D60887 /* PulseAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6571552713696D7900D60887 /* PulseAudio.framework */; };
+		657155551369791700D60887 /* ServerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 65B0A813132F9D12009BA485 /* ServerConnection.m */; };
 		65A09CC310F72B3300D07CF1 /* StreamView.m in Sources */ = {isa = PBXBuildFile; fileRef = 65A09CC210F72B3300D07CF1 /* StreamView.m */; };
 		65A09CE210F74DF300D07CF1 /* StreamListView.m in Sources */ = {isa = PBXBuildFile; fileRef = 65A09CE110F74DF300D07CF1 /* StreamListView.m */; };
-		65B0A814132F9D12009BA485 /* ServerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 65B0A813132F9D12009BA485 /* ServerConnection.m */; };
-		65B0A97C1332A2C7009BA485 /* pulse.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65B0A97B1332A2C7009BA485 /* pulse.framework */; };
 		8D11072A0486CEB800E47090 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 29B97318FDCFA39411CA2CEA /* MainMenu.nib */; };
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		8D11072D0486CEB800E47090 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
@@ -37,15 +36,13 @@
 		6515F1D810D397D60048DEB5 /* logo.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = logo.icns; sourceTree = "<group>"; };
 		6528725F111EF7A600C40D7B /* MeterView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MeterView.h; sourceTree = "<group>"; };
 		65287260111EF7A600C40D7B /* MeterView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MeterView.m; sourceTree = "<group>"; };
-		6545582C10D4FA9200E3839A /* BonjourListener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BonjourListener.h; sourceTree = "<group>"; };
-		6545582D10D4FA9200E3839A /* BonjourListener.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BonjourListener.m; sourceTree = "<group>"; };
+		6571552713696D7900D60887 /* PulseAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PulseAudio.framework; path = /Library/Frameworks/PulseAudio.framework; sourceTree = "<absolute>"; };
 		65A09CC110F72B3300D07CF1 /* StreamView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StreamView.h; sourceTree = "<group>"; };
 		65A09CC210F72B3300D07CF1 /* StreamView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StreamView.m; sourceTree = "<group>"; };
 		65A09CE010F74DF300D07CF1 /* StreamListView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StreamListView.h; sourceTree = "<group>"; };
 		65A09CE110F74DF300D07CF1 /* StreamListView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StreamListView.m; sourceTree = "<group>"; };
 		65B0A812132F9D12009BA485 /* ServerConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServerConnection.h; sourceTree = "<group>"; };
 		65B0A813132F9D12009BA485 /* ServerConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ServerConnection.m; sourceTree = "<group>"; };
-		65B0A97B1332A2C7009BA485 /* pulse.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = pulse.framework; path = /Library/Frameworks/pulse.framework; sourceTree = "<absolute>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* PulseConsole.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PulseConsole.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -56,7 +53,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */,
-				65B0A97C1332A2C7009BA485 /* pulse.framework in Frameworks */,
+				6571552813696D7900D60887 /* PulseAudio.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -66,8 +63,6 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				6545582C10D4FA9200E3839A /* BonjourListener.h */,
-				6545582D10D4FA9200E3839A /* BonjourListener.m */,
 				6528725F111EF7A600C40D7B /* MeterView.h */,
 				65287260111EF7A600C40D7B /* MeterView.m */,
 				65B0A812132F9D12009BA485 /* ServerConnection.h */,
@@ -85,6 +80,7 @@
 		1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				6571552713696D7900D60887 /* PulseAudio.framework */,
 				1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */,
 			);
 			name = "Linked Frameworks";
@@ -144,7 +140,6 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				65B0A97B1332A2C7009BA485 /* pulse.framework */,
 				1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */,
 				1058C7A2FEA54F0111CA2CBB /* Other Frameworks */,
 			);
@@ -217,11 +212,10 @@
 			files = (
 				8D11072D0486CEB800E47090 /* main.m in Sources */,
 				6515ED1E10D13D930048DEB5 /* WindowController.m in Sources */,
-				6545582E10D4FA9200E3839A /* BonjourListener.m in Sources */,
 				65A09CC310F72B3300D07CF1 /* StreamView.m in Sources */,
 				65A09CE210F74DF300D07CF1 /* StreamListView.m in Sources */,
 				65287261111EF7A600C40D7B /* MeterView.m in Sources */,
-				65B0A814132F9D12009BA485 /* ServerConnection.m in Sources */,
+				657155551369791700D60887 /* ServerConnection.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

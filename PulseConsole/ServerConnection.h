@@ -19,27 +19,12 @@
  USA.
  ***/
 
-#import <pulse/pulseaudio.h>
-#import <pulse/mainloop.h>
-#import <pulse/context.h>
-
 #import <Cocoa/Cocoa.h>
+#import <PulseAudio/PulseAudio.h>
 
-@protocol ServerConnectionDelegate
-@optional
-
-- (void) cardAdded: (NSDictionary *) newItem;
-
-@end
-
-
-@interface ServerConnection : NSObject {
-	pa_mainloop *mainloop;
-	pa_context *context;
-	char *connectRequest;
-	NSThread *thread;
-	
-	id<ServerConnectionDelegate> delegate;
+@interface ServerConnection : NSObject<PAServerConnectionDelegate>
+{
+	PAServerConnection *connection;
 	
 	NSMutableDictionary *statisticDict;    
 	NSMutableDictionary *serverinfo;
@@ -57,9 +42,29 @@
 @property (nonatomic, retain) NSDictionary *serverinfo;
 @property (nonatomic, retain) NSArray *sinks;
 
-- (void) setDelegate: (id<ServerConnectionDelegate>) newDelegate;
 - (void) connectToServer: (NSString *) server;
 - (void) reloadStatistics;
 - (void) getServerInfo;
+
+#pragma mark ### PAServerConnectionDelegate ###
+
+- (void) PAServerConnectionEstablished: (PAServerConnection *) connection;
+- (void) PAServerConnectionFailed: (PAServerConnection *) connection;
+- (void) PAServerConnectionEnded: (PAServerConnection *) connection;
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+	  serverInfoChanged: (PAServerInfo *) serverInfo;
+- (void) PAServerConnection: (PAServerConnection *) connection
+	       cardsChanged: (NSArray *) cards;
+- (void) PAServerConnection: (PAServerConnection *) connection
+	       sinksChanged: (NSArray *) sinks;
+- (void) PAServerConnection: (PAServerConnection *) connection
+	     sourcesChanged: (NSArray *) sources;
+- (void) PAServerConnection: (PAServerConnection *) connection
+	     clientsChanged: (NSArray *) clients;
+- (void) PAServerConnection: (PAServerConnection *) connection
+	     modulesChanged: (NSArray *) modules;
+- (void) PAServerConnection: (PAServerConnection *) connection
+	     samplesChanged: (NSArray *) samples;
 
 @end

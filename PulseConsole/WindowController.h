@@ -19,18 +19,13 @@
  USA.
  ***/
 
-#import <pulse/pulseaudio.h>
-#import <pulse/mainloop.h>
-#import <pulse/context.h>
-
 #import <Cocoa/Cocoa.h>
 
 #import "ServerConnection.h"
-#import "BonjourListener.h"
 #import "StreamView.h"
 
-@interface WindowController : NSObject {
-	
+@interface WindowController : NSObject
+{	
 	IBOutlet NSWindow               *window;
 	IBOutlet NSOutlineView          *outlineView;
 	IBOutlet NSTableView            *parameterTableView;
@@ -52,7 +47,6 @@
 	NSDictionary *activeItem;
 
 	ServerConnection *serverConnection;
-	BonjourListener *listener;
 }
 
 - (void) awakeFromNib;

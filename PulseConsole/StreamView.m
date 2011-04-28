@@ -22,9 +22,6 @@
 #import "StreamView.h"
 #import "StreamListView.h"
 
-#import <pulse/introspect.h>
-#import <pulse/channelmap.h>
-
 #define COLLAPSED_HEIGHT	(60.0f)
 #define LEFT_MARGIN		(40.0f)
 #define RIGHT_MARGIN		(20.0f)
@@ -106,6 +103,7 @@
 	int i;
 	longestChannelLabel = 0.0f;
 	
+	/*
 	pa_channel_map *map;
 	
 	switch (type) {
@@ -129,8 +127,8 @@
 		[l setEditable: NO];
 		[l setBordered: NO];
 		[l setDrawsBackground: NO];
-		[l setStringValue: [NSString stringWithCString: pa_channel_position_to_string(map->map[i])
-						      encoding: NSUTF8StringEncoding]];
+//		[l setStringValue: [NSString stringWithCString: pa_channel_position_to_string(map->map[i])
+//						      encoding: NSUTF8StringEncoding]];
 		[[l cell] setFont: [NSFont labelFontOfSize: 10.0]];
 		[l sizeToFit];
 		[self addSubview: l];
@@ -138,7 +136,7 @@
 		if (longestChannelLabel < [l frame].size.width)
 			longestChannelLabel = [l frame].size.width;
 	}
-	
+
 	for (i = 0; i < map->channels; i++) {
 		NSSlider *slider = [[NSSlider alloc] initWithFrame: NSMakeRect(LEFT_MARGIN + longestChannelLabel + 10.0,
 									       90.0 + (i * 20.0),
@@ -154,7 +152,8 @@
 		
 		expandedHeight += 20.0;
 	}
-	
+	 */
+
 	switch (type) {
 		case StreamTypeSink:
 		case StreamTypePlayback:

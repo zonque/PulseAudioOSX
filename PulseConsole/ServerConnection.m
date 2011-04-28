@@ -28,24 +28,9 @@
 @synthesize serverinfo;
 @synthesize sinks;
 
-#pragma mark ### static forwards ###
-
-static void subscribe_callback	(pa_context *c, pa_subscription_event_type_t t, uint32_t index, void *userdata);
-static void context_event_cb	(pa_context *c, const char *name, pa_proplist *p, void *userdata);
-static void context_state_cb	(pa_context *c, void *userdata);
-static void pa_stat_cb		(pa_context *c, const pa_stat_info *i, void *userdata);
-static void pa_server_info_cb	(pa_context *c, const struct pa_server_info *i, void *userdata);
-static void pa_sink_info_cb	(pa_context *c, const pa_sink_info *i, int eol, void *userdata);
-static void pa_card_info_cb	(pa_context *c, const pa_card_info *i, int eol, void *userdata);
-static void pa_source_info_cb	(pa_context *c, const pa_source_info *i, int eol, void *userdata);
-static void client_info_callback(pa_context *c, const struct pa_client_info *i, int eol, void *userdata);
-static void pa_module_info_cb	(pa_context *c, const struct pa_module_info *i, int eol, void *userdata);
-static void pa_client_info_cb	(pa_context *c, const struct pa_client_info *i, int eol, void *userdata);
-static void pa_sample_info_cb	(pa_context *c, const struct pa_sample_info *i, int eol, void *userdata);
-
 #pragma mark ### helper methods ###
 
-- (void) detailsChanged
+- (void) sendDetailsChanged
 {
 	NSNotification *notification = [NSNotification notificationWithName: @"detailsChanged"
 								     object: self];
@@ -55,314 +40,9 @@ static void pa_sample_info_cb	(pa_context *c, const struct pa_sample_info *i, in
 							    waitUntilDone: YES];
 }
 
-- (NSDictionary *) createDictionaryFromProplist: (pa_proplist *) plist
-{
-	NSMutableDictionary *dict;
-	void *state = NULL;
-	const char *key, *val;
-	
-	if (!plist)
-		return nil;
-	
-	dict = [NSMutableDictionary dictionaryWithCapacity: 0];
-	
-	do {
-		key = pa_proplist_iterate(plist, &state);
-		if (!key)
-			break;
-		
-		val = pa_proplist_gets(plist, key);
-		[dict setValue: [NSString stringWithCString: val
-						   encoding: NSUTF8StringEncoding]
-			forKey: [NSString stringWithFormat: @"%s", key]];
-	} while (state);
-	
-	return dict;
-}
-
-
-- (void) addServerInfo: (const pa_server_info *) info
-{
-	char tmp[0x100];
-	
-	[serverinfo setObject: [NSString stringWithCString: info->user_name
-						  encoding: NSUTF8StringEncoding]
-		       forKey: @"User Name"];
-	[serverinfo setObject: [NSString stringWithCString: info->host_name
-						  encoding: NSUTF8StringEncoding]
-		       forKey: @"Host Name"];
-	[serverinfo setObject: [NSString stringWithCString: info->server_version
-						  encoding: NSUTF8StringEncoding]
-		       forKey: @"Server Version"];
-	[serverinfo setObject: [NSString stringWithCString: info->server_name
-						  encoding: NSUTF8StringEncoding]
-		       forKey: @"Server Name"];
-	[serverinfo setObject: [NSString stringWithCString: pa_sample_spec_snprint(tmp, sizeof(tmp), &info->sample_spec)
-						  encoding: NSUTF8StringEncoding]
-		       forKey: @"Sample Spec"];
-	[serverinfo setObject: [NSString stringWithCString: pa_channel_map_snprint(tmp, sizeof(tmp), &info->channel_map)
-						  encoding: NSUTF8StringEncoding]
-		       forKey: @"Channel Map"];
-	[serverinfo setObject: [NSString stringWithCString: info->default_sink_name
-						  encoding: NSUTF8StringEncoding]
-		       forKey: @"Default Sink Name"];
-	[serverinfo setObject: [NSString stringWithCString: info->default_source_name
-						  encoding: NSUTF8StringEncoding]
-		       forKey: @"Default Source Name"];
-	[serverinfo setObject: [NSString stringWithFormat: @"%08x", info->cookie]
-		       forKey: @"Cookie"];
-	
-	[self detailsChanged];
-}
-
-- (void) addCardInfo: (const pa_card_info *) info
-{
-	NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithCapacity: 0];
-	[parameters setObject: [NSString stringWithCString: info->name
-						  encoding: NSUTF8StringEncoding]
-		       forKey: @"Card Name"];
-	
-	[parameters setObject: [NSString stringWithCString: info->driver ?: ""
-						  encoding: NSUTF8StringEncoding]
-		       forKey: @"Driver"];
-	
-	NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity: 0];
-	[d setObject: [NSString stringWithCString: info->name
-					 encoding: NSUTF8StringEncoding]
-	      forKey: @"label"];
-	
-	[d setObject: parameters
-	      forKey: @"parameters"];
-	
-	[d setObject: [self createDictionaryFromProplist: info->proplist]
-	      forKey: @"properties"];
-	
-	[cards addObject: d];
-}
-
-- (void) addSinkInfo: (const pa_sink_info *) info
-{	
-	char tmp[0x100];
-	NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithCapacity: 0];
-	
-	[parameters setObject: [NSString stringWithCString: info->name
-						  encoding: NSUTF8StringEncoding]
-		       forKey: @"Sink Name"];
-	
-	[parameters setObject: [NSString stringWithCString: info->description
-						  encoding: NSUTF8StringEncoding]
-		       forKey: @"Description"];
-	
-	[parameters setObject: [NSString stringWithCString: pa_sample_spec_snprint(tmp, sizeof(tmp), &info->sample_spec)
-						  encoding: NSUTF8StringEncoding]
-		       forKey: @"Sample Spec"];
-	
-	[parameters setObject: [NSString stringWithCString: pa_channel_map_snprint(tmp, sizeof(tmp), &info->channel_map)
-						  encoding: NSUTF8StringEncoding]
-		       forKey: @"Channel Map"];
-	
-	[parameters setObject: [NSNumber numberWithInt: info->latency]
-		       forKey: @"Latency (us)"];
-	
-	[parameters setObject: [NSString stringWithCString: info->driver
-						  encoding: NSUTF8StringEncoding]
-		       forKey: @"Driver"];
-	
-	[parameters setObject: [NSNumber numberWithInt: info->configured_latency]
-		       forKey: @"Configured Latency (us)"];
-	
-	NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity: 0];
-	[d setObject: [NSString stringWithCString: info->description
-					 encoding: NSUTF8StringEncoding]
-	      forKey: @"label"];
-	[d setObject: [NSNumber numberWithInt: pa_cvolume_avg(&info->volume)]
-	      forKey: @"volume"];
-	[d setObject: [NSNumber numberWithInt: info->n_volume_steps]
-	      forKey: @"n_volume_steps"];
-	[d setObject: parameters forKey: @"parameters"];
-	[d setObject: [self createDictionaryFromProplist: info->proplist]
-	      forKey: @"properties"];
-	[d setObject: [NSValue valueWithPointer: info]
-	      forKey: @"infoPointer"];
-	
-	[sinks addObject: d];
-}
-
-- (void) addSourceInfo: (const pa_source_info *) info
-{
-	char tmp[0x100];
-	NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithCapacity: 0];
-	
-	[parameters setObject: [NSString stringWithCString: info->name
-						  encoding: NSUTF8StringEncoding]
-		       forKey: @"Sink Name"];
-	[parameters setObject: [NSString stringWithCString: info->description
-						  encoding: NSUTF8StringEncoding]
-		       forKey: @"Description"];
-	[parameters setObject: [NSString stringWithCString: pa_sample_spec_snprint(tmp, sizeof(tmp), &info->sample_spec)
-						  encoding: NSUTF8StringEncoding]
-		       forKey: @"Sample Spec"];
-	[parameters setObject: [NSString stringWithCString: pa_channel_map_snprint(tmp, sizeof(tmp), &info->channel_map)
-						  encoding: NSUTF8StringEncoding]
-		       forKey: @"Channel Map"];
-	[parameters setObject: [NSNumber numberWithInt: info->latency]
-		       forKey: @"Latency (us)"];
-	[parameters setObject: [NSString stringWithCString: info->driver
-						  encoding: NSUTF8StringEncoding]
-		       forKey: @"Driver"];
-	[parameters setObject: [NSNumber numberWithInt: info->configured_latency]
-		       forKey: @"Configured Latency (us)"];
-	
-	NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity: 0];
-	[d setObject: [NSString stringWithCString: info->description
-					 encoding: NSUTF8StringEncoding]
-	      forKey: @"label"];
-	[d setObject: parameters
-	      forKey: @"parameters"];
-	[d setObject: [self createDictionaryFromProplist: info->proplist]
-	      forKey: @"properties"];
-	[d setObject: [NSValue valueWithPointer: info]
-	      forKey: @"infoPointer"];
-	
-	[sources addObject: d];
-}
-
-- (void) addModuleInfo: (const pa_module_info *) info
-{
-	NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithCapacity: 0];
-	[parameters setObject: [NSString stringWithCString: info->name
-						  encoding: NSUTF8StringEncoding]
-		       forKey: @"Module Name"];
-	
-	[parameters setObject: [NSString stringWithCString: info->argument ?: ""
-						  encoding: NSUTF8StringEncoding]
-		       forKey: @"Arguments"];
-	
-	[parameters setObject: [NSNumber numberWithInt: info->n_used]
-		       forKey: @"Use count"];
-	
-	NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity: 0];
-	[d setObject: [NSString stringWithCString: info->name
-					 encoding: NSUTF8StringEncoding]
-	      forKey: @"label"];
-	
-	[d setObject: parameters
-	      forKey: @"parameters"];
-	
-	[d setObject: [self createDictionaryFromProplist: info->proplist]
-	      forKey: @"properties"];
-	
-	[modules addObject: d];
-}
-
-- (void) addClientInfo: (const pa_client_info *) info
-{
-	NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithCapacity: 0];
-	[parameters setObject: [NSString stringWithCString: info->name
-						  encoding: NSUTF8StringEncoding]
-		       forKey: @"Module Name"];
-	
-	[parameters setObject: [NSString stringWithCString: info->driver
-						  encoding: NSUTF8StringEncoding]
-		       forKey: @"Driver"];
-	
-	NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity: 0];
-	[d setObject: [NSString stringWithCString: info->name
-					 encoding: NSUTF8StringEncoding]
-	      forKey: @"label"];
-	
-	[d setObject: parameters
-	      forKey: @"parameters"];
-	
-	[d setObject: [self createDictionaryFromProplist: info->proplist]
-	      forKey: @"properties"];
-	
-	[clients addObject: d];
-}
-
-- (void) addSampleInfo: (const pa_sample_info *) info
-{
-	char tmp[0x100];
-	
-	NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithCapacity: 0];
-	[parameters setObject: [NSString stringWithCString: info->name 
-						  encoding: NSUTF8StringEncoding]
-		       forKey: @"Name"];
-	[parameters setObject: [NSString stringWithCString: pa_sample_spec_snprint(tmp, sizeof(tmp), &info->sample_spec)
-						  encoding: NSUTF8StringEncoding]
-		       forKey: @"Sample Spec"];
-	[parameters setObject: [NSString stringWithCString: pa_channel_map_snprint(tmp, sizeof(tmp), &info->channel_map)
-						  encoding: NSUTF8StringEncoding]
-		       forKey: @"Channel Map"];
-	[parameters setObject: [NSString stringWithCString: info->filename
-						  encoding: NSUTF8StringEncoding]
-		       forKey: @"File Name"];
-	
-	[parameters setObject: [NSNumber numberWithInt: info->duration]
-		       forKey: @"Duration"];
-	
-	[parameters setObject: [NSNumber numberWithInt: info->bytes]
-		       forKey: @"bytes"];
-	
-	[parameters setObject: info->lazy ? @"YES" : @"NO"
-		       forKey: @"Lazy"];
-
-	NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity: 0];
-	[d setObject: [NSString stringWithCString: info->name
-					 encoding: NSUTF8StringEncoding]
-	      forKey: @"label"];
-	
-	[d setObject: parameters
-	      forKey: @"parameters"];
-	
-	[samplecache addObject: d];
-}
-
-
 #pragma mark ### PulseAudio event callbacks ###
 
-- (void) contextSubscriptionEventCallback: (enum pa_subscription_event_type) type
-				    index: (UInt) index
-{
-	switch (type & ~PA_SUBSCRIPTION_EVENT_TYPE_MASK) {
-		case PA_SUBSCRIPTION_EVENT_SINK:
-			[sinks removeAllObjects];
-			pa_context_get_sink_info_list(context, pa_sink_info_cb, self);
-			break;
-		case PA_SUBSCRIPTION_EVENT_SOURCE:
-			[sources removeAllObjects];
-			pa_context_get_source_info_list(context, pa_source_info_cb, self);
-			break;
-		case PA_SUBSCRIPTION_EVENT_MODULE:
-			[modules removeAllObjects];
-			pa_context_get_module_info_list(context, pa_module_info_cb, self);
-			break;
-		case PA_SUBSCRIPTION_EVENT_CLIENT:
-			[clients removeAllObjects];
-			pa_context_get_client_info_list(context, pa_client_info_cb, self);
-			break;
-		case PA_SUBSCRIPTION_EVENT_SAMPLE_CACHE:
-			[samplecache removeAllObjects];
-			pa_context_get_sample_info_list(context, pa_sample_info_cb, self);
-			break;
-		case PA_SUBSCRIPTION_EVENT_SERVER:
-			[serverinfo removeAllObjects];
-			pa_context_get_server_info(context, pa_server_info_cb, self);
-			break;
-		case PA_SUBSCRIPTION_EVENT_CARD:
-			[cards removeAllObjects];
-			pa_context_get_card_info_list(context, pa_card_info_cb, self);
-			break;
-			
-		default:
-			return;
-	}
-}
-
-- (void) contextEventCallback: (const char *) name propList: (pa_proplist *) propList
-{
-}
-
+#if 0
 - (void) statCallback: (const pa_stat_info *) i
 {
 	char t[32];
@@ -383,195 +63,12 @@ static void pa_sample_info_cb	(pa_context *c, const struct pa_sample_info *i, in
 	
 	[self detailsChanged];
 }
+#endif
 
-- (void) contextChangeCallback
-{
-	int state = pa_context_get_state(context);
-	NSMutableDictionary *userInfo = [NSDictionary dictionaryWithObject: [NSNumber numberWithInt: state]
-								    forKey: @"state"];
-
-	//if (state == PA_CONTEXT_FAILED) ...
-	
-	NSNotification *notification = [NSNotification notificationWithName: @"connectionStateChanged"
-								     object: self
-								   userInfo: userInfo];
-
-	[[NSNotificationCenter defaultCenter] performSelectorOnMainThread: @selector(postNotification:)
-							       withObject: notification
-							    waitUntilDone: YES];
-	
-	if (state == PA_CONTEXT_READY) {
-		pa_context_subscribe(context, PA_SUBSCRIPTION_MASK_ALL, NULL, NULL);
-		pa_context_set_subscribe_callback(context, subscribe_callback, self);
-		[self getServerInfo];
-	}
-
-	/*
-	if (context) {
-		pa_context_unref(context);
-		context = NULL;
-	}
-	*/
-}
-
-#pragma mark ### static wrappers ###
-
-static void subscribe_callback(pa_context *c, pa_subscription_event_type_t t, uint32_t index, void *userdata)
-{
-	ServerConnection *sc = userdata;
-	[sc contextSubscriptionEventCallback: t index: index];
-}
-
-static void context_event_cb(pa_context *c, const char *name, pa_proplist *p, void *userdata)
-{
-	ServerConnection *sc = userdata;
-	[sc contextEventCallback: name propList: p];
-}
-
-static void context_state_cb(pa_context *c, void *userdata)
-{
-	ServerConnection *sc = userdata;
-	[sc contextChangeCallback];
-}
-
-static void pa_stat_cb(pa_context *c, const pa_stat_info *i, void *userdata)
-{
-	ServerConnection *sc = userdata;
-	[sc statCallback: i];
-}
-
-static void pa_server_info_cb(pa_context *c, const struct pa_server_info *i, void *userdata)
-{
-	ServerConnection *sc = userdata;
-	[sc addServerInfo: i];
-}
-
-static void pa_sink_info_cb(pa_context *c, const pa_sink_info *i, int eol, void *userdata)
-{
-	ServerConnection *sc = userdata;
-	if (eol)
-		[sc detailsChanged];
-	else
-		[sc addSinkInfo: i];
-}
-
-static void pa_card_info_cb(pa_context *c, const pa_card_info *i, int eol, void *userdata)
-{
-	ServerConnection *sc = userdata;
-	if (eol)
-		[sc detailsChanged];
-	else
-		[sc addCardInfo: i];
-}
-
-static void pa_source_info_cb(pa_context *c, const pa_source_info *i, int eol, void *userdata)
-{
-	ServerConnection *sc = userdata;
-	if (eol)
-		[sc detailsChanged];
-	else
-		[sc addSourceInfo: i];
-}
-
-static void client_info_callback(pa_context *c, const struct pa_client_info *i, int eol, void *userdata)
-{
-	ServerConnection *sc = userdata;
-	if (eol)
-		[sc detailsChanged];
-	else
-		[sc addClientInfo: i];
-}
-
-static void pa_module_info_cb(pa_context *c, const struct pa_module_info *i, int eol, void *userdata)
-{
-	ServerConnection *sc = userdata;
-	if (eol)
-		[sc detailsChanged];
-	else
-		[sc addModuleInfo: i];
-}
-
-static void pa_client_info_cb(pa_context *c, const struct pa_client_info *i, int eol, void *userdata)
-{
-	ServerConnection *sc = userdata;
-	if (eol)
-		[sc detailsChanged];
-	else
-		[sc addClientInfo: i];
-}
-
-static void pa_sample_info_cb(pa_context *c, const struct pa_sample_info *i, int eol, void *userdata)
-{
-	ServerConnection *sc = userdata;
-	if (eol)
-		[sc detailsChanged];
-	else
-		[sc addSampleInfo: i];
-}
-
-- (void) getServerInfo
-{
-	pa_context_get_server_info(context, pa_server_info_cb, self);
-	pa_context_get_card_info_list(context, pa_card_info_cb, self);
-	pa_context_get_sink_info_list(context, pa_sink_info_cb, self);
-	pa_context_get_source_info_list(context, pa_source_info_cb, self);
-	pa_context_get_module_info_list(context, pa_module_info_cb, self);
-	pa_context_get_client_info_list(context, pa_client_info_cb, self);
-	pa_context_get_sample_info_list(context, pa_sample_info_cb, self);
-	pa_context_stat(context, pa_stat_cb, self);
-}
-
-#pragma mark ### fooo ###
-
-- (void) setDelegate: (id<ServerConnectionDelegate>) newDelegate
-{
-	delegate = newDelegate;
-}
-
-- (void) PAMainloopThread : (id) param
-{
-	int ret;
-	char *currentServer = NULL;
-	
-	thread = [NSThread currentThread];
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	mainloop = pa_mainloop_new();
-	
-	while (1) {
-		if (connectRequest) {
-			if (context) {
-				pa_context_unref(context);
-				pa_xfree(currentServer);
-				context = NULL;
-			}
-			
-			currentServer = pa_xstrdup(connectRequest);
-			pa_xfree(connectRequest);
-			connectRequest = NULL;
-			
-			context = pa_context_new(pa_mainloop_get_api(mainloop),
-						 [[[NSProcessInfo processInfo] processName] cStringUsingEncoding: NSASCIIStringEncoding]);
-			
-			pa_context_set_event_callback(context, context_event_cb, self);
-			pa_context_set_state_callback(context, context_state_cb, self);
-			pa_context_connect(context, currentServer, 0, NULL);
-			printf(" connect to >%s<\n", currentServer);
-		}
-		
-		pa_mainloop_iterate(mainloop, true, &ret);
-		//if (ret)
-		//    break;
-	}
-	
-	printf("PAMainloopThread exiting, ret = %d\n", ret);
-	
-	[pool release];
-}
+#pragma mark ### ServerConnection ###
 
 - (id) init
 {
-	NSMutableDictionary *d;
-	
 	[super init];
 	
 	outlineToplevel = [NSMutableArray arrayWithCapacity: 0];
@@ -587,6 +84,8 @@ static void pa_sample_info_cb(pa_context *c, const struct pa_sample_info *i, int
 	clients = [NSMutableArray arrayWithCapacity: 0];
 	modules = [NSMutableArray arrayWithCapacity: 0];
 	samplecache = [NSMutableArray arrayWithCapacity: 0];
+
+	NSMutableDictionary *d;
 	
 	d = [NSMutableDictionary dictionaryWithCapacity: 0];
 	[d setObject: @"Server Information"
@@ -637,16 +136,7 @@ static void pa_sample_info_cb(pa_context *c, const struct pa_sample_info *i, int
 	      forKey: @"children"];
 	[outlineToplevel addObject: d];
 
-	[NSThread detachNewThreadSelector: @selector(PAMainloopThread:)
-				 toTarget: self
-			       withObject: nil];
-
 	return self;
-}
-
-- (void) wakeupThread
-{
-	pa_mainloop_wakeup(mainloop);	
 }
 
 - (void) connectToServer: (NSString *) server;
@@ -658,13 +148,14 @@ static void pa_sample_info_cb(pa_context *c, const struct pa_sample_info *i, int
 	[samplecache removeAllObjects];
 	[serverinfo removeAllObjects];
 	[cards removeAllObjects];
+
+	if (connection)
+		[connection release];
 	
-	connectRequest = pa_xstrdup([server cStringUsingEncoding: NSASCIIStringEncoding]);
-	[self wakeupThread];
-	//[self performSelector: @selector(wakeupThread)
-	//	     onThread: thread
-	//	   withObject: nil
-	//	waitUntilDone: YES];
+	connection = [[PAServerConnection alloc] init];
+	connection.delegate = self;
+	[connection connectToHost: server
+			     port: -1];
 }
 
 - (void) dealloc
@@ -695,7 +186,259 @@ static void pa_sample_info_cb(pa_context *c, const struct pa_sample_info *i, int
 
 - (void) reloadStatistics
 {
-	pa_context_stat(context, pa_stat_cb, self);
+	//pa_context_stat(context, pa_stat_cb, self);
+}
+
+#pragma mark ### PAServerConnectionDelegate ###
+
+- (void) PAServerConnectionEstablished: (PAServerConnection *) connection
+{
+	NSNotification *notification = [NSNotification notificationWithName: @"connectionEstablished"
+								     object: self];
+	
+	[[NSNotificationCenter defaultCenter] performSelectorOnMainThread: @selector(postNotification:)
+							       withObject: notification
+							    waitUntilDone: YES];
+}
+
+- (void) PAServerConnectionFailed: (PAServerConnection *) connection
+{
+	NSLog(@"%s()", __func__);
+}
+
+- (void) PAServerConnectionEnded: (PAServerConnection *) connection
+{
+	NSNotification *notification = [NSNotification notificationWithName: @"connectionEnded"
+								     object: self];
+	
+	[[NSNotificationCenter defaultCenter] performSelectorOnMainThread: @selector(postNotification:)
+							       withObject: notification
+							    waitUntilDone: YES];
+}
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+	  serverInfoChanged: (PAServerInfo *) info
+{
+	[serverinfo setObject: info.userName
+		       forKey: @"User Name"];
+	[serverinfo setObject: info.hostName
+		       forKey: @"Host Name"];
+	[serverinfo setObject: info.version
+		       forKey: @"Server Version"];
+	[serverinfo setObject: info.serverName
+		       forKey: @"Server Name"];
+	[serverinfo setObject: info.sampleSpec
+		       forKey: @"Sample Spec"];
+	[serverinfo setObject: info.channelMap
+		       forKey: @"Channel Map"];
+	[serverinfo setObject: info.defaultSinkName
+		       forKey: @"Default Sink Name"];
+	[serverinfo setObject: info.defaultSourceName
+		       forKey: @"Default Source Name"];
+	[serverinfo setObject: [NSNumber numberWithInt: info.cookie]
+			forKey: @"Cookie"];
+
+	[self sendDetailsChanged];
+}
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+	       cardsChanged: (NSArray *) _cards
+{
+	[cards removeAllObjects];
+	
+	for (PACardInfo *card in _cards) {
+		NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithCapacity: 0];
+		[parameters setObject: card.name
+			       forKey: @"Card Name"];
+		[parameters setObject: card.driver
+			       forKey: @"Driver"];
+		
+		NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity: 0];
+		[d setObject: card.name
+		      forKey: @"label"];
+		[d setObject: parameters
+		      forKey: @"parameters"];
+		[d setObject: card.properties
+		      forKey: @"properties"];
+		
+		[cards addObject: d];
+	}
+	
+	[self sendDetailsChanged];
+}
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+	       sinksChanged: (NSArray *) _sinks
+{
+	[sinks removeAllObjects];
+	
+	for (PASinkInfo *sink in _sinks) {
+		NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithCapacity: 0];
+		
+		[parameters setObject: sink.name
+			       forKey: @"Sink Name"];
+		[parameters setObject: sink.description
+			       forKey: @"Description"];
+		[parameters setObject: sink.sampleSpec
+			       forKey: @"Sample Spec"];
+		[parameters setObject: sink.channelMap
+			       forKey: @"Channel Map"];		
+		[parameters setObject: [NSNumber numberWithInt: sink.latency]
+			       forKey: @"Latency (us)"];		
+		[parameters setObject: sink.driver
+			       forKey: @"Driver"];		
+		[parameters setObject: [NSNumber numberWithInt: sink.configuredLatency]
+			       forKey: @"Configured Latency (us)"];
+		
+		NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity: 0];
+		[d setObject: sink.name
+		      forKey: @"label"];
+		[d setObject: [NSNumber numberWithInt: sink.volume]
+		      forKey: @"volume"];
+		[d setObject: [NSNumber numberWithInt: sink.nVolumeSteps]
+		      forKey: @"n_volume_steps"];
+		[d setObject: parameters
+		      forKey: @"parameters"];
+		[d setObject: sink.properties
+		      forKey: @"properties"];
+		[d setObject: [NSValue valueWithPointer: sink]
+		      forKey: @"infoPointer"];
+		
+		[sinks addObject: d];		
+	}
+	
+	[self sendDetailsChanged];
+}
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+	     sourcesChanged: (NSArray *) _sources
+{
+	[sources removeAllObjects];
+	
+	for (PASourceInfo *source in _sources) {
+		NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithCapacity: 0];
+		
+		[parameters setObject: source.name
+			       forKey: @"Source Name"];
+		[parameters setObject: source.description
+			       forKey: @"Description"];
+		[parameters setObject: source.sampleSpec
+			       forKey: @"Sample Spec"];
+		[parameters setObject: source.channelMap
+			       forKey: @"Channel Map"];		
+		[parameters setObject: [NSNumber numberWithInt: source.latency]
+			       forKey: @"Latency (us)"];		
+		[parameters setObject: source.driver
+			       forKey: @"Driver"];		
+		[parameters setObject: [NSNumber numberWithInt: source.configuredLatency]
+			       forKey: @"Configured Latency (us)"];
+		
+		NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity: 0];
+		[d setObject: source.name
+		      forKey: @"label"];
+		[d setObject: parameters
+		      forKey: @"parameters"];
+		[d setObject: source.properties
+		      forKey: @"properties"];
+		[d setObject: [NSValue valueWithPointer: source]
+		      forKey: @"infoPointer"];
+		
+		[sources addObject: d];		
+	}	
+
+	[self sendDetailsChanged];
+}
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+	     clientsChanged: (NSArray *) _clients
+{
+	[clients removeAllObjects];
+
+	for (PAClientInfo *client in _clients) {
+		NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithCapacity: 0];
+		[parameters setObject: client.name
+			       forKey: @"Module Name"];
+		[parameters setObject: client.driver
+			       forKey: @"Driver"];
+
+		NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity: 0];
+		[d setObject: client.name
+		      forKey: @"label"];
+		[d setObject: parameters
+		      forKey: @"parameters"];
+		[d setObject: client.properties
+		      forKey: @"properties"];
+		
+		[clients addObject: d];		
+	}
+
+	[self sendDetailsChanged];
+}
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+	     modulesChanged: (NSArray *) _modules
+{
+	[modules removeAllObjects];
+	
+	for (PAModuleInfo *module in _modules) {
+		NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithCapacity: 0];
+		[parameters setObject: module.name
+			       forKey: @"Module Name"];
+		[parameters setObject: module.argument ?: @""
+			       forKey: @"Arguments"];
+		[parameters setObject: [NSNumber numberWithInt: module.useCount]
+			       forKey: @"Use count"];
+		
+		NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity: 0];
+		[d setObject: module.name
+		      forKey: @"label"];		
+		[d setObject: parameters
+		      forKey: @"parameters"];
+		[d setObject: module.properties
+		      forKey: @"properties"];
+		
+		[modules addObject: d];
+	}	
+
+	[self sendDetailsChanged];
+}
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+	     samplesChanged: (NSArray *) _samples
+{
+	[samplecache removeAllObjects];
+	
+	for (PASampleInfo *sample in _samples) {
+		NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithCapacity: 0];
+		[parameters setObject: sample.name
+			       forKey: @"Name"];
+		[parameters setObject: sample.sampleSpec
+			       forKey: @"Sample Spec"];
+		[parameters setObject: sample.channelMap
+			       forKey: @"Channel Map"];
+		[parameters setObject: sample.fileName
+			       forKey: @"File Name"];		
+		[parameters setObject: [NSNumber numberWithInt: sample.duration]
+			       forKey: @"Duration"];
+		[parameters setObject: [NSNumber numberWithInt: sample.bytes]
+			       forKey: @"bytes"];
+		[parameters setObject: sample.lazy ? @"YES" : @"NO"
+			       forKey: @"Lazy"];
+		
+		NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity: 0];
+		[d setObject: sample.name
+		      forKey: @"label"];		
+		[d setObject: parameters
+		      forKey: @"parameters"];
+
+		[samplecache addObject: d];
+	}		
+
+	[self sendDetailsChanged];
+}
+
+- (void) getServerInfo
+{
 }
 
 @end

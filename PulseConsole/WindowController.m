@@ -19,6 +19,8 @@
  USA.
  ***/
 
+#import <PulseAudio/PulseAudio.h>
+
 #import "StreamListView.h"
 #import "WindowController.h"
 
@@ -26,41 +28,6 @@
 
 #pragma mark ### ServerConnection callbacks ###
 
-- (void) connectionStateChanged: (NSNotification *) notification
-{
-	NSDictionary *userdata = [notification userInfo];
-	enum pa_subscription_event_type state = [[userdata valueForKey: @"state"] intValue];
-
-	switch (state) {
-		case PA_CONTEXT_CONNECTING:
-			[connectStatus setStringValue: [NSString stringWithFormat: @"Connecting to %s ...", "xx"]];
-			break;
-			
-		case PA_CONTEXT_AUTHORIZING:
-			[connectStatus setStringValue: @"Authorizing ..."];
-			break;
-			
-		case PA_CONTEXT_SETTING_NAME:
-			[connectStatus setStringValue: @"Setting name ..."];
-			break;
-			
-		case PA_CONTEXT_READY:
-			[connectStatus setStringValue: @"Connection established"];
-			[self enableGUI: YES];
-			break;
-			
-		case PA_CONTEXT_TERMINATED:
-			[connectStatus setStringValue: @"Connection terminated"];
-			[self stopProgressIndicator];
-
-			break;
-			
-		case PA_CONTEXT_FAILED:
-			[connectStatus setStringValue: @"Connection failed"];
-			[self stopProgressIndicator];
-			break;
-	}
-}
 
 #pragma mark ### fooo ###
 - (void) stopProgressIndicator
@@ -93,9 +60,9 @@
 	[propertyTableView reloadData];
 	[statisticsTableView reloadData];
 	
-	[window setTitle: [NSString stringWithFormat: @"%@@%@",
-			   [serverConnection.serverinfo valueForKey: @"Server Name"],
-			   [serverConnection.serverinfo valueForKey: @"Host Name"]]];
+//	[window setTitle: [NSString stringWithFormat: @"%@@%@",
+//			   [serverConnection.serverinfo valueForKey: @"Server Name"],
+//			   [serverConnection.serverinfo valueForKey: @"Host Name"]]];
 
 	[sinkStreamListView removeAllStreams];
 	[sourceStreamListView removeAllStreams];
@@ -108,6 +75,16 @@
 		[sinkStreamListView addStreamView: [[item objectForKey: @"infoPointer"] pointerValue]
 					   ofType: StreamTypeSink
 					     name: [item objectForKey: @"label"]];
+}
+
+- (void) connectionEstablished
+{
+	[self enableGUI: YES];
+}
+
+- (void) connectionEnded
+{
+	[self enableGUI: NO];	
 }
 
 - (void) bonjourServiceAdded: (NSNotification *) notification
@@ -128,34 +105,28 @@
 	serverConnection = [[ServerConnection alloc] init];
 
 	[[NSNotificationCenter defaultCenter] addObserver: self
+						 selector: @selector(connectionEstablished)
+						     name: @"connectionEstablished"
+						   object: serverConnection];
+	[[NSNotificationCenter defaultCenter] addObserver: self
+						 selector: @selector(connectionEnded)
+						     name: @"connectionEnded"
+						   object: serverConnection];
+	[[NSNotificationCenter defaultCenter] addObserver: self
 						 selector: @selector(repaintViews:)
 						     name: @"detailsChanged"
 						   object: serverConnection];
-
-	[[NSNotificationCenter defaultCenter] addObserver: self
-						 selector: @selector(connectionStateChanged:)
-						     name: @"connectionStateChanged"
-						   object: serverConnection];
-
+	
 	[outlineView setEnabled: NO];
 	[parameterTableView setEnabled: NO];
 	[propertyTableView setEnabled: NO];
 	[statisticsTableView setEnabled: NO];
 	
-	listener = [[BonjourListener alloc] initForService: "_pulse-server._tcp"];
-
-	[[NSNotificationCenter defaultCenter] addObserver: self
-						 selector: @selector(bonjourServiceAdded:)
-						     name: @"serviceAdded"
-						   object: listener];
-	
 	[serverConnection connectToServer: @"localhost"];
-	[listener start];
 }
 
 - (void) dealloc
 {
-	[listener release];
 	[serverConnection release];
 	[super dealloc];
 }
@@ -312,7 +283,8 @@ objectValueForTableColumn:(NSTableColumn *)col
 	NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity: 0];
 	//[d setValue: @"(c) 2009-2011 Daniel Mack"
 	//     forKey: @"Copyright"];
-	[d setValue: [NSString stringWithFormat: @"pulseaudio library version %s", pa_get_library_version()]
+	[d setValue: [NSString stringWithFormat: @"pulseaudio library version %@",
+						[PAServerConnection pulseAudioLibraryVersion]]
 	     forKey: @"Copyright"];
 	
 	[NSApp orderFrontStandardAboutPanelWithOptions: d];
