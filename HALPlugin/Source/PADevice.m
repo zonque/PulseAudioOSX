@@ -18,6 +18,9 @@
 
 @implementation PADevice
 
+@synthesize name;
+@synthesize delegate;
+
 #pragma mark ### audio object handling ###
 
 - (void) publishOwnedObjects
@@ -99,6 +102,18 @@
 				    waitUntilDone: YES];	
 }
 
+- (void) reconnectIfConnected
+{
+	if (!serverConnection || ![serverConnection isConnected])
+		return;
+	
+	[self checkConnection];
+}
+
+- (void) setConfig: (NSDictionary *) config
+{	
+}
+
 #pragma mark ### PADevice ###
 
 - (id) initWithPluginRef: (AudioHardwarePlugInRef) ref
@@ -152,10 +167,10 @@
 	[outputStreamArray addObject: stream];
 	[stream release];
 	
-	deviceName = @"PulseAudio";
-	deviceManufacturer = @"pulseaudio.org";
+	name = @"PulseAudio";
+	manufacturer = @"pulseaudio.org";
 	modelUID = [NSString stringWithFormat: @"%@:%d,%d",
-					deviceName,
+					name,
 					[inputStreamArray count],
 					[outputStreamArray count]];
 	deviceUID = [NSString stringWithFormat: @"org.pulseaudio.HALPlugin.%@", modelUID];
@@ -412,11 +427,11 @@
 			return kAudioHardwareNoError;
 			
 		case kAudioDevicePropertyDeviceName:
-			*outSize = [deviceName length] + 1;
+			*outSize = [name length] + 1;
 			return kAudioHardwareNoError;
 			
 		case kAudioDevicePropertyDeviceManufacturer:
-			*outSize = [deviceManufacturer length] + 1;
+			*outSize = [manufacturer length] + 1;
 			return kAudioHardwareNoError;
 			
 		case kAudioDevicePropertyAvailableNominalSampleRates:
@@ -457,7 +472,7 @@
 
 	switch (address->mSelector) {
 		case kAudioObjectPropertyName:
-			*(NSString **) outData = [deviceName copy];
+			*(NSString **) outData = [name copy];
 			return kAudioHardwareNoError;
 			
 		case kAudioDevicePropertyModelUID:
@@ -471,25 +486,25 @@
 			return kAudioHardwareNoError;
 			
 		case kAudioObjectPropertyManufacturer:
-			*(NSString **) outData = [deviceManufacturer copy];
+			*(NSString **) outData = [manufacturer copy];
 			*ioDataSize = sizeof(CFStringRef);
 			return kAudioHardwareNoError;
 			
 		case kAudioDevicePropertyDeviceName:
 			*ioDataSize = MIN(*ioDataSize, sizeof(tmp));
 			memset(outData, 0, *ioDataSize);
-			[deviceName getCString: tmp
-				     maxLength: sizeof(tmp)
-				      encoding: NSASCIIStringEncoding];
+			[name getCString: tmp
+			       maxLength: sizeof(tmp)
+				encoding: NSASCIIStringEncoding];
 			memcpy(outData, tmp, *ioDataSize);
 			return kAudioHardwareNoError;
 			
 		case kAudioDevicePropertyDeviceManufacturer:
 			*ioDataSize = MIN(*ioDataSize, sizeof(tmp));
 			memset(outData, 0, *ioDataSize);
-			[deviceManufacturer getCString: tmp
-					     maxLength: sizeof(tmp)
-					      encoding: NSASCIIStringEncoding];
+			[manufacturer getCString: tmp
+				       maxLength: sizeof(tmp)
+					encoding: NSASCIIStringEncoding];
 			memcpy(outData, tmp, *ioDataSize);
 			return kAudioHardwareNoError;
 			
@@ -621,19 +636,22 @@
 			
 		case kAudioDevicePropertyBufferFrameSize:
 			deviceAudio.ioProcBufferSize = *(UInt32 *) data;
+			[self reconnectIfConnected];
 			return kAudioHardwareNoError;
 			
 		case kAudioDevicePropertyBufferSize:
 			deviceAudio.ioProcBufferSize = (*(UInt32 *) data) / deviceAudio.bytesPerSampleFrame;
+			[self reconnectIfConnected];
 			return kAudioHardwareNoError;
 			
 		case kAudioDevicePropertyNominalSampleRate:
 			deviceAudio.sampleRate = *(const Float64*) data;
 			DebugLog("SETTING sample rate %f", deviceAudio.sampleRate);
+			[self reconnectIfConnected];
 			return kAudioHardwareNoError;
 			
-		case kAudioStreamPropertyPhysicalFormat:
-			return kAudioHardwareNoError;
+		//case kAudioStreamPropertyPhysicalFormat:
+		//	return kAudioHardwareNoError;
 			
 		//case kAudioDevicePropertyStreamFormat:
 		//	inDataSize = MIN(inDataSize, sizeof(streamDescription));
@@ -725,8 +743,13 @@
 	BOOL ret = [serverConnection addAudioStreams: [deviceAudio countActiveChannels]
 					  sampleRate: deviceAudio.sampleRate
 				    ioProcBufferSize: deviceAudio.ioProcBufferSize];
-	if (!ret)
-		NSLog(@"%s(): addAudioStreams failed!?", __func__);	
+	if (ret) {
+		if (delegate)
+			[delegate deviceStarted: self];
+	} else {
+		NSLog(@"%s(): addAudioStreams failed!?", __func__);
+	}
+
 }
 
 - (void) PAServerConnectionFailed: (PAServerConnection *) connection
@@ -737,6 +760,8 @@
 - (void) PAServerConnectionEnded: (PAServerConnection *) connection
 {
 	NSLog(@"%s()", __func__);
+	if (delegate)
+		[delegate deviceStopped: self];
 }
 
 - (UInt32) PAServerConnection: (PAServerConnection *) connection

@@ -16,14 +16,24 @@
 
 @class PAStream;
 @class PAPlugin;
+@class PADevice;
 @class PADeviceAudio;
 
-@interface PADevice : PAObject <PAServerConnectionDelegate> {
+@protocol PADeviceDelegate
+@required
+- (void) deviceStarted: (PADevice *) device;
+- (void) deviceStopped: (PADevice *) device;
+@end
+
+@interface PADevice : PAObject <PAServerConnectionDelegate>
+{
 	NSMutableArray *inputStreamArray;
 	NSMutableArray *outputStreamArray;
 
-	NSString *deviceName;
-	NSString *deviceManufacturer;
+	NSObject <PADeviceDelegate> *delegate;
+	
+	NSString *name;
+	NSString *manufacturer;
 	NSString *modelUID;
 	NSString *deviceUID;
 	
@@ -36,9 +46,11 @@
 	PADeviceAudio *deviceAudio;
 }
 
+@property (nonatomic, readonly) NSString *name;
+@property (nonatomic, assign) NSObject *delegate;
+
 - (PAStream *) findStreamByID: (AudioObjectID) searchID;
-- (void) connectToServer;
-- (void) disconnectFromServer;
+- (void) setConfig: (NSDictionary *) config;
 
 #pragma mark ### PAObject ###
 

@@ -13,7 +13,7 @@
 #import "PAObject.h"
 #import "PAHelperConnection.h"
 
-@interface PAPlugin : PAObject <PAHelperConnectionDelegate>
+@interface PAPlugin : PAObject <PAHelperConnectionDelegate, PADeviceDelegate>
 {
 	NSMutableArray *devicesArray;
 	PAHelperConnection *helperConnection;
@@ -140,5 +140,17 @@
 		    propertyID: (AudioDevicePropertyID) property
 		      dataSize: (UInt32) dataSize
 			  data: (const void *) data;
+
+#pragma mark ### PAHelperConnectionDelegate ###
+
+- (void) PAHelperConnectionDied: (PAHelperConnection *) connection;
+- (void) PAHelperConnection: (PAHelperConnection *) connection
+		  setConfig: (NSDictionary *) config
+	  forDeviceWithName: (NSString *) name;
+
+#pragma mark ### PADeviceDelegate ###
+
+- (void) deviceStarted: (PADevice *) device;
+- (void) deviceStopped: (PADevice *) device;
 
 @end

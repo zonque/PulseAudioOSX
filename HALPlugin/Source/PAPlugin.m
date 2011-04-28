@@ -40,11 +40,11 @@
 
 - (void) createDevices
 {
-	devicesArray = [NSMutableArray arrayWithCapacity: 0];
-	[devicesArray retain];
+	devicesArray = [[NSMutableArray arrayWithCapacity: 0] retain];
 
 	PADevice *dev = [[PADevice alloc] initWithPluginRef: pluginRef];
 	dev.owningObjectID = self.objectID;
+	dev.delegate = self;
 	[devicesArray addObject: dev];
 	[dev release]; // the array holds a reference now
 	
@@ -120,6 +120,27 @@
 - (void) PAHelperConnectionDied: (PAHelperConnection *) connection
 {
 	[self destroyDevices];
+}
+
+- (void) PAHelperConnection: (PAHelperConnection *) connection
+		  setConfig: (NSDictionary *) config
+	  forDeviceWithName: (NSString *) name
+{
+	for (PADevice *dev in devicesArray)
+		if ([dev.name isEqualToString: name])
+			[dev setConfig: config];
+}
+
+#pragma mark ### PADeviceDelegate ###
+
+- (void) deviceStarted: (PADevice *) device
+{
+	[helperConnection deviceStarted: device];
+}
+
+- (void) deviceStopped: (PADevice *) device
+{
+	[helperConnection deviceStopped: device];	
 }
 
 #pragma mark ### PlugIn Operations ###

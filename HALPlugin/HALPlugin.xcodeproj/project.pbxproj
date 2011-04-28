@@ -25,11 +25,9 @@
 		65CCF7721365C20300834815 /* PADevice.m in Sources */ = {isa = PBXBuildFile; fileRef = 65CCF7701365C20300834815 /* PADevice.m */; };
 		65CCF7B91365DF8500834815 /* PAStream.h in Headers */ = {isa = PBXBuildFile; fileRef = 65CCF7B71365DF8500834815 /* PAStream.h */; };
 		65CCF7BA1365DF8500834815 /* PAStream.m in Sources */ = {isa = PBXBuildFile; fileRef = 65CCF7B81365DF8500834815 /* PAStream.m */; };
-		8D576314048677EA00EA77CD /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0AA1909FFE8422F4C02AAC07 /* CoreFoundation.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		0AA1909FFE8422F4C02AAC07 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = /System/Library/Frameworks/CoreFoundation.framework; sourceTree = "<absolute>"; };
 		2DF7BC5308DA4CCA00EE5510 /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = /System/Library/Frameworks/CoreAudio.framework; sourceTree = "<absolute>"; };
 		2DF7BC7D08DA4E0700EE5510 /* HALPlugin.exp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.exports; name = HALPlugin.exp; path = ../Source/HALPlugin.exp; sourceTree = "<group>"; };
 		6510B01A135DA8F6002A5B90 /* ObjectNames.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ObjectNames.h; path = ../Shared/ObjectNames.h; sourceTree = SOURCE_ROOT; };
@@ -50,7 +48,6 @@
 		65CCF7701365C20300834815 /* PADevice.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PADevice.m; sourceTree = "<group>"; };
 		65CCF7B71365DF8500834815 /* PAStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PAStream.h; sourceTree = "<group>"; };
 		65CCF7B81365DF8500834815 /* PAStream.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PAStream.m; sourceTree = "<group>"; };
-		65F40146133F7B7A00E72096 /* CoreServices.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; name = CoreServices.framework; sourceTree = SDKROOT; };
 		8D576316048677EA00EA77CD /* PulseAudio.plugin */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PulseAudio.plugin; sourceTree = BUILT_PRODUCTS_DIR; };
 		8D576317048677EA00EA77CD /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -60,7 +57,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8D576314048677EA00EA77CD /* CoreFoundation.framework in Frameworks */,
 				2DF7BC5408DA4CCA00EE5510 /* CoreAudio.framework in Frameworks */,
 				65BFE2A413648256002B818E /* Foundation.framework in Frameworks */,
 				65714F2113674E9B00D60887 /* PulseAudio.framework in Frameworks */,
@@ -87,9 +83,7 @@
 			children = (
 				65714F2013674E9B00D60887 /* PulseAudio.framework */,
 				65BFE2A313648256002B818E /* Foundation.framework */,
-				65F40146133F7B7A00E72096 /* CoreServices.framework */,
 				2DF7BC5308DA4CCA00EE5510 /* CoreAudio.framework */,
-				0AA1909FFE8422F4C02AAC07 /* CoreFoundation.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";

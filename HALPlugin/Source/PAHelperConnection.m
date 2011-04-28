@@ -30,9 +30,13 @@
 
 #pragma mark ### vended selectors ###
 
-- (void) test: (NSString *) x
+- (void) setConfig: (NSDictionary *) config
+ forDeviceWithName: (NSString *) name
 {
-	NSLog(@"TEST: %@", x);
+	if (delegate)
+		[delegate PAHelperConnection: self
+				   setConfig: config
+			   forDeviceWithName: name];
 }
 
 #pragma mark PAHelperConnection ###
@@ -54,7 +58,7 @@
 						     name: NSConnectionDidDieNotification
 						   object: connection];
 
-	//[distantObject setProtocolForProxy: @protocol(PAHelperConnection)];
+	[serverProxy setProtocolForProxy: @protocol(PAHelperConnection)];
 
 	// make up a new name ...
 	NSString *name = [NSString stringWithFormat: @"%d.%p", getpid(), self];	
@@ -66,6 +70,22 @@
 	[serverProxy registerClientWithName: name];
 
 	return YES;
+}
+
+- (void) deviceStarted: (PADevice *) device
+{
+	if (![self isConnected])
+		return;
+	
+	[serverProxy announceDevice: device.name];
+}
+
+- (void) deviceStopped: (PADevice *) device
+{
+	if (![self isConnected])
+		return;
+
+	[serverProxy signOffDevice: device.name];
 }
 
 - (BOOL) isConnected

@@ -9,18 +9,22 @@
  (at your option) any later version.
  ***/
 
-#import <Cocoa/Cocoa.h>
+#import <Foundation/Foundation.h>
+#import "PADevice.h"
 
 @class PAHelperConnection;
 
 @protocol PAHelperConnectionDelegate
 @required
 - (void) PAHelperConnectionDied: (PAHelperConnection *) connection;
+- (void) PAHelperConnection: (PAHelperConnection *) connection
+		  setConfig: (NSDictionary *) config
+	  forDeviceWithName: (NSString *) name;
 @end
 
 @interface PAHelperConnection : NSObject <NSConnectionDelegate>
 {
-	NSDistantObject *serverProxy;
+	id serverProxy;
 	NSConnection *service;
 	NSObject <PAHelperConnectionDelegate> *delegate;
 }
@@ -30,8 +34,11 @@
 - (BOOL) connect;
 - (BOOL) isConnected;
 
+- (void) deviceStarted: (PADevice *) device;
+- (void) deviceStopped: (PADevice *) device;
+
 // NSConnectionDelegate
-- (BOOL)connection: (NSConnection *) conn
-     handleRequest: (NSDistantObjectRequest *) doReq;
+//- (BOOL)connection: (NSConnection *) conn
+//     handleRequest: (NSDistantObjectRequest *) doReq;
 
 @end
