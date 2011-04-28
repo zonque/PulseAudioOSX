@@ -686,4 +686,10 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 				  encoding: NSASCIIStringEncoding];
 }
 
++ (NSString *) pulseAudioLibraryVersion
+{
+	return [NSString stringWithCString: pa_get_library_version()
+				  encoding: NSASCIIStringEncoding];	
+}
+
 @end

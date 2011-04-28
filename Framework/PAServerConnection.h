@@ -81,4 +81,7 @@
 
 - (NSString *) clientName;
 
++ (NSString *) pulseAudioLibraryVersion;
+
+
 @end
