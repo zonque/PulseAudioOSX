@@ -75,7 +75,10 @@
 - (void) connectToHost: (NSString *) hostName
 		  port: (int) port;
 - (BOOL) isConnected;
-- (BOOL) addAudioStreams;
+- (BOOL) addAudioStreams: (UInt32) nChannels
+	      sampleRate: (Float32) sampleRate
+	ioProcBufferSize: (UInt32) ioProcBufferSize;
+
 - (NSString *) clientName;
 
 @end

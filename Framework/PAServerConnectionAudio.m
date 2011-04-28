@@ -15,9 +15,6 @@
 
 @implementation PAServerConnectionAudio
 
-@synthesize sampleRate;
-@synthesize ioBufferFrameSize;
-
 - (void) streamStartedCallback: (pa_stream *) stream
 {
 	NSLog(@"%s() %s", __func__, stream == PARecordStream ? "input" : "output");
@@ -127,6 +124,9 @@ static void staticStreamBufferAttrCallback(pa_stream *stream, void *userdata)
 
 - (id) initWithPAServerConnection: (PAServerConnection *) _serverConnection
 			  context: (pa_context *) _context
+			nChannels: (UInt32) nChannels
+		       sampleRate: (Float64) _sampleRate
+		 ioProcBufferSize: (UInt32) _ioProcBufferSize
 {
 	[super init];
 	
@@ -135,12 +135,11 @@ static void staticStreamBufferAttrCallback(pa_stream *stream, void *userdata)
 	serverConnection = _serverConnection;
 	PAContext = _context;
 
-	sampleRate = 44100.0f;
-	ioBufferFrameSize = 1024;
+	ioBufferFrameSize = _ioProcBufferSize;
 	
 	sampleSpec.format = PA_SAMPLE_FLOAT32;
-	sampleSpec.rate = sampleRate;
-	sampleSpec.channels = 2;
+	sampleSpec.rate = _sampleRate;
+	sampleSpec.channels = nChannels;
 	
 	bufAttr.tlength = ioBufferFrameSize * pa_frame_size(&sampleSpec);
 	bufAttr.maxlength = -1;

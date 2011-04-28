@@ -22,17 +22,19 @@
 	
 	pa_buffer_attr		 bufAttr;
 	pa_sample_spec		 sampleSpec;
-	Float32			 sampleRate;
 	UInt32			 ioBufferFrameSize;
 	
 	char			*inputDummyBuffer;
 	char			*outputDummyBuffer;
+	
+	Float64			 sampleRate;
+	UInt32			 ioProcBufferSize;
 }
 
-@property (readonly) Float32 sampleRate;
-@property (readonly) UInt32 ioBufferFrameSize;
-
 - (id) initWithPAServerConnection: (PAServerConnection *) serverConnection
-			  context: (pa_context *) context;
+			  context: (pa_context *) context
+			nChannels: (UInt32) nChannels
+		       sampleRate: (Float64) sampleRate
+		 ioProcBufferSize: (UInt32) ioProcBufferSize;
 
 @end

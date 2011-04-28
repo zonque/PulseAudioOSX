@@ -137,6 +137,9 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 
 - (void) sendDelegateConnectionEstablished
 {
+	NSLog(@"%s() :%d", __func__, __LINE__);
+	NSLog(@"%@", delegate);
+	
 	if (delegate && [delegate respondsToSelector: @selector(PAServerConnectionEstablished:)])
 		[delegate PAServerConnectionEstablished: self];
 }
@@ -248,9 +251,11 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 			pa_context_get_sample_info_list(PAContext, staticSampleInfoCallback, self);
 			pa_context_get_card_info_list(PAContext, staticCardInfoCallback, self);
 			pa_context_get_server_info(PAContext, staticServerInfoCallback, self);
+			NSLog(@"%s() :%d", __func__, __LINE__);
 			[self performSelectorOnMainThread: @selector(sendDelegateConnectionEstablished)
 					       withObject: nil
 					    waitUntilDone: NO];
+			NSLog(@"%s() :%d", __func__, __LINE__);
 			break;
 		case PA_CONTEXT_TERMINATED:
 			NSLog(@"Connection terminated.");
@@ -566,12 +571,12 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 	
 	serverInfo = [[PAServerInfo alloc] init];
 
-	cards = [NSMutableArray arrayWithCapacity: 0];
-	sinks = [NSMutableArray arrayWithCapacity: 0];
-	sources = [NSMutableArray arrayWithCapacity: 0];
-	clients = [NSMutableArray arrayWithCapacity: 0];
-	modules = [NSMutableArray arrayWithCapacity: 0];
-	samples = [NSMutableArray arrayWithCapacity: 0];
+	cards = [[NSMutableArray arrayWithCapacity: 0] retain];
+	sinks = [[NSMutableArray arrayWithCapacity: 0] retain];
+	sources = [[NSMutableArray arrayWithCapacity: 0] retain];
+	clients = [[NSMutableArray arrayWithCapacity: 0] retain];
+	modules = [[NSMutableArray arrayWithCapacity: 0] retain];
+	samples = [[NSMutableArray arrayWithCapacity: 0] retain];
 	
 	pa_get_binary_name(procName, sizeof(procName));
 
@@ -591,6 +596,13 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 		pa_threaded_mainloop_free(PAMainLoop);		
 		PAMainLoop = NULL;
 	}
+	
+	[cards release];
+	[sinks release];
+	[sources release];
+	[clients release];
+	[modules release];
+	[samples release];
 	
 	[super dealloc];
 }
@@ -647,7 +659,9 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 	return state == PA_CONTEXT_READY;
 }
 
-- (BOOL) addAudioStreams
+- (BOOL) addAudioStreams: (UInt32) nChannels
+	      sampleRate: (Float32) sampleRate
+	ioProcBufferSize: (UInt32) ioProcBufferSize
 {
 	if (![self isConnected])
 		return NO;
@@ -657,7 +671,10 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 
 	pa_threaded_mainloop_lock(PAMainLoop);
 	audio = [[PAServerConnectionAudio alloc] initWithPAServerConnection: self
-								    context: PAContext];
+								    context: PAContext
+								  nChannels: nChannels
+								 sampleRate: sampleRate
+							   ioProcBufferSize: ioProcBufferSize];
 	pa_threaded_mainloop_unlock(PAMainLoop);
 	
 	return audio != nil;
