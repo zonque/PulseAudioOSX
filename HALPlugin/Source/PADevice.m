@@ -20,6 +20,7 @@
 
 @synthesize name;
 @synthesize delegate;
+@synthesize deviceAudio;
 
 #pragma mark ### audio object handling ###
 
@@ -68,12 +69,6 @@
 
 - (void) connectToServer
 {
-	if (!serverConnection) {
-		serverConnection = [[PAServerConnection alloc] init];
-		serverConnection.delegate = self;
-		[serverConnection retain];
-	}
-
 	if (![serverConnection isConnected])
 		[serverConnection connectToHost: nil
 					   port: -1];
@@ -81,10 +76,7 @@
 
 - (void) disconnectFromServer
 {
-	if (serverConnection)
-		[serverConnection release];
-	
-	serverConnection = nil;
+	[serverConnection disconnect];
 }
 
 - (void) checkConnection
@@ -133,8 +125,10 @@
 	memset(&streamDescription, 0, sizeof(streamDescription));
 	memset(&physicalFormat, 0, sizeof(physicalFormat));
 	
-	deviceAudio = [[PADeviceAudio alloc] initWithPADevice: self];
-
+	deviceAudio = [[[PADeviceAudio alloc] initWithPADevice: self] retain];
+	serverConnection = [[[PAServerConnection alloc] init] retain];
+	serverConnection.delegate = self;
+	
 	streamDescription.mSampleRate = deviceAudio.sampleRate;
 	streamDescription.mFormatID = kAudioFormatLinearPCM;
 	streamDescription.mFormatFlags = kAudioFormatFlagsCanonical;
@@ -180,7 +174,8 @@
 
 - (void) dealloc
 {
-	[self disconnectFromServer];
+	[serverConnection disconnect];
+	[serverConnection release];
 	[deviceAudio release];
 	[inputStreamArray release];
 	[outputStreamArray release];

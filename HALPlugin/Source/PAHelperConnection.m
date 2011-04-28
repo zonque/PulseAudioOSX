@@ -11,6 +11,7 @@
 
 #import "PAHelperConnection.h"
 #import "PAObject.h"
+#import "PADeviceAudio.h"
 #import "ObjectNames.h"
 
 @implementation PAHelperConnection
@@ -21,8 +22,14 @@
 
 - (void) connectionDidDie: (NSNotification *) notification
 {
-	[serverProxy release];
+	if (serverProxy)
+		[serverProxy release];
+
+	if (service)
+		[service release];
+
 	serverProxy = nil;
+	service = nil;
 	
 	if (delegate)
 		[delegate PAHelperConnectionDied: self];
@@ -76,8 +83,23 @@
 {
 	if (![self isConnected])
 		return;
+
+	PADeviceAudio *audio = device.deviceAudio;
+	if (!audio)
+		return;
 	
-	[serverProxy announceDevice: device.name];
+	NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithCapacity: 0];
+	
+	[dict setObject: [NSNumber numberWithInt: getpid()]
+		 forKey: @"pid"];
+	[dict setObject: [NSNumber numberWithInt: audio.ioProcBufferSize]
+		 forKey: @"ioProcBufferSize"];
+	[dict setObject: [NSNumber numberWithFloat: audio.sampleRate]
+		 forKey: @"sampleRate"];
+	[dict setObject: device.name
+		 forKey: @"deviceName"];
+	
+	[serverProxy announceDevice: dict];
 }
 
 - (void) deviceStopped: (PADevice *) device

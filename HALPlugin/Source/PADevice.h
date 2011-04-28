@@ -46,6 +46,7 @@
 	PADeviceAudio *deviceAudio;
 }
 
+@property (nonatomic, readonly) PADeviceAudio *deviceAudio;
 @property (nonatomic, readonly) NSString *name;
 @property (nonatomic, assign) NSObject *delegate;
 
