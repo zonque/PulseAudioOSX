@@ -5,25 +5,31 @@
 # don't like to have environment variables redefined
 #
 
+set -x
+
 export PATH="/opt/local/bin:/opt/local/sbin:$PATH"
 export CC="gcc-4.2"
 #export CFLAGS="-I/opt/local/include -O0 -g"
 export CFLAGS="-I/opt/local/include -O2"
 export LDFLAGS="-L/opt/local/lib"
-staging=/Library/Frameworks/pulse.framework/
+staging=/opt/local/pulseaudio
+
+if [ ! -d $staging ]; then
+	echo "$staging does not exist. Please create and make it writeable for your user"
+	exit 1;
+fi
 
 ./autogen.sh \
-	--prefix=$staging/Resources	\
+	--prefix=$staging \
 	--enable-mac-universal		\
 	--disable-dependency-tracking	\
 	--disable-jack			\
+	--disable-glib2			\
 	--disable-hal			\
 	--disable-bluez			\
 	--disable-dbus			\
 	--disable-avahi			\
-	$* && make
-
-rm -fr $staging
-make clean
-make install
+	--with-mac-version-min=10.6	\
+	--with-mac-sysroot=/Developer/SDKs/MacOSX10.6.sdk	\
+	$* && make clean install
 
