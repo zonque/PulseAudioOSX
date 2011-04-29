@@ -28,11 +28,15 @@
 	return self;
 }
 
+- (void) finalize
+{
+	[lock release];
+	[super finalize];
+}
+
 - (void) dealloc
 {
-	DebugLog();
-
-	[lock release];
+	[self finalize];
 	[super dealloc];
 }
 

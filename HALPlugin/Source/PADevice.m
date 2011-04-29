@@ -170,14 +170,14 @@
 	return self;
 }
 
-- (void) dealloc
+- (void) finalize
 {
 	[serverConnection disconnect];
 	[serverConnection release];
 	[deviceAudio release];
 	[inputStreamArray release];
 	[outputStreamArray release];
-	[super dealloc];
+	[super finalize];
 }
 
 #pragma mark ### Plugin interface ###

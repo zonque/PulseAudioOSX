@@ -19,7 +19,7 @@
 	@public AudioHardwarePlugInInterface *staticInterface;
 }
 
-@property (readonly) PAPlugin *plugin;
+@property (nonatomic, assign) PAPlugin *plugin;
 
 - (AudioHardwarePlugInRef) getInterface;
 

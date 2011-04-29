@@ -66,21 +66,18 @@
 
 	DebugLog(@"_pluginRef %p", _pluginRef);
 	
-	helperConnection = [[PAHelperConnection alloc] init];
+	helperConnection = [[[PAHelperConnection alloc] init] retain];
 	helperConnection.delegate = self;
-	[helperConnection retain];
 
 	return self;
 }
 
-- (void) dealloc
+- (void) finalize
 {
-	DebugLog();
-
 	[self destroyDevices];
 	[helperConnection release];
 
-	[super dealloc];
+	[super finalize];
 }
 
 - (PADevice *) findDeviceByID: (AudioObjectID) searchID

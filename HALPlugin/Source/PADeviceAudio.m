@@ -54,7 +54,7 @@ struct IOProcTracker
 	return self;
 }
 
-- (void) dealloc
+- (void) finalize
 {
 	while (tracker) {
 		IOProcTracker *next = tracker->next;
@@ -63,7 +63,7 @@ struct IOProcTracker
 	}
 
 	[lock release];
-	[super dealloc];
+	[super finalize];
 }
 
 #pragma mark ### IOProc housekeeping ###
