@@ -10,7 +10,6 @@
  ***/
 
 #import "ServerTask.h"
-#import "ObjectNames.h"
 #import "Pathes.h"
 
 #define REMOTE_OBJECT @"PulseAudioPreferencePane"
@@ -66,6 +65,7 @@
 {
 	[super init];
 	
+	/*
 	[[prefs notificationCenter] addObserver: self
 				       selector: @selector(setLocalServerEnabled:)
 					   name: @PAOSX_HelperMsgSetLocalServerEnabled
@@ -75,7 +75,7 @@
 						 selector: @selector(taskTerminated:)
 						     name: NSTaskDidTerminateNotification
 						   object: nil];
-	
+	*/
 	if ([prefs isLocalServerEnabled])
 		[self start];
 

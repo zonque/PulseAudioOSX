@@ -9,59 +9,74 @@
  (at your option) any later version.
  ***/
 
+#import <PulseAudio/PAHelperConnection.h>
+
 #import "ConnectionServer.h"
-#import "ObjectNames.h"
+#import "ConnectionClient.h"
 
 @implementation ConnectionServer
 
 @synthesize currentConnection;
 
-#pragma mark ### PAHelperConnection protocol ###
+
+- (ConnectionClient *) findClientByConnection: (NSConnection *) connection
+{
+	for (ConnectionClient *c in clientArray)
+		if (c.connection == connection)
+			return c;
+	
+	return nil;
+}
 
 - (void) audioClientsChanged
 {
-	for (id<PAHelperConnection> o in clientObjects)
-		[o audioClientsChanged: audioClients];
+	NSMutableArray *array = [NSMutableArray arrayWithCapacity: 0];
+	
+	for (ConnectionClient *c in clientArray)
+		[array addObjectsFromArray: c.audioClients];
+	
+	for (ConnectionClient *c in clientArray)
+		[c audioClientsChanged: array];
 }
+
+#pragma mark ### PAHelperConnection protocol ###
 
 - (void) registerClientWithName: (NSString *) name
 {
-	id proxy = [NSConnection rootProxyForConnectionWithRegisteredName: name
-								     host: nil];
+	ConnectionClient *c = [self findClientByConnection: currentConnection];
 
-	NSLog(@"%s() %@", __func__, name);
-
-	if (proxy)
-		[clientObjects addObject: proxy];
+	if (c)
+		[c registerClientWithName: name];
 }
 
 - (void) announceDevice: (NSDictionary *) device
 {
-	NSMutableDictionary *entry = [NSMutableDictionary dictionaryWithDictionary: device];
-
-	[entry setObject: currentConnection
-		  forKey: @"connection"];
+	ConnectionClient *c = [self findClientByConnection: currentConnection];
 	
-	[audioClients addObject: entry];
-	
-//	NSLog(@" %s(): %@", __func__, device);
+	if (c) {
+		[c announceDevice: device];
+		[self audioClientsChanged];
+	}
 }
 
 - (void) signOffDevice: (NSString *) signedOffName
 {	
-	NSLog(@" %s(): %@", __func__, signedOffName);
-
-	for (NSDictionary *entry in audioClients) {
-		NSString *name = [entry objectForKey: @"deviceName"];
-		NSConnection *connection = [entry objectForKey: @"connection"];
-
-		if ([name isEqualToString: signedOffName] &&
-		    connection == currentConnection) {
-			[audioClients removeObject: entry];
-			NSLog(@"removing ...");
-			return;
-		}
+	ConnectionClient *c = [self findClientByConnection: currentConnection];
+	
+	if (c) {
+		[c signOffDevice: signedOffName];
+		[self audioClientsChanged];
 	}
+}
+
+- (void) setConfig: (NSDictionary *) config
+ forDeviceWithUUID: (NSString *) uuid
+{	
+	ConnectionClient *c = [self findClientByConnection: currentConnection];
+	
+	if (c)
+		[c setConfig: config
+	   forDeviceWithUUID: uuid];
 }
 
 #pragma mark ### NSConnection callbacks ###
@@ -69,47 +84,34 @@
 - (void) connectionDied: (NSNotification *) notification
 {
 	NSConnection *connection = [notification object];
-	NSLog(@"%s() %@", __func__, [connection statistics]);
+	ConnectionClient *c = [self findClientByConnection: connection];
 	
-	for (NSDistantObject *o in clientObjects)
-		if ([o connectionForProxy] == connection) {
-			[clientObjects removeObject: o];
-			return;
-		}
-	
-	for (NSDictionary *entry in audioClients) {
-		NSConnection *c = [entry objectForKey: @"connection"];
+	if (c) {
+		BOOL hadAudioClients = ([c.audioClients count] > 0);
+		[c release];
+		[clientArray removeObject: c];
 		
-		if (c == connection) {
-			[audioClients removeObject: entry];
-			return;
-		}
+		if (hadAudioClients)
+			[self audioClientsChanged];
 	}
 }
 
 - (void) connectionInitialized: (NSNotification *) notification
 {
-	NSLog(@"%s()", __func__);
-	//NSConnection *connection = [notification object];
-	//[connection crea
-}
-
-- (id) init
-{
-	[super init];
-
-	clientObjects = [[NSMutableArray arrayWithCapacity: 0] retain];
-	audioClients = [[NSMutableArray arrayWithCapacity: 0] retain];
-	
-	return self;
+	NSConnection *connection = [notification object];
+	ConnectionClient *c = [[ConnectionClient alloc] initWithConnection: connection];
+	[clientArray addObject: c];
 }
 
 - (void) start
 {
-	NSConnection *connection = [NSConnection serviceConnectionWithName: @PAOSX_HelperName
-								rootObject: self];	
-	[connection setDelegate: self];	
-	[connection addRunLoop: [NSRunLoop currentRunLoop]];
+	clientArray = [[NSMutableArray arrayWithCapacity: 0] retain];
+
+	serviceConnection = [NSConnection serviceConnectionWithName: PAOSX_HelperName
+							 rootObject: self];	
+	[serviceConnection setDelegate: self];	
+	[serviceConnection addRunLoop: [NSRunLoop currentRunLoop]];
+	[serviceConnection retain];
 }
 
 #pragma mark ### NSConnectionDelegate ###
@@ -117,6 +119,7 @@
 - (BOOL) connection: (NSConnection *) parentConnection
 shouldMakeNewConnection: (NSConnection *) newConnnection
 {
+	
 	[[NSNotificationCenter defaultCenter] addObserver: self
 						 selector: @selector(connectionInitialized:)
 						     name: NSConnectionDidInitializeNotification
@@ -134,8 +137,6 @@ shouldMakeNewConnection: (NSConnection *) newConnnection
 {
 	ConnectionServer *server = [conn rootObject];
 	server.currentConnection = conn;
-	
-	NSLog(@"%s() conn %p", __func__, conn);
 	return NO;
 }
 

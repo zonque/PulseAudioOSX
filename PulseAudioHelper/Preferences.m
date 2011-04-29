@@ -10,7 +10,6 @@
  ***/
 
 #import "Preferences.h"
-#import "ObjectNames.h"
 
 static NSString *kPAPreferencesGrowlFlagsKey		= @"growlNotificationFlags";
 static NSString *kPAPreferencesGrowlEnabledKey		= @"growlNotificationsEnabled";
@@ -52,11 +51,12 @@ static NSString *kPAPreferencesStatusBarEnabledKey	= @"statusBarEnabled";
 	
 	[userInfo setObject: [NSNumber numberWithUnsignedLongLong: flags]
 		     forKey: @"notificationFlags"];
-	
-	[notificationCenter postNotificationName: @PAOSX_HelperMsgSetGrowlFlags
+	/*
+	[notificationCenter postNotificationName: PAOSX_HelperMsgSetGrowlFlags
 					  object: @PAOSX_HelperName
 					userInfo: userInfo
 			      deliverImmediately: YES];
+	 */
 }
 
 #pragma mark ## Local Server ##
@@ -87,11 +87,14 @@ static NSString *kPAPreferencesStatusBarEnabledKey	= @"statusBarEnabled";
 	
 	[userInfo setObject: [preferencesDict objectForKey: kPAPreferencesStatusBarEnabledKey]
 		     forKey: @"enabled"];
-	
+	/*
+
 	[notificationCenter postNotificationName: @PAOSX_HelperMsgSetStatusBarEnabled
 					  object: @PAOSX_HelperName
 					userInfo: userInfo
 			      deliverImmediately: YES];	
+	 
+	 */
 }
 
 - (void) makeDefaults
@@ -122,7 +125,7 @@ static NSString *kPAPreferencesStatusBarEnabledKey	= @"statusBarEnabled";
 	}
 	
 	notificationCenter = [[NSDistributedNotificationCenter defaultCenter] retain];
-	
+	/*
 	[notificationCenter addObserver: self
 			       selector: @selector(updateGrowlFlags:)
 				   name: @PAOSX_HelperMsgSetGrowlFlags
@@ -147,7 +150,7 @@ static NSString *kPAPreferencesStatusBarEnabledKey	= @"statusBarEnabled";
 			       selector: @selector(queryStatusBarEnabled:)
 				   name: @PAOSX_HelperMsgQueryStatusBarEnabled
 				 object: nil];	
-	
+	*/
 	return self;
 }
 

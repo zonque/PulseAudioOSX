@@ -12,7 +12,6 @@
 #define PATHHACK "/Users/daniel/src/pa/PulseAudioOSX/PulseAudioHelper/"
 
 #import "StatusBar.h"
-#import "ObjectNames.h"
 #import "Pathes.h"
 
 @implementation StatusBar
@@ -78,8 +77,6 @@
         [statusItem setToolTip: @"PulseAudio"];
         [statusItem setHighlightMode: YES];
 	[statusItem setImage: icon];
-
-        [m release];
 }
 
 - (void) hideMenu
@@ -113,11 +110,12 @@
 
 	if ([prefs isStatusBarEnabled])
 		[self showMenu];
-
+/*
 	[[prefs notificationCenter] addObserver: self
 				       selector: @selector(setEnabled:)
 					   name: @PAOSX_HelperMsgSetStatusBarEnabled
-					 object: nil];	
+					 object: nil];
+ */
 }
 
 @end

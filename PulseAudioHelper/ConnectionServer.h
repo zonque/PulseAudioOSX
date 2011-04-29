@@ -10,14 +10,12 @@
  ***/
 
 #import <Foundation/Foundation.h>
-#import "ObjectNames.h"
 
 @interface ConnectionServer : NSObject <NSConnectionDelegate, PAHelperConnection>
 {
-	NSMutableArray *clientObjects;
-	NSMutableArray *audioClients;
-	
+	NSMutableArray *clientArray;	
 	NSConnection *currentConnection;
+	NSConnection *serviceConnection;
 }
 
 @property (assign) NSConnection *currentConnection;

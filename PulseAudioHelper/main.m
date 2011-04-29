@@ -1,13 +1,14 @@
 #import <Foundation/Foundation.h>
+#import <PulseAudio/PAHelperConnection.h>
 
 #import "StatusBar.h"
 #import "ServerTask.h"
 #import "Preferences.h"
 #import "GrowlNotifications.h"
 #import "ConnectionServer.h"
-#import "ObjectNames.h"
 
-int main (int argc, const char * argv[]) {
+int main (int argc, const char * argv[])
+{
 	NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
         [NSApplication sharedApplication];
 
@@ -26,8 +27,8 @@ int main (int argc, const char * argv[]) {
 	[server start];
 
 #if 0
-	[[prefs notificationCenter] postNotificationName: @PAOSX_HelperMsgServiceStarted
-						  object: @PAOSX_HelperName
+	[[prefs notificationCenter] postNotificationName: PAOSX_HelperMsgServiceStarted
+						  object: PAOSX_HelperName
 						userInfo: nil
 				      deliverImmediately: YES];	
 #endif
@@ -37,6 +38,6 @@ int main (int argc, const char * argv[]) {
 	
 	[task stop];
 
-	[pool release];
+	[pool drain];
 	return 0;
 }
