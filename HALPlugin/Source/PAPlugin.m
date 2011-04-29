@@ -41,12 +41,24 @@
 - (void) createDevices
 {
 	devicesArray = [[NSMutableArray arrayWithCapacity: 0] retain];
-
-	PADevice *dev = [[PADevice alloc] initWithPluginRef: pluginRef];
-	dev.owningObjectID = self.objectID;
-	dev.delegate = self;
-	[devicesArray addObject: dev];
 	
+	NSDictionary *prefs = [helperConnection.serverProxy getPreferences];
+	
+	if (!prefs)
+		return;
+	
+	NSArray *array = [prefs objectForKey: @"audioDevices"];
+	
+	for (NSDictionary *dict in array) {
+		PADevice *dev = [[PADevice alloc] initWithPluginRef: pluginRef
+							 deviceName: [dict objectForKey: @"deviceName"]
+						     nInputChannels: [[dict objectForKey: @"nInputChannels"] intValue]
+						    nOutputChannels: [[dict objectForKey: @"nOutputChannels"] intValue]];
+		dev.owningObjectID = self.objectID;
+		dev.delegate = self;
+		[devicesArray addObject: dev];
+	}
+
 	[self publishOwnedObjects];
 }
 

@@ -50,6 +50,11 @@
 @property (nonatomic, readonly) NSString *name;
 @property (nonatomic, assign) NSObject *delegate;
 
+- (id) initWithPluginRef: (AudioHardwarePlugInRef) ref
+	      deviceName: (NSString *) _name
+	  nInputChannels: (UInt32) nInputChannels
+	 nOutputChannels: (UInt32) nOutputChannels;
+
 - (PAStream *) findStreamByID: (AudioObjectID) searchID;
 - (void) setConfig: (NSDictionary *) config;
 

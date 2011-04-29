@@ -109,6 +109,9 @@
 #pragma mark ### PADevice ###
 
 - (id) initWithPluginRef: (AudioHardwarePlugInRef) ref
+	      deviceName: (NSString *) _name
+	  nInputChannels: (UInt32) nInputChannels
+	 nOutputChannels: (UInt32) nOutputChannels
 {
 	[super initWithPluginRef: ref];
 	
@@ -147,19 +150,24 @@
 	outputStreamArray = [[NSMutableArray arrayWithCapacity: 0] retain];
 	
 	PAStream *stream;
-	stream = [[PAStream alloc] initWithDevice: self
-					  isInput: YES
-				  startingChannel: 1];
-	stream.owningObjectID = self.objectID;
-	[inputStreamArray addObject: stream];
 
-	stream = [[PAStream alloc] initWithDevice: self
-					  isInput: NO
-				  startingChannel: 1];
-	stream.owningObjectID = self.objectID;
-	[outputStreamArray addObject: stream];
-	
-	name = @"PulseAudio";
+	for (UInt32 i = 0; i < nInputChannels / 2; i++) {
+		stream = [[PAStream alloc] initWithDevice: self
+						  isInput: YES
+					  startingChannel: 1];
+		stream.owningObjectID = self.objectID;
+		[inputStreamArray addObject: stream];
+	}
+
+	for (UInt32 i = 0; i < nOutputChannels / 2; i++) {
+		stream = [[PAStream alloc] initWithDevice: self
+						  isInput: NO
+					  startingChannel: 1];
+		stream.owningObjectID = self.objectID;
+		[outputStreamArray addObject: stream];
+	}
+
+	name = [_name retain];
 	manufacturer = @"pulseaudio.org";
 	modelUID = [NSString stringWithFormat: @"%@:%d,%d",
 					name,
@@ -172,6 +180,7 @@
 
 - (void) dealloc
 {
+	[name release];
 	[serverConnection disconnect];
 	[serverConnection release];
 	[deviceAudio release];
