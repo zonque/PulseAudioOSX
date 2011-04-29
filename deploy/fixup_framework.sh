@@ -25,17 +25,13 @@ if [ ! -d $framework ]; then
 	exit 1
 fi
 
-resources=$framework/Resources/
+resources=$framework/Resources
 papath=/opt/local/pulseaudio/
 
-libpath=$resources/lib/
-modpath=$resources/lib/modules/
-binpath=$resources/bin/
+libpath=$resources/lib
+modpath=$resources/lib/modules
+binpath=$resources/bin
 portlibs=/opt/local/lib
-
-rm -fr $libpath
-rm -fr $modpath
-rm -fr $binpath
 
 mkdir -p $libpath
 mkdir -p $modpath

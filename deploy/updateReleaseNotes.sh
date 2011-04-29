@@ -23,7 +23,7 @@ function extractXML()
 
 set -e
 
-pa_version=$(extractXML ${targetdir}/Library/Frameworks/pulse.framework/Resources/Info.plist CFBundleShortVersionString)
+pa_version=$(extractXML ${targetdir}/Library/Frameworks/PulseAudio.framework/Resources/Info.plist CFBundleShortVersionString)
 pulseconsle_version=$(extractXML ${targetdir}/Applications/PulseConsole.app/Contents/Info.plist CFBundleVersion)
 halplugin_version=$(extractXML ${targetdir}/Library/Audio/Plug-Ins/HAL/PulseAudio.plugin/Contents/Info.plist CFBundleShortVersionString)
 prefpane_version=$(extractXML ${targetdir}/Library/PreferencePanes/PulseAudio.prefPane/Contents/Info.plist CFBundleVersion)

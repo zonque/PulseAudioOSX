@@ -25,7 +25,7 @@ sh ${base}/build_pulseaudio.sh
 
 ################################## framework ##################################
 cd ${base}/../Framework
-XcodeBuild PulseAudioHelper.xcodeproj
+XcodeBuild PulseAudio.xcodeproj
 sh install.sh
 sh ${base}/fixup_framework.sh
 dest=${targetdir}/Library/Frameworks
@@ -35,7 +35,7 @@ cp -a /Library/Frameworks/PulseAudio.framework ${dest}/
 ################################## PulseAudioHelper ##################################
 cd ${base}/../PulseAudioHelper/
 XcodeBuild PulseAudioHelper.xcodeproj
-dest=${targetdir}/Library/Frameworks/pulse.framework/bin
+dest=${targetdir}/Library/Frameworks/PulseAudio.framework/Resources/bin
 mkdir -p ${dest}
 cp -a build/Release/PulseAudioHelper.app ${dest}/
 

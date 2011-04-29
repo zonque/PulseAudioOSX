@@ -5,5 +5,7 @@ dest=/Library/Frameworks/
 config=Release
 
 rm -fr $dest/$name
-cp -a build/$config/$name $dest/
+test -d $dest/$name || mkdir $dest/$name
+rm -fr $dest/$name/*
+cp -a build/$config/$name/* $dest/$name/
 
