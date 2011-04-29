@@ -460,10 +460,10 @@ Interface_StreamSetProperty(AudioHardwarePlugInRef inSelf,
 	return self;
 }
 
-- (void) finalize
+- (void) dealloc
 {
 	free(staticInterface);
-	[super finalize];
+	[super dealloc];
 }
 
 - (AudioHardwarePlugInRef) getInterface

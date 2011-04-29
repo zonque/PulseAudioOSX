@@ -72,12 +72,12 @@
 	return self;
 }
 
-- (void) finalize
+- (void) dealloc
 {
 	[self destroyDevices];
 	[helperConnection release];
 
-	[super finalize];
+	[super dealloc];
 }
 
 - (PADevice *) findDeviceByID: (AudioObjectID) searchID
