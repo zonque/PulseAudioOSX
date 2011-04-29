@@ -274,7 +274,7 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 			break;
 	}
 	
-	[pool release];
+	[pool drain];
 }
 
 - (void) contextSubscribeCallback: (pa_subscription_event_type_t) type
@@ -315,7 +315,7 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 			break;
 	}
 	
-	[pool release];
+	[pool drain];
 }
 
 - (void) contextEventCallback: (const char *) name
@@ -357,7 +357,7 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 			       withObject: nil
 			    waitUntilDone: NO];
 	
-	[pool release];
+	[pool drain];
 }
 
 - (void) cardInfoCallback: (const pa_card_info *) info
@@ -386,7 +386,7 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 				    waitUntilDone: NO];		
 	}
 	
-	[pool release];
+	[pool drain];
 }
 
 - (void) sinkInfoCallback: (const pa_sink_info *) info
@@ -424,7 +424,7 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 				    waitUntilDone: NO];		
 	}
 	
-	[pool release];
+	[pool drain];
 }
 
 - (void) sourceInfoCallback: (const pa_source_info *) info
@@ -458,7 +458,7 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 				    waitUntilDone: NO];		
 	}
 	
-	[pool release];
+	[pool drain];
 }
 
 - (void) clientInfoCallback: (const pa_client_info *) info
@@ -483,7 +483,7 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 				    waitUntilDone: NO];		
 	}
 	
-	[pool release];
+	[pool drain];
 }
 
 - (void) moduleInfoCallback: (const pa_module_info *) info
@@ -511,7 +511,7 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 				    waitUntilDone: NO];		
 	}
 	
-	[pool release];
+	[pool drain];
 }
 
 - (void) sampleInfoCallback: (const pa_sample_info *) info
@@ -544,7 +544,7 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 				    waitUntilDone: NO];				
 	}
 	
-	[pool release];
+	[pool drain];
 }
 
 @end

@@ -13,6 +13,7 @@
 
 @implementation PAHelperConnection
 
+@synthesize name;
 @synthesize delegate;
 @synthesize serverProxy;
 
@@ -20,6 +21,8 @@
 
 - (void) connectionDidDie: (NSNotification *) notification
 {
+	NSLog(@"%s()", __func__);
+	
 	if (serverProxy)
 		[serverProxy release];
 
@@ -33,12 +36,40 @@
 		[delegate PAHelperConnectionDied: self];
 }
 
+- (void) serverMessage: (NSNotification *) notification
+{
+	NSDictionary *userInfo = [notification userInfo];
+	NSString *command = [userInfo objectForKey: @"command"];
+	
+	if (!delegate)
+		return;
+	
+	if ([command isEqualToString: @"audioClientsChanged"]) {
+		NSArray *audioClients = [userInfo objectForKey: @"audioClients"];
+		
+		if ([delegate respondsToSelector: @selector(PAHelperConnection:audioClientsChanged:)])
+			[delegate PAHelperConnection: self
+				 audioClientsChanged: audioClients];
+	}
+	
+	if ([command isEqualToString: @"setAudioDeviceConfig"]) {
+		NSDictionary *config = [userInfo objectForKey: @"config"];
+		NSString *deviceName = [userInfo objectForKey: @"deviceName"];
+		
+		if ([delegate respondsToSelector: @selector(PAHelperConnection:setConfig:forDeviceWithName:)])
+			[delegate PAHelperConnection: self
+					   setConfig: config
+				   forDeviceWithName: deviceName];
+	}	
+}
+
 #pragma mark ### vended selectors ###
 
 - (void) setConfig: (NSDictionary *) config
  forDeviceWithName: (NSString *) name
 {
-	if (delegate)
+	if (delegate &&
+	    [delegate respondsToSelector: @selector(PAHelperConnection:setConfig:forDeviceWithName:)])
 		[delegate PAHelperConnection: self
 				   setConfig: config
 			   forDeviceWithName: name];
@@ -65,15 +96,15 @@
 
 	[serverProxy setProtocolForProxy: @protocol(PAHelperConnection)];
 	[serverProxy retain];
-
+	
 	// make up a new name ...
-	NSString *name = [NSString stringWithFormat: @"%@.%d.%p",
-					[self className], getpid(), self];	
-	service = [NSConnection serviceConnectionWithName: name
-						  rootObject: self];
-	[service setDelegate: self];
-	[service retain];
+	name = [NSString stringWithFormat: @"%@.%p", [[NSProcessInfo processInfo] globallyUniqueString], self];	
 
+	[[NSDistributedNotificationCenter defaultCenter] addObserver: self
+							    selector: @selector(serverMessage:)
+								name: name
+							      object: PAOSX_HelperName];
+	
 	// ... tell the server about it, so it can connect back
 	[serverProxy registerClientWithName: name];
 

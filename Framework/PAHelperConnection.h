@@ -27,20 +27,30 @@
 @protocol PAHelperConnectionDelegate
 @required
 - (void) PAHelperConnectionDied: (PAHelperConnection *) connection;
+
+@optional
+// for preference pane
+- (void) PAHelperConnection: (PAHelperConnection *) connection
+	audioClientsChanged: (NSArray *) array;
+
+// for audio devices
 - (void) PAHelperConnection: (PAHelperConnection *) connection
 		  setConfig: (NSDictionary *) config
 	  forDeviceWithName: (NSString *) name;
+
 @end
 
 @interface PAHelperConnection : NSObject <NSConnectionDelegate>
 {
 	NSConnection *service;
 	id serverProxy;
-	id <PAHelperConnectionDelegate> delegate;
+	NSObject <PAHelperConnectionDelegate> *delegate;
+	NSString *name;
 }
 
 @property (nonatomic, assign) id <PAHelperConnection> serverProxy;
-@property (nonatomic, assign) id <PAHelperConnectionDelegate> delegate;
+@property (nonatomic, assign) NSObject <PAHelperConnectionDelegate> *delegate;
+@property (nonatomic, readonly) NSString *name;
 
 - (BOOL) connect;
 - (BOOL) isConnected;
