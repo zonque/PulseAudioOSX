@@ -11,6 +11,8 @@
 		6571514E13683F4A00D60887 /* PAServerConnectionAudio.m in Sources */ = {isa = PBXBuildFile; fileRef = 6571514C13683F4A00D60887 /* PAServerConnectionAudio.m */; };
 		657159771369B34600D60887 /* PAHelperConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = 657159751369B34600D60887 /* PAHelperConnection.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		657159781369B34600D60887 /* PAHelperConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 657159761369B34600D60887 /* PAHelperConnection.m */; };
+		65AF3EC7136ACBE900650E2E /* PAServiceDiscovery.h in Headers */ = {isa = PBXBuildFile; fileRef = 65AF3EC5136ACBE900650E2E /* PAServiceDiscovery.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		65AF3EC8136ACBE900650E2E /* PAServiceDiscovery.m in Sources */ = {isa = PBXBuildFile; fileRef = 65AF3EC6136ACBE900650E2E /* PAServiceDiscovery.m */; };
 		65CCFBFF1366CF1E00834815 /* PAServerConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = 65CCFBFD1366CF1E00834815 /* PAServerConnection.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		65CCFC001366CF1E00834815 /* PAServerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 65CCFBFE1366CF1E00834815 /* PAServerConnection.m */; };
 		65CCFC151366D14700834815 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0867D69BFE84028FC02AAC07 /* Foundation.framework */; };
@@ -40,6 +42,8 @@
 		6571514C13683F4A00D60887 /* PAServerConnectionAudio.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PAServerConnectionAudio.m; sourceTree = "<group>"; };
 		657159751369B34600D60887 /* PAHelperConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PAHelperConnection.h; sourceTree = "<group>"; };
 		657159761369B34600D60887 /* PAHelperConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PAHelperConnection.m; sourceTree = "<group>"; };
+		65AF3EC5136ACBE900650E2E /* PAServiceDiscovery.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PAServiceDiscovery.h; sourceTree = "<group>"; };
+		65AF3EC6136ACBE900650E2E /* PAServiceDiscovery.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PAServiceDiscovery.m; sourceTree = "<group>"; };
 		65CCFBFD1366CF1E00834815 /* PAServerConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PAServerConnection.h; sourceTree = "<group>"; };
 		65CCFBFE1366CF1E00834815 /* PAServerConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PAServerConnection.m; sourceTree = "<group>"; };
 		65CCFCB01367180C00834815 /* PAServerInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PAServerInfo.h; sourceTree = "<group>"; };
@@ -127,6 +131,8 @@
 				65CCFCB11367180C00834815 /* PAServerInfo.m */,
 				65CCFBFD1366CF1E00834815 /* PAServerConnection.h */,
 				65CCFBFE1366CF1E00834815 /* PAServerConnection.m */,
+				65AF3EC5136ACBE900650E2E /* PAServiceDiscovery.h */,
+				65AF3EC6136ACBE900650E2E /* PAServiceDiscovery.m */,
 				65CCFCC313671B3900834815 /* PASinkInfo.h */,
 				65CCFCC413671B3900834815 /* PASinkInfo.m */,
 				65CCFCC713671B3D00834815 /* PASourceInfo.h */,
@@ -182,6 +188,7 @@
 				65CCFCE413671BF400834815 /* PulseAudio.h in Headers */,
 				6571514D13683F4A00D60887 /* PAServerConnectionAudio.h in Headers */,
 				657159771369B34600D60887 /* PAHelperConnection.h in Headers */,
+				65AF3EC7136ACBE900650E2E /* PAServiceDiscovery.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -258,6 +265,7 @@
 				65CCFCD613671B5000834815 /* PASampleInfo.m in Sources */,
 				6571514E13683F4A00D60887 /* PAServerConnectionAudio.m in Sources */,
 				657159781369B34600D60887 /* PAHelperConnection.m in Sources */,
+				65AF3EC8136ACBE900650E2E /* PAServiceDiscovery.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

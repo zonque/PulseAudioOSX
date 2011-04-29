@@ -47,6 +47,14 @@
 			[delegate PAHelperConnection: self
 				 audioClientsChanged: audioClients];
 	}
+
+	if ([command isEqualToString: @"preferencesChanged"]) {
+		NSDictionary *preferences = [userInfo objectForKey: @"preferences"];
+		
+		if ([delegate respondsToSelector: @selector(PAHelperConnection:preferencesChanged:)])
+			[delegate PAHelperConnection: self
+				  preferencesChanged: preferences];
+	}
 	
 	if ([command isEqualToString: @"setAudioDeviceConfig"]) {
 		NSDictionary *config = [userInfo objectForKey: @"config"];

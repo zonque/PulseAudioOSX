@@ -581,7 +581,6 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 
 - (void) dealloc
 {
-	/*
 	if (audio)
 		[audio release];
 	
@@ -592,7 +591,7 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 	[modules release];
 	[samples release];
 	[serverInfo release];
-	*/
+
 	[super dealloc];
 }
 

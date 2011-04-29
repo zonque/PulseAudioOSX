@@ -22,6 +22,9 @@
 - (void) announceDevice: (NSDictionary *) device;
 - (void) signOffDevice: (NSString *) name;
 - (void) audioClientsChanged: (NSArray *) array;
+- (NSDictionary *) getPreferences;
+- (void) setPreferences: (id) object
+		 forKey: (NSString *) key;
 @end
 
 @protocol PAHelperConnectionDelegate
@@ -32,6 +35,9 @@
 // for preference pane
 - (void) PAHelperConnection: (PAHelperConnection *) connection
 	audioClientsChanged: (NSArray *) array;
+
+- (void) PAHelperConnection: (PAHelperConnection *) connection
+	 preferencesChanged: (NSDictionary *) preferences;
 
 // for audio devices
 - (void) PAHelperConnection: (PAHelperConnection *) connection
