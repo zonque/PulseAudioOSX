@@ -14,40 +14,37 @@
 
 @implementation Growl
 
-- (void) updateGrowlFlags: (NSNotification *) notification
+@synthesize delegate;
+
+- (void) preferencesChanged: (NSDictionary *) preferences
 {
-	NSDictionary *userInfo = [notification userInfo];
-	NSNumber *number = [userInfo objectForKey: @"notificationFlags"];
+	NSNumber *number = [preferences objectForKey: @"growlNotificationFlags"];
 	notificationFlags = [number unsignedLongLongValue];
 	BOOL growlReady = !!(notificationFlags & (1ULL << 63));
 	
 	growlEnabled = !!(notificationFlags & (1ULL << 62));
-
+	
 	[enabledButton setEnabled: growlEnabled];
 	[tableView setEnabled: growlEnabled];
-	
+
+	/*
 	if (growlReady) {
 		[tabView selectTabViewItemWithIdentifier: @"active"];
 		[tableView reloadData];
 	} else
-		[tabView selectTabViewItemWithIdentifier: @"inactive"];
+		[tabView selectTabViewItemWithIdentifier: @"inactive"];	
+	 */
 }
 
 - (void) sendFlags
 {
-	NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithCapacity: 0];
 	UInt64 flags = notificationFlags;
 
 	if (growlEnabled)
 		flags |= 1ULL << 62;
-	
-	[userInfo setObject: [NSNumber numberWithUnsignedLongLong: flags]
-		     forKey: @"notificationFlags"];
-	
-	[notificationCenter postNotificationName: @"updateGrowlFlags"
-					  object: @PAOSX_PreferencePaneName
-					userInfo: userInfo
-			      deliverImmediately: YES];
+
+	[delegate setPreferences: [NSNumber numberWithUnsignedLongLong: flags]
+			  forKey: @"growlNotificationFlags"];
 }
 
 - (void) awakeFromNib
@@ -64,16 +61,6 @@
 			 @"Client connected",
 			 @"Client disconnected",
 			 nil];
-
-	[notificationCenter addObserver: self
-			       selector: @selector(updateGrowlFlags:)
-				   name: @PAOSX_HelperMsgSetGrowlFlags
-				 object: nil];
-
-	[notificationCenter postNotificationName: @PAOSX_HelperMsgQueryGrowlFlags
-					  object: @PAOSX_PreferencePaneName
-					userInfo: nil
-			      deliverImmediately: YES];
 }
 
 #pragma mark ### NSTableView ###

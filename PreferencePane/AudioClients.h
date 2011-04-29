@@ -12,8 +12,9 @@
 #import <Cocoa/Cocoa.h>
 #import <Quartz/Quartz.h>
 #import <PreferencePanes/PreferencePanes.h>
+#import <PulseAudio/PAServiceDiscovery.h>
 
-@interface AudioClients : NSObject <NSNetServiceDelegate, NSNetServiceBrowserDelegate>
+@interface AudioClients : NSObject <PAServiceDiscoveryDelegate>
 {
 	IBOutlet NSTableView		*clientTableView;
 	IBOutlet IKImageView		*imageView;
@@ -28,37 +29,23 @@
 	IBOutlet NSTextField		*connectionStatusTextField;
 	IBOutlet NSButton		*persistenCheckButton;
 
-	NSDistributedNotificationCenter *notificationCenter;
-	NSNetServiceBrowser		*netServiceBrowser;	
 	NSMutableArray			*clientList;
-	NSMutableDictionary		*serviceDict;	
+	NSMutableDictionary		*serviceDict;
+	PAServiceDiscovery		*discovery;
 }
 
-- (NSString *) ipOfService: (NSNetService *) service;
+/* Helper callbacks */
+- (void) audioClientsChanged: (NSArray *) clients;
 
 /* NSTableViewDelegate */
-- (void)tableView:(NSTableView *)aTableView
-   setObjectValue:obj
-   forTableColumn:(NSTableColumn *)col
-	      row:(int)rowIndex;
-- (id)tableView:(NSTableView *)tableView
-objectValueForTableColumn:(NSTableColumn *)col
-	    row:(int)rowIndex;
-- (int) numberOfRowsInTableView:(NSTableView *)tableView;
-
-/* NSNetServiceDelegate */
-- (void)netServiceDidResolveAddress:(NSNetService *)sender;
-- (void) netService: (NSNetService *) sender
-      didNotResolve: (NSDictionary *) errorDict;
-- (void)netServiceDidStop:(NSNetService *)sender;
-
-/* NSNetServiceBrowserDelegate */
-- (void) netServiceBrowser: (NSNetServiceBrowser *) netServiceBrowser
-	    didFindService: (NSNetService *) netService
-	        moreComing: (BOOL) moreServicesComing;
-- (void) netServiceBrowser: (NSNetServiceBrowser *) netServiceBrowser
-	  didRemoveService: (NSNetService *) netService
-		moreComing: (BOOL) moreServicesComing;
+- (void) tableView:(NSTableView *)aTableView
+    setObjectValue:obj
+    forTableColumn: (NSTableColumn *) col
+	       row: (int) rowIndex;
+- (id) tableView: (NSTableView *) tableView
+ objectValueForTableColumn: (NSTableColumn *) col
+	    row: (int) rowIndex;
+- (int) numberOfRowsInTableView: (NSTableView *) tableView;
 
 /* GUI */
 - (IBAction) selectClient: (id) sender;

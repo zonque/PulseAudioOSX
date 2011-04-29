@@ -11,74 +11,13 @@
 
 #import "AudioClients.h"
 #import "ObjectNames.h"
-#import <netinet/in.h>
 
 @implementation AudioClients
-
-- (void) deviceAnnounced: (NSNotification *) notification
-{
-	NSDictionary *userInfo = [notification userInfo];
-	pid_t pid = [[userInfo objectForKey: @"pid"] intValue];
-	BOOL found = NO;
-
-	for (NSDictionary *client in clientList) {
-		if (pid == [[client objectForKey: @"pid"] intValue])
-			found = YES;
-	}
-
-	if (!found) {
-		NSRunningApplication *app = [NSRunningApplication runningApplicationWithProcessIdentifier: pid];
-		
-		if (app) {
-			NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary: userInfo];
-			[dict setObject: app
-				 forKey: @"application"];
-			[clientList addObject: dict];
-			[clientTableView reloadData];
-		}
-	}
-}
-
-- (void) deviceSignedOff: (NSNotification *) notification
-{
-	BOOL removed = NO;
-	NSDictionary *userInfo = [notification userInfo];
-	pid_t pid = [[userInfo objectForKey: @"pid"] intValue];
-	NSMutableArray *newClientList = [NSMutableArray arrayWithArray: clientList];
-	NSInteger selected = [clientTableView selectedRow];
-	NSDictionary *selectedClient = nil;
-	
-	if (selected >= 0)
-		selectedClient = [clientList objectAtIndex: [clientTableView selectedRow]];
-
-	for (NSDictionary *client in clientList)
-		if (pid == [[client objectForKey: @"pid"] intValue]) {
-			[newClientList removeObject: client];
-			[clientTableView reloadData];
-			removed = YES;
-		}
-	
-	if (removed) {
-		[clientList release];
-		clientList = [newClientList retain];
-		[clientTableView reloadData];
-
-		if (selectedClient && ![clientList containsObject: selectedClient])
-			[self selectClient: nil];
-	}
-}
-
-- (id) init
-{
-	[super init];	
-	return self;
-}
 
 - (void) dealloc
 {
 	[clientList release];
-	[serviceDict release];
-	[netServiceBrowser release];
+	[discovery release];
 
 	[super dealloc];
 }
@@ -93,43 +32,47 @@
 	[serverSelectButton removeAllItems];
 	[serverSelectButton addItemWithTitle: @"localhost"];
 
-	netServiceBrowser = [[[NSNetServiceBrowser alloc] init] retain];
-	[netServiceBrowser setDelegate: self];
-	[netServiceBrowser searchForServicesOfType: @"_pulse-server._tcp"
-					  inDomain: @"local."];
-
-	notificationCenter = [NSDistributedNotificationCenter defaultCenter];
-
-	[notificationCenter addObserver: self
-			       selector: @selector(deviceAnnounced:)
-				   name: @PAOSX_HALPluginMsgAnnounceDevice
-				 object: @PAOSX_HALPluginName];	
-
-	[notificationCenter addObserver: self
-			       selector: @selector(deviceSignedOff:)
-				   name: @PAOSX_HALPluginMsgSignOffDevice
-				 object: @PAOSX_HALPluginName];	
-
-	[notificationCenter postNotificationName: @PAOSX_HALPluginMsgScanDevices
-					  object: @PAOSX_PreferencePaneName
-					userInfo: nil
-			      deliverImmediately: YES];
+	discovery = [[PAServiceDiscovery alloc] init];
+	discovery.delegate = self;
+	[discovery start];
 	
 	NSLog(@"%s()\n", __func__);
 }
 
+- (void) audioClientsChanged: (NSArray *) clients
+{
+	[clientList removeAllObjects];
+	
+	NSLog(@"%@", clients);
+	
+	for (NSDictionary *c in clients) {
+		pid_t pid = [[c objectForKey: @"pid"] intValue];
+		NSRunningApplication *app = [NSRunningApplication runningApplicationWithProcessIdentifier: pid];
+		
+		if (app) {
+			NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary: c];
+			[dict setObject: app
+				 forKey: @"application"];
+			[clientList addObject: dict];
+		}
+	}
+	
+	[clientTableView reloadData];
+	[self selectClient: nil];
+}
+
 #pragma mark ### NSTableViewSource protocol ###
 
-- (void)tableView:(NSTableView *)aTableView
-   setObjectValue:obj
-   forTableColumn:(NSTableColumn *)col
-	      row:(int)rowIndex
+- (void)tableView: (NSTableView *) aTableView
+   setObjectValue: obj
+   forTableColumn: (NSTableColumn *) col
+	      row: (int) rowIndex
 {
 }
 
-- (id)tableView:(NSTableView *)tableView
-	objectValueForTableColumn:(NSTableColumn *)col
-	row:(int)rowIndex
+- (id)tableView: (NSTableView *) tableView
+	objectValueForTableColumn: (NSTableColumn *) col
+	row: (int) rowIndex
 {
 	NSDictionary *client = [clientList objectAtIndex: rowIndex];
 	NSRunningApplication *app = [client objectForKey: @"application"];
@@ -143,7 +86,7 @@
 	return @"";
 }
 
-- (int) numberOfRowsInTableView:(NSTableView *)tableView
+- (int) numberOfRowsInTableView: (NSTableView *) tableView
 {
 	return clientList ? [clientList count] : 0;
 }
@@ -199,44 +142,31 @@ enum {
 	[clientDetailsBox selectTabViewItemAtIndex: kClientDetailBoxEnabledTab];
 	[imageView setImage: app.icon];
 	[clientNameLabel setStringValue: app.localizedName];
-	[audioDeviceLabel setStringValue: [client objectForKey: @"audioDevice"]];
+	[audioDeviceLabel setStringValue: [client objectForKey: @"deviceName"]];
 	[PIDLabel setStringValue: [NSString stringWithFormat: @"%d, %@", app.processIdentifier, arch]];
-	[IOBufferSizeLabel setStringValue: [[client objectForKey: @"IOBufferFrameSize"] stringValue]];
-	
-	NSString *serverIP = [client objectForKey: @"serverName"];
-	
+	[IOBufferSizeLabel setStringValue: [[client objectForKey: @"ioProcBufferSize"] stringValue]];
+		
 	id key;
 	BOOL found = NO;
 	NSEnumerator *enumerator = [serviceDict keyEnumerator];
 	while (key = [enumerator nextObject]) {
 		NSNetService *service = [serviceDict objectForKey: key];
-		NSString *ip = [self ipOfService: service];
+		NSString *ip = [PAServiceDiscovery ipOfService: service];
 
-		if ([ip isEqualToString: serverIP]) {
-			[serverSelectButton selectItemWithTitle: [service name]];
-			found = YES;
-		}
+		//if ([ip isEqualToString: serverIP]) {
+		//	[serverSelectButton selectItemWithTitle: [service name]];
+		//	found = YES;
+		//}
 	}
 	
-	if (!found)
-		[serverSelectButton selectItemWithTitle: serverIP];
+	//if (!found)
+	//	[serverSelectButton selectItemWithTitle: serverIP];
 
 	NSInteger connectionStatus = [[client objectForKey: @"connectionStatus"] intValue];
 	[connectionStatusTextField setStringValue: [connectionStatusStrings objectAtIndex: connectionStatus]];
 	
 	[persistenCheckButton setTitle: [NSString stringWithFormat:
 			@"Always use these parameters for %@", app.localizedName]];		
-}
-
-- (NSString *) ipOfService: (NSNetService *) service
-{
-	NSData *addr = [[service addresses] objectAtIndex: 0];
-	struct sockaddr_in *address_sin = (struct sockaddr_in *)[addr bytes];
-	return [NSString stringWithFormat: @"%d.%d.%d.%d",
-		    (address_sin->sin_addr.s_addr >> 0) & 0xff,
-		    (address_sin->sin_addr.s_addr >> 8) & 0xff,
-		    (address_sin->sin_addr.s_addr >> 16) & 0xff,
-		    (address_sin->sin_addr.s_addr >> 24) & 0xff];
 }
 
 - (IBAction) connectClient: (id) sender
@@ -264,62 +194,31 @@ enum {
 	if (serverPort)
 		[userInfo setObject: serverPort
 			     forKey: @"serverPort"];
-	
-	[notificationCenter postNotificationName: @PAOSX_HALPluginMsgSetConfiguration
-					  object: @PAOSX_PreferencePaneName
-					userInfo: userInfo
-			      deliverImmediately: YES];
+
+	// ...
 	
 	[client setObject: serverName
 		   forKey: @"serverName"];
 }
 
-#pragma mark ### NSNetServiceDelegate ###
+#pragma mark ### PAServiceDiscoveryDelegate ###
 
-- (void)netServiceDidResolveAddress:(NSNetService *)sender
+- (void) PAServiceDiscovery: (PAServiceDiscovery *) discovery
+	       sinkAppeared: (NSNetService *) service
 {
-	NSString *name = [sender name];
-	NSArray *addresses = [sender addresses];
+	NSString *name = [service name];
+	NSArray *addresses = [service addresses];
 	
 	if ([addresses count] == 0)
 		return;
 	
-	[serverSelectButton addItemWithTitle: name];		
+	[serverSelectButton addItemWithTitle: name];	
 }
 
-- (void) netService: (NSNetService *) sender
-      didNotResolve: (NSDictionary *)errorDict
+- (void) PAServiceDiscovery: (PAServiceDiscovery *) discovery
+	    sinkDisappeared: (NSNetService *) service
 {
-	[serviceDict removeObjectForKey: [sender name]];
-	[serverSelectButton removeItemWithTitle: [sender name]];		
-}
-
-- (void)netServiceDidStop:(NSNetService *)sender
-{
-	[serviceDict removeObjectForKey: [sender name]];
-	[serverSelectButton removeItemWithTitle: [sender name]];		
-}
-
-#pragma mark ### NSNetServiceBrowserDelegate ###
-
-- (void) netServiceBrowser: (NSNetServiceBrowser *) netServiceBrowser
-	    didFindService: (NSNetService *) netService
-	        moreComing: (BOOL) moreServicesComing
-{
-	[serviceDict setObject: netService
-			forKey: [netService name]];
-	
-	[netService setDelegate: self];
-	[netService resolveWithTimeout: 10.0];
-}
-
-- (void) netServiceBrowser: (NSNetServiceBrowser *) netServiceBrowser
-	  didRemoveService: (NSNetService *) netService
-		moreComing: (BOOL) moreServicesComing
-{
-	NSString *name = [netService name];
-	[serviceDict removeObjectForKey: name];
-	[serverSelectButton removeItemWithTitle: name];	
+	[serverSelectButton removeItemWithTitle: [service name]];
 }
 
 @end

@@ -11,6 +11,13 @@
 
 #import <Cocoa/Cocoa.h>
 
+@protocol GrowlDelegate
+@required
+- (void) setPreferences: (id) value
+		 forKey: (NSString *) key;
+@end
+
+
 @interface Growl : NSObject <NSTableViewDelegate> {
 	IBOutlet NSTableView *tableView;
 	IBOutlet NSButton *enabledButton;
@@ -20,7 +27,13 @@
 	NSArray *notifications;
 	UInt64 notificationFlags;
 	BOOL growlEnabled;
+	
+	NSObject <GrowlDelegate> *delegate;
 }
+
+@property (nonatomic, assign) NSObject <GrowlDelegate> *delegate;
+
+- (void) preferencesChanged: (NSDictionary *) preferences;
 
 /* NSTableViewDelegate */
 - (void)tableView:(NSTableView *)aTableView

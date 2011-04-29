@@ -106,8 +106,4 @@ static NSString * appPath = @"/Library/Frameworks/pulse.framework/Resources/bin/
 	CFRelease(loginItems);
 }
 
-- (void)dealloc {
-	[super dealloc];
-}
-
 @end

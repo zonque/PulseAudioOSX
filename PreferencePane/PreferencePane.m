@@ -24,33 +24,65 @@
 
 - (void) mainViewDidLoad
 {
-	NSDistributedNotificationCenter *notificationCenter = [NSDistributedNotificationCenter defaultCenter];
+	helperConnection = [[PAHelperConnection alloc] init];
+	helperConnection.delegate = self;
+	if (![helperConnection connect]) {
+	//	[NSApp terminate: nil];
+	}
 	
-	[notificationCenter postNotificationName: @PAOSX_HelperMsgQueryStatusBarEnabled
-					  object: @PAOSX_PreferencePaneName
-					userInfo: nil
-			      deliverImmediately: YES];
+	growl.delegate = self;
+	
+	NSDictionary *preferences = [helperConnection.serverProxy getPreferences];
+
+	[self PAHelperConnection: helperConnection
+	      preferencesChanged: preferences];
+	 
 }
 
 #pragma mark ### GUI ###
 - (IBAction) setStatusBarEnabled: (id) sender
 {
-	NSDistributedNotificationCenter *notificationCenter = [NSDistributedNotificationCenter defaultCenter];
-	NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithCapacity: 0];
-	BOOL enabled = ([sender state] == NSOnState);
+	NSButton *button = sender;
+	BOOL enabled = ([button state] == NSOnState);
 
-	[userInfo setObject: [NSNumber numberWithBool: enabled]
-		     forKey: @"enabled"];
-	
-	[notificationCenter postNotificationName: @PAOSX_HelperMsgSetStatusBarEnabled
-					  object: @PAOSX_PreferencePaneName
-					userInfo: userInfo
-			      deliverImmediately: YES];		
+	[helperConnection.serverProxy setPreferences: [NSNumber numberWithBool: enabled]
+					      forKey: @"statusBarEnabled"];
 }
 
 - (IBAction) setPulseAudioEnabled: (id) sender
 {
 	[loginItemController toggleLoginItem: sender];
+}
+
+#pragma mark ### PAHelperConnectionDelegate ###
+
+- (void) PAHelperConnectionDied: (PAHelperConnection *) connection
+{
+	NSLog(@"%s()", __func__);
+}
+
+- (void) PAHelperConnection: (PAHelperConnection *) connection
+	audioClientsChanged: (NSArray *) array
+{
+	[audioClients audioClientsChanged: array];
+}
+
+- (void) PAHelperConnection: (PAHelperConnection *) connection
+	 preferencesChanged: (NSDictionary *) preferences
+{
+	BOOL statusBarEnabled = [[preferences objectForKey: @"statusBarEnabled"] boolValue];
+	[statusBarEnabledButton setState: statusBarEnabled];
+	
+	[growl preferencesChanged: preferences];
+}
+
+#pragma mark ### GrowlDelegate ###
+
+- (void) setPreferences: (id) value
+		 forKey: (NSString *) key
+{
+	[helperConnection.serverProxy setPreferences: value
+					      forKey: key];
 }
 
 @end

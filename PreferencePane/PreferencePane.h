@@ -10,15 +10,36 @@
  ***/
 
 #import <PreferencePanes/PreferencePanes.h>
-#import "LoginItemController.h"
+#import <PulseAudio/PAHelperConnection.h>
 
-@interface PreferencePane : NSPreferencePane
+#import "LoginItemController.h"
+#import "AudioClients.h"
+#import "Growl.h"
+
+@interface PreferencePane : NSPreferencePane <PAHelperConnectionDelegate, GrowlDelegate>
 {
 	IBOutlet NSButton *statusBarEnabledButton;
 	IBOutlet LoginItemController *loginItemController;
+	IBOutlet AudioClients *audioClients;
+	IBOutlet Growl *growl;
+	
+	PAHelperConnection *helperConnection;
 }
 
 - (IBAction) setPulseAudioEnabled: (id) sender;
 - (IBAction) setStatusBarEnabled: (id) sender;
+
+#pragma mark ### PAHelperConnectionDelegate ###
+
+- (void) PAHelperConnectionDied: (PAHelperConnection *) connection;
+- (void) PAHelperConnection: (PAHelperConnection *) connection
+	audioClientsChanged: (NSArray *) array;
+- (void) PAHelperConnection: (PAHelperConnection *) connection
+	 preferencesChanged: (NSDictionary *) preferences;
+
+#pragma mark ### GrowlDelegate ###
+
+- (void) setPreferences: (id) value
+		 forKey: (NSString *) key;
 
 @end
