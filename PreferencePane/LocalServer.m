@@ -10,7 +10,6 @@
  ***/
 
 #import "LocalServer.h"
-#import "ObjectNames.h"
 
 @implementation LocalServer
 
@@ -25,17 +24,6 @@
 {
 	notificationCenter = [NSDistributedNotificationCenter defaultCenter];
 	
-	
-	[notificationCenter addObserver: self
-			       selector: @selector(setLocalServerEnabled:)
-				   name: @PAOSX_HelperMsgSetLocalServerEnabled
-				 object: nil];	
-	
-	[notificationCenter postNotificationName: @PAOSX_HelperMsgQueryLocalServerEnabled
-					  object: @PAOSX_PreferencePaneName
-					userInfo: nil
-			      deliverImmediately: YES];
-	
 }
 
 - (IBAction) setEnabled: (id) sender
@@ -45,11 +33,6 @@
 	
 	[userInfo setObject: [NSNumber numberWithBool: enabled]
 		     forKey: @"enabled"];
-	
-	[notificationCenter postNotificationName: @PAOSX_HelperMsgSetLocalServerEnabled
-					  object: @PAOSX_PreferencePaneName
-					userInfo: userInfo
-			      deliverImmediately: YES];
 }
 
 @end

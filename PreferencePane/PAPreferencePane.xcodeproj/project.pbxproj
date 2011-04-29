@@ -17,7 +17,6 @@
 		65531821135C1D3D00817E2D /* PreferencePane.m in Sources */ = {isa = PBXBuildFile; fileRef = 6553181F135C1D3D00817E2D /* PreferencePane.m */; };
 		65531974135C3F8B00817E2D /* LocalServer.h in Headers */ = {isa = PBXBuildFile; fileRef = 65531972135C3F8B00817E2D /* LocalServer.h */; };
 		65531975135C3F8B00817E2D /* LocalServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 65531973135C3F8B00817E2D /* LocalServer.m */; };
-		65531BB2135D810400817E2D /* ObjectNames.h in Headers */ = {isa = PBXBuildFile; fileRef = 65531BB1135D810400817E2D /* ObjectNames.h */; };
 		657159BE1369B6B000D60887 /* PulseAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 657159BD1369B6B000D60887 /* PulseAudio.framework */; };
 		8D202CEA0486D31800D8A456 /* PulseAudio_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 32DBCFA20370C41700C91783 /* PulseAudio_Prefix.pch */; };
 		8D202CEB0486D31800D8A456 /* AudioClients.h in Headers */ = {isa = PBXBuildFile; fileRef = F506C03C013D9D7901CA16C8 /* AudioClients.h */; };
@@ -44,7 +43,6 @@
 		6553181F135C1D3D00817E2D /* PreferencePane.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreferencePane.m; sourceTree = "<group>"; };
 		65531972135C3F8B00817E2D /* LocalServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalServer.h; sourceTree = "<group>"; };
 		65531973135C3F8B00817E2D /* LocalServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalServer.m; sourceTree = "<group>"; };
-		65531BB1135D810400817E2D /* ObjectNames.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ObjectNames.h; path = ../Shared/ObjectNames.h; sourceTree = SOURCE_ROOT; };
 		657159BD1369B6B000D60887 /* PulseAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PulseAudio.framework; path = /Library/Frameworks/PulseAudio.framework; sourceTree = "<absolute>"; };
 		8D202CF70486D31800D8A456 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		8D202CF80486D31800D8A456 /* PulseAudio.prefPane */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PulseAudio.prefPane; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -150,7 +148,6 @@
 		32DBCFA10370C40200C91783 /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
-				65531BB1135D810400817E2D /* ObjectNames.h */,
 				32DBCFA20370C41700C91783 /* PulseAudio_Prefix.pch */,
 			);
 			name = "Other Sources";
@@ -168,7 +165,6 @@
 				655316D8135B51B100817E2D /* Growl.h in Headers */,
 				65531820135C1D3D00817E2D /* PreferencePane.h in Headers */,
 				65531974135C3F8B00817E2D /* LocalServer.h in Headers */,
-				65531BB2135D810400817E2D /* ObjectNames.h in Headers */,
 				6510B1EB135F08B9002A5B90 /* LoginItemController.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

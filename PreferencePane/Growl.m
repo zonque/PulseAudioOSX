@@ -10,7 +10,6 @@
  ***/
 
 #import "Growl.h"
-#import "ObjectNames.h"
 
 @implementation Growl
 

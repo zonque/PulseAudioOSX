@@ -10,7 +10,6 @@
  ***/
 
 #import "PreferencePane.h"
-#import "ObjectNames.h"
 
 @implementation PreferencePane
 
