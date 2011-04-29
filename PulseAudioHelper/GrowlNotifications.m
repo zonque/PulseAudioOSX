@@ -25,12 +25,11 @@ defineNotification(kPulseAudioSinkDisappeared,		5);
 defineNotification(kPulseAudioClientConnected,		6);
 defineNotification(kPulseAudioClientDisconnected,	7);
 
-static NSString *kMDNSPulseServer = @"_pulse-server._tcp";
-static NSString *kMDNSPulseSink   = @"_pulse-sink._tcp";
-static NSString *kMDNSPulseSource = @"_pulse-source._tcp";
-static NSString *kMDNSLocalDomain = @"local.";
-
 @implementation GrowlNotifications
+
+- (void) preferencesChanged: (NSNotification *) notification
+{
+}
 
 - (id) initWithPreferences: (Preferences *) p
 {

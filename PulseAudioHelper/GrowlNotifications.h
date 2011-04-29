@@ -12,11 +12,14 @@
 #import <Cocoa/Cocoa.h>
 #import <Growl/Growl.h>
 #import <PulseAudio/PAServiceDiscovery.h>
+#import <PulseAudio/PulseAudio.h>
+
 #import "Preferences.h"
 
 @interface GrowlNotifications : NSObject <
 				GrowlApplicationBridgeDelegate,
-				PAServiceDiscoveryDelegate
+				PAServiceDiscoveryDelegate,
+				PAServerConnectionDelegate
 				>
 {
 	PAServiceDiscovery *discovery;
@@ -51,5 +54,7 @@
 - (void) PAServiceDiscovery: (PAServiceDiscovery *) discovery
 	  sourceDisappeared: (NSNetService *) service;
 
+/* PAServerConnectionDelegate */
+//...
 
 @end

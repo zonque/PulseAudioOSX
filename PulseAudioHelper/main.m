@@ -30,6 +30,8 @@ int main (int argc, const char * argv[])
 						deliverImmediately: YES];	
 #endif
 
+	[server start];
+	
 	[NSApp setDelegate: bar];
 	[NSApp run];
 	
