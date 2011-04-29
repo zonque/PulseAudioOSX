@@ -26,11 +26,7 @@
 	if (serverProxy)
 		[serverProxy release];
 
-	if (service)
-		[service release];
-
 	serverProxy = nil;
-	service = nil;
 	
 	if (delegate)
 		[delegate PAHelperConnectionDied: self];
@@ -66,13 +62,13 @@
 #pragma mark ### vended selectors ###
 
 - (void) setConfig: (NSDictionary *) config
- forDeviceWithName: (NSString *) name
+ forDeviceWithName: (NSString *) _name
 {
 	if (delegate &&
 	    [delegate respondsToSelector: @selector(PAHelperConnection:setConfig:forDeviceWithName:)])
 		[delegate PAHelperConnection: self
 				   setConfig: config
-			   forDeviceWithName: name];
+			   forDeviceWithName: _name];
 }
 
 #pragma mark PAHelperConnection ###

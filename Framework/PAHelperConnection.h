@@ -42,7 +42,6 @@
 
 @interface PAHelperConnection : NSObject <NSConnectionDelegate>
 {
-	NSConnection *service;
 	id serverProxy;
 	NSObject <PAHelperConnectionDelegate> *delegate;
 	NSString *name;
