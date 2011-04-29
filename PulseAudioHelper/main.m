@@ -12,25 +12,22 @@ int main (int argc, const char * argv[])
 	NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
         [NSApplication sharedApplication];
 
-	ConnectionServer *server = [[[ConnectionServer alloc] init] autorelease];
 	Preferences *prefs = [[[Preferences alloc] init] autorelease];
 
-	GrowlNotifications *gn = [[[GrowlNotifications alloc] init] autorelease];
-	[gn setPreferences: prefs];
-
+	ConnectionServer *server = [[[ConnectionServer alloc] init] autorelease];
+	server.preferences = prefs;
+	
+	GrowlNotifications *gn = [[[GrowlNotifications alloc] initWithPreferences: prefs] autorelease];
 	StatusBar *bar = [[[StatusBar alloc] init] autorelease];
-	[bar setPreferences: prefs];
+	bar.preferences = prefs;
 
-	ServerTask *task = [[[ServerTask alloc] init] autorelease];
-	[task setPreferences: prefs];
-
-	[server start];
+	ServerTask *task = [[[ServerTask alloc] initWithPreferences: prefs] autorelease];
 
 #if 0
-	[[prefs notificationCenter] postNotificationName: PAOSX_HelperMsgServiceStarted
-						  object: PAOSX_HelperName
-						userInfo: nil
-				      deliverImmediately: YES];	
+	[[NSNotificationCenter defaultCenter] postNotificationName: PAOSX_HelperMsgServiceStarted
+							    object: PAOSX_HelperName
+							  userInfo: nil
+						deliverImmediately: YES];	
 #endif
 
 	[NSApp setDelegate: bar];

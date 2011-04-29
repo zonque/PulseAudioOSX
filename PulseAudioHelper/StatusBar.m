@@ -16,10 +16,7 @@
 
 @implementation StatusBar
 
-- (void) setPreferences: (Preferences *) newPrefs
-{
-	prefs = newPrefs;
-}
+@synthesize preferences;
 
 #pragma mark ### NSMenuItem callback selectors ###
 
@@ -63,7 +60,7 @@
 	return m;
 }
 
-- (BOOL) validateMenuItem:(NSMenuItem *)item
+- (BOOL) validateMenuItem: (NSMenuItem *) item
 {
 	return YES;
 }
@@ -90,10 +87,9 @@
 
 #pragma mark ### NSDistributedNotificationCenter ###
 
-- (void) setEnabled: (NSNotification *) notification
+- (void) preferencesChanged: (NSNotification *) notification
 {
-	NSDictionary *userInfo = [notification userInfo];
-	BOOL enabled = [[userInfo objectForKey: @"enabled"] boolValue];
+	BOOL enabled = [[preferences valueForKey: @"statusBarEnabled"] boolValue];
 	
 	if (enabled && !statusItem)
 		[self showMenu];
@@ -106,16 +102,15 @@
 
 - (void) applicationDidFinishLaunching: (NSNotification *) aNotification
 {
-	icon = [[NSImage alloc] initWithContentsOfFile: PAOSX_StatusBarIconFile];
+	icon = [NSImage imageNamed: @"statusBar.png"];
 
-	if ([prefs isStatusBarEnabled])
+	if ([[preferences valueForKey: @"statusBarEnabled"] boolValue])
 		[self showMenu];
-/*
-	[[prefs notificationCenter] addObserver: self
-				       selector: @selector(setEnabled:)
-					   name: @PAOSX_HelperMsgSetStatusBarEnabled
-					 object: nil];
- */
+
+	[[NSNotificationCenter defaultCenter] addObserver: self
+						 selector: @selector(preferencesChanged:)
+						     name: @"preferencesChanged"
+						   object: preferences];
 }
 
 @end

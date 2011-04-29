@@ -15,10 +15,10 @@
 @interface StatusBar : NSObject<NSApplicationDelegate> {
 	NSStatusItem *statusItem;
 	NSImage *icon;
-	Preferences *prefs;
+	Preferences *preferences;
 }
 
-- (void) setPreferences: (Preferences *) newPrefs;
+@property (nonatomic, retain) Preferences *preferences;
 
 - (NSMenu *) createMenu;
 

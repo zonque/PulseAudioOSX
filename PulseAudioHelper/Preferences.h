@@ -12,13 +12,15 @@
 #import <Cocoa/Cocoa.h>
 
 @interface Preferences : NSObject {
-	NSDistributedNotificationCenter *notificationCenter;
-	NSMutableDictionary *preferencesDict;
-	
+	NSMutableDictionary *preferencesDict;	
 	BOOL growlReady;
 }
 
-- (NSDistributedNotificationCenter *) notificationCenter;
+@property (nonatomic, readonly) NSDictionary *preferencesDict;
+
+- (id) valueForKey: (NSString *) key;
+- (void) setValue: (id) value
+	   forKey: (NSString *) key;
 
 /* Growl Notifications */
 - (BOOL) isGrowlEnabled;

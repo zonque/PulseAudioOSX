@@ -20,6 +20,8 @@
 		65714F431367507400D60887 /* ConnectionServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 65714F421367507400D60887 /* ConnectionServer.m */; };
 		657159D11369B7D000D60887 /* PulseAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 657159D01369B7D000D60887 /* PulseAudio.framework */; };
 		65AF3CD8136A8D6600650E2E /* ConnectionClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 65AF3CD7136A8D6600650E2E /* ConnectionClient.m */; };
+		65AF3E89136AC0B700650E2E /* PulseAudio.png in Resources */ = {isa = PBXBuildFile; fileRef = 65AF3E87136AC0B700650E2E /* PulseAudio.png */; };
+		65AF3E8A136AC0B700650E2E /* statusBar.png in Resources */ = {isa = PBXBuildFile; fileRef = 65AF3E88136AC0B700650E2E /* statusBar.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -45,6 +47,8 @@
 		657159D01369B7D000D60887 /* PulseAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PulseAudio.framework; path = /Library/Frameworks/PulseAudio.framework; sourceTree = "<absolute>"; };
 		65AF3CD6136A8D6600650E2E /* ConnectionClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConnectionClient.h; sourceTree = "<group>"; };
 		65AF3CD7136A8D6600650E2E /* ConnectionClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConnectionClient.m; sourceTree = "<group>"; };
+		65AF3E87136AC0B700650E2E /* PulseAudio.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = PulseAudio.png; sourceTree = "<group>"; };
+		65AF3E88136AC0B700650E2E /* statusBar.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = statusBar.png; sourceTree = "<group>"; };
 		65BFDF3213603C90002B818E /* SocketCommunicationDefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SocketCommunicationDefs.h; path = ../Shared/SocketCommunicationDefs.h; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
@@ -119,6 +123,8 @@
 		6510B193135ECB36002A5B90 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				65AF3E87136AC0B700650E2E /* PulseAudio.png */,
+				65AF3E88136AC0B700650E2E /* statusBar.png */,
 				6510B1DF135ECD27002A5B90 /* logo.icns */,
 				6510B048135ECABD002A5B90 /* PulseAudioHelper-Info.plist */,
 			);
@@ -184,6 +190,8 @@
 			files = (
 				6510B192135ECAFF002A5B90 /* Growl.framework in Resources */,
 				6510B1E0135ECD27002A5B90 /* logo.icns in Resources */,
+				65AF3E89136AC0B700650E2E /* PulseAudio.png in Resources */,
+				65AF3E8A136AC0B700650E2E /* statusBar.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

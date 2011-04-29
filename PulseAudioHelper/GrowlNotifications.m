@@ -32,35 +32,24 @@ static NSString *kMDNSLocalDomain = @"local.";
 
 @implementation GrowlNotifications
 
-- (void) setPreferences: (Preferences *) newPrefs
-{
-	prefs = newPrefs;
-	//[serverConnection setPreferences: prefs];
-}
-
-- (id) init
+- (id) initWithPreferences: (Preferences *) p
 {
 	[super init];
 
-	NSImage *img = [[NSImage alloc] initWithContentsOfFile: PAOSX_GrowlIconFile];
+	NSImage *img = [NSImage imageNamed: @"PulseAudio.png"];
 	logoData = [[img TIFFRepresentation] retain];
 	
 	[GrowlApplicationBridge setGrowlDelegate: self];
 	
-	serverBrowser	= [[[NSNetServiceBrowser alloc] init] retain];
-	sinkBrowser	= [[[NSNetServiceBrowser alloc] init] retain];
-	sourceBrowser	= [[[NSNetServiceBrowser alloc] init] retain];
+	discovery = [[PAServiceDiscovery alloc] init];
+	discovery.delegate = self;
+	[discovery start];
 
-	[serverBrowser	setDelegate: self];
-	[sinkBrowser	setDelegate: self];
-	[sourceBrowser	setDelegate: self];
-	
-	[serverBrowser searchForServicesOfType: kMDNSPulseServer
-				      inDomain: kMDNSLocalDomain];
-	[sinkBrowser searchForServicesOfType: kMDNSPulseSink
-				    inDomain: kMDNSLocalDomain];
-	[sourceBrowser searchForServicesOfType: kMDNSPulseSource
-				      inDomain: kMDNSLocalDomain];
+	preferences = p;
+	[[NSNotificationCenter defaultCenter] addObserver: self
+						 selector: @selector(preferencesChanged:)
+						     name: @"preferencesChanged"
+						   object: preferences];
 	
 	return self;
 }
@@ -104,7 +93,6 @@ static NSString *kMDNSLocalDomain = @"local.";
 
 - (void) growlIsReady
 {
-	[prefs setGrowlReady: YES];
 }
 
 #pragma mark ### ServerConnectionDelegate ###
@@ -113,10 +101,10 @@ static NSString *kMDNSLocalDomain = @"local.";
        newClientAnnounced: (NSString *) name
 		     icon: (NSImage *) icon
 {
-	if (![prefs isGrowlEnabled])
+	if (![preferences isGrowlEnabled])
 		return;
 	
-	if (!([prefs growlNotificationFlags] & kPulseAudioClientConnectedFlag))
+	if (!([preferences growlNotificationFlags] & kPulseAudioClientConnectedFlag))
 		return;
 
 	NSString *description = [NSString stringWithFormat: @"New client attached: %@", name];
@@ -134,10 +122,10 @@ static NSString *kMDNSLocalDomain = @"local.";
 	  clientSignedOff: (NSString *) name
 		     icon: (NSImage *) icon
 {
-	if (![prefs isGrowlEnabled])
+	if (![preferences isGrowlEnabled])
 		return;
 	
-	if (!([prefs growlNotificationFlags] & kPulseAudioClientDisconnectedFlag))
+	if (!([preferences growlNotificationFlags] & kPulseAudioClientDisconnectedFlag))
 		return;
 
 	NSString *description = [NSString stringWithFormat: @"Client disconnected: %@", name];
@@ -152,103 +140,102 @@ static NSString *kMDNSLocalDomain = @"local.";
 	
 }
 
-#pragma mark ### NSNetServiceDelegate ###
+#pragma mark ### PAServiceDiscoveryDelegate ###
 
-- (void)netServiceDidResolveAddress:(NSNetService *)sender
+- (void) PAServiceDiscovery: (PAServiceDiscovery *) discovery
+	     serverAppeared: (NSNetService *) service
 {
-	NSArray *addresses = [sender addresses];
-	
-	if ([addresses count] == 0)
-		return;
+	NSString *description = [NSString stringWithFormat: @"Server appeared: %@", [service name]];
 
-	NSString *name = [sender name];
-	NSString *type = [sender type];
-	NSString *notification = nil;
-	NSString *description = nil;
-	
-	if ([type hasPrefix: kMDNSPulseServer] &&
-	    ([prefs growlNotificationFlags] & kPulseAudioServerAppearedFlag)) {
-		notification = kPulseAudioServerAppeared;
-		description = [NSString stringWithFormat: @"Server appeared: %@", name];
-	}
-	
-	if ([type hasPrefix: kMDNSPulseSink] &&
-	    ([prefs growlNotificationFlags] & kPulseAudioSinkAppearedFlag)) {
-		notification = kPulseAudioSinkAppeared;
-		description = [NSString stringWithFormat: @"Sink appeared: %@", name];
-	}
-	
-	if ([type hasPrefix: kMDNSPulseSource] &&
-	    ([prefs growlNotificationFlags] & kPulseAudioSourceAppearedFlag)) {
-		notification = kPulseAudioSourceAppeared;
-		description = [NSString stringWithFormat: @"Source appeared: %@", name];
-	}
-	
-	if (notification && [prefs isGrowlEnabled])
+	if ([preferences isGrowlEnabled] &&
+	    ([preferences growlNotificationFlags] & kPulseAudioServerAppearedFlag))
 		[GrowlApplicationBridge notifyWithTitle: @"PulseAudio"
 					    description: description
-				       notificationName: notification
+				       notificationName: kPulseAudioServerAppeared
 					       iconData: logoData
 					       priority: 0
 					       isSticky: NO
 					   clickContext: nil];	
 }
 
-- (void) netService: (NSNetService *) sender
-      didNotResolve: (NSDictionary *)errorDict
+- (void) PAServiceDiscovery: (PAServiceDiscovery *) discovery
+	  serverDisappeared: (NSNetService *) service
 {
-}
-
-- (void)netServiceDidStop:(NSNetService *)sender
-{
-}
-
-#pragma mark ### NSNetServiceBrowserDelegate ###
-
-- (void) netServiceBrowser: (NSNetServiceBrowser *) netServiceBrowser
-	    didFindService: (NSNetService *) netService
-	        moreComing: (BOOL) moreServicesComing
-{
-	[netService retain];
-	[netService setDelegate: self];
-	[netService resolveWithTimeout: 10.0];
-}
-
-- (void) netServiceBrowser: (NSNetServiceBrowser *) netServiceBrowser
-	  didRemoveService: (NSNetService *) netService
-		moreComing: (BOOL) moreServicesComing
-{
-	NSString *name = [netService name];
-	NSString *type = [netService type];
-	NSString *notification = nil;
-	NSString *description = nil;
+	NSString *description = [NSString stringWithFormat: @"Server disappeared: %@", [service name]];
 	
-	if ([type hasPrefix: kMDNSPulseServer] &&
-	    ([prefs growlNotificationFlags] & kPulseAudioServerDisappearedFlag)) {
-		notification = kPulseAudioServerDisappeared;
-		description = [NSString stringWithFormat: @"Server disappeared: %@", name];
-	}
-	
-	if ([type hasPrefix: kMDNSPulseSink] &&
-	    ([prefs growlNotificationFlags] & kPulseAudioSinkDisappearedFlag)) {
-		notification = kPulseAudioSinkDisappeared;
-		description = [NSString stringWithFormat: @"Sink disappeared: %@", name];
-	}
-	
-	if ([type hasPrefix: kMDNSPulseSource] &&
-	    ([prefs growlNotificationFlags] & kPulseAudioSourceDisappearedFlag)) {
-		notification = kPulseAudioSourceDisappeared;
-		description = [NSString stringWithFormat: @"Source disappeared: %@", name];
-	}
-	
-	if (notification && [prefs isGrowlEnabled])
+	if ([preferences isGrowlEnabled] &&
+	    ([preferences growlNotificationFlags] & kPulseAudioServerDisappearedFlag))
 		[GrowlApplicationBridge notifyWithTitle: @"PulseAudio"
 					    description: description
-				       notificationName: notification
+				       notificationName: kPulseAudioServerDisappeared
 					       iconData: logoData
 					       priority: 0
 					       isSticky: NO
-					   clickContext: nil];
+					   clickContext: nil];	
+}
+
+- (void) PAServiceDiscovery: (PAServiceDiscovery *) discovery
+	       sinkAppeared: (NSNetService *) service
+{
+	NSString *description = [NSString stringWithFormat: @"Sink appeared: %@", [service name]];
+	
+	if ([preferences isGrowlEnabled] &&
+	    ([preferences growlNotificationFlags] & kPulseAudioSinkAppearedFlag))
+		[GrowlApplicationBridge notifyWithTitle: @"PulseAudio"
+					    description: description
+				       notificationName: kPulseAudioSinkAppeared
+					       iconData: logoData
+					       priority: 0
+					       isSticky: NO
+					   clickContext: nil];	
+}
+
+- (void) PAServiceDiscovery: (PAServiceDiscovery *) discovery
+	    sinkDisappeared: (NSNetService *) service
+{
+	NSString *description = [NSString stringWithFormat: @"Sink disappeared: %@", [service name]];
+	
+	if ([preferences isGrowlEnabled] &&
+	    ([preferences growlNotificationFlags] & kPulseAudioSinkDisappearedFlag))
+		[GrowlApplicationBridge notifyWithTitle: @"PulseAudio"
+					    description: description
+				       notificationName: kPulseAudioSinkDisappeared
+					       iconData: logoData
+					       priority: 0
+					       isSticky: NO
+					   clickContext: nil];	
+}
+
+- (void) PAServiceDiscovery: (PAServiceDiscovery *) discovery
+	     sourceAppeared: (NSNetService *) service
+{
+	NSString *description = [NSString stringWithFormat: @"Source appeared: %@", [service name]];
+	
+	if ([preferences isGrowlEnabled] &&
+	    ([preferences growlNotificationFlags] & kPulseAudioSourceAppearedFlag))
+		[GrowlApplicationBridge notifyWithTitle: @"PulseAudio"
+					    description: description
+				       notificationName: kPulseAudioSourceAppeared
+					       iconData: logoData
+					       priority: 0
+					       isSticky: NO
+					   clickContext: nil];	
+}
+
+- (void) PAServiceDiscovery: (PAServiceDiscovery *) discovery
+	  sourceDisappeared: (NSNetService *) service
+{	
+	NSString *description = [NSString stringWithFormat: @"Source disappeared: %@", [service name]];
+	
+	if ([preferences isGrowlEnabled] &&
+	    ([preferences growlNotificationFlags] & kPulseAudioSourceDisappearedFlag))
+		[GrowlApplicationBridge notifyWithTitle: @"PulseAudio"
+					    description: description
+				       notificationName: kPulseAudioSourceDisappeared
+					       iconData: logoData
+					       priority: 0
+					       isSticky: NO
+					   clickContext: nil];	
 }
 
 @end

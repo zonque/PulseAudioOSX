@@ -12,23 +12,28 @@
 #import "ServerTask.h"
 #import "Pathes.h"
 
-#define REMOTE_OBJECT @"PulseAudioPreferencePane"
-
 @implementation ServerTask
-
-- (void) setPreferences: (Preferences *) newPrefs
-{
-	prefs = newPrefs;
-}
 
 - (void) start
 {
-	NSString *path = @"/Library/Frameworks/pulse.framework/Resources/bin/pulseaudio";
+	
+	///////////////////////
+	return;
+	
+	NSString *binpath = @"/Library/Frameworks/PulseAudio.framework/Resources/bin/pulseaudio";
+	NSString *modpath = @"/Library/Frameworks/PulseAudio.framework/Resources/lib/pulse-1.0/";
+
 	NSArray *args = [NSArray arrayWithObjects:
 			 @"-n",
-			 @"-F", PAOSX_PulseAudioControlFile,
+			 @"-L", @"module-bonjour-publish",
+			 @"-L", @"module-coreaudio-detect ioproc_frames=128",
+			 @"-L", @"module-native-protocol-unix",
+			 @"-L", @"module-simple-protocol-tcp",
+			 @"-L", @"module-cli-protocol-unix",
+			 @"-L", @"module-native-protocol-tcp auth-anonymous=1",
+			 @"-p", modpath,
 			 nil];
-	task = [NSTask launchedTaskWithLaunchPath: path
+	task = [NSTask launchedTaskWithLaunchPath: binpath
 					arguments: args];
 }
 
@@ -41,11 +46,10 @@
 	}
 }
 
-- (void) setLocalServerEnabled: (NSNotification *) notification
+- (void) preferencesChanged: (NSNotification *) notification
 {
-	NSDictionary *userInfo = [notification userInfo];
-	BOOL enabled = [[userInfo objectForKey: @"enabled"] boolValue];
-	
+	BOOL enabled = [[preferences valueForKey: @"localServerEnabled"] boolValue];
+
 	if (enabled && !task)
 		[self start];
 	
@@ -61,23 +65,19 @@
 	NSLog(@"Server task ended.");	
 }
 
-- (id) init
+- (id) initWithPreferences: (Preferences *) p
 {
 	[super init];
 	
-	/*
-	[[prefs notificationCenter] addObserver: self
-				       selector: @selector(setLocalServerEnabled:)
-					   name: @PAOSX_HelperMsgSetLocalServerEnabled
-					 object: nil];	
+	preferences = p;
+	
+	if ([[preferences valueForKey: @"localServerEnabled"] boolValue])
+		[self start];
 
 	[[NSNotificationCenter defaultCenter] addObserver: self
-						 selector: @selector(taskTerminated:)
-						     name: NSTaskDidTerminateNotification
-						   object: nil];
-	*/
-	if ([prefs isLocalServerEnabled])
-		[self start];
+						 selector: @selector(preferencesChanged:)
+						     name: @"preferencesChanged"
+						   object: preferences];
 
 	return self;
 }

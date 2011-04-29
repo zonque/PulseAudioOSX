@@ -14,10 +14,9 @@
 
 @interface ServerTask : NSObject {
 	NSTask *task;
-	Preferences *prefs;
+	Preferences *preferences;
 }
 
-- (void) setPreferences: (Preferences *) newPrefs;
 - (void) start;
 - (void) stop;
 

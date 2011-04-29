@@ -18,6 +18,8 @@ static NSString *kPAPreferencesStatusBarEnabledKey	= @"statusBarEnabled";
 
 @implementation Preferences
 
+@synthesize preferencesDict;
+
 - (NSString *) preferencesFilePath
 {
 	return [NSString stringWithFormat: @"%@/Library/Preferences/org.pulseaudio.plist",
@@ -27,15 +29,6 @@ static NSString *kPAPreferencesStatusBarEnabledKey	= @"statusBarEnabled";
 #pragma mark ### NSDistributedNotificationCenter ###
 
 #pragma mark ## Growl ##
-
-- (void) updateGrowlFlags: (NSNotification *) notification
-{
-	NSDictionary *userInfo = [notification userInfo];
-	[preferencesDict setObject: [userInfo objectForKey: @"notificationFlags"]
-			    forKey: kPAPreferencesGrowlEnabledKey];
-	[preferencesDict writeToFile: [self preferencesFilePath]
-			  atomically: YES];
-}
 
 - (void) queryGrowlFlags: (NSNotification *) notification
 {
@@ -51,50 +44,6 @@ static NSString *kPAPreferencesStatusBarEnabledKey	= @"statusBarEnabled";
 	
 	[userInfo setObject: [NSNumber numberWithUnsignedLongLong: flags]
 		     forKey: @"notificationFlags"];
-	/*
-	[notificationCenter postNotificationName: PAOSX_HelperMsgSetGrowlFlags
-					  object: @PAOSX_HelperName
-					userInfo: userInfo
-			      deliverImmediately: YES];
-	 */
-}
-
-#pragma mark ## Local Server ##
-
-- (void) setLocalServerEnabled: (NSNotification *) notification
-{
-	NSDictionary *userInfo = [notification userInfo];
-	[preferencesDict setObject: [userInfo objectForKey: @"enabled"]
-			    forKey: kPAPreferencesLocalServerEnabledKey];
-	[preferencesDict writeToFile: [self preferencesFilePath]
-			  atomically: YES];
-}
-
-#pragma mark ## Status Bar ##
-
-- (void) setStatusBarEnabled: (NSNotification *) notification
-{
-	NSDictionary *userInfo = [notification userInfo];
-	[preferencesDict setObject: [userInfo objectForKey: @"enabled"]
-			    forKey: kPAPreferencesStatusBarEnabledKey];
-	[preferencesDict writeToFile: [self preferencesFilePath]
-			  atomically: YES];
-}
-
-- (void) queryStatusBarEnabled: (NSNotification *) notification
-{
-	NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithCapacity: 0];
-	
-	[userInfo setObject: [preferencesDict objectForKey: kPAPreferencesStatusBarEnabledKey]
-		     forKey: @"enabled"];
-	/*
-
-	[notificationCenter postNotificationName: @PAOSX_HelperMsgSetStatusBarEnabled
-					  object: @PAOSX_HelperName
-					userInfo: userInfo
-			      deliverImmediately: YES];	
-	 
-	 */
 }
 
 - (void) makeDefaults
@@ -109,6 +58,20 @@ static NSString *kPAPreferencesStatusBarEnabledKey	= @"statusBarEnabled";
 			    forKey: kPAPreferencesStatusBarEnabledKey];
 	[preferencesDict setObject: [NSNumber numberWithUnsignedLongLong: 0xffffffffffffffff]
 			    forKey: kPAPreferencesGrowlFlagsKey];
+
+	NSMutableArray *audioDevices = [NSMutableArray arrayWithCapacity: 0];
+	NSMutableDictionary *audioDevice = [NSMutableDictionary dictionaryWithCapacity: 0];
+	[audioDevice setObject: @"PulseAudio"
+			forKey: @"deviceName"];
+	[audioDevice setObject: [NSNumber numberWithInt: 2]
+			forKey: @"nInputChannels"];
+	[audioDevice setObject: [NSNumber numberWithInt: 2]
+			forKey: @"nOutputChannels"];
+	[audioDevices addObject: audioDevice];
+	
+	[preferencesDict setObject: audioDevices
+			    forKey: @"audioDevices"];
+	
 	[preferencesDict writeToFile: [self preferencesFilePath]
 			  atomically: YES];
 }
@@ -124,39 +87,31 @@ static NSString *kPAPreferencesStatusBarEnabledKey	= @"statusBarEnabled";
 		[self makeDefaults];
 	}
 	
-	notificationCenter = [[NSDistributedNotificationCenter defaultCenter] retain];
-	/*
-	[notificationCenter addObserver: self
-			       selector: @selector(updateGrowlFlags:)
-				   name: @PAOSX_HelperMsgSetGrowlFlags
-				 object: nil];	
-	
-	[notificationCenter addObserver: self
-			       selector: @selector(queryGrowlFlags:)
-				   name: @PAOSX_HelperMsgQueryGrowlFlags
-				 object: nil];
-
-	[notificationCenter addObserver: self
-			       selector: @selector(setLocalServerEnabled:)
-				   name: @PAOSX_HelperMsgSetLocalServerEnabled
-				 object: nil];	
-
-	[notificationCenter addObserver: self
-			       selector: @selector(setStatusBarEnabled:)
-				   name: @PAOSX_HelperMsgSetStatusBarEnabled
-				 object: nil];	
-	
-	[notificationCenter addObserver: self
-			       selector: @selector(queryStatusBarEnabled:)
-				   name: @PAOSX_HelperMsgQueryStatusBarEnabled
-				 object: nil];	
-	*/
 	return self;
 }
 
-- (NSDistributedNotificationCenter *) notificationCenter
+- (id) valueForKey: (NSString *) key
 {
-	return notificationCenter;
+	return [preferencesDict valueForKey: key];
+}
+
+- (void) setValue: (id) value
+	   forKey: (NSString *) key
+{
+	if (![preferencesDict objectForKey: key]) {
+		NSLog(@"key %@ unknown, refusing to set", key);
+		return;
+	}
+
+	NSLog(@"Setting prefs key: %@ -> %@", key, value);
+	
+	[preferencesDict setValue: value
+			   forKey: key];
+	
+	[[NSNotificationCenter defaultCenter] postNotificationName: @"preferencesChanged"
+							    object: self];
+	[preferencesDict writeToFile: [self preferencesFilePath]
+			  atomically: YES];
 }
 
 #pragma mark ### Growl Notifications ###

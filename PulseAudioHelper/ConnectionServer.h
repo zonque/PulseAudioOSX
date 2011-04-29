@@ -10,15 +10,19 @@
  ***/
 
 #import <Foundation/Foundation.h>
+#import "Preferences.h"
 
 @interface ConnectionServer : NSObject <NSConnectionDelegate, PAHelperConnection>
 {
 	NSMutableArray *clientArray;	
 	NSConnection *currentConnection;
 	NSConnection *serviceConnection;
+	
+	Preferences *preferences;
 }
 
-@property (assign) NSConnection *currentConnection;
+@property (nonatomic, assign) NSConnection *currentConnection;
+@property (nonatomic, retain) Preferences *preferences;
 
 - (void) start;
 - (BOOL) connection: (NSConnection *) parentConnection

@@ -103,4 +103,20 @@
 								     userInfo: userInfo];	
 }
 
+- (void) preferencesChanged : (NSDictionary *) preferences
+{
+	if (!connectionName)
+		return;
+	
+	NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithCapacity: 0];
+	[userInfo setObject: @"preferencesChanged"
+		     forKey: @"command"];
+	[userInfo setObject: preferences
+		     forKey: @"preferences"];
+
+	[[NSDistributedNotificationCenter defaultCenter] postNotificationName: connectionName
+								       object: PAOSX_HelperName
+								     userInfo: userInfo];	
+}
+
 @end

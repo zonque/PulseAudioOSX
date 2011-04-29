@@ -11,24 +11,22 @@
 
 #import <Cocoa/Cocoa.h>
 #import <Growl/Growl.h>
+#import <PulseAudio/PAServiceDiscovery.h>
 #import "Preferences.h"
 
 @interface GrowlNotifications : NSObject <
 				GrowlApplicationBridgeDelegate,
-				NSNetServiceDelegate,
-				NSNetServiceBrowserDelegate
+				PAServiceDiscoveryDelegate
 				>
 {
-	NSNetServiceBrowser *serverBrowser;
-	NSNetServiceBrowser *sourceBrowser;
-	NSNetServiceBrowser *sinkBrowser;
+	PAServiceDiscovery *discovery;
 	NSData *logoData;
 	BOOL growlReady;
 	//ServerConnection *serverConnection;
-	Preferences *prefs;
+	Preferences *preferences;
 }
 
-- (void) setPreferences: (Preferences *) newPrefs;
+- (id) initWithPreferences: (Preferences *) p;
 
 /* GrowlApplicationBridgeDelegate */
 - (NSString *) applicationNameForGrowl;
@@ -36,26 +34,22 @@
 - (NSData *) applicationIconDataForGrowl;
 - (void) growlIsReady;
 
-/* ServerConnectionDelegate */
-- (void) serverConnection: (id) serverConnection
-       newClientAnnounced: (NSString *) name
-		     icon: (NSImage *) icon;
-- (void) serverConnection: (id) serverConnection
-	  clientSignedOff: (NSString *) name
-		     icon: (NSImage *) icon;
+/* PAServiceDiscoveryDelegate */
 
-/* NSNetServiceDelegate */
-- (void)netServiceDidResolveAddress:(NSNetService *)sender;
-- (void) netService: (NSNetService *) sender
-      didNotResolve: (NSDictionary *) errorDict;
-- (void)netServiceDidStop:(NSNetService *)sender;
+- (void) PAServiceDiscovery: (PAServiceDiscovery *) discovery
+	     serverAppeared: (NSNetService *) service;
+- (void) PAServiceDiscovery: (PAServiceDiscovery *) discovery
+	  serverDisappeared: (NSNetService *) service;
 
-/* NSNetServiceBrowserDelegate */
-- (void) netServiceBrowser: (NSNetServiceBrowser *) netServiceBrowser
-	    didFindService: (NSNetService *) netService
-	        moreComing: (BOOL) moreServicesComing;
-- (void) netServiceBrowser: (NSNetServiceBrowser *) netServiceBrowser
-	  didRemoveService: (NSNetService *) netService
-		moreComing: (BOOL) moreServicesComing;
+- (void) PAServiceDiscovery: (PAServiceDiscovery *) discovery
+	       sinkAppeared: (NSNetService *) service;
+- (void) PAServiceDiscovery: (PAServiceDiscovery *) discovery
+	    sinkDisappeared: (NSNetService *) service;
+
+- (void) PAServiceDiscovery: (PAServiceDiscovery *) discovery
+	     sourceAppeared: (NSNetService *) service;
+- (void) PAServiceDiscovery: (PAServiceDiscovery *) discovery
+	  sourceDisappeared: (NSNetService *) service;
+
 
 @end

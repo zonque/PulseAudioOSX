@@ -18,6 +18,7 @@
 
 @synthesize currentConnection;
 
+@synthesize preferences;
 
 - (ConnectionClient *) findClientByConnection: (NSConnection *) connection
 {
@@ -37,6 +38,13 @@
 	
 	for (ConnectionClient *c in clientArray)
 		[c audioClientsChanged: array];
+}
+
+- (void) preferencesChanged
+{
+	for (ConnectionClient *c in clientArray)
+		if (c.connection != currentConnection)
+			[c preferencesChanged: preferences.preferencesDict];	
 }
 
 #pragma mark ### PAHelperConnection protocol ###
@@ -77,6 +85,19 @@
 	if (c)
 		[c setConfig: config
 	   forDeviceWithUUID: uuid];
+}
+
+- (NSDictionary *) getPreferences
+{
+	return preferences.preferencesDict;
+}
+
+- (void) setPreferences: (id) object
+		 forKey: (NSString *) key
+{
+	[preferences setValue: object
+		       forKey: key];
+	[self preferencesChanged];
 }
 
 #pragma mark ### NSConnection callbacks ###

@@ -27,6 +27,7 @@
 - (void) announceDevice: (NSDictionary *) device;
 - (void) signOffDevice: (NSString *) signedOffName;
 - (void) audioClientsChanged : (NSArray *) clients;
+- (void) preferencesChanged : (NSDictionary *) preferences;
 - (void) setConfig: (NSDictionary *) config
  forDeviceWithUUID: (NSString *) uuid;
 
