@@ -104,6 +104,7 @@ Interface_ObjectHasProperty(AudioHardwarePlugInRef inSelf,
 			    AudioObjectID inObjectID,
 			    const AudioObjectPropertyAddress *inAddress)
 {
+	TraceCall();
 	PAPlugin *plugin = to_plugin(inSelf);
 	return [plugin objectHasProperty: inObjectID
 			      propertyID: inAddress];
@@ -115,6 +116,7 @@ Interface_ObjectIsPropertySettable(AudioHardwarePlugInRef inSelf,
 				   const AudioObjectPropertyAddress *inAddress,
 				   Boolean *outIsSettable)
 {
+	TraceCall();
 	PAPlugin *plugin = to_plugin(inSelf);
 	return [plugin objectIsPropertySettable: inObjectID
 				       propertyID: inAddress
@@ -129,6 +131,7 @@ Interface_ObjectGetPropertyDataSize(AudioHardwarePlugInRef inSelf,
 				    const void *inQualifierData,
 				    UInt32 *outDataSize)
 {
+	TraceCall();
 	PAPlugin *plugin = to_plugin(inSelf);
 	return [plugin objectGetPropertyDataSize: inObjectID
 				      propertyID: inAddress
@@ -146,6 +149,7 @@ Interface_ObjectGetPropertyData(AudioHardwarePlugInRef inSelf,
 				UInt32 *ioDataSize,
 				void *outData)
 {
+	TraceCall();
 	PAPlugin *plugin = to_plugin(inSelf);
 	return [plugin objectGetPropertyData: inObjectID
 				  propertyID: inAddress
@@ -164,6 +168,7 @@ Interface_ObjectSetPropertyData(AudioHardwarePlugInRef inSelf,
 				UInt32 inDataSize,
 				const void *inData)
 {
+	TraceCall();
 	PAPlugin *plugin = to_plugin(inSelf);
 	return [plugin objectSetPropertyData: inObjectID
 				  propertyID: inAddress
@@ -452,7 +457,8 @@ Interface_StreamSetProperty(AudioHardwarePlugInRef inSelf,
 	staticInterface->ObjectGetPropertyData		= Interface_ObjectGetPropertyData;
 	staticInterface->ObjectSetPropertyData		= Interface_ObjectSetPropertyData;
 
-	plugin = [[PAPlugin alloc] initWithPluginRef: &staticInterface];
+	plugin = [[PAPlugin alloc] initWithPluginRef: [self getInterface]];
+	[plugin retain];
 	
 	return self;
 }
@@ -465,7 +471,7 @@ Interface_StreamSetProperty(AudioHardwarePlugInRef inSelf,
 
 - (AudioHardwarePlugInRef) getInterface
 {
-	DebugLog("self %p, &staticInterface %p", self, staticInterface);
+	DebugLog("self %p, &staticInterface %p", self, &staticInterface);
 	return &staticInterface;
 }
 

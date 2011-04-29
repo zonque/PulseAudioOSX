@@ -152,14 +152,12 @@
 				  startingChannel: 1];
 	stream.owningObjectID = self.objectID;
 	[inputStreamArray addObject: stream];
-	[stream release];
 
 	stream = [[PAStream alloc] initWithDevice: self
 					  isInput: NO
 				  startingChannel: 1];
 	stream.owningObjectID = self.objectID;
 	[outputStreamArray addObject: stream];
-	[stream release];
 	
 	name = @"PulseAudio";
 	manufacturer = @"pulseaudio.org";

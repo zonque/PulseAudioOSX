@@ -14,7 +14,7 @@
 #import "PAStream.h"
 #import "PADeviceAudio.h"
 
-#ifdef ENABLE_DEBUGX
+#ifdef ENABLE_DEBUG
 #define DebugProperty(x...) DebugLog(x)
 #else
 #define DebugProperty(x...) do {} while(0)
@@ -46,7 +46,6 @@
 	dev.owningObjectID = self.objectID;
 	dev.delegate = self;
 	[devicesArray addObject: dev];
-	[dev release]; // the array holds a reference now
 	
 	[self publishOwnedObjects];
 }
@@ -65,6 +64,8 @@
 {
 	[super initWithPluginRef: _pluginRef];
 
+	DebugLog(@"_pluginRef %p", _pluginRef);
+	
 	helperConnection = [[PAHelperConnection alloc] init];
 	helperConnection.delegate = self;
 	[helperConnection retain];
@@ -151,7 +152,9 @@
 	[dict setObject: [NSNumber numberWithFloat: audio.sampleRate]
 		 forKey: @"sampleRate"];
 	[dict setObject: device.name
-		 forKey: @"deviceName"];
+		 forKey: @"deviceName"];	
+	[dict setObject: helperConnection.name
+		 forKey: @"connectionName"];
 	
 	[helperConnection.serverProxy announceDevice: dict];
 }
