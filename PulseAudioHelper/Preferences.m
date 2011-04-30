@@ -58,7 +58,9 @@ static NSString *kPAPreferencesStatusBarEnabledKey	= @"statusBarEnabled";
 			    forKey: kPAPreferencesStatusBarEnabledKey];
 	[preferencesDict setObject: [NSNumber numberWithUnsignedLongLong: 0xffffffffffffffff]
 			    forKey: kPAPreferencesGrowlFlagsKey];
-
+	[preferencesDict setObject: [NSNumber numberWithBool: YES]
+			    forKey: @"localServerNetworkEnabled"];
+	
 	NSMutableArray *audioDevices = [NSMutableArray arrayWithCapacity: 0];
 	NSMutableDictionary *audioDevice = [NSMutableDictionary dictionaryWithCapacity: 0];
 	[audioDevice setObject: @"PulseAudio"

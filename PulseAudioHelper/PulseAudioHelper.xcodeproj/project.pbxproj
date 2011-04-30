@@ -22,6 +22,7 @@
 		65AF3CD8136A8D6600650E2E /* ConnectionClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 65AF3CD7136A8D6600650E2E /* ConnectionClient.m */; };
 		65AF3E89136AC0B700650E2E /* PulseAudio.png in Resources */ = {isa = PBXBuildFile; fileRef = 65AF3E87136AC0B700650E2E /* PulseAudio.png */; };
 		65AF3E8A136AC0B700650E2E /* statusBar.png in Resources */ = {isa = PBXBuildFile; fileRef = 65AF3E88136AC0B700650E2E /* statusBar.png */; };
+		65AF4070136BF96C00650E2E /* ServerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 65AF406F136BF96C00650E2E /* ServerConnection.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -49,7 +50,8 @@
 		65AF3CD7136A8D6600650E2E /* ConnectionClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConnectionClient.m; sourceTree = "<group>"; };
 		65AF3E87136AC0B700650E2E /* PulseAudio.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = PulseAudio.png; sourceTree = "<group>"; };
 		65AF3E88136AC0B700650E2E /* statusBar.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = statusBar.png; sourceTree = "<group>"; };
-		65BFDF3213603C90002B818E /* SocketCommunicationDefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SocketCommunicationDefs.h; path = ../Shared/SocketCommunicationDefs.h; sourceTree = SOURCE_ROOT; };
+		65AF406E136BF96C00650E2E /* ServerConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServerConnection.h; sourceTree = "<group>"; };
+		65AF406F136BF96C00650E2E /* ServerConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ServerConnection.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,7 +73,6 @@
 			isa = PBXGroup;
 			children = (
 				6510B193135ECB36002A5B90 /* Resources */,
-				6571567713698F3E00D60887 /* Shared */,
 				08FB7795FE84155DC02AAC07 /* Source */,
 				08FB779DFE84155DC02AAC07 /* External Frameworks and Libraries */,
 				1AB674ADFE9D54B511CA2CBB /* Products */,
@@ -97,6 +98,8 @@
 				655317D5135BA57900817E2D /* StatusBar.m */,
 				655319DE135C537600817E2D /* Preferences.h */,
 				655319DF135C537600817E2D /* Preferences.m */,
+				65AF406E136BF96C00650E2E /* ServerConnection.h */,
+				65AF406F136BF96C00650E2E /* ServerConnection.m */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -129,14 +132,6 @@
 				6510B048135ECABD002A5B90 /* PulseAudioHelper-Info.plist */,
 			);
 			name = Resources;
-			sourceTree = "<group>";
-		};
-		6571567713698F3E00D60887 /* Shared */ = {
-			isa = PBXGroup;
-			children = (
-				65BFDF3213603C90002B818E /* SocketCommunicationDefs.h */,
-			);
-			name = Shared;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -209,6 +204,7 @@
 				6510B055135ECADF002A5B90 /* StatusBar.m in Sources */,
 				65714F431367507400D60887 /* ConnectionServer.m in Sources */,
 				65AF3CD8136A8D6600650E2E /* ConnectionClient.m in Sources */,
+				65AF4070136BF96C00650E2E /* ServerConnection.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

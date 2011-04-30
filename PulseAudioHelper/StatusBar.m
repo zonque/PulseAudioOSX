@@ -85,7 +85,7 @@
 	}
 }
 
-#pragma mark ### NSDistributedNotificationCenter ###
+#pragma mark ### NSNotificationCenter ###
 
 - (void) preferencesChanged: (NSNotification *) notification
 {

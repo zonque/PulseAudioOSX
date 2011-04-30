@@ -6,6 +6,7 @@
 #import "Preferences.h"
 #import "GrowlNotifications.h"
 #import "ConnectionServer.h"
+#import "ServerConnection.h"
 
 int main (int argc, const char * argv[])
 {
@@ -23,6 +24,8 @@ int main (int argc, const char * argv[])
 
 	ServerTask *task = [[[ServerTask alloc] initWithPreferences: prefs] autorelease];
 
+	ServerConnection *sc = [[ServerConnection alloc] initWithPreferences: prefs];
+	
 #if 0
 	[[NSNotificationCenter defaultCenter] postNotificationName: PAOSX_HelperMsgServiceStarted
 							    object: PAOSX_HelperName
