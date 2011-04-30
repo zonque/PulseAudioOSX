@@ -28,55 +28,6 @@
 
 #pragma mark ### ServerConnection callbacks ###
 
-
-#pragma mark ### fooo ###
-- (void) stopProgressIndicator
-{
-	[connectionProgressIndicator stopAnimation: self];
-	[connectionProgressIndicator setHidden: YES];
-}
-
-- (void) enableGUI: (BOOL) enabled
-{
-	if (enabled)
-		[connectionProgressIndicator stopAnimation: self];
-	else
-		[connectionProgressIndicator startAnimation: self];
-
-	[connectionProgressIndicator setHidden: enabled];
-	[outlineView setEnabled: enabled];
-	[parameterTableView setEnabled: enabled];
-	[propertyTableView setEnabled: enabled];
-	[statisticsTableView setEnabled: enabled];
-}
-
-- (void) repaintViews: (NSNotification *) notification
-{
-	[outlineView reloadItem: nil
-		 reloadChildren: YES];
-	[outlineView expandItem: nil
-		 expandChildren: YES];
-	[parameterTableView reloadData];
-	[propertyTableView reloadData];
-	[statisticsTableView reloadData];
-	
-//	[window setTitle: [NSString stringWithFormat: @"%@@%@",
-//			   [serverConnection.serverinfo valueForKey: @"Server Name"],
-//			   [serverConnection.serverinfo valueForKey: @"Host Name"]]];
-
-	[sinkStreamListView removeAllStreams];
-	[sourceStreamListView removeAllStreams];
-	[playbackStreamListView removeAllStreams];
-	[recordStreamListView removeAllStreams];	
-	
-	NSDictionary *item;
-
-	for (item in serverConnection.sinks)
-		[sinkStreamListView addStreamView: [[item objectForKey: @"infoPointer"] pointerValue]
-					   ofType: StreamTypeSink
-					     name: [item objectForKey: @"label"]];
-}
-
 - (void) connectionEstablished
 {
 	[self enableGUI: YES];
@@ -85,6 +36,12 @@
 - (void) connectionEnded
 {
 	[self enableGUI: NO];	
+}
+
+- (void) stopProgressIndicator
+{
+	[connectionProgressIndicator stopAnimation: self];
+	[connectionProgressIndicator setHidden: YES];
 }
 
 - (void) bonjourServiceAdded: (NSNotification *) notification
@@ -100,10 +57,50 @@
 	}
 }
 
+- (void) enableGUI: (BOOL) enabled
+{
+	if (enabled)
+		[connectionProgressIndicator stopAnimation: self];
+	else
+		[connectionProgressIndicator startAnimation: self];
+	
+	[connectionProgressIndicator setHidden: enabled];
+	[statisticsTableView setEnabled: enabled];
+	
+	[introspect enableGUI: enabled];
+}
+
+- (void) repaintViews: (NSNotification *) notification
+{
+	[statisticsTableView reloadData];
+	
+	//	[window setTitle: [NSString stringWithFormat: @"%@@%@",
+	//			   [serverConnection.serverinfo valueForKey: @"Server Name"],
+	//			   [serverConnection.serverinfo valueForKey: @"Host Name"]]];
+	
+	[sinkStreamListView removeAllStreams];
+	[sourceStreamListView removeAllStreams];
+	[playbackStreamListView removeAllStreams];
+	[recordStreamListView removeAllStreams];	
+	
+	NSDictionary *item;
+	
+	for (item in serverConnection.sinks)
+		[sinkStreamListView addStreamView: [[item objectForKey: @"infoPointer"] pointerValue]
+					   ofType: StreamTypeSink
+					     name: [item objectForKey: @"label"]];
+	
+	[introspect repaintViews];
+}
+
 - (void) awakeFromNib
 {
+	[statisticsTableView setEnabled: NO];
+
 	serverConnection = [[ServerConnection alloc] init];
 
+	introspect.serverConnection = serverConnection;
+	
 	[[NSNotificationCenter defaultCenter] addObserver: self
 						 selector: @selector(connectionEstablished)
 						     name: @"connectionEstablished"
@@ -116,12 +113,7 @@
 						 selector: @selector(repaintViews:)
 						     name: @"detailsChanged"
 						   object: serverConnection];
-	
-	[outlineView setEnabled: NO];
-	[parameterTableView setEnabled: NO];
-	[propertyTableView setEnabled: NO];
-	[statisticsTableView setEnabled: NO];
-	
+		
 	[serverConnection connectToServer: @"localhost"];
 }
 
@@ -131,60 +123,13 @@
 	[super dealloc];
 }
 
-#pragma mark ### NSOutlineViewDataSource protocol ###
-
-- (NSInteger) outlineView: (NSOutlineView *) outlineView numberOfChildrenOfItem: (id) item
+- (void) connectToServer: (NSString *) server
 {
-	if (item == nil) {
-		NSEnumerator *enumerator = [serverConnection.outlineToplevel objectEnumerator];
-		NSString *obj;
-		UInt count = 0;
-		
-		while ((obj = [enumerator nextObject])) {
-			NSDictionary *d = [obj valueForKey: @"children"];
-			if (d && [d count]) {
-				count++;
-				continue;
-			}
-			
-			d = [obj valueForKey: @"parameters"];
-			if (d && [d count]) {
-				count++;
-				continue;
-			}
-		}
-                
-		return count;
-	}
+	[connectStatus setStringValue: @"Connecting ..."];
+	[connectionProgressIndicator startAnimation: self];
+	[connectionProgressIndicator setHidden: NO];
 	
-	NSArray *d = [item valueForKey: @"children"];
-	
-	return d ? [d count] : 0;
-}
-
-- (BOOL) outlineView: (NSOutlineView *) outlineView isItemExpandable: (id)item
-{
-	if (item == nil)
-		return [serverConnection.outlineToplevel count] > 0;
-	
-	NSArray *d = [item valueForKey: @"children"];
-	return d ? [d count] > 0 : NO;
-}
-
-- (id) outlineView: (NSOutlineView *) outlineView child: (NSInteger)index
-						 ofItem: (id)item
-{
-	if (item == nil)
-		return [serverConnection.outlineToplevel objectAtIndex: index];
-	
-	NSArray *d = [item valueForKey: @"children"];
-	return [d objectAtIndex: index];
-}
-
-- (id) outlineView: (NSOutlineView *) outlineView objectValueForTableColumn: (NSTableColumn *) tableColumn
-								     byItem: (id)item
-{
-	return [item valueForKey: @"label"];
+	[serverConnection connectToServer: server];
 }
 
 #pragma mark ### NSTableViewSource protocol ###
@@ -202,14 +147,7 @@ objectValueForTableColumn:(NSTableColumn *)col
 {
 	NSDictionary *item = nil;
 	
-	if (!activeItem && (tableView != statisticsTableView))
-		return @"";
-	
-	if (tableView == parameterTableView)
-		item = [activeItem valueForKey: @"parameters"];
-	else if (tableView == propertyTableView)
-		item = [activeItem valueForKey: @"properties"];
-	else if (tableView == statisticsTableView)
+	if (tableView == statisticsTableView)
 		item = serverConnection.statisticDict;
 	
 	if (!item)
@@ -228,52 +166,18 @@ objectValueForTableColumn:(NSTableColumn *)col
 {
 	NSDictionary *item = nil;
 	
-	if (tableView == parameterTableView)
-		item = [activeItem valueForKey: @"parameters"];
-	else if (tableView == propertyTableView)
-		item = [activeItem valueForKey: @"properties"];
-	else if (tableView == statisticsTableView)
+	if (tableView == statisticsTableView)
 		item = serverConnection.statisticDict;
 	
 	return item ? [item count] : 0;
-}
-
-#pragma mark ### delegate methods ###
-
-- (BOOL) outlineView: (NSOutlineView *) outlineView shouldEditTableColumn: (NSTableColumn *)tableColumn item:(id)item
-{
-	return NO;
-}
-
-- (void) outlineViewSelectionDidChange: (NSNotification *) notification
-{
-	NSDictionary *d = [outlineView itemAtRow: [outlineView selectedRow]];
-	
-	activeItem = d;
-	[parameterTableView reloadData];
-	[propertyTableView reloadData];
-}
-
-- (void) connectToServer: (NSString *) server
-{
-	activeItem = nil;
-	
-	[connectStatus setStringValue: @"Connecting ..."];
-	[connectionProgressIndicator startAnimation: self];
-	[connectionProgressIndicator setHidden: NO];
-	
-	[serverConnection connectToServer: server];
-	//connectRequest = pa_xstrdup([server cStringUsingEncoding: NSASCIIStringEncoding]);
 }
 
 #pragma mark ### IBActions ###
 
 - (IBAction) connectToServerAction: (id) sender
 {	
-	[outlineView setEnabled: NO];
-	[parameterTableView setEnabled: NO];
-	[propertyTableView setEnabled: NO];
-	[self repaintViews: nil];
+	[introspect enableGUI: NO];
+	//[self repaintViews: nil];
 	
 	[self connectToServer: [sender titleOfSelectedItem]];
 }

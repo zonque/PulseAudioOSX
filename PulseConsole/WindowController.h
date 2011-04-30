@@ -23,35 +23,30 @@
 
 #import "ServerConnection.h"
 #import "StreamView.h"
+#import "Introspect.h"
 
 @interface WindowController : NSObject
 {	
 	IBOutlet NSWindow               *window;
-	IBOutlet NSOutlineView          *outlineView;
-	IBOutlet NSTableView            *parameterTableView;
-	IBOutlet NSTableView            *propertyTableView;
-	IBOutlet NSButton               *activeButton;
-	IBOutlet NSProgressIndicator    *connectionProgressIndicator;
-	IBOutlet NSPopUpButton          *serverSelector;
-	IBOutlet NSTextField            *connectStatus;
 	IBOutlet NSTabView              *tabView;
 	IBOutlet NSTableView            *statisticsTableView;
 	IBOutlet NSTextView             *commandShell;
+	IBOutlet NSProgressIndicator    *connectionProgressIndicator;
+	IBOutlet NSPopUpButton          *serverSelector;
+	IBOutlet NSTextField            *connectStatus;
+	
 	IBOutlet StreamListView		*playbackStreamListView;
 	IBOutlet StreamListView		*recordStreamListView;
 	IBOutlet StreamListView		*sinkStreamListView;
 	IBOutlet StreamListView		*sourceStreamListView;
 	
-	char *connectRequest;
+	IBOutlet Introspect		*introspect;
 	
-	NSDictionary *activeItem;
-
 	ServerConnection *serverConnection;
 }
 
 - (void) awakeFromNib;
 - (void) enableGUI: (BOOL) enabled;
-- (void) stopProgressIndicator;
 - (void) connectToServer: (NSString *) server;
 
 - (IBAction) connectToServerAction: (id) sender;

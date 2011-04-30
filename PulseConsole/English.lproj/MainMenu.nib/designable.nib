@@ -2,18 +2,18 @@
 <archive type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="7.10">
 	<data>
 		<int key="IBDocument.SystemTarget">1050</int>
-		<string key="IBDocument.SystemVersion">10J567</string>
+		<string key="IBDocument.SystemVersion">10J869</string>
 		<string key="IBDocument.InterfaceBuilderVersion">804</string>
 		<string key="IBDocument.AppKitVersion">1038.35</string>
-		<string key="IBDocument.HIToolboxVersion">462.00</string>
+		<string key="IBDocument.HIToolboxVersion">461.00</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginVersions">
 			<string key="NS.key.0">com.apple.InterfaceBuilder.CocoaPlugin</string>
 			<string key="NS.object.0">804</string>
 		</object>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
+			<integer value="541"/>
 			<integer value="581"/>
-			<integer value="569"/>
 			<integer value="57"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
@@ -884,7 +884,7 @@
 								<object class="NSTabViewItem" id="603289842">
 									<string key="NSIdentifier">2</string>
 									<object class="NSView" key="NSView" id="183257111">
-										<reference key="NSNextResponder" ref="685348213"/>
+										<nil key="NSNextResponder"/>
 										<int key="NSvFlags">256</int>
 										<object class="NSMutableArray" key="NSSubviews">
 											<bool key="EncodedWithXMLCoder">YES</bool>
@@ -944,7 +944,6 @@
 											</object>
 										</object>
 										<string key="NSFrame">{{10, 33}, {827, 372}}</string>
-										<reference key="NSSuperview" ref="685348213"/>
 									</object>
 									<string key="NSLabel">Playback</string>
 									<reference key="NSColor" ref="995273467"/>
@@ -1021,7 +1020,7 @@
 								<object class="NSTabViewItem" id="1023805241">
 									<string key="NSIdentifier">1</string>
 									<object class="NSView" key="NSView" id="644099369">
-										<nil key="NSNextResponder"/>
+										<reference key="NSNextResponder" ref="685348213"/>
 										<int key="NSvFlags">256</int>
 										<object class="NSMutableArray" key="NSSubviews">
 											<bool key="EncodedWithXMLCoder">YES</bool>
@@ -1532,20 +1531,21 @@
 											</object>
 										</object>
 										<string key="NSFrame">{{10, 33}, {827, 372}}</string>
+										<reference key="NSSuperview" ref="685348213"/>
 									</object>
 									<string key="NSLabel">Server details</string>
 									<reference key="NSColor" ref="995273467"/>
 									<reference key="NSTabView" ref="685348213"/>
 								</object>
 							</object>
-							<reference key="NSSelectedTabViewItem" ref="603289842"/>
+							<reference key="NSSelectedTabViewItem" ref="1023805241"/>
 							<reference key="NSFont" ref="810174432"/>
 							<int key="NSTvFlags">0</int>
 							<bool key="NSAllowTruncatedLabels">YES</bool>
 							<bool key="NSDrawsBackground">YES</bool>
 							<object class="NSMutableArray" key="NSSubviews">
 								<bool key="EncodedWithXMLCoder">YES</bool>
-								<reference ref="183257111"/>
+								<reference ref="644099369"/>
 							</object>
 						</object>
 					</object>
@@ -1726,6 +1726,9 @@
 				</object>
 				<string key="NSScreenRect">{{0, 0}, {1440, 878}}</string>
 				<string key="NSMaxSize">{1.79769e+308, 1.79769e+308}</string>
+			</object>
+			<object class="NSCustomObject" id="946481530">
+				<string key="NSClassName">Introspect</string>
 			</object>
 		</object>
 		<object class="IBObjectContainer" key="IBDocument.Objects">
@@ -1973,30 +1976,6 @@
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
-						<string key="label">dataSource</string>
-						<reference key="source" ref="936061708"/>
-						<reference key="destination" ref="400086843"/>
-					</object>
-					<int key="connectionID">522</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBOutletConnection" key="connection">
-						<string key="label">delegate</string>
-						<reference key="source" ref="936061708"/>
-						<reference key="destination" ref="400086843"/>
-					</object>
-					<int key="connectionID">523</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBOutletConnection" key="connection">
-						<string key="label">dataSource</string>
-						<reference key="source" ref="996055827"/>
-						<reference key="destination" ref="400086843"/>
-					</object>
-					<int key="connectionID">526</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBOutletConnection" key="connection">
 						<string key="label">parameterTableView</string>
 						<reference key="source" ref="400086843"/>
 						<reference key="destination" ref="936061708"/>
@@ -2010,30 +1989,6 @@
 						<reference key="destination" ref="13325233"/>
 					</object>
 					<int key="connectionID">551</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBOutletConnection" key="connection">
-						<string key="label">dataSource</string>
-						<reference key="source" ref="13325233"/>
-						<reference key="destination" ref="400086843"/>
-					</object>
-					<int key="connectionID">552</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBOutletConnection" key="connection">
-						<string key="label">delegate</string>
-						<reference key="source" ref="13325233"/>
-						<reference key="destination" ref="400086843"/>
-					</object>
-					<int key="connectionID">553</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBOutletConnection" key="connection">
-						<string key="label">delegate</string>
-						<reference key="source" ref="996055827"/>
-						<reference key="destination" ref="400086843"/>
-					</object>
-					<int key="connectionID">554</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
@@ -2125,30 +2080,6 @@
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
-						<string key="label">streamList</string>
-						<reference key="source" ref="400086843"/>
-						<reference key="destination" ref="653127187"/>
-					</object>
-					<int key="connectionID">682</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBOutletConnection" key="connection">
-						<string key="label">streamListScrollView</string>
-						<reference key="source" ref="400086843"/>
-						<reference key="destination" ref="557892492"/>
-					</object>
-					<int key="connectionID">686</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBOutletConnection" key="connection">
-						<string key="label">streamListView</string>
-						<reference key="source" ref="400086843"/>
-						<reference key="destination" ref="653127187"/>
-					</object>
-					<int key="connectionID">687</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBOutletConnection" key="connection">
 						<string key="label">recordStreamListView</string>
 						<reference key="source" ref="400086843"/>
 						<reference key="destination" ref="16110047"/>
@@ -2186,6 +2117,86 @@
 						<reference key="destination" ref="996055827"/>
 					</object>
 					<int key="connectionID">723</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">introspect</string>
+						<reference key="source" ref="400086843"/>
+						<reference key="destination" ref="946481530"/>
+					</object>
+					<int key="connectionID">729</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">outlineView</string>
+						<reference key="source" ref="946481530"/>
+						<reference key="destination" ref="996055827"/>
+					</object>
+					<int key="connectionID">730</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">parameterTableView</string>
+						<reference key="source" ref="946481530"/>
+						<reference key="destination" ref="936061708"/>
+					</object>
+					<int key="connectionID">731</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">propertyTableView</string>
+						<reference key="source" ref="946481530"/>
+						<reference key="destination" ref="13325233"/>
+					</object>
+					<int key="connectionID">732</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">dataSource</string>
+						<reference key="source" ref="996055827"/>
+						<reference key="destination" ref="946481530"/>
+					</object>
+					<int key="connectionID">733</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">delegate</string>
+						<reference key="source" ref="996055827"/>
+						<reference key="destination" ref="946481530"/>
+					</object>
+					<int key="connectionID">734</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">dataSource</string>
+						<reference key="source" ref="936061708"/>
+						<reference key="destination" ref="946481530"/>
+					</object>
+					<int key="connectionID">735</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">delegate</string>
+						<reference key="source" ref="936061708"/>
+						<reference key="destination" ref="946481530"/>
+					</object>
+					<int key="connectionID">736</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">dataSource</string>
+						<reference key="source" ref="13325233"/>
+						<reference key="destination" ref="946481530"/>
+					</object>
+					<int key="connectionID">737</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">delegate</string>
+						<reference key="source" ref="13325233"/>
+						<reference key="destination" ref="946481530"/>
+					</object>
+					<int key="connectionID">738</int>
 				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -3271,6 +3282,11 @@
 						<reference key="object" ref="181310318"/>
 						<reference key="parent" ref="365461121"/>
 					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">728</int>
+						<reference key="object" ref="946481530"/>
+						<reference key="parent" ref="0"/>
+					</object>
 				</object>
 			</object>
 			<object class="NSMutableDictionary" key="flattenedProperties">
@@ -3504,6 +3520,7 @@
 					<string>724.IBPluginDependency</string>
 					<string>725.IBPluginDependency</string>
 					<string>726.IBPluginDependency</string>
+					<string>728.IBPluginDependency</string>
 					<string>92.IBPluginDependency</string>
 					<string>92.ImportedFromIB2</string>
 				</object>
@@ -3631,9 +3648,9 @@
 					<integer value="1"/>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<integer value="1"/>
-					<string>{{51, 245}, {873, 468}}</string>
+					<string>{{43, 311}, {873, 468}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{51, 245}, {873, 468}}</string>
+					<string>{{43, 311}, {873, 468}}</string>
 					<integer value="1"/>
 					<string>{{33, 99}, {480, 360}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -3751,6 +3768,7 @@
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
+					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<integer value="1"/>
 				</object>
 			</object>
@@ -3770,11 +3788,65 @@
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">727</int>
+			<int key="maxID">738</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
 				<bool key="EncodedWithXMLCoder">YES</bool>
+				<object class="IBPartialClassDescription">
+					<string key="className">Introspect</string>
+					<string key="superclassName">NSObject</string>
+					<object class="NSMutableDictionary" key="outlets">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>activeButton</string>
+							<string>outlineView</string>
+							<string>parameterTableView</string>
+							<string>propertyTableView</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>NSButton</string>
+							<string>NSOutlineView</string>
+							<string>NSTableView</string>
+							<string>NSTableView</string>
+						</object>
+					</object>
+					<object class="NSMutableDictionary" key="toOneOutletInfosByName">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>activeButton</string>
+							<string>outlineView</string>
+							<string>parameterTableView</string>
+							<string>propertyTableView</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<object class="IBToOneOutletInfo">
+								<string key="name">activeButton</string>
+								<string key="candidateClassName">NSButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">outlineView</string>
+								<string key="candidateClassName">NSOutlineView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">parameterTableView</string>
+								<string key="candidateClassName">NSTableView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">propertyTableView</string>
+								<string key="candidateClassName">NSTableView</string>
+							</object>
+						</object>
+					</object>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">Introspect.h</string>
+					</object>
+				</object>
 				<object class="IBPartialClassDescription">
 					<string key="className">StreamListView</string>
 					<string key="superclassName">NSView</string>
@@ -3829,14 +3901,11 @@
 						<bool key="EncodedWithXMLCoder">YES</bool>
 						<object class="NSArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>activeButton</string>
 							<string>commandShell</string>
 							<string>connectStatus</string>
 							<string>connectionProgressIndicator</string>
-							<string>outlineView</string>
-							<string>parameterTableView</string>
+							<string>introspect</string>
 							<string>playbackStreamListView</string>
-							<string>propertyTableView</string>
 							<string>recordStreamListView</string>
 							<string>serverSelector</string>
 							<string>sinkStreamListView</string>
@@ -3847,14 +3916,11 @@
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>NSButton</string>
 							<string>NSTextView</string>
 							<string>NSTextField</string>
 							<string>NSProgressIndicator</string>
-							<string>NSOutlineView</string>
-							<string>NSTableView</string>
+							<string>Introspect</string>
 							<string>StreamListView</string>
-							<string>NSTableView</string>
 							<string>StreamListView</string>
 							<string>NSPopUpButton</string>
 							<string>StreamListView</string>
@@ -3868,14 +3934,11 @@
 						<bool key="EncodedWithXMLCoder">YES</bool>
 						<object class="NSArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>activeButton</string>
 							<string>commandShell</string>
 							<string>connectStatus</string>
 							<string>connectionProgressIndicator</string>
-							<string>outlineView</string>
-							<string>parameterTableView</string>
+							<string>introspect</string>
 							<string>playbackStreamListView</string>
-							<string>propertyTableView</string>
 							<string>recordStreamListView</string>
 							<string>serverSelector</string>
 							<string>sinkStreamListView</string>
@@ -3886,10 +3949,6 @@
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<object class="IBToOneOutletInfo">
-								<string key="name">activeButton</string>
-								<string key="candidateClassName">NSButton</string>
-							</object>
 							<object class="IBToOneOutletInfo">
 								<string key="name">commandShell</string>
 								<string key="candidateClassName">NSTextView</string>
@@ -3903,20 +3962,12 @@
 								<string key="candidateClassName">NSProgressIndicator</string>
 							</object>
 							<object class="IBToOneOutletInfo">
-								<string key="name">outlineView</string>
-								<string key="candidateClassName">NSOutlineView</string>
-							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">parameterTableView</string>
-								<string key="candidateClassName">NSTableView</string>
+								<string key="name">introspect</string>
+								<string key="candidateClassName">Introspect</string>
 							</object>
 							<object class="IBToOneOutletInfo">
 								<string key="name">playbackStreamListView</string>
 								<string key="candidateClassName">StreamListView</string>
-							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">propertyTableView</string>
-								<string key="candidateClassName">NSTableView</string>
 							</object>
 							<object class="IBToOneOutletInfo">
 								<string key="name">recordStreamListView</string>
