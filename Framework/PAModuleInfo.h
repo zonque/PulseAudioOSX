@@ -14,12 +14,14 @@
 
 @interface PAModuleInfo : NSObject
 {
+	UInt32 index;
 	NSString *name;
 	NSString *argument;
 	UInt32 useCount;
 	NSDictionary *properties;
 }
 
+@property (nonatomic, assign) UInt32 index;
 @property (nonatomic, retain) NSString *name;
 @property (nonatomic, retain) NSString *argument;
 @property (nonatomic, assign) UInt32 useCount;

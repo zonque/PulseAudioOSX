@@ -97,25 +97,19 @@ static NSString *kMDNSLocalDomain = @"local.";
 	NSString *type = [sender type];
 	
 	if ([type hasPrefix: kMDNSPulseServer] &&
-	    [delegate respondsToSelector: @selector(PAServiceDiscovery:serverAppeared:)]) {
-		NSLog(@"%s() :%d", __func__, __LINE__);
+	    [delegate respondsToSelector: @selector(PAServiceDiscovery:serverAppeared:)])
 		[delegate PAServiceDiscovery: self
 			      serverAppeared: sender];
-	}
-	
+
 	if ([type hasPrefix: kMDNSPulseSink] &&
-	    [delegate respondsToSelector: @selector(PAServiceDiscovery:sinkAppeared:)]) {
-		NSLog(@"%s() :%d", __func__, __LINE__);
+	    [delegate respondsToSelector: @selector(PAServiceDiscovery:sinkAppeared:)])
 		[delegate PAServiceDiscovery: self
 				sinkAppeared: sender];
-	}
 	
 	if ([type hasPrefix: kMDNSPulseSource] &&
-	    [delegate respondsToSelector: @selector(PAServiceDiscovery:sourceAppeared:)]) {
-		NSLog(@"%s() :%d", __func__, __LINE__);
+	    [delegate respondsToSelector: @selector(PAServiceDiscovery:sourceAppeared:)])
 		[delegate PAServiceDiscovery: self
 			      sourceAppeared: sender];
-	}
 	
 	[announcedServices addObject: sender];
 	[lock unlock];
@@ -162,25 +156,19 @@ static NSString *kMDNSLocalDomain = @"local.";
 	NSString *type = [netService type];
 	
 	if ([type hasPrefix: kMDNSPulseServer] &&
-	    [delegate respondsToSelector: @selector(PAServiceDiscovery:serverDisappeared:)]) {
-		NSLog(@"%s() :%d", __func__, __LINE__);
+	    [delegate respondsToSelector: @selector(PAServiceDiscovery:serverDisappeared:)])
 		[delegate PAServiceDiscovery: self
 			   serverDisappeared: netService];
-	}
 	
 	if ([type hasPrefix: kMDNSPulseSink] &&
-	    [delegate respondsToSelector: @selector(PAServiceDiscovery:sinkDisappeared:)]) {
-		NSLog(@"%s() :%d", __func__, __LINE__);
+	    [delegate respondsToSelector: @selector(PAServiceDiscovery:sinkDisappeared:)])
 		[delegate PAServiceDiscovery: self
 			     sinkDisappeared: netService];
-	}
 	
 	if ([type hasPrefix: kMDNSPulseSource] &&
-	    [delegate respondsToSelector: @selector(PAServiceDiscovery:sourceDisappeared:)]) {
-		NSLog(@"%s() :%d", __func__, __LINE__);
+	    [delegate respondsToSelector: @selector(PAServiceDiscovery:sourceDisappeared:)])
 		[delegate PAServiceDiscovery: self
 			   sourceDisappeared: netService];
-	}
 	
 	[lock lock];
 	[netServices removeObject: netService];

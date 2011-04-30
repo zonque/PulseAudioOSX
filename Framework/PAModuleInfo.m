@@ -11,9 +11,9 @@
 
 #import "PAModuleInfo.h"
 
-
 @implementation PAModuleInfo
 
+@synthesize index;
 @synthesize name;
 @synthesize argument;
 @synthesize useCount;

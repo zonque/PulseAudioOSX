@@ -82,7 +82,12 @@
 
 - (NSString *) clientName;
 
-+ (NSString *) pulseAudioLibraryVersion;
+- (BOOL) loadModuleWithName: (NSString *) name
+		  arguments: (NSString *) arguments;
+- (BOOL) unloadModuleWithName: (NSString *) name;
 
+- (void) shutdownServer;
+
++ (NSString *) pulseAudioLibraryVersion;
 
 @end

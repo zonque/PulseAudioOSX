@@ -48,6 +48,10 @@
 - (void) sampleInfoCallback: (const pa_sample_info *) i
 			eol: (BOOL) eol;
 
+// modules
+- (void) moduleLoadedCallback: (UInt32) index;
+- (void) moduleUnloadedCallback: (BOOL) success;
+
 @end
 
 #pragma mark ### static wrappers ###
@@ -127,6 +131,20 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 	PAServerConnection *sc = userdata;
 	[sc sampleInfoCallback: i
 			   eol: !!eol];
+}
+
+// module load/unload
+
+static void staticModuleLoadedCallback(pa_context *c, uint32_t index, void *userdata)
+{
+	PAServerConnection *sc = userdata;
+	[sc moduleLoadedCallback: index];
+}
+
+static void staticModuleUnloadedCallback(pa_context *c, int success, void *userdata)
+{
+	PAServerConnection *sc = userdata;
+	[sc moduleUnloadedCallback: !!success];
 }
 
 #pragma mark ### hidden implementation ###
@@ -499,6 +517,7 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 		if (info->argument)
 			module.argument = [NSString stringWithCString: info->argument
 							     encoding: NSUTF8StringEncoding];
+		module.index = info->index;
 		module.useCount = info->n_used;
 		module.properties = [self createDictionaryFromProplist: info->proplist];
 		
@@ -545,6 +564,18 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 	}
 	
 	[pool drain];
+}
+
+- (void) moduleLoadedCallback: (UInt32) index
+{
+	[modules removeAllObjects];
+	pa_context_get_module_info_list(PAContext, staticModuleInfoCallback, self);
+}
+
+- (void) moduleUnloadedCallback: (BOOL) success
+{
+	[modules removeAllObjects];
+	pa_context_get_module_info_list(PAContext, staticModuleInfoCallback, self);
 }
 
 @end
@@ -692,10 +723,47 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 	return audio != nil;
 }
 
+- (BOOL) loadModuleWithName: (NSString *) name
+		  arguments: (NSString *) arguments
+{
+	if (![self isConnected])
+		return NO;
+
+	pa_context_load_module(PAContext,
+			       [name cStringUsingEncoding: NSASCIIStringEncoding],
+			       [arguments cStringUsingEncoding: NSASCIIStringEncoding],
+			       staticModuleLoadedCallback, self);
+	
+	return YES;
+}
+
+- (BOOL) unloadModuleWithName: (NSString *) name
+{
+	if (![self isConnected])
+		return NO;
+
+	BOOL found = NO;
+	
+	for (PAModuleInfo *info in modules) {
+		if ([info.name isEqualToString: name]) {
+			pa_context_unload_module(PAContext, info.index,
+						 staticModuleUnloadedCallback, self);
+			found = YES;
+		}
+	}
+
+	return found;
+}
+
 - (NSString *) clientName
 {
 	return [NSString stringWithCString: procName
 				  encoding: NSASCIIStringEncoding];
+}
+
+- (void) shutdownServer
+{
+	pa_context_exit_daemon(PAContext, NULL, NULL);
 }
 
 + (NSString *) pulseAudioLibraryVersion
