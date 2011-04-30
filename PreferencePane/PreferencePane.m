@@ -26,10 +26,11 @@
 	helperConnection = [[PAHelperConnection alloc] init];
 	helperConnection.delegate = self;
 	if (![helperConnection connect]) {
-	//	[NSApp terminate: nil];
+		[NSApp terminate: nil];
 	}
 	
 	growl.delegate = self;
+	localServer.delegate = self;
 	
 	NSDictionary *preferences = [helperConnection.serverProxy getPreferences];
 

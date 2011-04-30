@@ -14,14 +14,20 @@
 
 #import "LoginItemController.h"
 #import "AudioClients.h"
+#import "LocalServer.h"
 #import "Growl.h"
 
-@interface PreferencePane : NSPreferencePane <PAHelperConnectionDelegate, GrowlDelegate>
+@interface PreferencePane : NSPreferencePane <
+				PAHelperConnectionDelegate,
+				GrowlDelegate,
+				LocalServerDelegate>
 {
 	IBOutlet NSButton *statusBarEnabledButton;
 	IBOutlet LoginItemController *loginItemController;
+
 	IBOutlet AudioClients *audioClients;
 	IBOutlet Growl *growl;
+	IBOutlet LocalServer *localServer;
 	
 	PAHelperConnection *helperConnection;
 }
@@ -37,7 +43,7 @@
 - (void) PAHelperConnection: (PAHelperConnection *) connection
 	 preferencesChanged: (NSDictionary *) preferences;
 
-#pragma mark ### GrowlDelegate ###
+#pragma mark ### GrowlDelegate/LocalServerDelegate ###
 
 - (void) setPreferences: (id) value
 		 forKey: (NSString *) key;

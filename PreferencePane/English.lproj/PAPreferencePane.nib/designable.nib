@@ -21,7 +21,7 @@
 		</object>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="6"/>
+			<integer value="103"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -1992,14 +1992,6 @@
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBActionConnection" key="connection">
-						<string key="label">setEnabled:</string>
-						<reference key="source" ref="342338106"/>
-						<reference key="destination" ref="170047386"/>
-					</object>
-					<int key="connectionID">440</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
 						<string key="label">setPulseAudioEnabled:</string>
 						<reference key="source" ref="755008923"/>
 						<reference key="destination" ref="1007888734"/>
@@ -2037,6 +2029,30 @@
 						<reference key="destination" ref="501920792"/>
 					</object>
 					<int key="connectionID">452</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">localServer</string>
+						<reference key="source" ref="755008923"/>
+						<reference key="destination" ref="342338106"/>
+					</object>
+					<int key="connectionID">453</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">setNetworkEnabled:</string>
+						<reference key="source" ref="342338106"/>
+						<reference key="destination" ref="170047386"/>
+					</object>
+					<int key="connectionID">454</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">networkEnabledButton</string>
+						<reference key="source" ref="342338106"/>
+						<reference key="destination" ref="170047386"/>
+					</object>
+					<int key="connectionID">455</int>
 				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -3789,7 +3805,7 @@
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">452</int>
+			<int key="maxID">456</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -4006,25 +4022,67 @@
 					<string key="className">LocalServer</string>
 					<string key="superclassName">NSObject</string>
 					<object class="NSMutableDictionary" key="actions">
-						<string key="NS.key.0">setEnabled:</string>
-						<string key="NS.object.0">id</string>
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>setEnabled:</string>
+							<string>setNetworkEnabled:</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>id</string>
+							<string>id</string>
+						</object>
 					</object>
 					<object class="NSMutableDictionary" key="actionInfosByName">
-						<string key="NS.key.0">setEnabled:</string>
-						<object class="IBActionInfo" key="NS.object.0">
-							<string key="name">setEnabled:</string>
-							<string key="candidateClassName">id</string>
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>setEnabled:</string>
+							<string>setNetworkEnabled:</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<object class="IBActionInfo">
+								<string key="name">setEnabled:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">setNetworkEnabled:</string>
+								<string key="candidateClassName">id</string>
+							</object>
 						</object>
 					</object>
 					<object class="NSMutableDictionary" key="outlets">
-						<string key="NS.key.0">enabledButton</string>
-						<string key="NS.object.0">NSButton</string>
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>enabledButton</string>
+							<string>networkEnabledButton</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>NSButton</string>
+							<string>NSButton</string>
+						</object>
 					</object>
 					<object class="NSMutableDictionary" key="toOneOutletInfosByName">
-						<string key="NS.key.0">enabledButton</string>
-						<object class="IBToOneOutletInfo" key="NS.object.0">
-							<string key="name">enabledButton</string>
-							<string key="candidateClassName">NSButton</string>
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>enabledButton</string>
+							<string>networkEnabledButton</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<object class="IBToOneOutletInfo">
+								<string key="name">enabledButton</string>
+								<string key="candidateClassName">NSButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">networkEnabledButton</string>
+								<string key="candidateClassName">NSButton</string>
+							</object>
 						</object>
 					</object>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
@@ -4111,6 +4169,7 @@
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>audioClients</string>
 							<string>growl</string>
+							<string>localServer</string>
 							<string>loginItemController</string>
 							<string>statusBarEnabledButton</string>
 						</object>
@@ -4118,6 +4177,7 @@
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>AudioClients</string>
 							<string>Growl</string>
+							<string>LocalServer</string>
 							<string>LoginItemController</string>
 							<string>NSButton</string>
 						</object>
@@ -4128,6 +4188,7 @@
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>audioClients</string>
 							<string>growl</string>
+							<string>localServer</string>
 							<string>loginItemController</string>
 							<string>statusBarEnabledButton</string>
 						</object>
@@ -4140,6 +4201,10 @@
 							<object class="IBToOneOutletInfo">
 								<string key="name">growl</string>
 								<string key="candidateClassName">Growl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">localServer</string>
+								<string key="candidateClassName">LocalServer</string>
 							</object>
 							<object class="IBToOneOutletInfo">
 								<string key="name">loginItemController</string>

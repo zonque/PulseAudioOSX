@@ -11,13 +11,25 @@
 
 #import <Cocoa/Cocoa.h>
 
+@protocol LocalServerDelegate
+@required
+- (void) setPreferences: (id) value
+		 forKey: (NSString *) key;
+@end
 
 @interface LocalServer : NSObject {
 	IBOutlet NSButton *enabledButton;
+	IBOutlet NSButton *networkEnabledButton;
 
 	NSDistributedNotificationCenter *notificationCenter;	
+	NSObject <LocalServerDelegate> *delegate;
 }
 
+@property (nonatomic, assign) NSObject <LocalServerDelegate> *delegate;
+
+- (void) preferencesChanged: (NSDictionary *) preferences;
+
 - (IBAction) setEnabled: (id) sender;
+- (IBAction) setNetworkEnabled: (id) sender;
 
 @end

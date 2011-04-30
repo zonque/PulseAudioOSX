@@ -13,6 +13,8 @@
 
 @implementation LocalServer
 
+@synthesize delegate;
+
 - (void) setLocalServerEnabled: (NSNotification *) notification
 {
 	NSDictionary *userInfo = [notification userInfo];
@@ -33,6 +35,18 @@
 	
 	[userInfo setObject: [NSNumber numberWithBool: enabled]
 		     forKey: @"enabled"];
+}
+
+- (void) preferencesChanged: (NSDictionary *) preferences
+{
+	BOOL networkEnabled = [[preferences objectForKey: @"localServerNetworkEnabled"] boolValue];
+	[networkEnabledButton setState: networkEnabled];	
+}
+
+- (IBAction) setNetworkEnabled: (id) sender
+{
+	[delegate setPreferences: [NSNumber numberWithBool: [sender state] == NSOnState]
+			  forKey: @"localServerNetworkEnabled"];
 }
 
 @end

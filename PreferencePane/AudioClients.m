@@ -180,7 +180,7 @@ enum {
 	NSString *serverIP;
 	
 	if (service) {
-		serverIP = [self ipOfService: service];
+		serverIP = [PAServiceDiscovery ipOfService: service];
 		serverPort = [NSNumber numberWithInt: [service port]];
 	} else {
 		serverIP = @"localhost";
