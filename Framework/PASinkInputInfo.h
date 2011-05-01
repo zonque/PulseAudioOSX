@@ -11,29 +11,37 @@
 
 #import <Foundation/Foundation.h>
 
-@interface PASourceInfo : NSObject {
+@interface PASinkInputInfo : NSObject
+{
+	UInt32 index;
+	UInt32 volume;
+	UInt32 bufferUsec;
+	UInt32 sinkUsec;
+	
 	NSString *name;
-	NSString *description;
-	NSString *sampleSpec;
-	NSString *channelMap;
+	NSString *resampleMethod;
 	NSString *driver;
-	
-	NSArray *channelNames;
 
-	UInt32 latency;
-	UInt32 configuredLatency;
-	
+	NSArray *channelNames;
 	NSDictionary *properties;
+
+	BOOL muted;
+	BOOL volumeWriteable;
 }
 
+@property (nonatomic, assign) UInt32 index;
+@property (nonatomic, assign) UInt32 volume;
+@property (nonatomic, assign) UInt32 bufferUsec;
+@property (nonatomic, assign) UInt32 sinkUsec;
+
 @property (nonatomic, retain) NSString *name;
-@property (nonatomic, retain) NSString *description;
-@property (nonatomic, retain) NSString *sampleSpec;
-@property (nonatomic, retain) NSString *channelMap;
+@property (nonatomic, retain) NSString *resampleMethod;
 @property (nonatomic, retain) NSString *driver;
+
 @property (nonatomic, retain) NSArray *channelNames;
-@property (nonatomic, assign) UInt32 latency;
-@property (nonatomic, assign) UInt32 configuredLatency;
 @property (nonatomic, retain) NSDictionary *properties;
+
+@property (nonatomic, assign) BOOL muted;
+@property (nonatomic, assign) BOOL volumeWriteable;
 
 @end

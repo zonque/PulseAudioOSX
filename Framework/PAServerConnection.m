@@ -41,8 +41,12 @@ static NSString *frameworkPath = @"/Library/Frameworks/PulseAudio.framework/";
 		      eol: (BOOL) eol;
 - (void) sinkInfoCallback: (const pa_sink_info *) i
 		      eol: (BOOL) eol;
+- (void) sinkInputInfoCallback: (const pa_sink_input_info *) i
+			   eol: (BOOL) eol;
 - (void) sourceInfoCallback: (const pa_source_info *) i
 			eol: (BOOL) eol;
+- (void) sourceOutputInfoCallback: (const pa_source_output_info *) i
+			      eol: (BOOL) eol;
 - (void) clientInfoCallback: (const pa_client_info *) i
 			eol: (BOOL) eol;
 - (void) moduleInfoCallback: (const pa_module_info *) i
@@ -102,6 +106,13 @@ static void staticSinkInfoCallback(pa_context *c, const pa_sink_info *i, int eol
 			 eol: !!eol];
 }
 
+static void staticSinkInputInfoCallback(pa_context *c, const pa_sink_input_info *i, int eol, void *userdata)
+{
+	PAServerConnection *sc = userdata;
+	[sc sinkInputInfoCallback: i
+			      eol: !!eol];
+}
+
 static void staticCardInfoCallback(pa_context *c, const pa_card_info *i, int eol, void *userdata)
 {
 	PAServerConnection *sc = userdata;
@@ -114,6 +125,13 @@ static void staticSourceInfoCallback(pa_context *c, const pa_source_info *i, int
 	PAServerConnection *sc = userdata;
 	[sc sourceInfoCallback: i
 			   eol: !!eol];
+}
+
+static void staticSourceOutputInfoCallback(pa_context *c, const pa_source_output_info *i, int eol, void *userdata)
+{
+	PAServerConnection *sc = userdata;
+	[sc sourceOutputInfoCallback: i
+				 eol: !!eol];
 }
 
 static void staticClientInfoCallback(pa_context *c, const struct pa_client_info *i, int eol, void *userdata)
@@ -202,11 +220,25 @@ static void staticContextDefaultsSetCallback(pa_context *c, int success, void *u
 				sinksChanged: sinks];
 }
 
+- (void) sendDelegateSinkInputsChanged
+{
+	if (delegate && [delegate respondsToSelector: @selector(PAServerConnection:sinkInputsChanged:)])
+		[delegate PAServerConnection: self
+			   sinkInputsChanged: sinkInputs];
+}
+
 - (void) sendDelegateSourcesChanged
 {
 	if (delegate && [delegate respondsToSelector: @selector(PAServerConnection:sourcesChanged:)])
 		[delegate PAServerConnection: self
 			      sourcesChanged: sources];
+}
+
+- (void) sendDelegateSourceOutputsChanged
+{
+	if (delegate && [delegate respondsToSelector: @selector(PAServerConnection:sourceOutputsChanged:)])
+		[delegate PAServerConnection: self
+			sourceOutputsChanged: sourceOutputs];
 }
 
 - (void) sendDelegateClientsChanged
@@ -258,6 +290,17 @@ static void staticContextDefaultsSetCallback(pa_context *c, int success, void *u
 	return dict;
 }
 
+- (NSArray *) createChannelNamesArray: (const pa_channel_map *) map
+{
+	NSMutableArray *array = [NSMutableArray arrayWithCapacity: 0];
+
+	for (UInt32 i = 0; i < map->channels; i++)
+		[array addObject: [NSString stringWithCString: pa_channel_position_to_string(map->map[i])
+						     encoding: NSASCIIStringEncoding]];
+
+	return array;
+}
+
 - (void) contextStateCallback
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
@@ -269,8 +312,13 @@ static void staticContextDefaultsSetCallback(pa_context *c, int success, void *u
 	switch (state) {
 		case PA_CONTEXT_READY:
 			NSLog(@"Connection ready.");
+			pa_context_subscribe(PAContext, PA_SUBSCRIPTION_MASK_ALL, NULL, NULL);
+			pa_context_set_subscribe_callback(PAContext, staticContextSubscribeCallback, self);
+			pa_context_set_event_callback(PAContext, staticContextEventCallback, self);
 			pa_context_get_sink_info_list(PAContext, staticSinkInfoCallback, self);
+			pa_context_get_sink_input_info_list(PAContext, staticSinkInputInfoCallback, self);			
 			pa_context_get_source_info_list(PAContext, staticSourceInfoCallback, self);
+			pa_context_get_source_output_info_list(PAContext, staticSourceOutputInfoCallback, self);
 			pa_context_get_module_info_list(PAContext, staticModuleInfoCallback, self);
 			pa_context_get_client_info_list(PAContext, staticClientInfoCallback, self);
 			pa_context_get_sample_info_list(PAContext, staticSampleInfoCallback, self);
@@ -313,9 +361,17 @@ static void staticContextDefaultsSetCallback(pa_context *c, int success, void *u
 			[sinks removeAllObjects];
 			pa_context_get_sink_info_list(PAContext, staticSinkInfoCallback, self);
 			break;
+		case PA_SUBSCRIPTION_EVENT_SINK_INPUT:
+			[sinkInputs removeAllObjects];
+			pa_context_get_sink_input_info_list(PAContext, staticSinkInputInfoCallback, self);
+			break;
 		case PA_SUBSCRIPTION_EVENT_SOURCE:
 			[sources removeAllObjects];
 			pa_context_get_source_info_list(PAContext, staticSourceInfoCallback, self);
+			break;
+		case PA_SUBSCRIPTION_EVENT_SOURCE_OUTPUT:
+			[sourceOutputs removeAllObjects];
+			pa_context_get_source_output_info_list(PAContext, staticSourceOutputInfoCallback, self);
 			break;
 		case PA_SUBSCRIPTION_EVENT_MODULE:
 			[modules removeAllObjects];
@@ -419,11 +475,11 @@ static void staticContextDefaultsSetCallback(pa_context *c, int success, void *u
 		      eol: (BOOL) eol
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-
+	
 	if (info) {
 		PASinkInfo *sink = [[PASinkInfo alloc] init];
 		char tmp[0x100];
-
+		
 		sink.name = [NSString stringWithCString: info->name
 					       encoding: NSUTF8StringEncoding];
 		sink.description = [NSString stringWithCString: info->description
@@ -432,20 +488,59 @@ static void staticContextDefaultsSetCallback(pa_context *c, int success, void *u
 						     encoding: NSUTF8StringEncoding];
 		sink.channelMap = [NSString stringWithCString: pa_channel_map_snprint(tmp, sizeof(tmp), &info->channel_map)
 						     encoding: NSUTF8StringEncoding];
+		sink.channelNames = [self createChannelNamesArray: &info->channel_map];
 		sink.driver = [NSString stringWithCString: info->driver
 						 encoding: NSUTF8StringEncoding];
-			
+		
 		sink.latency = info->latency;
 		sink.configuredLatency = info->configured_latency;
 		sink.nVolumeSteps = info->n_volume_steps;
 		sink.volume = pa_cvolume_avg(&info->volume);	
 		sink.properties = [self createDictionaryFromProplist: info->proplist];
-
+		
 		[sinks addObject: sink];
 	}
-
+	
 	if (eol) {
 		[self performSelectorOnMainThread: @selector(sendDelegateSinksChanged)
+				       withObject: nil
+				    waitUntilDone: NO];		
+	}
+	
+	[pool drain];
+}
+
+- (void) sinkInputInfoCallback: (const pa_sink_input_info *) info
+			   eol: (BOOL) eol
+{
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	
+	if (info) {
+		PASinkInputInfo *input = [[PASinkInputInfo alloc] init];
+		
+		input.index = info->index;
+		input.bufferUsec = info->buffer_usec;
+		input.sinkUsec = info->sink_usec;
+		input.muted = !!info->mute;
+		input.volumeWriteable = !!info->volume_writable;
+		
+		if (info->name)
+			input.name = [NSString stringWithCString: info->name
+							encoding: NSUTF8StringEncoding];
+		
+		input.channelNames = [self createChannelNamesArray: &info->channel_map];
+		input.driver = [NSString stringWithCString: info->driver
+						  encoding: NSUTF8StringEncoding];
+		if (info->resample_method)
+			input.resampleMethod = [NSString stringWithCString: info->resample_method
+								  encoding: NSUTF8StringEncoding];
+		input.properties = [self createDictionaryFromProplist: info->proplist];
+
+		[sinkInputs addObject: input];
+	}
+	
+	if (eol) {
+		[self performSelectorOnMainThread: @selector(sendDelegateSinkInputsChanged)
 				       withObject: nil
 				    waitUntilDone: NO];		
 	}
@@ -457,11 +552,11 @@ static void staticContextDefaultsSetCallback(pa_context *c, int success, void *u
 			eol: (BOOL) eol
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-
+	
 	if (info) {
 		PASourceInfo *source = [[PASourceInfo alloc] init];
 		char tmp[0x100];
-
+		
 		source.name = [NSString stringWithCString: info->name
 						 encoding: NSUTF8StringEncoding];
 		source.description = [NSString stringWithCString: info->description
@@ -480,6 +575,43 @@ static void staticContextDefaultsSetCallback(pa_context *c, int success, void *u
 	
 	if (eol) {
 		[self performSelectorOnMainThread: @selector(sendDelegateSourcesChanged)
+				       withObject: nil
+				    waitUntilDone: NO];		
+	}
+	
+	[pool drain];
+}
+
+- (void) sourceOutputInfoCallback: (const pa_source_output_info *) info
+			      eol: (BOOL) eol
+{
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+
+	if (info) {
+		PASourceOutputInfo *output = [[PASourceOutputInfo alloc] init];
+
+		output.index = info->index;
+		output.bufferUsec = info->buffer_usec;
+		output.sourceUsec = info->source_usec;
+		output.corked = !!info->corked;
+		
+		if (info->name)
+			output.name = [NSString stringWithCString: info->name
+							 encoding: NSUTF8StringEncoding];
+
+		output.channelNames = [self createChannelNamesArray: &info->channel_map];
+		output.driver = [NSString stringWithCString: info->driver
+						   encoding: NSUTF8StringEncoding];
+		if (info->resample_method)
+			output.resampleMethod = [NSString stringWithCString: info->resample_method
+								   encoding: NSUTF8StringEncoding];
+		output.properties = [self createDictionaryFromProplist: info->proplist];
+
+		[sourceOutputs addObject: output];
+	}
+	
+	if (eol) {
+		[self performSelectorOnMainThread: @selector(sendDelegateSourceOutputsChanged)
 				       withObject: nil
 				    waitUntilDone: NO];		
 	}
@@ -613,7 +745,9 @@ static void staticContextDefaultsSetCallback(pa_context *c, int success, void *u
 
 	cards = [[NSMutableArray arrayWithCapacity: 0] retain];
 	sinks = [[NSMutableArray arrayWithCapacity: 0] retain];
+	sinkInputs = [[NSMutableArray arrayWithCapacity: 0] retain];
 	sources = [[NSMutableArray arrayWithCapacity: 0] retain];
+	sourceOutputs = [[NSMutableArray arrayWithCapacity: 0] retain];
 	clients = [[NSMutableArray arrayWithCapacity: 0] retain];
 	modules = [[NSMutableArray arrayWithCapacity: 0] retain];
 	samples = [[NSMutableArray arrayWithCapacity: 0] retain];
@@ -630,7 +764,9 @@ static void staticContextDefaultsSetCallback(pa_context *c, int success, void *u
 	
 	[cards release];
 	[sinks release];
+	[sinkInputs release];
 	[sources release];
+	[sourceOutputs release];
 	[clients release];
 	[modules release];
 	[samples release];
@@ -667,10 +803,7 @@ static void staticContextDefaultsSetCallback(pa_context *c, int success, void *u
 	if (!PAContext)
 		NSLog(@"pa_context_new() failed");
 	
-	pa_context_subscribe(PAContext, PA_SUBSCRIPTION_MASK_ALL, NULL, NULL);
 	pa_context_set_state_callback(PAContext, staticContextStateCallback, self);
-	pa_context_set_subscribe_callback(PAContext, staticContextSubscribeCallback, self);
-	pa_context_set_event_callback(PAContext, staticContextEventCallback, self);
 
 	ret = pa_context_connect(PAContext, NULL,
 				 (pa_context_flags_t) (PA_CONTEXT_NOFAIL | PA_CONTEXT_NOAUTOSPAWN),
@@ -800,6 +933,9 @@ static void staticContextDefaultsSetCallback(pa_context *c, int success, void *u
 
 - (UInt32) protocolVersion
 {
+	if (![self isConnected])
+		return 0;
+
 	pa_threaded_mainloop_lock(PAMainLoop);
 	UInt32 version = pa_context_get_protocol_version(PAContext);
 	pa_threaded_mainloop_unlock(PAMainLoop);
@@ -809,6 +945,9 @@ static void staticContextDefaultsSetCallback(pa_context *c, int success, void *u
 
 - (UInt32) serverProtocolVersion
 {
+	if (![self isConnected])
+		return 0;
+	
 	pa_threaded_mainloop_lock(PAMainLoop);
 	UInt32 version = pa_context_get_server_protocol_version(PAContext);
 	pa_threaded_mainloop_unlock(PAMainLoop);

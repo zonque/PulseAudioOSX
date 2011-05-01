@@ -11,29 +11,33 @@
 
 #import <Foundation/Foundation.h>
 
-@interface PASourceInfo : NSObject {
+@interface PASourceOutputInfo : NSObject
+{
+	UInt32 index;
+	UInt32 bufferUsec;
+	UInt32 sourceUsec;
+	
 	NSString *name;
-	NSString *description;
-	NSString *sampleSpec;
-	NSString *channelMap;
+	NSString *resampleMethod;
 	NSString *driver;
-	
-	NSArray *channelNames;
 
-	UInt32 latency;
-	UInt32 configuredLatency;
-	
+	NSArray *channelNames;
 	NSDictionary *properties;
+	
+	BOOL corked;
 }
 
+@property (nonatomic, assign) UInt32 index;
+@property (nonatomic, assign) UInt32 bufferUsec;
+@property (nonatomic, assign) UInt32 sourceUsec;
+
 @property (nonatomic, retain) NSString *name;
-@property (nonatomic, retain) NSString *description;
-@property (nonatomic, retain) NSString *sampleSpec;
-@property (nonatomic, retain) NSString *channelMap;
+@property (nonatomic, retain) NSString *resampleMethod;
 @property (nonatomic, retain) NSString *driver;
+
 @property (nonatomic, retain) NSArray *channelNames;
-@property (nonatomic, assign) UInt32 latency;
-@property (nonatomic, assign) UInt32 configuredLatency;
 @property (nonatomic, retain) NSDictionary *properties;
+
+@property (nonatomic, assign) BOOL corked;
 
 @end

@@ -9,19 +9,21 @@
  (at your option) any later version.
  ***/
 
-#import "PASourceInfo.h"
+#import "PASourceOutputInfo.h"
 
+@implementation PASourceOutputInfo
 
-@implementation PASourceInfo
+@synthesize index;
+@synthesize bufferUsec;
+@synthesize sourceUsec;
 
 @synthesize name;
-@synthesize description;
-@synthesize sampleSpec;
-@synthesize channelMap;
-@synthesize channelNames;
+@synthesize resampleMethod;
 @synthesize driver;
-@synthesize latency;
-@synthesize configuredLatency;
+
+@synthesize channelNames;
 @synthesize properties;
+
+@synthesize corked;
 
 @end

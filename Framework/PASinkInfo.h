@@ -18,6 +18,8 @@
 	NSString *channelMap;
 	NSString *driver;
 	
+	NSArray *channelNames;
+	
 	UInt32 latency;
 	UInt32 configuredLatency;
 	UInt32 nVolumeSteps;
@@ -31,6 +33,7 @@
 @property (nonatomic, retain) NSString *sampleSpec;
 @property (nonatomic, retain) NSString *channelMap;
 @property (nonatomic, retain) NSString *driver;
+@property (nonatomic, retain) NSArray *channelNames;
 @property (nonatomic, assign) UInt32 latency;
 @property (nonatomic, assign) UInt32 configuredLatency;
 @property (nonatomic, assign) UInt32 nVolumeSteps;

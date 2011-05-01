@@ -34,7 +34,11 @@
 - (void) PAServerConnection: (PAServerConnection *) connection
 	       sinksChanged: (NSArray *) sinks;
 - (void) PAServerConnection: (PAServerConnection *) connection
+	  sinkInputsChanged: (NSArray *) inputs;
+- (void) PAServerConnection: (PAServerConnection *) connection
 	     sourcesChanged: (NSArray *) sources;
+- (void) PAServerConnection: (PAServerConnection *) connection
+       sourceOutputsChanged: (NSArray *) outputs;
 - (void) PAServerConnection: (PAServerConnection *) connection
 	     clientsChanged: (NSArray *) clients;
 - (void) PAServerConnection: (PAServerConnection *) connection
@@ -57,7 +61,9 @@
 	
 	NSMutableArray *cards;
 	NSMutableArray *sinks;
+	NSMutableArray *sinkInputs;
 	NSMutableArray *sources;
+	NSMutableArray *sourceOutputs;
 	NSMutableArray *clients;
 	NSMutableArray *modules;
 	NSMutableArray *samples;

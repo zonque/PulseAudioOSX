@@ -11,13 +11,13 @@
 
 #import "PASinkInfo.h"
 
-
 @implementation PASinkInfo
 
 @synthesize name;
 @synthesize description;
 @synthesize sampleSpec;
 @synthesize channelMap;
+@synthesize channelNames;
 @synthesize driver;
 @synthesize latency;
 @synthesize configuredLatency;

@@ -5,4 +5,8 @@
 #import "PAServerConnection.h"
 #import "PAServerInfo.h"
 #import "PASinkInfo.h"
+#import "PASinkInputInfo.h"
 #import "PASourceInfo.h"
+#import "PASourceOutputInfo.h"
+#import "PAServiceDiscovery.h"
+#import "PAHelperConnection.h"
