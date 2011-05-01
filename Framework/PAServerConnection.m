@@ -54,6 +54,8 @@ static NSString *frameworkPath = @"/Library/Frameworks/PulseAudio.framework/";
 - (void) moduleLoadedCallback: (UInt32) index;
 - (void) moduleUnloadedCallback: (BOOL) success;
 
+- (void) contextDefaultsSetCallback: (BOOL) success;
+
 @end
 
 #pragma mark ### static wrappers ###
@@ -147,6 +149,12 @@ static void staticModuleUnloadedCallback(pa_context *c, int success, void *userd
 {
 	PAServerConnection *sc = userdata;
 	[sc moduleUnloadedCallback: !!success];
+}
+
+static void staticContextDefaultsSetCallback(pa_context *c, int success, void *userdata)
+{
+	PAServerConnection *sc = userdata;
+	[sc contextDefaultsSetCallback: !!success];
 }
 
 #pragma mark ### hidden implementation ###
@@ -268,11 +276,9 @@ static void staticModuleUnloadedCallback(pa_context *c, int success, void *userd
 			pa_context_get_sample_info_list(PAContext, staticSampleInfoCallback, self);
 			pa_context_get_card_info_list(PAContext, staticCardInfoCallback, self);
 			pa_context_get_server_info(PAContext, staticServerInfoCallback, self);
-			NSLog(@"%s() :%d", __func__, __LINE__);
 			[self performSelectorOnMainThread: @selector(sendDelegateConnectionEstablished)
 					       withObject: nil
 					    waitUntilDone: NO];
-			NSLog(@"%s() :%d", __func__, __LINE__);
 			break;
 		case PA_CONTEXT_TERMINATED:
 			NSLog(@"Connection terminated.");
@@ -580,6 +586,11 @@ static void staticModuleUnloadedCallback(pa_context *c, int success, void *userd
 	pa_context_get_module_info_list(PAContext, staticModuleInfoCallback, self);
 }
 
+- (void) contextDefaultsSetCallback: (BOOL) success
+{
+	pa_context_get_server_info(PAContext, staticServerInfoCallback, self);
+}
+
 @end
 
 
@@ -731,10 +742,12 @@ static void staticModuleUnloadedCallback(pa_context *c, int success, void *userd
 	if (![self isConnected])
 		return NO;
 
+	pa_threaded_mainloop_lock(PAMainLoop);
 	pa_context_load_module(PAContext,
 			       [name cStringUsingEncoding: NSASCIIStringEncoding],
 			       [arguments cStringUsingEncoding: NSASCIIStringEncoding],
 			       staticModuleLoadedCallback, self);
+	pa_threaded_mainloop_unlock(PAMainLoop);
 	
 	return YES;
 }
@@ -748,8 +761,10 @@ static void staticModuleUnloadedCallback(pa_context *c, int success, void *userd
 	
 	for (PAModuleInfo *info in modules) {
 		if ([info.name isEqualToString: name]) {
+			pa_threaded_mainloop_lock(PAMainLoop);
 			pa_context_unload_module(PAContext, info.index,
 						 staticModuleUnloadedCallback, self);
+			pa_threaded_mainloop_unlock(PAMainLoop);
 			found = YES;
 		}
 	}
@@ -757,10 +772,82 @@ static void staticModuleUnloadedCallback(pa_context *c, int success, void *userd
 	return found;
 }
 
+- (BOOL) setDefaultSink: (NSString *) name
+{
+	if (![self isConnected])
+		return NO;
+	
+	pa_threaded_mainloop_lock(PAMainLoop);
+	pa_context_set_default_sink(PAContext, [name cStringUsingEncoding: NSASCIIStringEncoding],
+				    staticContextDefaultsSetCallback, self);
+	pa_threaded_mainloop_unlock(PAMainLoop);
+	
+	return YES;
+}
+
+- (BOOL) setDefaultSource: (NSString *) name
+{
+	if (![self isConnected])
+		return NO;
+
+	pa_threaded_mainloop_lock(PAMainLoop);
+	pa_context_set_default_source(PAContext, [name cStringUsingEncoding: NSASCIIStringEncoding],
+				      staticContextDefaultsSetCallback, self);
+	pa_threaded_mainloop_unlock(PAMainLoop);
+
+	return YES;
+}
+
+- (UInt32) protocolVersion
+{
+	pa_threaded_mainloop_lock(PAMainLoop);
+	UInt32 version = pa_context_get_protocol_version(PAContext);
+	pa_threaded_mainloop_unlock(PAMainLoop);
+
+	return version;
+}
+
+- (UInt32) serverProtocolVersion
+{
+	pa_threaded_mainloop_lock(PAMainLoop);
+	UInt32 version = pa_context_get_server_protocol_version(PAContext);
+	pa_threaded_mainloop_unlock(PAMainLoop);
+	
+	return version;	
+}
+
 - (NSString *) clientName
 {
 	return [NSString stringWithCString: procName
 				  encoding: NSASCIIStringEncoding];
+}
+
+- (BOOL) isLocal
+{
+	if (![self isConnected])
+		return NO;
+
+	pa_threaded_mainloop_lock(PAMainLoop);
+	BOOL ret = (pa_context_is_local(PAContext) == 1);
+	pa_threaded_mainloop_unlock(PAMainLoop);
+	
+	return ret;
+}
+
+- (NSString *) serverName
+{
+	if (![self isConnected])
+		return nil;
+	
+	if ([self isLocal])
+		return @"Local server";
+	
+	pa_threaded_mainloop_lock(PAMainLoop);
+	NSString *name = [NSString stringWithCString: pa_context_get_server(PAContext)
+					    encoding: NSASCIIStringEncoding];
+	pa_threaded_mainloop_unlock(PAMainLoop);
+	
+	return name;
 }
 
 - (void) shutdownServer

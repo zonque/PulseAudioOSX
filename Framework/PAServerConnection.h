@@ -86,6 +86,14 @@
 		  arguments: (NSString *) arguments;
 - (BOOL) unloadModuleWithName: (NSString *) name;
 
+- (BOOL) setDefaultSink: (NSString *) name;
+- (BOOL) setDefaultSource: (NSString *) name;
+
+- (UInt32) protocolVersion;
+- (UInt32) serverProtocolVersion;
+
+- (BOOL) isLocal;
+- (NSString *) serverName;
 - (void) shutdownServer;
 
 + (NSString *) libraryVersion;
