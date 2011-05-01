@@ -34,8 +34,8 @@ static NSString *kMDNSLocalDomain = @"local.";
 	[sinkBrowser	setDelegate: self];
 	[sourceBrowser	setDelegate: self];
 
-	netServices = [NSMutableArray arrayWithCapacity: 0];
-	announcedServices = [NSMutableArray arrayWithCapacity: 0];
+	netServices = [[NSMutableArray arrayWithCapacity: 0] retain];
+	announcedServices = [[NSMutableArray arrayWithCapacity: 0] retain];
 
 	lock = [[NSLock alloc] init];
 	
