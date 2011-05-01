@@ -20,12 +20,14 @@
  ***/
 
 #import <Cocoa/Cocoa.h>
+#import <PulseAudio/PulseAudio.h>
+#import <PulseAudio/PAServiceDiscovery.h>
 
-#import "ServerConnection.h"
 #import "StreamView.h"
 #import "Introspect.h"
 
-@interface WindowController : NSObject
+@interface WindowController : NSObject <PAServerConnectionDelegate,
+					PAServiceDiscoveryDelegate>
 {	
 	IBOutlet NSWindow               *window;
 	IBOutlet NSTabView              *tabView;
@@ -42,7 +44,10 @@
 	
 	IBOutlet Introspect		*introspect;
 	
-	ServerConnection *serverConnection;
+	PAServerConnection *connection;
+	PAServiceDiscovery *discovery;
+	
+	NSMutableDictionary *statisticDict;    
 }
 
 - (void) awakeFromNib;

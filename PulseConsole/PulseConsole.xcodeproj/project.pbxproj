@@ -12,7 +12,6 @@
 		6515F1D910D397D60048DEB5 /* logo.icns in Resources */ = {isa = PBXBuildFile; fileRef = 6515F1D810D397D60048DEB5 /* logo.icns */; };
 		65287261111EF7A600C40D7B /* MeterView.m in Sources */ = {isa = PBXBuildFile; fileRef = 65287260111EF7A600C40D7B /* MeterView.m */; };
 		6571552813696D7900D60887 /* PulseAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6571552713696D7900D60887 /* PulseAudio.framework */; };
-		657155551369791700D60887 /* ServerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 65B0A813132F9D12009BA485 /* ServerConnection.m */; };
 		65A09CC310F72B3300D07CF1 /* StreamView.m in Sources */ = {isa = PBXBuildFile; fileRef = 65A09CC210F72B3300D07CF1 /* StreamView.m */; };
 		65A09CE210F74DF300D07CF1 /* StreamListView.m in Sources */ = {isa = PBXBuildFile; fileRef = 65A09CE110F74DF300D07CF1 /* StreamListView.m */; };
 		65AF4117136C091D00650E2E /* Introspect.m in Sources */ = {isa = PBXBuildFile; fileRef = 65AF4116136C091D00650E2E /* Introspect.m */; };
@@ -44,8 +43,6 @@
 		65A09CE110F74DF300D07CF1 /* StreamListView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StreamListView.m; sourceTree = "<group>"; };
 		65AF4115136C091D00650E2E /* Introspect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Introspect.h; sourceTree = "<group>"; };
 		65AF4116136C091D00650E2E /* Introspect.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Introspect.m; sourceTree = "<group>"; };
-		65B0A812132F9D12009BA485 /* ServerConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServerConnection.h; sourceTree = "<group>"; };
-		65B0A813132F9D12009BA485 /* ServerConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ServerConnection.m; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* PulseConsole.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PulseConsole.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -68,8 +65,6 @@
 			children = (
 				6528725F111EF7A600C40D7B /* MeterView.h */,
 				65287260111EF7A600C40D7B /* MeterView.m */,
-				65B0A812132F9D12009BA485 /* ServerConnection.h */,
-				65B0A813132F9D12009BA485 /* ServerConnection.m */,
 				65A09CE010F74DF300D07CF1 /* StreamListView.h */,
 				65A09CE110F74DF300D07CF1 /* StreamListView.m */,
 				65A09CC110F72B3300D07CF1 /* StreamView.h */,
@@ -220,7 +215,6 @@
 				65A09CC310F72B3300D07CF1 /* StreamView.m in Sources */,
 				65A09CE210F74DF300D07CF1 /* StreamListView.m in Sources */,
 				65287261111EF7A600C40D7B /* MeterView.m in Sources */,
-				657155551369791700D60887 /* ServerConnection.m in Sources */,
 				65AF4117136C091D00650E2E /* Introspect.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -261,8 +255,10 @@
 				GCC_PREFIX_HEADER = PulseConsole_Prefix.pch;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
+				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = PulseConsole;
+				SDKROOT = macosx10.6;
 			};
 			name = Debug;
 		};
@@ -277,8 +273,10 @@
 				GCC_PREFIX_HEADER = PulseConsole_Prefix.pch;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
+				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = PulseConsole;
+				SDKROOT = macosx10.6;
 				VALID_ARCHS = "i386 x86_64";
 			};
 			name = Release;

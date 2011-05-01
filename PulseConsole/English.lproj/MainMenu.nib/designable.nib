@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <archive type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="7.10">
 	<data>
-		<int key="IBDocument.SystemTarget">1050</int>
+		<int key="IBDocument.SystemTarget">1060</int>
 		<string key="IBDocument.SystemVersion">10J869</string>
 		<string key="IBDocument.InterfaceBuilderVersion">804</string>
 		<string key="IBDocument.AppKitVersion">1038.35</string>
@@ -12,7 +12,7 @@
 		</object>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="541"/>
+			<integer value="725"/>
 			<integer value="581"/>
 			<integer value="57"/>
 		</object>
@@ -1368,7 +1368,7 @@
 																							<object class="NSTableView" id="13325233">
 																								<reference key="NSNextResponder" ref="685115059"/>
 																								<int key="NSvFlags">256</int>
-																								<string key="NSFrameSize">{499, 161}</string>
+																								<string key="NSFrameSize">{499, 155}</string>
 																								<reference key="NSSuperview" ref="685115059"/>
 																								<bool key="NSEnabled">YES</bool>
 																								<object class="NSTableHeaderView" key="NSHeaderView" id="579912004">
@@ -1457,7 +1457,7 @@
 																								<int key="NSTableViewDraggingDestinationStyle">0</int>
 																							</object>
 																						</object>
-																						<string key="NSFrame">{{1, 17}, {499, 161}}</string>
+																						<string key="NSFrame">{{1, 17}, {499, 155}}</string>
 																						<reference key="NSSuperview" ref="191766029"/>
 																						<reference key="NSNextKeyView" ref="13325233"/>
 																						<reference key="NSDocView" ref="13325233"/>
@@ -1471,7 +1471,7 @@
 																						<reference key="NSSuperview" ref="191766029"/>
 																						<reference key="NSTarget" ref="191766029"/>
 																						<string key="NSAction">_doScroller:</string>
-																						<double key="NSPercent">0.9969325</double>
+																						<double key="NSPercent">0.95238095238095233</double>
 																					</object>
 																					<object class="NSScroller" id="1028204049">
 																						<reference key="NSNextResponder" ref="191766029"/>
@@ -1499,7 +1499,7 @@
 																					</object>
 																					<reference ref="270086273"/>
 																				</object>
-																				<string key="NSFrameSize">{501, 179}</string>
+																				<string key="NSFrame">{{0, 6}, {501, 173}}</string>
 																				<reference key="NSSuperview" ref="802256719"/>
 																				<reference key="NSNextKeyView" ref="685115059"/>
 																				<int key="NSsFlags">562</int>
@@ -1727,7 +1727,7 @@
 				<string key="NSScreenRect">{{0, 0}, {1440, 878}}</string>
 				<string key="NSMaxSize">{1.79769e+308, 1.79769e+308}</string>
 			</object>
-			<object class="NSCustomObject" id="946481530">
+			<object class="NSCustomObject" id="867045110">
 				<string key="NSClassName">Introspect</string>
 			</object>
 		</object>
@@ -2122,14 +2122,14 @@
 					<object class="IBOutletConnection" key="connection">
 						<string key="label">introspect</string>
 						<reference key="source" ref="400086843"/>
-						<reference key="destination" ref="946481530"/>
+						<reference key="destination" ref="867045110"/>
 					</object>
 					<int key="connectionID">729</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
 						<string key="label">outlineView</string>
-						<reference key="source" ref="946481530"/>
+						<reference key="source" ref="867045110"/>
 						<reference key="destination" ref="996055827"/>
 					</object>
 					<int key="connectionID">730</int>
@@ -2137,7 +2137,7 @@
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
 						<string key="label">parameterTableView</string>
-						<reference key="source" ref="946481530"/>
+						<reference key="source" ref="867045110"/>
 						<reference key="destination" ref="936061708"/>
 					</object>
 					<int key="connectionID">731</int>
@@ -2145,7 +2145,7 @@
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
 						<string key="label">propertyTableView</string>
-						<reference key="source" ref="946481530"/>
+						<reference key="source" ref="867045110"/>
 						<reference key="destination" ref="13325233"/>
 					</object>
 					<int key="connectionID">732</int>
@@ -2154,7 +2154,7 @@
 					<object class="IBOutletConnection" key="connection">
 						<string key="label">dataSource</string>
 						<reference key="source" ref="996055827"/>
-						<reference key="destination" ref="946481530"/>
+						<reference key="destination" ref="867045110"/>
 					</object>
 					<int key="connectionID">733</int>
 				</object>
@@ -2162,7 +2162,7 @@
 					<object class="IBOutletConnection" key="connection">
 						<string key="label">delegate</string>
 						<reference key="source" ref="996055827"/>
-						<reference key="destination" ref="946481530"/>
+						<reference key="destination" ref="867045110"/>
 					</object>
 					<int key="connectionID">734</int>
 				</object>
@@ -2170,7 +2170,7 @@
 					<object class="IBOutletConnection" key="connection">
 						<string key="label">dataSource</string>
 						<reference key="source" ref="936061708"/>
-						<reference key="destination" ref="946481530"/>
+						<reference key="destination" ref="867045110"/>
 					</object>
 					<int key="connectionID">735</int>
 				</object>
@@ -2178,7 +2178,7 @@
 					<object class="IBOutletConnection" key="connection">
 						<string key="label">delegate</string>
 						<reference key="source" ref="936061708"/>
-						<reference key="destination" ref="946481530"/>
+						<reference key="destination" ref="867045110"/>
 					</object>
 					<int key="connectionID">736</int>
 				</object>
@@ -2186,7 +2186,7 @@
 					<object class="IBOutletConnection" key="connection">
 						<string key="label">dataSource</string>
 						<reference key="source" ref="13325233"/>
-						<reference key="destination" ref="946481530"/>
+						<reference key="destination" ref="867045110"/>
 					</object>
 					<int key="connectionID">737</int>
 				</object>
@@ -2194,7 +2194,7 @@
 					<object class="IBOutletConnection" key="connection">
 						<string key="label">delegate</string>
 						<reference key="source" ref="13325233"/>
-						<reference key="destination" ref="946481530"/>
+						<reference key="destination" ref="867045110"/>
 					</object>
 					<int key="connectionID">738</int>
 				</object>
@@ -3284,7 +3284,7 @@
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">728</int>
-						<reference key="object" ref="946481530"/>
+						<reference key="object" ref="867045110"/>
 						<reference key="parent" ref="0"/>
 					</object>
 				</object>
@@ -3648,9 +3648,9 @@
 					<integer value="1"/>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<integer value="1"/>
-					<string>{{43, 311}, {873, 468}}</string>
+					<string>{{-27, 366}, {873, 468}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{43, 311}, {873, 468}}</string>
+					<string>{{-27, 366}, {873, 468}}</string>
 					<integer value="1"/>
 					<string>{{33, 99}, {480, 360}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -3681,7 +3681,7 @@
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<object class="NSAffineTransform">
-						<bytes key="NSTransformStruct">P4AAAL+AAABBkAAAwy4AAA</bytes>
+						<bytes key="NSTransformStruct">P4AAAL+AAAAAAAAAwzEAAA</bytes>
 					</object>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -4594,7 +4594,7 @@
 		<string key="IBDocument.TargetRuntimeIdentifier">IBCocoaFramework</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginDeclaredDependencyDefaults">
 			<string key="NS.key.0">com.apple.InterfaceBuilder.CocoaPlugin.macosx</string>
-			<integer value="1050" key="NS.object.0"/>
+			<integer value="1060" key="NS.object.0"/>
 		</object>
 		<object class="NSMutableDictionary" key="IBDocument.PluginDeclaredDevelopmentDependencies">
 			<string key="NS.key.0">com.apple.InterfaceBuilder.CocoaPlugin.InterfaceBuilder3</string>

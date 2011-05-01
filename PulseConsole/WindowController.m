@@ -26,22 +26,23 @@
 
 @implementation WindowController
 
-#pragma mark ### ServerConnection callbacks ###
-
-- (void) connectionEstablished
-{
-	[self enableGUI: YES];
-}
-
-- (void) connectionEnded
-{
-	[self enableGUI: NO];	
-}
-
 - (void) stopProgressIndicator
 {
 	[connectionProgressIndicator stopAnimation: self];
 	[connectionProgressIndicator setHidden: YES];
+}
+
+- (void) connectToServer: (NSString *) server;
+{
+	[introspect invalidateAll];
+
+	[connectStatus setStringValue: @"Connecting ..."];
+	[connectionProgressIndicator startAnimation: self];
+	[connectionProgressIndicator setHidden: NO];
+	
+	[connection disconnect];	
+	[connection connectToHost: server
+			     port: -1];
 }
 
 - (void) bonjourServiceAdded: (NSNotification *) notification
@@ -83,12 +84,12 @@
 	[playbackStreamListView removeAllStreams];
 	[recordStreamListView removeAllStreams];	
 	
-	NSDictionary *item;
-	
-	for (item in serverConnection.sinks)
+	/*
+	for (NSDictionary *item in serverConnection.sinks)
 		[sinkStreamListView addStreamView: [[item objectForKey: @"infoPointer"] pointerValue]
 					   ofType: StreamTypeSink
 					     name: [item objectForKey: @"label"]];
+	*/
 	
 	[introspect repaintViews];
 }
@@ -97,39 +98,31 @@
 {
 	[statisticsTableView setEnabled: NO];
 
-	serverConnection = [[ServerConnection alloc] init];
-
-	introspect.serverConnection = serverConnection;
+	statisticDict = [NSMutableDictionary dictionaryWithCapacity: 0];
+	[statisticDict retain];
 	
-	[[NSNotificationCenter defaultCenter] addObserver: self
-						 selector: @selector(connectionEstablished)
-						     name: @"connectionEstablished"
-						   object: serverConnection];
-	[[NSNotificationCenter defaultCenter] addObserver: self
-						 selector: @selector(connectionEnded)
-						     name: @"connectionEnded"
-						   object: serverConnection];
-	[[NSNotificationCenter defaultCenter] addObserver: self
-						 selector: @selector(repaintViews:)
-						     name: @"detailsChanged"
-						   object: serverConnection];
-		
-	[serverConnection connectToServer: @"localhost"];
+	connection = [[PAServerConnection alloc] init];
+	connection.delegate = self;
+
+	discovery = [[PAServiceDiscovery alloc] init];
+	discovery.delegate = self;
+	[discovery start];
+	
+	introspect.connection = connection;
+
+	[self connectToServer: @"localhost"];
 }
 
 - (void) dealloc
 {
-	[serverConnection release];
-	[super dealloc];
-}
-
-- (void) connectToServer: (NSString *) server
-{
-	[connectStatus setStringValue: @"Connecting ..."];
-	[connectionProgressIndicator startAnimation: self];
-	[connectionProgressIndicator setHidden: NO];
+	[connection disconnect];
+	[connection release];
 	
-	[serverConnection connectToServer: server];
+	[statisticDict removeAllObjects];
+	[statisticDict release];
+	
+	
+	[super dealloc];
 }
 
 #pragma mark ### NSTableViewSource protocol ###
@@ -148,7 +141,7 @@ objectValueForTableColumn:(NSTableColumn *)col
 	NSDictionary *item = nil;
 	
 	if (tableView == statisticsTableView)
-		item = serverConnection.statisticDict;
+		item = statisticDict;
 	
 	if (!item)
 		return @"";
@@ -167,9 +160,105 @@ objectValueForTableColumn:(NSTableColumn *)col
 	NSDictionary *item = nil;
 	
 	if (tableView == statisticsTableView)
-		item = serverConnection.statisticDict;
+		item = statisticDict;
 	
 	return item ? [item count] : 0;
+}
+
+#pragma mark ### PAServerConnectionDelegate ###
+
+- (void) PAServerConnectionEstablished: (PAServerConnection *) connection
+{
+	[self enableGUI: YES];
+}
+
+- (void) PAServerConnectionFailed: (PAServerConnection *) connection
+{
+	[self enableGUI: NO];
+}
+
+- (void) PAServerConnectionEnded: (PAServerConnection *) connection
+{
+	[self enableGUI: NO];
+}
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+	  serverInfoChanged: (PAServerInfo *) info
+{
+	[introspect serverInfoChanged: info];
+}
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+	       cardsChanged: (NSArray *) cards
+{
+	[introspect cardsChanged: cards];
+}
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+	       sinksChanged: (NSArray *) sinks
+{
+	[introspect sinksChanged: sinks];
+}
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+	     sourcesChanged: (NSArray *) sources
+{
+	[introspect sourcesChanged: sources];
+}
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+	     clientsChanged: (NSArray *) clients
+{
+	[introspect clientsChanged: clients];
+}
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+	     modulesChanged: (NSArray *) modules
+{
+	[introspect modulesChanged: modules];
+}
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+	     samplesChanged: (NSArray *) samples
+{
+	[introspect samplesChanged: samples];
+}
+
+#if 0
+- (void) statCallback: (const pa_stat_info *) i
+{
+	char t[32];
+	
+	[statisticDict setObject: [NSNumber numberWithInt: i->memblock_total]
+			  forKey: @"Currently allocated memory blocks"];
+	[statisticDict setObject: [NSString stringWithCString: pa_bytes_snprint(t, sizeof(t), i->memblock_total_size)
+						     encoding: NSUTF8StringEncoding]
+			  forKey: @"Current total size of allocated memory blocks"];
+	[statisticDict setObject: [NSNumber numberWithInt: i->memblock_allocated]
+			  forKey: @"Allocated memory blocks during the whole lifetime of the daemon"];
+	[statisticDict setObject: [NSString stringWithCString: pa_bytes_snprint(t, sizeof(t), i->memblock_allocated_size)
+						     encoding: NSUTF8StringEncoding]
+			  forKey: @"Total size of all memory blocks allocated during the whole lifetime of the daemon"];
+	[statisticDict setObject: [NSString stringWithCString: pa_bytes_snprint(t, sizeof(t), i->scache_size)
+						     encoding: NSUTF8StringEncoding]
+			  forKey: @"Total size of all sample cache entries"];     
+	
+	[self detailsChanged];
+}
+#endif
+
+#pragma mark ### PAServiceDiscoveryDelegate ###
+
+- (void) PAServiceDiscovery: (PAServiceDiscovery *) discovery
+	     serverAppeared: (NSNetService *) service
+{
+	[serverSelector addItemWithTitle: [service name]];
+}
+
+- (void) PAServiceDiscovery: (PAServiceDiscovery *) discovery
+	  serverDisappeared: (NSNetService *) service
+{
+	[serverSelector removeItemWithTitle: [service name]];	
 }
 
 #pragma mark ### IBActions ###
@@ -196,7 +285,7 @@ objectValueForTableColumn:(NSTableColumn *)col
 
 - (IBAction) reloadStatistics: (id) sender
 {
-	[serverConnection reloadStatistics];
+	//[serverConnection reloadStatistics];
 }
 
 @end
