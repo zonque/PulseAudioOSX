@@ -19,6 +19,7 @@
  USA.
  ***/
 
+#import <PulseAudio/PulseAudio.h>
 #import "StreamView.h"
 #import "StreamListView.h"
 
@@ -33,11 +34,11 @@
 - (id) initWithFrame: (NSRect) rect
 		type: (NSInteger) _type
 		name: (NSString *) _name
-		info: (const void *) _info
+		info: (id) _info
 {
 	rect.size.height = COLLAPSED_HEIGHT;
 	type = _type;
-	pa_info = _info;
+	info = _info;
 	
 	[super initWithFrame: rect];
 	[self setFrame: rect];
@@ -100,26 +101,27 @@
 	
 	channelSliders = [[NSMutableArray alloc] initWithCapacity: 0];
 	channelLabels = [[NSMutableArray alloc] initWithCapacity: 0];
-	int i;
 	longestChannelLabel = 0.0f;
 	
-	/*
-	pa_channel_map *map;
+	NSArray *channelNames = nil;
 	
 	switch (type) {
 		case StreamTypeSink:
-			map = &((pa_sink_info *) pa_info)->channel_map;
+			channelNames = ((PASinkInfo *) info).channelNames;
 			break;
 		case StreamTypeSource:
-			map = &((pa_source_info *) pa_info)->channel_map;
+			channelNames = ((PASourceInfo *) info).channelNames;
 			break;
 		case StreamTypeRecording:
 			break;
 		case StreamTypePlayback:
 			break;
-	};
+	}
 	
-	for (i = 0; i < map->channels; i++) {
+	if (!channelNames)
+		return self;
+	
+	for (UInt32 i = 0; i < [channelNames count]; i++) {
 		NSTextField *l = [[NSTextField alloc] initWithFrame: NSMakeRect(LEFT_MARGIN,
 										93.0 + (i * 20),
 										rect.size.width - LEFT_MARGIN - RIGHT_MARGIN,
@@ -127,8 +129,7 @@
 		[l setEditable: NO];
 		[l setBordered: NO];
 		[l setDrawsBackground: NO];
-//		[l setStringValue: [NSString stringWithCString: pa_channel_position_to_string(map->map[i])
-//						      encoding: NSUTF8StringEncoding]];
+		[l setStringValue: [channelNames objectAtIndex: i]];
 		[[l cell] setFont: [NSFont labelFontOfSize: 10.0]];
 		[l sizeToFit];
 		[self addSubview: l];
@@ -137,7 +138,7 @@
 			longestChannelLabel = [l frame].size.width;
 	}
 
-	for (i = 0; i < map->channels; i++) {
+	for (UInt32 i = 0; i < [channelNames count]; i++) {
 		NSSlider *slider = [[NSSlider alloc] initWithFrame: NSMakeRect(LEFT_MARGIN + longestChannelLabel + 10.0,
 									       90.0 + (i * 20.0),
 									       rect.size.width - LEFT_MARGIN - RIGHT_MARGIN - longestChannelLabel - 10.0,
@@ -152,7 +153,6 @@
 		
 		expandedHeight += 20.0;
 	}
-	 */
 
 	switch (type) {
 		case StreamTypeSink:
@@ -208,7 +208,7 @@
 {
 }
 
-#pragma mark === local GUI callbacks ===
+#pragma mark ### local GUI callbacks ###
 
 - (void) lockCallback: (id) sender
 {

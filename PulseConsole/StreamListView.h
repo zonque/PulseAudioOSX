@@ -21,16 +21,17 @@
 
 #import <Cocoa/Cocoa.h>
 
-
-@interface StreamListView : NSView {
-
+@interface StreamListView : NSView
+{
 	NSMutableArray *streamViewItems;
+	UInt32 streamType;
 }
 
-- (void) addStreamView: (const void *) pa_info
-				ofType: (NSInteger) type
-				  name: (NSString *) name;
-- (void) recalcLayout;
+@property (nonatomic, assign) UInt32 streamType;
+
 - (void) removeAllStreams;
+- (void) recalcLayout;
+- (void) sinksChanged: (NSArray *) sinks;
+- (void) sourcesChanged: (NSArray *) sources;
 
 @end

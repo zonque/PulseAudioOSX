@@ -34,6 +34,13 @@
 	[propertyTableView reloadData];
 }
 
+- (void) contentChanged
+{
+	activeItem = nil;
+	[outlineView deselectAll: nil];
+	[self repaintViews];
+}
+
 - (void) awakeFromNib
 {
 	outlineToplevel = [NSMutableArray arrayWithCapacity: 0];
@@ -42,7 +49,9 @@
 	serverinfo = [NSMutableDictionary dictionaryWithCapacity: 0];
 	cards = [NSMutableArray arrayWithCapacity: 0];
 	sinks = [NSMutableArray arrayWithCapacity: 0];
+	sinkInputs = [NSMutableArray arrayWithCapacity: 0];
 	sources = [NSMutableArray arrayWithCapacity: 0];
+	sourceOutputs = [NSMutableArray arrayWithCapacity: 0];
 	clients = [NSMutableArray arrayWithCapacity: 0];
 	modules = [NSMutableArray arrayWithCapacity: 0];
 	samplecache = [NSMutableArray arrayWithCapacity: 0];
@@ -74,6 +83,20 @@
 	[d setObject: @"Sources"
 	      forKey: @"label"];
 	[d setObject: sources
+	      forKey: @"children"];
+	[outlineToplevel addObject: d];
+
+	d = [NSMutableDictionary dictionaryWithCapacity: 0];
+	[d setObject: @"Sink inputs"
+	      forKey: @"label"];
+	[d setObject: sinkInputs
+	      forKey: @"children"];
+	[outlineToplevel addObject: d];
+	
+	d = [NSMutableDictionary dictionaryWithCapacity: 0];
+	[d setObject: @"Source outputs"
+	      forKey: @"label"];
+	[d setObject: sourceOutputs
 	      forKey: @"children"];
 	[outlineToplevel addObject: d];
 	
@@ -110,9 +133,15 @@
 	
 	[sinks removeAllObjects];
 	[sinks release];
-	
+
+	[sinkInputs removeAllObjects];
+	[sinkInputs release];
+
 	[sources removeAllObjects];
 	[sources release];
+
+	[sourceOutputs removeAllObjects];
+	[sourceOutputs release];
 	
 	[cards removeAllObjects];
 	[cards release];
@@ -129,7 +158,9 @@
 - (void) invalidateAll
 {
 	[sinks removeAllObjects];
+	[sinkInputs removeAllObjects];
 	[sources removeAllObjects];
+	[sourceOutputs removeAllObjects];
 	[modules removeAllObjects];
 	[clients removeAllObjects];
 	[samplecache removeAllObjects];
@@ -141,27 +172,8 @@
 
 - (NSInteger) outlineView: (NSOutlineView *) outlineView numberOfChildrenOfItem: (id) item
 {
-	if (item == nil) {
-		NSEnumerator *enumerator = [outlineToplevel objectEnumerator];
-		NSString *obj;
-		UInt count = 0;
-		
-		while ((obj = [enumerator nextObject])) {
-			NSDictionary *d = [obj valueForKey: @"children"];
-			if (d && [d count]) {
-				count++;
-				continue;
-			}
-			
-			d = [obj valueForKey: @"parameters"];
-			if (d && [d count]) {
-				count++;
-				continue;
-			}
-		}
-                
-		return count;
-	}
+	if (item == nil)		
+		return [outlineToplevel count];
 	
 	NSArray *d = [item valueForKey: @"children"];
 	
@@ -232,6 +244,9 @@ objectValueForTableColumn:(NSTableColumn *)col
 {
 	NSDictionary *item = nil;
 	
+	if (!activeItem)
+		return 0;
+	
 	if (tableView == parameterTableView)
 		item = [activeItem valueForKey: @"parameters"];
 	else if (tableView == propertyTableView)
@@ -279,7 +294,7 @@ objectValueForTableColumn:(NSTableColumn *)col
 	[serverinfo setObject: [NSNumber numberWithInt: info.cookie]
 		       forKey: @"Cookie"];
 	
-	[self repaintViews];
+	[self contentChanged];
 }
 
 - (void) cardsChanged: (NSArray *) _cards
@@ -304,7 +319,7 @@ objectValueForTableColumn:(NSTableColumn *)col
 		[cards addObject: d];
 	}
 	
-	[self repaintViews];
+	[self contentChanged];
 }
 
 - (void) sinksChanged: (NSArray *) _sinks
@@ -346,7 +361,52 @@ objectValueForTableColumn:(NSTableColumn *)col
 		[sinks addObject: d];		
 	}
 	
-	[self repaintViews];
+	[self contentChanged];
+}
+
+- (void) sinkInputsChanged: (NSArray *) inputs
+{
+	[sinkInputs removeAllObjects];
+	
+	for (PASinkInputInfo *input in inputs) {
+		NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithCapacity: 0];
+		
+		[parameters setObject: input.name
+			       forKey: @"Sink Input Name"];
+		[parameters setObject: [NSNumber numberWithInt: [input.channelNames count]]
+			       forKey: @"Number of channels"];
+		[parameters setObject: [NSNumber numberWithInt: input.sinkUsec]
+			       forKey: @"Sink Latency (us)"];		
+		[parameters setObject: [NSNumber numberWithInt: input.bufferUsec]
+			       forKey: @"Buffer Latency (us)"];		
+		[parameters setObject: input.driver
+			       forKey: @"Driver"];
+
+		if (input.resampleMethod)
+			[parameters setObject: input.resampleMethod
+				       forKey: @"Resample method"];
+		
+		[parameters setObject: [NSNumber numberWithInt: input.index]
+			       forKey: @"Index"];
+		[parameters setObject: [NSNumber numberWithInt: input.volume]
+			       forKey: @"Volume"];
+		[parameters setObject: [NSNumber numberWithBool: input.muted]
+			       forKey: @"Muted"];
+		[parameters setObject: [NSNumber numberWithBool: input.volumeWriteable]
+			       forKey: @"Volume writeable"];
+		
+		NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity: 0];
+		[d setObject: input.name
+		      forKey: @"label"];
+		[d setObject: parameters
+		      forKey: @"parameters"];
+		[d setObject: input.properties
+		      forKey: @"properties"];
+		
+		[sinkInputs addObject: d];		
+	}
+	
+	[self contentChanged];
 }
 
 - (void) sourcesChanged: (NSArray *) _sources
@@ -384,7 +444,48 @@ objectValueForTableColumn:(NSTableColumn *)col
 		[sources addObject: d];		
 	}	
 	
-	[self repaintViews];
+	[self contentChanged];
+}
+
+- (void) sourceOutputsChanged: (NSArray *) outputs
+{
+	[sourceOutputs removeAllObjects];
+	
+	for (PASourceOutputInfo *output in outputs) {
+		NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithCapacity: 0];
+		
+		[parameters setObject: output.name
+			       forKey: @"Source Output Name"];
+		[parameters setObject: [NSNumber numberWithInt: [output.channelNames count]]
+			       forKey: @"Number of channels"];
+		[parameters setObject: [NSNumber numberWithInt: output.sourceUsec]
+			       forKey: @"Source Latency (us)"];		
+		[parameters setObject: [NSNumber numberWithInt: output.bufferUsec]
+			       forKey: @"Buffer Latency (us)"];		
+		[parameters setObject: output.driver
+			       forKey: @"Driver"];
+		
+		if (output.resampleMethod)
+			[parameters setObject: output.resampleMethod
+				       forKey: @"Resample method"];
+				
+		[parameters setObject: [NSNumber numberWithInt: output.index]
+			       forKey: @"Index"];
+		[parameters setObject: [NSNumber numberWithBool: output.corked]
+			       forKey: @"Corked"];
+		
+		NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity: 0];
+		[d setObject: output.name
+		      forKey: @"label"];
+		[d setObject: parameters
+		      forKey: @"parameters"];
+		[d setObject: output.properties
+		      forKey: @"properties"];
+		
+		[sourceOutputs addObject: d];		
+	}
+	
+	[self contentChanged];
 }
 
 - (void) clientsChanged: (NSArray *) _clients
@@ -409,7 +510,7 @@ objectValueForTableColumn:(NSTableColumn *)col
 		[clients addObject: d];		
 	}
 	
-	[self repaintViews];
+	[self contentChanged];
 }
 
 - (void) modulesChanged: (NSArray *) _modules
@@ -436,7 +537,7 @@ objectValueForTableColumn:(NSTableColumn *)col
 		[modules addObject: d];
 	}	
 	
-	[self repaintViews];
+	[self contentChanged];
 }
 
 - (void) samplesChanged: (NSArray *) _samples
@@ -469,7 +570,7 @@ objectValueForTableColumn:(NSTableColumn *)col
 		[samplecache addObject: d];
 	}		
 	
-	[self repaintViews];
+	[self contentChanged];
 }
 
 @end

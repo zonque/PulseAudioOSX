@@ -74,23 +74,6 @@
 - (void) repaintViews: (NSNotification *) notification
 {
 	[statisticsTableView reloadData];
-	
-	//	[window setTitle: [NSString stringWithFormat: @"%@@%@",
-	//			   [serverConnection.serverinfo valueForKey: @"Server Name"],
-	//			   [serverConnection.serverinfo valueForKey: @"Host Name"]]];
-	
-	[sinkStreamListView removeAllStreams];
-	[sourceStreamListView removeAllStreams];
-	[playbackStreamListView removeAllStreams];
-	[recordStreamListView removeAllStreams];	
-	
-	/*
-	for (NSDictionary *item in serverConnection.sinks)
-		[sinkStreamListView addStreamView: [[item objectForKey: @"infoPointer"] pointerValue]
-					   ofType: StreamTypeSink
-					     name: [item objectForKey: @"label"]];
-	*/
-	
 	[introspect repaintViews];
 }
 
@@ -110,6 +93,9 @@
 	
 	introspect.connection = connection;
 
+	sinkStreamListView.streamType = StreamTypeSink;
+	sourceStreamListView.streamType = StreamTypeSource;
+	
 	[self connectToServer: @"localhost"];
 }
 
@@ -167,8 +153,9 @@ objectValueForTableColumn:(NSTableColumn *)col
 
 #pragma mark ### PAServerConnectionDelegate ###
 
-- (void) PAServerConnectionEstablished: (PAServerConnection *) connection
+- (void) PAServerConnectionEstablished: (PAServerConnection *) c
 {
+	[window setTitle: [connection serverName]];
 	[self enableGUI: YES];
 }
 
@@ -197,13 +184,29 @@ objectValueForTableColumn:(NSTableColumn *)col
 - (void) PAServerConnection: (PAServerConnection *) connection
 	       sinksChanged: (NSArray *) sinks
 {
+	[sinkStreamListView sinksChanged: sinks];
 	[introspect sinksChanged: sinks];
+}
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+	  sinkInputsChanged: (NSArray *) inputs
+{
+	NSLog(@"%s", __func__);
+	[introspect sinkInputsChanged: inputs];
 }
 
 - (void) PAServerConnection: (PAServerConnection *) connection
 	     sourcesChanged: (NSArray *) sources
 {
+	[sourceStreamListView sourcesChanged: sources];
 	[introspect sourcesChanged: sources];
+}
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+       sourceOutputsChanged: (NSArray *) outputs
+{
+	NSLog(@"%s", __func__);
+	[introspect sourceOutputsChanged: outputs];
 }
 
 - (void) PAServerConnection: (PAServerConnection *) connection
@@ -265,7 +268,7 @@ objectValueForTableColumn:(NSTableColumn *)col
 
 - (IBAction) connectToServerAction: (id) sender
 {	
-	[introspect enableGUI: NO];
+	[self enableGUI: NO];
 	//[self repaintViews: nil];
 	
 	[self connectToServer: [sender titleOfSelectedItem]];
@@ -274,10 +277,8 @@ objectValueForTableColumn:(NSTableColumn *)col
 - (IBAction) displayAbout: (id) sender
 {
 	NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity: 0];
-	//[d setValue: @"(c) 2009-2011 Daniel Mack"
-	//     forKey: @"Copyright"];
 	[d setValue: [NSString stringWithFormat: @"pulseaudio library version %@",
-						[PAServerConnection pulseAudioLibraryVersion]]
+						[PAServerConnection libraryVersion]]
 	     forKey: @"Copyright"];
 	
 	[NSApp orderFrontStandardAboutPanelWithOptions: d];

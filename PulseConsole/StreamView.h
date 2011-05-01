@@ -23,6 +23,7 @@
 #import "MeterView.h"
 
 enum {
+	StreamTypeUnknown,
 	StreamTypeSource,
 	StreamTypeSink,
 	StreamTypePlayback,
@@ -31,9 +32,9 @@ enum {
 };
 
 @interface StreamView : NSView {
-    NSTextField *label;
-    NSSlider *masterSlider;
-    NSBox *box;
+	NSTextField *label;
+	NSSlider *masterSlider;
+	NSBox *box;
 	NSButton *expandButton, *lockButton;
 	NSPopUpButton *endpointSelect;
 	MeterView *meterView;
@@ -42,13 +43,13 @@ enum {
 	NSInteger expandedHeight;
 	CGFloat longestChannelLabel;
 	
-	const void *pa_info;
+	id info;
 	NSInteger type;
 }
 
 - (id) initWithFrame: (NSRect) rect
-				type: (NSInteger) _type
-				name: (NSString *) _name
-				info: (const void *) _info;
+		type: (NSInteger) _type
+		name: (NSString *) _name
+		info: (id) _info;
 
 @end

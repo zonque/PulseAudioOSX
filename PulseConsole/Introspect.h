@@ -12,7 +12,9 @@
 	NSMutableArray *outlineToplevel;
 	NSMutableArray *cards;
 	NSMutableArray *sinks;
+	NSMutableArray *sinkInputs;
 	NSMutableArray *sources;
+	NSMutableArray *sourceOutputs;
 	NSMutableArray *clients;
 	NSMutableArray *modules;
 	NSMutableArray *samplecache;
@@ -26,7 +28,9 @@
 - (void) serverInfoChanged: (PAServerInfo *) info;
 - (void) cardsChanged: (NSArray *) cards;
 - (void) sinksChanged: (NSArray *) sinks;
+- (void) sinkInputsChanged: (NSArray *) inputs;
 - (void) sourcesChanged: (NSArray *) sources;
+- (void) sourceOutputsChanged: (NSArray *) outputs;
 - (void) clientsChanged: (NSArray *) clients;
 - (void) modulesChanged: (NSArray *) modules;
 - (void) samplesChanged: (NSArray *) samples;

@@ -19,10 +19,13 @@
  USA.
  ***/
 
+#import <PulseAudio/PulseAudio.h>
 #import "StreamView.h"
 #import "StreamListView.h"
 
 @implementation StreamListView
+
+@synthesize streamType;
 
 - (id) initWithFrame: (NSRect) rect
 {
@@ -33,8 +36,7 @@
 	return self;
 }
 
-- (void) addStreamView: (const void *) pa_info
-		ofType: (NSInteger) type
+- (void) addStreamView: (id) info
 		  name: (NSString *) name;
 {
 	NSRect frame = [self frame];
@@ -43,15 +45,15 @@
 	NSView *object;
 	float height = 0.0f;
 	
-	printf("DEBUG: %s name >%s< type %d\n", __func__, [name cString], type);
+	NSLog(@"DEBUG: %s name >%@<\n", __func__, name);
 	
 	while (object = [enumerator nextObject])
 		height += [object frame].size.height;
 
 	StreamView *view = [[StreamView alloc] initWithFrame: NSMakeRect(0.0, height, frame.size.width, 70.0)
-							type: type
+							type: streamType
 							name: name
-							info: pa_info];
+							info: info];
 	
 	// need to encapsulate in a NSDictionary
 	[self addSubview: view];
@@ -103,5 +105,26 @@
 	[streamViewItems removeAllObjects];
 	[self recalcLayout];
 }
+
+- (void) sinksChanged: (NSArray *) sinks
+{
+	if (streamType != StreamTypeSink)
+		return;
+
+	for (PASinkInfo *sink in sinks)
+		[self addStreamView: sink
+			       name: sink.name];
+}
+
+- (void) sourcesChanged: (NSArray *) sources
+{
+	if (streamType != StreamTypeSource)
+		return;
+	
+	for (PASourceInfo *source in sources)
+		[self addStreamView: source
+			       name: source.name];	
+}
+
 
 @end
