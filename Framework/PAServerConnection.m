@@ -14,6 +14,8 @@
 #import "PulseAudio.h"
 #import "PAServerConnectionAudio.h"
 
+static NSString *frameworkPath = @"/Library/Frameworks/PulseAudio.framework/";
+
 #pragma mark ### hidden interface ###
 
 @interface PAServerConnection (hidden)
@@ -766,10 +768,36 @@ static void staticModuleUnloadedCallback(pa_context *c, int success, void *userd
 	pa_context_exit_daemon(PAContext, NULL, NULL);
 }
 
-+ (NSString *) pulseAudioLibraryVersion
++ (NSString *) libraryVersion
 {
 	return [NSString stringWithCString: pa_get_library_version()
 				  encoding: NSASCIIStringEncoding];	
 }
+
++ (NSString *) frameworkPath
+{
+	return frameworkPath;
+}
+
++ (NSArray *) availableModules
+{
+	NSError *error = nil;
+	NSString *path = [NSString stringWithFormat: @"%@/Resources/lib/modules/", frameworkPath];
+	NSArray *list = [[NSFileManager defaultManager] contentsOfDirectoryAtPath: path
+									    error: &error];
+	CFShow(list);
+
+	if (error)
+		return nil;
+
+	NSMutableArray *array = [NSMutableArray arrayWithCapacity: 0];
+	
+	for (NSString *entry in list)
+		if ([entry hasSuffix: @".so"])
+			[array addObject: [entry stringByDeletingPathExtension]];
+	
+	return array;
+}
+
 
 @end

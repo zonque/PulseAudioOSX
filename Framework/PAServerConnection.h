@@ -88,6 +88,8 @@
 
 - (void) shutdownServer;
 
-+ (NSString *) pulseAudioLibraryVersion;
++ (NSString *) libraryVersion;
++ (NSString *) frameworkPath;
++ (NSArray *) availableModules;
 
 @end
