@@ -9,13 +9,43 @@
  (at your option) any later version.
  ***/
 
-#import "PAClientInfo.h"
+#import "PAClientInfoInternal.h"
+#import "PAServerConnectionInternal.h"
 
 
 @implementation PAClientInfo
 
+@synthesize server;
 @synthesize name;
 @synthesize driver;
 @synthesize properties;
 
 @end
+
+
+@implementation PAClientInfo (internal)
+
+- (id) initWithInfoStruct: (const pa_client_info *) info
+		   server: (PAServerConnection *) s
+{
+	[super init];
+
+	name = [[NSString stringWithCString: info->name
+				   encoding: NSUTF8StringEncoding] retain];
+	driver = [[NSString stringWithCString: info->driver
+				     encoding: NSUTF8StringEncoding] retain];
+	properties = [[PAServerConnection createDictionaryFromProplist: info->proplist] retain];
+	server = s;
+
+	return self;
+}
+
++ (PAClientInfo *) createFromInfoStruct: (const pa_client_info *) info
+				 server: (PAServerConnection *) s
+{
+	return [[PAClientInfo alloc] initWithInfoStruct: info
+						 server: s];
+}
+
+@end
+

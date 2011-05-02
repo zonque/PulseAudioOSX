@@ -9,13 +9,44 @@
  (at your option) any later version.
  ***/
 
-#import "PACardInfo.h"
-
+#import "PACardInfoInternal.h"
+#import "PAServerConnectionInternal.h"
 
 @implementation PACardInfo
 
+@synthesize server;
 @synthesize name;
 @synthesize driver;
 @synthesize properties;
 
 @end
+
+@implementation PACardInfo (internal)
+
+- (id) initWithInfoStruct: (const pa_card_info *) info
+		   server: (PAServerConnection *) s
+{
+	[super init];
+
+	name = [[NSString stringWithCString: info->name
+				   encoding: NSUTF8StringEncoding] retain];
+	
+	if (info->driver)
+		driver = [[NSString stringWithCString: info->driver
+					     encoding: NSUTF8StringEncoding] retain];
+	
+	properties = [[PAServerConnection createDictionaryFromProplist: info->proplist] retain];
+	server = s;
+
+	return self;
+}
+
++ (PACardInfo *) createFromInfoStruct: (const pa_card_info *) info
+			       server: (PAServerConnection *) s
+{
+	return [[PACardInfo alloc] initWithInfoStruct: info
+					       server: s];
+}
+
+@end
+

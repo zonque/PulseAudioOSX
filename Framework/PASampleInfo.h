@@ -11,8 +11,12 @@
 
 #import <Foundation/Foundation.h>
 
+@class PAServerConnection;
+
 @interface PASampleInfo : NSObject
 {
+	PAServerConnection *server;
+
 	NSString *name;
 	NSString *sampleSpec;
 	NSString *channelMap;
@@ -24,13 +28,13 @@
 	BOOL lazy;
 }
 
-@property (nonatomic, retain) NSString *name;
-@property (nonatomic, retain) NSString *sampleSpec;
-@property (nonatomic, retain) NSString *channelMap;
-@property (nonatomic, retain) NSString *fileName;
-@property (nonatomic, assign) UInt64 duration;
-@property (nonatomic, assign) UInt64 bytes;
-@property (nonatomic, assign) BOOL lazy;
-
+@property (nonatomic, readonly) PAServerConnection *server;
+@property (nonatomic, readonly) NSString *name;
+@property (nonatomic, readonly) NSString *sampleSpec;
+@property (nonatomic, readonly) NSString *channelMap;
+@property (nonatomic, readonly) NSString *fileName;
+@property (nonatomic, readonly) UInt64 duration;
+@property (nonatomic, readonly) UInt64 bytes;
+@property (nonatomic, readonly) BOOL lazy;
 
 @end

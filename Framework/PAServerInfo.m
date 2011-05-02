@@ -9,11 +9,13 @@
  (at your option) any later version.
  ***/
 
-#import "PAServerInfo.h"
+#import "PAServerInfoInternal.h"
+#import "PAServerConnectionInternal.h"
 
 
 @implementation PAServerInfo
 
+@synthesize server;
 @synthesize userName;
 @synthesize hostName;
 @synthesize serverName;
@@ -24,27 +26,36 @@
 @synthesize defaultSourceName;
 @synthesize cookie;
 
-- (NSDictionary *) dictionary
-{
-	NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity: 0];
-	
-	[d setObject: userName
-	      forKey: @"User Name"];
-	[d setObject: hostName
-	      forKey: @"Host Name"];
-	[d setObject: version
-	      forKey: @"Server Version"];
-	[d setObject: sampleSpec
-	      forKey: @"Sample Spec"];
-	[d setObject: channelMap
-	      forKey: @"Channel Map"];
-	[d setObject: defaultSinkName
-	      forKey: @"Default Sink Name"];
-	[d setObject: defaultSourceName
-	      forKey: @"Default Source Name"];
+@end
 
-	return d;
+
+@implementation PAServerInfo (internal)
+
+- (void) setFromInfoStruct: (const pa_server_info *) info
+		    server: (PAServerConnection *) s
+{
+	char tmp[0x100];
+	
+	userName = [[NSString stringWithCString: info->user_name
+				       encoding: NSUTF8StringEncoding] retain];
+	hostName = [[NSString stringWithCString: info->host_name
+				       encoding: NSUTF8StringEncoding] retain];
+	serverName = [[NSString stringWithCString: info->server_name
+					 encoding: NSUTF8StringEncoding] retain];
+	version = [[NSString stringWithCString: info->server_version
+				      encoding: NSUTF8StringEncoding] retain];
+	sampleSpec = [[NSString stringWithCString: pa_sample_spec_snprint(tmp, sizeof(tmp), &info->sample_spec)
+					 encoding: NSUTF8StringEncoding] retain];
+	channelMap = [[NSString stringWithCString: pa_channel_map_snprint(tmp, sizeof(tmp), &info->channel_map)
+					 encoding: NSUTF8StringEncoding] retain];
+	defaultSinkName = [[NSString stringWithCString: info->default_sink_name
+					      encoding: NSUTF8StringEncoding] retain];
+	defaultSourceName = [[NSString stringWithCString: info->default_source_name
+						encoding: NSUTF8StringEncoding] retain];
+	cookie = info->cookie;
+	
+	server = s;
 }
 
-
 @end
+

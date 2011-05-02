@@ -11,8 +11,12 @@
 
 #import <Foundation/Foundation.h>
 
+@class PAServerConnection;
+
 @interface PAServerInfo : NSObject
 {
+	PAServerConnection *server;
+
 	NSString *userName;
 	NSString *hostName;
 	NSString *serverName;
@@ -25,14 +29,15 @@
 	UInt32 cookie;
 }
 
-@property (nonatomic, retain) NSString *userName;
-@property (nonatomic, retain) NSString *hostName;
-@property (nonatomic, retain) NSString *serverName;
-@property (nonatomic, retain) NSString *version;
-@property (nonatomic, retain) NSString *sampleSpec;
-@property (nonatomic, retain) NSString *channelMap;
-@property (nonatomic, retain) NSString *defaultSinkName;
-@property (nonatomic, retain) NSString *defaultSourceName;
-@property (nonatomic, assign) UInt32 cookie;
+@property (nonatomic, readonly) PAServerConnection *server;
+@property (nonatomic, readonly) NSString *userName;
+@property (nonatomic, readonly) NSString *hostName;
+@property (nonatomic, readonly) NSString *serverName;
+@property (nonatomic, readonly) NSString *version;
+@property (nonatomic, readonly) NSString *sampleSpec;
+@property (nonatomic, readonly) NSString *channelMap;
+@property (nonatomic, readonly) NSString *defaultSinkName;
+@property (nonatomic, readonly) NSString *defaultSourceName;
+@property (nonatomic, readonly) UInt32 cookie;
 
 @end

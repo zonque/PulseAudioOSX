@@ -9,10 +9,12 @@
  (at your option) any later version.
  ***/
 
-#import "PASinkInfo.h"
+#import "PASinkInfoInternal.h"
+#import "PAServerConnectionInternal.h"
 
 @implementation PASinkInfo
 
+@synthesize server;
 @synthesize name;
 @synthesize description;
 @synthesize sampleSpec;
@@ -26,3 +28,45 @@
 @synthesize properties;
 
 @end
+
+
+@implementation PASinkInfo (internal)
+
+- (id) initWithInfoStruct: (const pa_sink_info *) info
+		   server: (PAServerConnection *) s
+{
+	[super init];
+
+	char tmp[0x100];
+	
+	name = [[NSString stringWithCString: info->name
+				   encoding: NSUTF8StringEncoding] retain];
+	description = [[NSString stringWithCString: info->description
+					  encoding: NSUTF8StringEncoding] retain];
+	sampleSpec = [[NSString stringWithCString: pa_sample_spec_snprint(tmp, sizeof(tmp), &info->sample_spec)
+					 encoding: NSUTF8StringEncoding] retain];
+	channelMap = [[NSString stringWithCString: pa_channel_map_snprint(tmp, sizeof(tmp), &info->channel_map)
+					 encoding: NSUTF8StringEncoding] retain];
+	channelNames = [[PAServerConnection createChannelNamesArray: &info->channel_map] retain];
+	driver = [[NSString stringWithCString: info->driver
+				     encoding: NSUTF8StringEncoding] retain];
+	
+	latency = info->latency;
+	configuredLatency = info->configured_latency;
+	nVolumeSteps = info->n_volume_steps;
+	volume = pa_cvolume_avg(&info->volume);	
+	properties = [[PAServerConnection createDictionaryFromProplist: info->proplist] retain];
+	server = s;
+		
+	return self;
+}
+
++ (PASinkInfo *) createFromInfoStruct: (const pa_sink_info *) info
+			       server: (PAServerConnection *) s
+{
+	return [[PASinkInfo alloc] initWithInfoStruct: info
+					       server: s];
+}
+
+@end
+

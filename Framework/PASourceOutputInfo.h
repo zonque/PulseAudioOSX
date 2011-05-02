@@ -11,8 +11,12 @@
 
 #import <Foundation/Foundation.h>
 
+@class PAServerConnection;
+
 @interface PASourceOutputInfo : NSObject
 {
+	PAServerConnection *server;
+
 	UInt32 index;
 	UInt32 bufferUsec;
 	UInt32 sourceUsec;
@@ -27,17 +31,19 @@
 	BOOL corked;
 }
 
-@property (nonatomic, assign) UInt32 index;
-@property (nonatomic, assign) UInt32 bufferUsec;
-@property (nonatomic, assign) UInt32 sourceUsec;
+@property (nonatomic, readonly) PAServerConnection *server;
 
-@property (nonatomic, retain) NSString *name;
-@property (nonatomic, retain) NSString *resampleMethod;
-@property (nonatomic, retain) NSString *driver;
+@property (nonatomic, readonly) UInt32 index;
+@property (nonatomic, readonly) UInt32 bufferUsec;
+@property (nonatomic, readonly) UInt32 sourceUsec;
 
-@property (nonatomic, retain) NSArray *channelNames;
-@property (nonatomic, retain) NSDictionary *properties;
+@property (nonatomic, readonly) NSString *name;
+@property (nonatomic, readonly) NSString *resampleMethod;
+@property (nonatomic, readonly) NSString *driver;
 
-@property (nonatomic, assign) BOOL corked;
+@property (nonatomic, readonly) NSArray *channelNames;
+@property (nonatomic, readonly) NSDictionary *properties;
+
+@property (nonatomic, readonly) BOOL corked;
 
 @end

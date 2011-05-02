@@ -10,21 +10,15 @@
  ***/
 
 #import <Foundation/Foundation.h>
+#import <pulse/pulseaudio.h>
 
-@class PAServerConnection;
+#import "PAServerConnection.h"
+#import "PACardInfo.h"
 
-@interface PACardInfo : NSObject
-{
-	PAServerConnection *server;
+@interface PACardInfo (internal)
 
-	NSString *name;
-	NSString *driver;
-	NSDictionary *properties;
-}
-
-@property (nonatomic, readonly) PAServerConnection *server;
-@property (nonatomic, readonly) NSString *name;
-@property (nonatomic, readonly) NSString *driver;
-@property (nonatomic, readonly) NSDictionary *properties;
++ (PACardInfo *) createFromInfoStruct: (const pa_card_info *) info
+			       server: (PAServerConnection *) s;
 
 @end
+

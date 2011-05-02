@@ -9,10 +9,12 @@
  (at your option) any later version.
  ***/
 
-#import "PASinkInputInfo.h"
+#import "PASinkInputInfoInternal.h"
+#import "PAServerConnectionInternal.h"
 
 @implementation PASinkInputInfo
 
+@synthesize server;
 @synthesize index;
 @synthesize volume;
 @synthesize bufferUsec;
@@ -29,3 +31,43 @@
 @synthesize volumeWriteable;
 
 @end
+
+
+@implementation PASinkInputInfo (internal)
+
+- (id) initWithInfoStruct: (const pa_sink_input_info *) info
+		   server: (PAServerConnection *) s
+{
+	[super init];
+	
+	index = info->index;
+	bufferUsec = info->buffer_usec;
+	sinkUsec = info->sink_usec;
+	muted = !!info->mute;
+	volumeWriteable = !!info->volume_writable;
+	
+	if (info->name)
+		name = [[NSString stringWithCString: info->name
+					   encoding: NSUTF8StringEncoding] retain];
+	
+	channelNames = [PAServerConnection createChannelNamesArray: &info->channel_map];
+	driver = [[NSString stringWithCString: info->driver
+				     encoding: NSUTF8StringEncoding] retain];
+	if (info->resample_method)
+		resampleMethod = [[NSString stringWithCString: info->resample_method
+						     encoding: NSUTF8StringEncoding] retain];
+	properties = [[PAServerConnection createDictionaryFromProplist: info->proplist] retain];	
+	server = s;
+	
+	return self;
+}
+
++ (PASinkInputInfo *) createFromInfoStruct: (const pa_sink_input_info *) info
+				    server: (PAServerConnection *) s
+{
+	return [[PASinkInputInfo alloc] initWithInfoStruct: info
+						    server: s];
+}
+
+@end
+

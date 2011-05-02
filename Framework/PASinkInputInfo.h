@@ -11,8 +11,12 @@
 
 #import <Foundation/Foundation.h>
 
+@class PAServerConnection;
+
 @interface PASinkInputInfo : NSObject
 {
+	PAServerConnection *server;
+
 	UInt32 index;
 	UInt32 volume;
 	UInt32 bufferUsec;
@@ -29,19 +33,22 @@
 	BOOL volumeWriteable;
 }
 
-@property (nonatomic, assign) UInt32 index;
-@property (nonatomic, assign) UInt32 volume;
-@property (nonatomic, assign) UInt32 bufferUsec;
-@property (nonatomic, assign) UInt32 sinkUsec;
+@property (nonatomic, readonly) PAServerConnection *server;
 
-@property (nonatomic, retain) NSString *name;
-@property (nonatomic, retain) NSString *resampleMethod;
-@property (nonatomic, retain) NSString *driver;
+@property (nonatomic, readonly) UInt32 index;
+@property (nonatomic, readonly) UInt32 volume;
+@property (nonatomic, readonly) UInt32 bufferUsec;
+@property (nonatomic, readonly) UInt32 sinkUsec;
 
-@property (nonatomic, retain) NSArray *channelNames;
-@property (nonatomic, retain) NSDictionary *properties;
+@property (nonatomic, readonly) NSString *name;
+@property (nonatomic, readonly) NSString *resampleMethod;
+@property (nonatomic, readonly) NSString *driver;
 
-@property (nonatomic, assign) BOOL muted;
-@property (nonatomic, assign) BOOL volumeWriteable;
+@property (nonatomic, readonly) NSArray *channelNames;
+@property (nonatomic, readonly) NSDictionary *properties;
+
+@property (nonatomic, readonly) BOOL muted;
+@property (nonatomic, readonly) BOOL volumeWriteable;
 
 @end
+

@@ -11,7 +11,12 @@
 
 #import <Foundation/Foundation.h>
 
-@interface PASinkInfo : NSObject {
+@class PAServerConnection;
+
+@interface PASinkInfo : NSObject
+{
+	PAServerConnection *server;
+
 	NSString *name;
 	NSString *description;
 	NSString *sampleSpec;
@@ -28,16 +33,18 @@
 	NSDictionary *properties;
 }
 
-@property (nonatomic, retain) NSString *name;
-@property (nonatomic, retain) NSString *description;
-@property (nonatomic, retain) NSString *sampleSpec;
-@property (nonatomic, retain) NSString *channelMap;
-@property (nonatomic, retain) NSString *driver;
-@property (nonatomic, retain) NSArray *channelNames;
-@property (nonatomic, assign) UInt32 latency;
-@property (nonatomic, assign) UInt32 configuredLatency;
-@property (nonatomic, assign) UInt32 nVolumeSteps;
-@property (nonatomic, assign) UInt32 volume;
-@property (nonatomic, retain) NSDictionary *properties;
+@property (nonatomic, readonly) PAServerConnection *server;
+@property (nonatomic, readonly) NSString *name;
+@property (nonatomic, readonly) NSString *description;
+@property (nonatomic, readonly) NSString *sampleSpec;
+@property (nonatomic, readonly) NSString *channelMap;
+@property (nonatomic, readonly) NSString *driver;
+@property (nonatomic, readonly) NSArray *channelNames;
+@property (nonatomic, readonly) UInt32 latency;
+@property (nonatomic, readonly) UInt32 configuredLatency;
+@property (nonatomic, readonly) UInt32 nVolumeSteps;
+@property (nonatomic, readonly) UInt32 volume;
+@property (nonatomic, readonly) NSDictionary *properties;
 
 @end
+

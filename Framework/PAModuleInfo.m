@@ -9,10 +9,12 @@
  (at your option) any later version.
  ***/
 
-#import "PAModuleInfo.h"
+#import "PAModuleInfoInternal.h"
+#import "PAServerConnectionInternal.h"
 
 @implementation PAModuleInfo
 
+@synthesize server;
 @synthesize index;
 @synthesize name;
 @synthesize argument;
@@ -20,3 +22,34 @@
 @synthesize properties;
 
 @end
+
+
+@implementation PAModuleInfo (internal)
+
+- (id) initWithInfoStruct: (const pa_module_info *) info
+		   server: (PAServerConnection *) s
+{
+	[super init];
+	
+	name = [[NSString stringWithCString: info->name
+				   encoding: NSUTF8StringEncoding] retain];
+	if (info->argument)
+		argument = [[NSString stringWithCString: info->argument
+					       encoding: NSUTF8StringEncoding] retain];
+	index = info->index;
+	useCount = info->n_used;
+	properties = [[PAServerConnection createDictionaryFromProplist: info->proplist] retain];
+	server = s;
+	
+	return self;
+}
+
++ (PAModuleInfo *) createFromInfoStruct: (const pa_module_info *) info
+			       server: (PAServerConnection *) s
+{
+	return [[PAModuleInfo alloc] initWithInfoStruct: info
+						 server: s];
+}
+
+@end
+

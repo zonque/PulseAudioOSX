@@ -17,6 +17,19 @@
 		65AF429C136DB43D00650E2E /* PASinkInputInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 65AF429A136DB43D00650E2E /* PASinkInputInfo.m */; };
 		65AF429F136DB44600650E2E /* PASourceOutputInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 65AF429D136DB44600650E2E /* PASourceOutputInfo.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		65AF42A0136DB44600650E2E /* PASourceOutputInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 65AF429E136DB44600650E2E /* PASourceOutputInfo.m */; };
+		65AF437C136EAFF200650E2E /* PACardInfoInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = 65AF437A136EAFF200650E2E /* PACardInfoInternal.h */; };
+		65AF43D1136EB84B00650E2E /* PAClientInfoInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = 65AF43C9136EB84B00650E2E /* PAClientInfoInternal.h */; };
+		65AF43D2136EB84B00650E2E /* PAModuleInfoInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = 65AF43CA136EB84B00650E2E /* PAModuleInfoInternal.h */; };
+		65AF43D3136EB84B00650E2E /* PASampleInfoInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = 65AF43CB136EB84B00650E2E /* PASampleInfoInternal.h */; };
+		65AF43D4136EB84B00650E2E /* PAServerInfoInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = 65AF43CC136EB84B00650E2E /* PAServerInfoInternal.h */; };
+		65AF43D5136EB84B00650E2E /* PASinkInfoInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = 65AF43CD136EB84B00650E2E /* PASinkInfoInternal.h */; };
+		65AF43D6136EB84B00650E2E /* PASinkInputInfoInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = 65AF43CE136EB84B00650E2E /* PASinkInputInfoInternal.h */; };
+		65AF43D7136EB84B00650E2E /* PASourceInfoInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = 65AF43CF136EB84B00650E2E /* PASourceInfoInternal.h */; };
+		65AF43D8136EB84B00650E2E /* PASourceOutputInfoInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = 65AF43D0136EB84B00650E2E /* PASourceOutputInfoInternal.h */; };
+		65AF43DE136EBD4000650E2E /* PAServerConnectionInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = 65AF43DD136EBD4000650E2E /* PAServerConnectionInternal.h */; };
+		65AF441E136EC4B600650E2E /* PAServerConnectionInternal.m in Sources */ = {isa = PBXBuildFile; fileRef = 65AF441C136EC4B600650E2E /* PAServerConnectionInternal.m */; };
+		65AF4425136ECC5300650E2E /* PAServerConnectionImplementation.h in Headers */ = {isa = PBXBuildFile; fileRef = 65AF4423136ECC5300650E2E /* PAServerConnectionImplementation.h */; };
+		65AF4426136ECC5300650E2E /* PAServerConnectionImplementation.m in Sources */ = {isa = PBXBuildFile; fileRef = 65AF4424136ECC5300650E2E /* PAServerConnectionImplementation.m */; };
 		65CCFBFF1366CF1E00834815 /* PAServerConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = 65CCFBFD1366CF1E00834815 /* PAServerConnection.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		65CCFC001366CF1E00834815 /* PAServerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 65CCFBFE1366CF1E00834815 /* PAServerConnection.m */; };
 		65CCFC151366D14700834815 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0867D69BFE84028FC02AAC07 /* Foundation.framework */; };
@@ -52,6 +65,19 @@
 		65AF429A136DB43D00650E2E /* PASinkInputInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PASinkInputInfo.m; sourceTree = "<group>"; };
 		65AF429D136DB44600650E2E /* PASourceOutputInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PASourceOutputInfo.h; sourceTree = "<group>"; };
 		65AF429E136DB44600650E2E /* PASourceOutputInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PASourceOutputInfo.m; sourceTree = "<group>"; };
+		65AF437A136EAFF200650E2E /* PACardInfoInternal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PACardInfoInternal.h; sourceTree = "<group>"; };
+		65AF43C9136EB84B00650E2E /* PAClientInfoInternal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PAClientInfoInternal.h; sourceTree = "<group>"; };
+		65AF43CA136EB84B00650E2E /* PAModuleInfoInternal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PAModuleInfoInternal.h; sourceTree = "<group>"; };
+		65AF43CB136EB84B00650E2E /* PASampleInfoInternal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PASampleInfoInternal.h; sourceTree = "<group>"; };
+		65AF43CC136EB84B00650E2E /* PAServerInfoInternal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PAServerInfoInternal.h; sourceTree = "<group>"; };
+		65AF43CD136EB84B00650E2E /* PASinkInfoInternal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PASinkInfoInternal.h; sourceTree = "<group>"; };
+		65AF43CE136EB84B00650E2E /* PASinkInputInfoInternal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PASinkInputInfoInternal.h; sourceTree = "<group>"; };
+		65AF43CF136EB84B00650E2E /* PASourceInfoInternal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PASourceInfoInternal.h; sourceTree = "<group>"; };
+		65AF43D0136EB84B00650E2E /* PASourceOutputInfoInternal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PASourceOutputInfoInternal.h; sourceTree = "<group>"; };
+		65AF43DD136EBD4000650E2E /* PAServerConnectionInternal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PAServerConnectionInternal.h; sourceTree = "<group>"; };
+		65AF441C136EC4B600650E2E /* PAServerConnectionInternal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PAServerConnectionInternal.m; sourceTree = "<group>"; };
+		65AF4423136ECC5300650E2E /* PAServerConnectionImplementation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PAServerConnectionImplementation.h; sourceTree = "<group>"; };
+		65AF4424136ECC5300650E2E /* PAServerConnectionImplementation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PAServerConnectionImplementation.m; sourceTree = "<group>"; };
 		65CCFBFD1366CF1E00834815 /* PAServerConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PAServerConnection.h; sourceTree = "<group>"; };
 		65CCFBFE1366CF1E00834815 /* PAServerConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PAServerConnection.m; sourceTree = "<group>"; };
 		65CCFCB01367180C00834815 /* PAServerInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PAServerInfo.h; sourceTree = "<group>"; };
@@ -97,6 +123,8 @@
 		0867D691FE84028FC02AAC07 /* PulseAudio */ = {
 			isa = PBXGroup;
 			children = (
+				65AF43DB136EB99F00650E2E /* Public Headers */,
+				65AF4379136EAFDC00650E2E /* Internal Headers */,
 				08FB77AEFE84172EC02AAC07 /* Classes */,
 				32C88DFF0371C24200C91783 /* Other Sources */,
 				089C1665FE841158C02AAC07 /* Resources */,
@@ -127,32 +155,12 @@
 		08FB77AEFE84172EC02AAC07 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				65CCFCBF13671A5F00834815 /* PACardInfo.h */,
-				65CCFCC013671A5F00834815 /* PACardInfo.m */,
-				65CCFCCF13671B4A00834815 /* PAClientInfo.h */,
-				65CCFCD013671B4A00834815 /* PAClientInfo.m */,
-				65CCFCCB13671B4300834815 /* PAModuleInfo.h */,
-				65CCFCCC13671B4300834815 /* PAModuleInfo.m */,
-				65CCFCD313671B5000834815 /* PASampleInfo.h */,
-				65CCFCD413671B5000834815 /* PASampleInfo.m */,
-				65CCFCB01367180C00834815 /* PAServerInfo.h */,
-				65CCFCB11367180C00834815 /* PAServerInfo.m */,
-				65CCFBFD1366CF1E00834815 /* PAServerConnection.h */,
+				65AF43DC136EB9DB00650E2E /* Info */,
 				65CCFBFE1366CF1E00834815 /* PAServerConnection.m */,
-				65AF3EC5136ACBE900650E2E /* PAServiceDiscovery.h */,
+				65AF441C136EC4B600650E2E /* PAServerConnectionInternal.m */,
+				65AF4424136ECC5300650E2E /* PAServerConnectionImplementation.m */,
 				65AF3EC6136ACBE900650E2E /* PAServiceDiscovery.m */,
-				65CCFCC313671B3900834815 /* PASinkInfo.h */,
-				65CCFCC413671B3900834815 /* PASinkInfo.m */,
-				65AF4299136DB43D00650E2E /* PASinkInputInfo.h */,
-				65AF429A136DB43D00650E2E /* PASinkInputInfo.m */,
-				65CCFCC713671B3D00834815 /* PASourceInfo.h */,
-				65CCFCC813671B3D00834815 /* PASourceInfo.m */,
-				65AF429D136DB44600650E2E /* PASourceOutputInfo.h */,
-				65AF429E136DB44600650E2E /* PASourceOutputInfo.m */,
-				65CCFCE313671BF400834815 /* PulseAudio.h */,
-				6571514B13683F4A00D60887 /* PAServerConnectionAudio.h */,
 				6571514C13683F4A00D60887 /* PAServerConnectionAudio.m */,
-				657159751369B34600D60887 /* PAHelperConnection.h */,
 				657159761369B34600D60887 /* PAHelperConnection.m */,
 			);
 			name = Classes;
@@ -182,6 +190,69 @@
 			name = "Other Sources";
 			sourceTree = "<group>";
 		};
+		65AF4379136EAFDC00650E2E /* Internal Headers */ = {
+			isa = PBXGroup;
+			children = (
+				65AF43C9136EB84B00650E2E /* PAClientInfoInternal.h */,
+				65AF43CA136EB84B00650E2E /* PAModuleInfoInternal.h */,
+				65AF43CB136EB84B00650E2E /* PASampleInfoInternal.h */,
+				65AF43CC136EB84B00650E2E /* PAServerInfoInternal.h */,
+				65AF43CD136EB84B00650E2E /* PASinkInfoInternal.h */,
+				65AF43CE136EB84B00650E2E /* PASinkInputInfoInternal.h */,
+				65AF43CF136EB84B00650E2E /* PASourceInfoInternal.h */,
+				65AF43D0136EB84B00650E2E /* PASourceOutputInfoInternal.h */,
+				65AF437A136EAFF200650E2E /* PACardInfoInternal.h */,
+				65AF43DD136EBD4000650E2E /* PAServerConnectionInternal.h */,
+				65AF4423136ECC5300650E2E /* PAServerConnectionImplementation.h */,
+				6571514B13683F4A00D60887 /* PAServerConnectionAudio.h */,
+			);
+			name = "Internal Headers";
+			sourceTree = "<group>";
+		};
+		65AF43DB136EB99F00650E2E /* Public Headers */ = {
+			isa = PBXGroup;
+			children = (
+				65CCFCE313671BF400834815 /* PulseAudio.h */,
+				65CCFBFD1366CF1E00834815 /* PAServerConnection.h */,
+				65AF3EC5136ACBE900650E2E /* PAServiceDiscovery.h */,
+				657159751369B34600D60887 /* PAHelperConnection.h */,
+				65AF441A136EC41200650E2E /* Info */,
+			);
+			name = "Public Headers";
+			sourceTree = "<group>";
+		};
+		65AF43DC136EB9DB00650E2E /* Info */ = {
+			isa = PBXGroup;
+			children = (
+				65CCFCC013671A5F00834815 /* PACardInfo.m */,
+				65CCFCD013671B4A00834815 /* PAClientInfo.m */,
+				65CCFCCC13671B4300834815 /* PAModuleInfo.m */,
+				65CCFCD413671B5000834815 /* PASampleInfo.m */,
+				65CCFCB11367180C00834815 /* PAServerInfo.m */,
+				65CCFCC413671B3900834815 /* PASinkInfo.m */,
+				65AF429A136DB43D00650E2E /* PASinkInputInfo.m */,
+				65CCFCC813671B3D00834815 /* PASourceInfo.m */,
+				65AF429E136DB44600650E2E /* PASourceOutputInfo.m */,
+			);
+			name = Info;
+			sourceTree = "<group>";
+		};
+		65AF441A136EC41200650E2E /* Info */ = {
+			isa = PBXGroup;
+			children = (
+				65CCFCBF13671A5F00834815 /* PACardInfo.h */,
+				65CCFCCF13671B4A00834815 /* PAClientInfo.h */,
+				65CCFCCB13671B4300834815 /* PAModuleInfo.h */,
+				65CCFCD313671B5000834815 /* PASampleInfo.h */,
+				65CCFCB01367180C00834815 /* PAServerInfo.h */,
+				65CCFCC313671B3900834815 /* PASinkInfo.h */,
+				65AF4299136DB43D00650E2E /* PASinkInputInfo.h */,
+				65CCFCC713671B3D00834815 /* PASourceInfo.h */,
+				65AF429D136DB44600650E2E /* PASourceOutputInfo.h */,
+			);
+			name = Info;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -203,6 +274,17 @@
 				65AF3EC7136ACBE900650E2E /* PAServiceDiscovery.h in Headers */,
 				65AF429B136DB43D00650E2E /* PASinkInputInfo.h in Headers */,
 				65AF429F136DB44600650E2E /* PASourceOutputInfo.h in Headers */,
+				65AF437C136EAFF200650E2E /* PACardInfoInternal.h in Headers */,
+				65AF43D1136EB84B00650E2E /* PAClientInfoInternal.h in Headers */,
+				65AF43D2136EB84B00650E2E /* PAModuleInfoInternal.h in Headers */,
+				65AF43D3136EB84B00650E2E /* PASampleInfoInternal.h in Headers */,
+				65AF43D4136EB84B00650E2E /* PAServerInfoInternal.h in Headers */,
+				65AF43D5136EB84B00650E2E /* PASinkInfoInternal.h in Headers */,
+				65AF43D6136EB84B00650E2E /* PASinkInputInfoInternal.h in Headers */,
+				65AF43D7136EB84B00650E2E /* PASourceInfoInternal.h in Headers */,
+				65AF43D8136EB84B00650E2E /* PASourceOutputInfoInternal.h in Headers */,
+				65AF43DE136EBD4000650E2E /* PAServerConnectionInternal.h in Headers */,
+				65AF4425136ECC5300650E2E /* PAServerConnectionImplementation.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -282,6 +364,8 @@
 				65AF3EC8136ACBE900650E2E /* PAServiceDiscovery.m in Sources */,
 				65AF429C136DB43D00650E2E /* PASinkInputInfo.m in Sources */,
 				65AF42A0136DB44600650E2E /* PASourceOutputInfo.m in Sources */,
+				65AF441E136EC4B600650E2E /* PAServerConnectionInternal.m in Sources */,
+				65AF4426136ECC5300650E2E /* PAServerConnectionImplementation.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

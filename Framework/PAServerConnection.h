@@ -19,6 +19,7 @@
 @class PAServerInfo;
 @class PASinkInfo;
 @class PASourceInfo;
+@class PAServerConnectionImplementation;
 
 @protocol PAServerConnectionDelegate
 @optional
@@ -55,28 +56,11 @@
 
 @interface PAServerConnection : NSObject
 {
+	PAServerConnectionImplementation *impl;
 	NSObject <PAServerConnectionDelegate> *delegate;
-	
-	PAServerInfo *serverInfo;
-	
-	NSMutableArray *cards;
-	NSMutableArray *sinks;
-	NSMutableArray *sinkInputs;
-	NSMutableArray *sources;
-	NSMutableArray *sourceOutputs;
-	NSMutableArray *clients;
-	NSMutableArray *modules;
-	NSMutableArray *samples;
 }
 
 @property (nonatomic, assign) NSObject <PAServerConnectionDelegate> *delegate;
-@property (nonatomic, readonly) PAServerInfo *serverInfo;
-@property (nonatomic, readonly) NSArray *cards;
-@property (nonatomic, readonly) NSArray *sinks;
-@property (nonatomic, readonly) NSArray *sources;
-@property (nonatomic, readonly) NSArray *clients;
-@property (nonatomic, readonly) NSArray *modules;
-@property (nonatomic, readonly) NSArray *samples;
 
 - (void) connectToHost: (NSString *) hostName
 		  port: (int) port;
