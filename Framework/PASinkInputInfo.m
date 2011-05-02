@@ -50,7 +50,7 @@
 		name = [[NSString stringWithCString: info->name
 					   encoding: NSUTF8StringEncoding] retain];
 	
-	channelNames = [PAServerConnection createChannelNamesArray: &info->channel_map];
+	channelNames = [[PAServerConnection createChannelNamesArray: &info->channel_map] retain];
 	driver = [[NSString stringWithCString: info->driver
 				     encoding: NSUTF8StringEncoding] retain];
 	if (info->resample_method)

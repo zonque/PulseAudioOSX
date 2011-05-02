@@ -23,25 +23,22 @@
 @implementation PAServerConnection (internal)
 
 + (NSDictionary *) createDictionaryFromProplist: (pa_proplist *) plist
-{
-	NSMutableDictionary *dict;
-	void *state = NULL;
-	const char *key, *val;
-	
+{	
 	if (!plist)
 		return nil;
 	
-	dict = [NSMutableDictionary dictionaryWithCapacity: 0];
+	NSMutableDictionary * dict = [NSMutableDictionary dictionaryWithCapacity: 0];
+	void *state = NULL;
 	
 	do {
-		key = pa_proplist_iterate(plist, &state);
+		const char *key = pa_proplist_iterate(plist, &state);
 		if (!key)
 			break;
 		
-		val = pa_proplist_gets(plist, key);
-		[dict setValue: [NSString stringWithCString: val
+		[dict setValue: [NSString stringWithCString: pa_proplist_gets(plist, key)
 						   encoding: NSUTF8StringEncoding]
-			forKey: [NSString stringWithFormat: @"%s", key]];
+			forKey: [NSString stringWithCString: key
+						   encoding: NSUTF8StringEncoding]];
 	} while (state);
 	
 	return dict;
