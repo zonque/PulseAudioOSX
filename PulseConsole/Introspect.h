@@ -1,12 +1,12 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface Introspect : NSObject
+@interface Introspect : NSObject <NSTableViewDelegate, NSTableViewDataSource>
 {
-	IBOutlet NSOutlineView          *outlineView;
-	IBOutlet NSTableView            *parameterTableView;
-	IBOutlet NSTableView            *propertyTableView;
-	IBOutlet NSButton               *activeButton;
+	IBOutlet NSTableView	*selectionTableView;
+	IBOutlet NSTableView	*parameterTableView;
+	IBOutlet NSTableView	*propertyTableView;
+	IBOutlet NSButton	*activeButton;
 
 	NSMutableDictionary *serverinfo;
 	NSMutableArray *outlineToplevel;
@@ -18,7 +18,7 @@
 	NSMutableArray *clients;
 	NSMutableArray *modules;
 	NSMutableArray *samplecache;
-	
+
 	NSDictionary *activeItem;
 	PAServerConnection *connection;
 }

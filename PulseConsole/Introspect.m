@@ -19,17 +19,16 @@
 	if (!enabled)
 		activeItem = nil;
 
-	[outlineView setEnabled: enabled];
+	NSLog(@" %s() %d selectionTableView %@", __func__, enabled, selectionTableView);
+
+	[selectionTableView setEnabled: enabled];
 	[parameterTableView setEnabled: enabled];
 	[propertyTableView setEnabled: enabled];
 }
 
 - (void) repaintViews
 {
-	[outlineView reloadItem: nil
-		 reloadChildren: YES];
-	[outlineView expandItem: nil
-		 expandChildren: YES];
+	[selectionTableView reloadData];
 	[parameterTableView reloadData];
 	[propertyTableView reloadData];
 }
@@ -37,7 +36,7 @@
 - (void) contentChanged
 {
 	activeItem = nil;
-	[outlineView deselectAll: nil];
+	[selectionTableView deselectAll: nil];
 	[self repaintViews];
 }
 
@@ -45,7 +44,7 @@
 {
 	outlineToplevel = [NSMutableArray arrayWithCapacity: 0];
 	[outlineToplevel retain];
-		
+
 	serverinfo = [NSMutableDictionary dictionaryWithCapacity: 0];
 	cards = [NSMutableArray arrayWithCapacity: 0];
 	sinks = [NSMutableArray arrayWithCapacity: 0];
@@ -56,13 +55,19 @@
 	modules = [NSMutableArray arrayWithCapacity: 0];
 	samplecache = [NSMutableArray arrayWithCapacity: 0];
 	
-	NSMutableDictionary *d;
-	
-	d = [NSMutableDictionary dictionaryWithCapacity: 0];
-	[d setObject: @"Server Information"
+	NSMutableDictionary *d, *v;
+
+	v = [NSMutableDictionary dictionaryWithCapacity: 0];
+	[v setObject: @"Server Information"
 	      forKey: @"label"];
-	[d setObject: serverinfo
+	[v setObject: serverinfo
 	      forKey: @"parameters"];
+
+	d = [NSMutableDictionary dictionaryWithCapacity: 0];
+	[d setObject: @"General"
+	      forKey: @"label"];
+	[d setObject: [NSArray arrayWithObject: v]
+	      forKey: @"children"];
 	[outlineToplevel addObject: d];
 	
 	d = [NSMutableDictionary dictionaryWithCapacity: 0];
@@ -121,7 +126,7 @@
 	      forKey: @"children"];
 	[outlineToplevel addObject: d];
 	
-	[outlineView setEnabled: NO];
+	[selectionTableView setEnabled: NO];
 	[parameterTableView setEnabled: NO];
 	[propertyTableView setEnabled: NO];
 }
@@ -168,49 +173,12 @@
 	[cards removeAllObjects];
 }	
 
-#pragma mark ### NSOutlineViewDataSource protocol ###
-
-- (NSInteger) outlineView: (NSOutlineView *) outlineView numberOfChildrenOfItem: (id) item
-{
-	if (item == nil)		
-		return [outlineToplevel count];
-	
-	NSArray *d = [item valueForKey: @"children"];
-	
-	return d ? [d count] : 0;
-}
-
-- (BOOL) outlineView: (NSOutlineView *) outlineView isItemExpandable: (id)item
-{
-	if (item == nil)
-		return [outlineToplevel count] > 0;
-	
-	NSArray *d = [item valueForKey: @"children"];
-	return d ? [d count] > 0 : NO;
-}
-
-- (id) outlineView: (NSOutlineView *) outlineView child: (NSInteger)index
-	    ofItem: (id)item
-{
-	if (item == nil)
-		return [outlineToplevel objectAtIndex: index];
-	
-	NSArray *d = [item valueForKey: @"children"];
-	return [d objectAtIndex: index];
-}
-
-- (id) outlineView: (NSOutlineView *) outlineView objectValueForTableColumn: (NSTableColumn *) tableColumn
-	    byItem: (id)item
-{
-	return [item valueForKey: @"label"];
-}
-
 #pragma mark ### NSTableViewSource protocol ###
 
-- (void)tableView:(NSTableView *)aTableView
-   setObjectValue:obj
-   forTableColumn:(NSTableColumn *)col
-	      row:(NSInteger)rowIndex
+- (void)tableView: (NSTableView *) aTableView
+   setObjectValue: obj
+   forTableColumn: (NSTableColumn *)col
+	      row: (NSInteger)rowIndex
 {
 }
 
@@ -220,6 +188,29 @@ objectValueForTableColumn:(NSTableColumn *)col
 {
 	NSDictionary *item = nil;
 	
+	if (tableView == selectionTableView) {
+		UInt32 index = 0;
+
+		for (NSDictionary *d in outlineToplevel) {
+			if (index == rowIndex)
+				return [d objectForKey: @"label"];
+			
+			index++;
+
+			NSArray *children = [d objectForKey: @"children"];
+
+			if (index + [children count] > rowIndex) {
+				NSDictionary *child = [children objectAtIndex: rowIndex - index];
+				NSString *label = [child objectForKey: @"label"];
+				return [NSString stringWithFormat: @"     %@", label];
+			}
+
+			index += [children count];
+		}
+
+		return @"???";
+	}
+
 	if (!activeItem)
 		return @"";
 	
@@ -244,9 +235,20 @@ objectValueForTableColumn:(NSTableColumn *)col
 {
 	NSDictionary *item = nil;
 	
+	if (tableView == selectionTableView) {
+		UInt32 count = 0;
+
+		for (NSDictionary *d in outlineToplevel) {
+			NSArray *children = [d objectForKey: @"children"];
+			count += [children count] + 1;
+		}
+		
+		return count;
+	}
+	
 	if (!activeItem)
 		return 0;
-	
+		
 	if (tableView == parameterTableView)
 		item = [activeItem valueForKey: @"parameters"];
 	else if (tableView == propertyTableView)
@@ -255,20 +257,73 @@ objectValueForTableColumn:(NSTableColumn *)col
 	return item ? [item count] : 0;
 }
 
-#pragma mark ### delegate methods ###
+#pragma mark ### NSTableViewDelegate protocol ###
 
-- (BOOL) outlineView: (NSOutlineView *) outlineView shouldEditTableColumn: (NSTableColumn *)tableColumn item:(id)item
+- (BOOL) tableView: (NSTableView *) tableView
+       isHeaderRow: (NSInteger) row
 {
+	if (tableView != selectionTableView)
+		return NO;
+
+	UInt32 index = 0;
+
+	for (NSDictionary *d in outlineToplevel) {
+		if (index == row)
+			return YES;
+
+		NSArray *children = [d objectForKey: @"children"];
+		index += [children count] + 1;
+	}
+
 	return NO;
 }
 
-- (void) outlineViewSelectionDidChange: (NSNotification *) notification
+- (BOOL)tableView: (NSTableView *) aTableView
+  shouldSelectRow: (NSInteger) rowIndex
 {
-	NSDictionary *d = [outlineView itemAtRow: [outlineView selectedRow]];
+	return ![self tableView: aTableView
+		    isHeaderRow: rowIndex];
+}
+
+- (void) tableViewSelectionDidChange: (NSNotification *) notification
+{
+	if ([notification object] != selectionTableView)
+		return;
 	
-	activeItem = d;
-	[parameterTableView reloadData];
-	[propertyTableView reloadData];
+	UInt32 selected = [selectionTableView selectedRow];
+	UInt32 index = 0;
+	
+	for (NSDictionary *d in outlineToplevel) {
+		index++;
+
+		NSArray *children = [d objectForKey: @"children"];
+		
+		if (index + [children count] > selected) {
+			activeItem = [children objectAtIndex: selected - index];
+			[self repaintViews];
+			return;
+		}
+		
+		index += [children count];
+	}
+}
+
+- (void) tableView: (NSTableView *) aTableView
+   willDisplayCell: (id) aCell
+    forTableColumn: (NSTableColumn *) aTableColumn
+	       row: (NSInteger) rowIndex
+{
+	if (aTableView != selectionTableView)
+		return;
+	
+	if ([self tableView: aTableView
+		isHeaderRow: rowIndex]) {
+		[aCell setFont: [NSFont boldSystemFontOfSize: 12.0]];
+	} else {
+		[aCell setFont: [NSFont systemFontOfSize: 11.0]];
+	}
+
+	
 }
 
 #pragma mark ### PAServerConnectionDelegate ###
