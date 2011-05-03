@@ -9,9 +9,9 @@
  (at your option) any later version.
  ***/
 
+#import <pulse/pulseaudio.h>
 #import "PAClientInfoInternal.h"
 #import "PAServerConnectionInternal.h"
-
 
 @implementation PAClientInfo
 

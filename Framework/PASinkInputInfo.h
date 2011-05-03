@@ -36,7 +36,7 @@
 @property (nonatomic, readonly) PAServerConnection *server;
 
 @property (nonatomic, readonly) UInt32 index;
-@property (nonatomic, readonly) UInt32 volume;
+@property (nonatomic, readwrite) UInt32 volume;
 @property (nonatomic, readonly) UInt32 bufferUsec;
 @property (nonatomic, readonly) UInt32 sinkUsec;
 
@@ -47,7 +47,7 @@
 @property (nonatomic, readonly) NSArray *channelNames;
 @property (nonatomic, readonly) NSDictionary *properties;
 
-@property (nonatomic, readonly) BOOL muted;
+@property (nonatomic, readwrite) BOOL muted;
 @property (nonatomic, readonly) BOOL volumeWriteable;
 
 @end

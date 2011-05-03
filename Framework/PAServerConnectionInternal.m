@@ -136,4 +136,9 @@
 			      samplesChanged: samples];
 }
 
+- (BOOL) unloadModule: (PAModuleInfo *) module
+{
+	return [impl unloadModule: module];
+}
+
 @end

@@ -25,10 +25,12 @@
 	
 	NSArray *channelNames;
 	
+	UInt32 index;
 	UInt32 latency;
 	UInt32 configuredLatency;
 	UInt32 nVolumeSteps;
 	UInt32 volume;
+	UInt32 monitorSourceIndex;
 	
 	NSDictionary *properties;
 }
@@ -40,10 +42,12 @@
 @property (nonatomic, readonly) NSString *channelMap;
 @property (nonatomic, readonly) NSString *driver;
 @property (nonatomic, readonly) NSArray *channelNames;
+@property (nonatomic, readonly) UInt32 index;
 @property (nonatomic, readonly) UInt32 latency;
 @property (nonatomic, readonly) UInt32 configuredLatency;
 @property (nonatomic, readonly) UInt32 nVolumeSteps;
 @property (nonatomic, readonly) UInt32 volume;
+@property (nonatomic, readonly) UInt32 monitorSourceIndex;
 @property (nonatomic, readonly) NSDictionary *properties;
 
 @end

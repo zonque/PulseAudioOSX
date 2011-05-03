@@ -68,10 +68,10 @@
 	ioProcBufferSize: (UInt32) ioProcBufferSize;
 
 - (NSString *) clientName;
+- (void) setClientName: (NSString *) name;
 
 - (BOOL) loadModuleWithName: (NSString *) name
 		  arguments: (NSString *) arguments;
-- (BOOL) unloadModuleWithName: (NSString *) name;
 
 - (BOOL) setDefaultSink: (NSString *) name;
 - (BOOL) setDefaultSource: (NSString *) name;

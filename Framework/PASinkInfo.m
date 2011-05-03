@@ -14,6 +14,7 @@
 
 @implementation PASinkInfo
 
+@synthesize index;
 @synthesize server;
 @synthesize name;
 @synthesize description;
@@ -26,6 +27,7 @@
 @synthesize nVolumeSteps;
 @synthesize volume;
 @synthesize properties;
+@synthesize monitorSourceIndex;
 
 @end
 
@@ -51,10 +53,13 @@
 	driver = [[NSString stringWithCString: info->driver
 				     encoding: NSUTF8StringEncoding] retain];
 	
+	index = info->index;
 	latency = info->latency;
 	configuredLatency = info->configured_latency;
 	nVolumeSteps = info->n_volume_steps;
 	volume = pa_cvolume_avg(&info->volume);	
+	monitorSourceIndex = info->monitor_source;
+	
 	properties = [[PAServerConnection createDictionaryFromProplist: info->proplist] retain];
 	server = s;
 		

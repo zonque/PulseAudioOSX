@@ -20,6 +20,7 @@ static NSString *frameworkPath = @"/Library/Frameworks/PulseAudio.framework/";
 @implementation PAServerConnection
 
 @synthesize delegate;
+@synthesize impl;
 
 - (id) init
 {
@@ -67,16 +68,16 @@ static NSString *frameworkPath = @"/Library/Frameworks/PulseAudio.framework/";
 	return [impl clientName];
 }
 
+- (void) setClientName: (NSString *) name
+{
+	[impl setClientName: name];
+}
+
 - (BOOL) loadModuleWithName: (NSString *) name
 		  arguments: (NSString *) arguments
 {
 	return [impl loadModuleWithName: name
 			      arguments: arguments];
-}
-
-- (BOOL) unloadModuleWithName: (NSString *) name
-{
-	return [impl unloadModuleWithName: name];
 }
 
 - (BOOL) setDefaultSink: (NSString *) name

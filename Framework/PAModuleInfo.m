@@ -21,8 +21,12 @@
 @synthesize useCount;
 @synthesize properties;
 
-@end
+- (BOOL) unload
+{
+	return [server unloadModule: self];
+}
 
+@end
 
 @implementation PAModuleInfo (internal)
 
@@ -50,6 +54,7 @@
 	return [[PAModuleInfo alloc] initWithInfoStruct: info
 						 server: s];
 }
+
 
 @end
 

@@ -31,4 +31,6 @@
 @property (nonatomic, readonly) UInt32 useCount;
 @property (nonatomic, readonly) NSDictionary *properties;
 
+- (BOOL) unload;
+
 @end

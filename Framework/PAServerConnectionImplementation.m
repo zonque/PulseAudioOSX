@@ -26,8 +26,6 @@
 @synthesize PAMainLoop;
 
 #pragma mark ### static forwards ###
-
-static void staticContextStateCallback(pa_context *context, void *userdata);
 static void staticContextSubscribeCallback(pa_context *c, pa_subscription_event_type_t t, uint32_t index, void *userdata);
 static void staticContextEventCallback(pa_context *c, const char *name, pa_proplist *p, void *userdata);
 static void staticContextStatInfoCallback(pa_context *c, const pa_stat_info *i, void *userdata);
@@ -344,6 +342,10 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 	pa_context_get_server_info(PAContext, staticServerInfoCallback, self);
 }
 
+- (void) clientNameSetCallback: (BOOL) success
+{
+}
+
 #pragma mark ### static wrappers ###
 
 // context
@@ -457,7 +459,10 @@ static void staticContextDefaultsSetCallback(pa_context *c, int success, void *u
 	[sc contextDefaultsSetCallback: !!success];
 }
 
-
+static void staticClientNameSetCallback(pa_context *c, int success, void *userdata)
+{
+	
+}
 
 #pragma mark  ################
 
@@ -571,24 +576,17 @@ static void staticContextDefaultsSetCallback(pa_context *c, int success, void *u
 	return YES;
 }
 
-- (BOOL) unloadModuleWithName: (NSString *) name
+- (BOOL) unloadModule: (PAModuleInfo *) module
 {
 	if (![self isConnected])
 		return NO;
 	
-	BOOL found = NO;
-	
-	for (PAModuleInfo *info in modules) {
-		if ([info.name isEqualToString: name]) {
-			pa_threaded_mainloop_lock(PAMainLoop);
-			pa_context_unload_module(PAContext, info.index,
-						 staticModuleUnloadedCallback, self);
-			pa_threaded_mainloop_unlock(PAMainLoop);
-			found = YES;
-		}
-	}
-	
-	return found;
+	pa_threaded_mainloop_lock(PAMainLoop);
+	pa_context_unload_module(PAContext, module.index,
+				 staticModuleUnloadedCallback, self);
+	pa_threaded_mainloop_unlock(PAMainLoop);
+
+	return YES;	
 }
 
 - (BOOL) setDefaultSink: (NSString *) name
@@ -645,6 +643,17 @@ static void staticContextDefaultsSetCallback(pa_context *c, int success, void *u
 {
 	return [NSString stringWithCString: procName
 				  encoding: NSASCIIStringEncoding];
+}
+
+- (void) setClientName: (NSString *) name
+{
+	if (![self isConnected])
+		return;
+	
+	pa_threaded_mainloop_lock(PAMainLoop);
+	pa_context_set_name(PAContext, [name cStringUsingEncoding: NSASCIIStringEncoding],
+			    staticClientNameSetCallback, self);
+	pa_threaded_mainloop_unlock(PAMainLoop);
 }
 
 - (BOOL) isLocal

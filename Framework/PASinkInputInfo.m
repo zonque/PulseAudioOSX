@@ -9,14 +9,15 @@
  (at your option) any later version.
  ***/
 
+#import <pulse/pulseaudio.h>
 #import "PASinkInputInfoInternal.h"
 #import "PAServerConnectionInternal.h"
+#import "PAServerConnectionImplementation.h"
 
 @implementation PASinkInputInfo
 
 @synthesize server;
 @synthesize index;
-@synthesize volume;
 @synthesize bufferUsec;
 @synthesize sinkUsec;
 
@@ -27,8 +28,41 @@
 @synthesize channelNames;
 @synthesize properties;
 
-@synthesize muted;
 @synthesize volumeWriteable;
+
+/*
+static void staticMuteSetCallback(pa_context *context, int success, void *userdata)
+{
+}
+ */
+
+- (BOOL) muted
+{
+	return self->muted;
+}
+
+- (void) setMuted: (BOOL) m
+{
+	pa_threaded_mainloop_lock(server.impl.PAMainLoop);
+	pa_context_set_sink_input_mute(server.impl.PAContext, index, m, NULL, NULL);
+	pa_threaded_mainloop_unlock(server.impl.PAMainLoop);
+
+	muted = m;
+}
+
+- (UInt32) volume
+{
+	return self->volume;
+}
+
+- (void) setVolume: (UInt32) v
+{
+	pa_threaded_mainloop_lock(server.impl.PAMainLoop);
+	//pa_context_set_sink_volume_by_index(server.impl.PAContext, index, v, NULL, NULL);
+	pa_threaded_mainloop_unlock(server.impl.PAMainLoop);
+
+	volume = v;
+}
 
 @end
 
