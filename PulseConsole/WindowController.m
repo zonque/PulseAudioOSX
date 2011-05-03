@@ -96,6 +96,15 @@
 	sinkStreamListView.streamType = StreamTypeSink;
 	sourceStreamListView.streamType = StreamTypeSource;
 	
+	serverArray = [[NSMutableArray arrayWithCapacity: 0] retain];
+	
+        [NSApp beginSheet: connectPanel
+           modalForWindow: window
+	    modalDelegate: self
+           didEndSelector: @selector(didEndSheet:returnCode:contextInfo:)
+	      contextInfo: nil];
+	
+	
 	[self connectToServer: @"localhost"];
 }
 
@@ -113,37 +122,38 @@
 
 #pragma mark ### NSTableViewSource protocol ###
 
-- (void)tableView:(NSTableView *)aTableView
-   setObjectValue:obj
-   forTableColumn:(NSTableColumn *)col
-	      row:(NSInteger)rowIndex
+- (void)tableView: (NSTableView *) aTableView
+   setObjectValue: obj
+   forTableColumn: (NSTableColumn *) col
+	      row: (NSInteger) rowIndex
 {
 }
 
-- (id)tableView:(NSTableView *)tableView
-objectValueForTableColumn:(NSTableColumn *)col
-	    row:(NSInteger)rowIndex
+- (id)tableView: (NSTableView *) tableView
+objectValueForTableColumn: (NSTableColumn *) col
+	    row: (NSInteger) rowIndex
 {
-	NSDictionary *item = nil;
+	if (tableView == serverTableView) {
+		return [serverArray objectAtIndex: rowIndex];
+	}
 	
-	if (tableView == statisticsTableView)
-		item = statisticDict;
+	if (tableView == statisticsTableView) {
+		if ([[col identifier] isEqualToString: @"key"])
+			return [[statisticDict allKeys] objectAtIndex: rowIndex];
 	
-	if (!item)
-		return @"";
-	
-	if ([[col identifier] isEqualToString: @"key"])
-		return [[item allKeys] objectAtIndex: rowIndex];
-	
-	if ([[col identifier] isEqualToString: @"value"])
-		return [[item allValues] objectAtIndex: rowIndex];
-	
+		if ([[col identifier] isEqualToString: @"value"])
+			return [[statisticDict allValues] objectAtIndex: rowIndex];
+	}
+
 	return @"";
 }
 
 - (NSInteger) numberOfRowsInTableView:(NSTableView *)tableView
 {
 	NSDictionary *item = nil;
+	
+	if (tableView == serverTableView)
+		return [serverArray count];
 	
 	if (tableView == statisticsTableView)
 		item = statisticDict;
@@ -256,12 +266,19 @@ objectValueForTableColumn:(NSTableColumn *)col
 	     serverAppeared: (NSNetService *) service
 {
 	[serverSelector addItemWithTitle: [service name]];
+	[serverArray addObject: [service name]];
+	[serverTableView reloadData];
 }
 
 - (void) PAServiceDiscovery: (PAServiceDiscovery *) discovery
 	  serverDisappeared: (NSNetService *) service
 {
-	[serverSelector removeItemWithTitle: [service name]];	
+	[serverSelector removeItemWithTitle: [service name]];
+	
+	for (NSString *s in serverArray)
+		if ([s isEqualToString: [service name]])
+			[serverArray removeObject: s];
+	[serverTableView reloadData];
 }
 
 #pragma mark ### IBActions ###

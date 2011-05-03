@@ -115,6 +115,8 @@
 	d = [NSMutableDictionary dictionaryWithCapacity: 0];
 	[d setObject: @"Modules"
 	      forKey: @"label"];
+	[d setObject: [NSNumber numberWithBool: YES]
+	      forKey: @"canAdd"];
 	[d setObject: modules
 	      forKey: @"children"];
 	[outlineToplevel addObject: d];
@@ -129,6 +131,11 @@
 	[selectionTableView setEnabled: NO];
 	[parameterTableView setEnabled: NO];
 	[propertyTableView setEnabled: NO];
+	
+	[selectionTableView setBackgroundColor: [NSColor colorWithCalibratedRed: 217.0 / 255.0 
+									  green: 223.0 / 255.0
+									   blue: 230.0 / 255.0
+									  alpha: 1.0]];
 }
 
 - (void) dealloc
@@ -171,14 +178,57 @@
 	[samplecache removeAllObjects];
 	[serverinfo removeAllObjects];
 	[cards removeAllObjects];
-}	
+}
+
+- (BOOL) tableView: (NSTableView *) tableView
+       isHeaderRow: (NSInteger) row
+{
+	if (tableView != selectionTableView)
+		return NO;
+	
+	UInt32 index = 0;
+	
+	for (NSDictionary *d in outlineToplevel) {
+		if (index == row)
+			return YES;
+		
+		NSArray *children = [d objectForKey: @"children"];
+		index += [children count] + 1;
+	}
+	
+	return NO;
+}
+
+- (NSDictionary *) childForRow: (NSInteger) rowIndex
+{
+	UInt32 index = 0;
+	
+	for (NSDictionary *d in outlineToplevel) {
+		if (index == rowIndex)
+			return d;
+		
+		index++;
+		
+		NSArray *children = [d objectForKey: @"children"];
+		
+		if (index + [children count] > rowIndex) {
+			NSDictionary *child = [children objectAtIndex: rowIndex - index];
+			return child;
+		}
+		
+		index += [children count];
+	}
+	
+	return nil;
+	
+}
 
 #pragma mark ### NSTableViewSource protocol ###
 
-- (void)tableView: (NSTableView *) aTableView
-   setObjectValue: obj
-   forTableColumn: (NSTableColumn *)col
-	      row: (NSInteger)rowIndex
+- (void) tableView: (NSTableView *) aTableView
+    setObjectValue: obj
+    forTableColumn: (NSTableColumn *)col
+	       row: (NSInteger)rowIndex
 {
 }
 
@@ -189,26 +239,29 @@ objectValueForTableColumn:(NSTableColumn *)col
 	NSDictionary *item = nil;
 	
 	if (tableView == selectionTableView) {
-		UInt32 index = 0;
+		NSDictionary *child = [self childForRow: rowIndex];
 
-		for (NSDictionary *d in outlineToplevel) {
-			if (index == rowIndex)
-				return [d objectForKey: @"label"];
+		if ([[col identifier] isEqualToString: @"image"]) {
 			
-			index++;
-
-			NSArray *children = [d objectForKey: @"children"];
-
-			if (index + [children count] > rowIndex) {
-				NSDictionary *child = [children objectAtIndex: rowIndex - index];
-				NSString *label = [child objectForKey: @"label"];
-				return [NSString stringWithFormat: @"     %@", label];
-			}
-
-			index += [children count];
+			///////////
+			return nil;
+			
+			if ([child objectForKey: @"canAdd"])
+				return [NSImage imageNamed: @"NSAddTemplate"];
+			if ([child objectForKey: @"canRemove"])
+				return [NSImage imageNamed: @"NSRemoveTemplate"];
+			
+			return nil;
 		}
 
-		return @"???";
+		
+		NSString *label = [child objectForKey: @"label"];
+		
+		if ([self tableView: tableView
+			isHeaderRow: rowIndex])
+			return label;
+		
+		return [NSString stringWithFormat: @"     %@", label];
 	}
 
 	if (!activeItem)
@@ -259,25 +312,6 @@ objectValueForTableColumn:(NSTableColumn *)col
 
 #pragma mark ### NSTableViewDelegate protocol ###
 
-- (BOOL) tableView: (NSTableView *) tableView
-       isHeaderRow: (NSInteger) row
-{
-	if (tableView != selectionTableView)
-		return NO;
-
-	UInt32 index = 0;
-
-	for (NSDictionary *d in outlineToplevel) {
-		if (index == row)
-			return YES;
-
-		NSArray *children = [d objectForKey: @"children"];
-		index += [children count] + 1;
-	}
-
-	return NO;
-}
-
 - (BOOL)tableView: (NSTableView *) aTableView
   shouldSelectRow: (NSInteger) rowIndex
 {
@@ -310,17 +344,22 @@ objectValueForTableColumn:(NSTableColumn *)col
 
 - (void) tableView: (NSTableView *) aTableView
    willDisplayCell: (id) aCell
-    forTableColumn: (NSTableColumn *) aTableColumn
+    forTableColumn: (NSTableColumn *) tableColumn
 	       row: (NSInteger) rowIndex
 {
 	if (aTableView != selectionTableView)
 		return;
 	
+	if ([[tableColumn identifier] isEqualToString: @"image"])
+		return;
+	
 	if ([self tableView: aTableView
 		isHeaderRow: rowIndex]) {
 		[aCell setFont: [NSFont boldSystemFontOfSize: 12.0]];
+		[aCell setTextColor: [NSColor darkGrayColor]];
 	} else {
 		[aCell setFont: [NSFont systemFontOfSize: 11.0]];
+		[aCell setTextColor: [NSColor blackColor]];
 	}
 
 	
@@ -588,7 +627,9 @@ objectValueForTableColumn:(NSTableColumn *)col
 		      forKey: @"parameters"];
 		[d setObject: module.properties
 		      forKey: @"properties"];
-		
+		[d setObject: [NSNumber numberWithBool: YES]
+		      forKey: @"canRemove"];
+
 		[modules addObject: d];
 	}	
 	

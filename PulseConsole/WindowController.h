@@ -36,6 +36,7 @@
 	IBOutlet NSProgressIndicator    *connectionProgressIndicator;
 	IBOutlet NSPopUpButton          *serverSelector;
 	IBOutlet NSTextField            *connectStatus;
+	IBOutlet NSTableView		*serverTableView;
 	
 	IBOutlet StreamListView		*playbackStreamListView;
 	IBOutlet StreamListView		*recordStreamListView;
@@ -43,6 +44,10 @@
 	IBOutlet StreamListView		*sourceStreamListView;
 	
 	IBOutlet Introspect		*introspect;
+	
+	IBOutlet NSWindow		*connectPanel;
+	
+	NSMutableArray	*serverArray;
 	
 	PAServerConnection *connection;
 	PAServiceDiscovery *discovery;
