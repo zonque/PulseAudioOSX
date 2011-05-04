@@ -12,6 +12,7 @@
 #import <Foundation/Foundation.h>
 #import <pulse/pulseaudio.h>
 
+#import "PAElementInfo.h"
 #import "PAServerConnection.h"
 #import "PASourceOutputInfo.h"
 

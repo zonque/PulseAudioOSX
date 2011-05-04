@@ -15,7 +15,6 @@
 @implementation PASinkInfo
 
 @synthesize index;
-@synthesize server;
 @synthesize name;
 @synthesize description;
 @synthesize sampleSpec;

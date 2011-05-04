@@ -14,7 +14,6 @@
 
 @implementation PASampleInfo
 
-@synthesize server;
 @synthesize name;
 @synthesize sampleSpec;
 @synthesize channelMap;

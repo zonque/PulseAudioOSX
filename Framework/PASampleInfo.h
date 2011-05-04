@@ -10,13 +10,12 @@
  ***/
 
 #import <Foundation/Foundation.h>
+#import "PAElementInfo.h"
 
 @class PAServerConnection;
 
-@interface PASampleInfo : NSObject
+@interface PASampleInfo : PAElementInfo
 {
-	PAServerConnection *server;
-
 	NSString *name;
 	NSString *sampleSpec;
 	NSString *channelMap;
@@ -28,7 +27,6 @@
 	BOOL lazy;
 }
 
-@property (nonatomic, readonly) PAServerConnection *server;
 @property (nonatomic, readonly) NSString *name;
 @property (nonatomic, readonly) NSString *sampleSpec;
 @property (nonatomic, readonly) NSString *channelMap;

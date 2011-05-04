@@ -10,13 +10,12 @@
  ***/
 
 #import <Foundation/Foundation.h>
+#import "PAElementInfo.h"
 
 @class PAServerConnection;
 
-@interface PASinkInputInfo : NSObject
+@interface PASinkInputInfo : PAElementInfo
 {
-	PAServerConnection *server;
-
 	UInt32 index;
 	UInt32 volume;
 	UInt32 bufferUsec;
@@ -32,8 +31,6 @@
 	BOOL muted;
 	BOOL volumeWriteable;
 }
-
-@property (nonatomic, readonly) PAServerConnection *server;
 
 @property (nonatomic, readonly) UInt32 index;
 @property (nonatomic, readwrite) UInt32 volume;

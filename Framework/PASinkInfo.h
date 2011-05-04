@@ -10,13 +10,12 @@
  ***/
 
 #import <Foundation/Foundation.h>
+#import "PAElementInfo.h"
 
 @class PAServerConnection;
 
-@interface PASinkInfo : NSObject
+@interface PASinkInfo : PAElementInfo
 {
-	PAServerConnection *server;
-
 	NSString *name;
 	NSString *description;
 	NSString *sampleSpec;
@@ -35,7 +34,6 @@
 	NSDictionary *properties;
 }
 
-@property (nonatomic, readonly) PAServerConnection *server;
 @property (nonatomic, readonly) NSString *name;
 @property (nonatomic, readonly) NSString *description;
 @property (nonatomic, readonly) NSString *sampleSpec;

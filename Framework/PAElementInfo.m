@@ -9,20 +9,19 @@
  (at your option) any later version.
  ***/
 
-#import <Foundation/Foundation.h>
 #import "PAElementInfo.h"
 
-@class PAServerConnection;
+@implementation PAElementInfo
+@synthesize server;
+@end
 
-@interface PACardInfo : PAElementInfo
+@implementation PAElementInfo (internal)
+
+- (void) notifyChange
 {
-	NSString *name;
-	NSString *driver;
-	NSDictionary *properties;
+	[[NSNotificationCenter defaultCenter] postNotificationName: PAElementInfoChangedNotification
+							    object: self
+							  userInfo: nil];
 }
-
-@property (nonatomic, readonly) NSString *name;
-@property (nonatomic, readonly) NSString *driver;
-@property (nonatomic, readonly) NSDictionary *properties;
 
 @end

@@ -15,7 +15,6 @@
 
 @implementation PAClientInfo
 
-@synthesize server;
 @synthesize name;
 @synthesize driver;
 @synthesize properties;

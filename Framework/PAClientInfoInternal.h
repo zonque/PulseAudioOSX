@@ -18,7 +18,7 @@
 @interface PAClientInfo (internal)
 
 + (PAClientInfo *) createFromInfoStruct: (const pa_client_info *) info
-			       server: (PAServerConnection *) s;
+				 server: (PAServerConnection *) s;
 
 @end
 

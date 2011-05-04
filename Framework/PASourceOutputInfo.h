@@ -10,13 +10,12 @@
  ***/
 
 #import <Foundation/Foundation.h>
+#import "PAElementInfo.h"
 
 @class PAServerConnection;
 
-@interface PASourceOutputInfo : NSObject
+@interface PASourceOutputInfo : PAElementInfo
 {
-	PAServerConnection *server;
-
 	UInt32 index;
 	UInt32 bufferUsec;
 	UInt32 sourceUsec;
@@ -30,8 +29,6 @@
 	
 	BOOL corked;
 }
-
-@property (nonatomic, readonly) PAServerConnection *server;
 
 @property (nonatomic, readonly) UInt32 index;
 @property (nonatomic, readonly) UInt32 bufferUsec;

@@ -15,7 +15,6 @@
 
 @implementation PAServerInfo
 
-@synthesize server;
 @synthesize userName;
 @synthesize hostName;
 @synthesize serverName;

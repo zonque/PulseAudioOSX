@@ -11,6 +11,9 @@
 		6571514E13683F4A00D60887 /* PAServerConnectionAudio.m in Sources */ = {isa = PBXBuildFile; fileRef = 6571514C13683F4A00D60887 /* PAServerConnectionAudio.m */; };
 		657159771369B34600D60887 /* PAHelperConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = 657159751369B34600D60887 /* PAHelperConnection.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		657159781369B34600D60887 /* PAHelperConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 657159761369B34600D60887 /* PAHelperConnection.m */; };
+		657493731371A94B007044CF /* PAElementInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 657493721371A94B007044CF /* PAElementInfo.h */; };
+		657493751371A9C9007044CF /* PAElementInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 657493741371A9C9007044CF /* PAElementInfo.m */; };
+		657493791371ABC7007044CF /* PAElementInfoInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = 657493771371ABC7007044CF /* PAElementInfoInternal.h */; };
 		65AF3EC7136ACBE900650E2E /* PAServiceDiscovery.h in Headers */ = {isa = PBXBuildFile; fileRef = 65AF3EC5136ACBE900650E2E /* PAServiceDiscovery.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		65AF3EC8136ACBE900650E2E /* PAServiceDiscovery.m in Sources */ = {isa = PBXBuildFile; fileRef = 65AF3EC6136ACBE900650E2E /* PAServiceDiscovery.m */; };
 		65AF429B136DB43D00650E2E /* PASinkInputInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 65AF4299136DB43D00650E2E /* PASinkInputInfo.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -59,6 +62,9 @@
 		6571514C13683F4A00D60887 /* PAServerConnectionAudio.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PAServerConnectionAudio.m; sourceTree = "<group>"; };
 		657159751369B34600D60887 /* PAHelperConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PAHelperConnection.h; sourceTree = "<group>"; };
 		657159761369B34600D60887 /* PAHelperConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PAHelperConnection.m; sourceTree = "<group>"; };
+		657493721371A94B007044CF /* PAElementInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PAElementInfo.h; sourceTree = "<group>"; };
+		657493741371A9C9007044CF /* PAElementInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PAElementInfo.m; sourceTree = "<group>"; };
+		657493771371ABC7007044CF /* PAElementInfoInternal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PAElementInfoInternal.h; sourceTree = "<group>"; };
 		65AF3EC5136ACBE900650E2E /* PAServiceDiscovery.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PAServiceDiscovery.h; sourceTree = "<group>"; };
 		65AF3EC6136ACBE900650E2E /* PAServiceDiscovery.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PAServiceDiscovery.m; sourceTree = "<group>"; };
 		65AF4299136DB43D00650E2E /* PASinkInputInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PASinkInputInfo.h; sourceTree = "<group>"; };
@@ -193,6 +199,7 @@
 		65AF4379136EAFDC00650E2E /* Internal Headers */ = {
 			isa = PBXGroup;
 			children = (
+				657493771371ABC7007044CF /* PAElementInfoInternal.h */,
 				65AF43C9136EB84B00650E2E /* PAClientInfoInternal.h */,
 				65AF43CA136EB84B00650E2E /* PAModuleInfoInternal.h */,
 				65AF43CB136EB84B00650E2E /* PASampleInfoInternal.h */,
@@ -224,6 +231,7 @@
 		65AF43DC136EB9DB00650E2E /* Info */ = {
 			isa = PBXGroup;
 			children = (
+				657493741371A9C9007044CF /* PAElementInfo.m */,
 				65CCFCC013671A5F00834815 /* PACardInfo.m */,
 				65CCFCD013671B4A00834815 /* PAClientInfo.m */,
 				65CCFCCC13671B4300834815 /* PAModuleInfo.m */,
@@ -240,6 +248,7 @@
 		65AF441A136EC41200650E2E /* Info */ = {
 			isa = PBXGroup;
 			children = (
+				657493721371A94B007044CF /* PAElementInfo.h */,
 				65CCFCBF13671A5F00834815 /* PACardInfo.h */,
 				65CCFCCF13671B4A00834815 /* PAClientInfo.h */,
 				65CCFCCB13671B4300834815 /* PAModuleInfo.h */,
@@ -285,6 +294,8 @@
 				65AF43D8136EB84B00650E2E /* PASourceOutputInfoInternal.h in Headers */,
 				65AF43DE136EBD4000650E2E /* PAServerConnectionInternal.h in Headers */,
 				65AF4425136ECC5300650E2E /* PAServerConnectionImplementation.h in Headers */,
+				657493731371A94B007044CF /* PAElementInfo.h in Headers */,
+				657493791371ABC7007044CF /* PAElementInfoInternal.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -366,6 +377,7 @@
 				65AF42A0136DB44600650E2E /* PASourceOutputInfo.m in Sources */,
 				65AF441E136EC4B600650E2E /* PAServerConnectionInternal.m in Sources */,
 				65AF4426136ECC5300650E2E /* PAServerConnectionImplementation.m in Sources */,
+				657493751371A9C9007044CF /* PAElementInfo.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

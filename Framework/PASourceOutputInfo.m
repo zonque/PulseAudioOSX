@@ -14,7 +14,6 @@
 
 @implementation PASourceOutputInfo
 
-@synthesize server;
 @synthesize index;
 @synthesize bufferUsec;
 @synthesize sourceUsec;

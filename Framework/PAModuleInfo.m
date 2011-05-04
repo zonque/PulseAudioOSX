@@ -14,7 +14,6 @@
 
 @implementation PAModuleInfo
 
-@synthesize server;
 @synthesize index;
 @synthesize name;
 @synthesize argument;

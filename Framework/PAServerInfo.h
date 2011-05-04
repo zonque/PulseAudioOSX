@@ -10,13 +10,12 @@
  ***/
 
 #import <Foundation/Foundation.h>
+#import "PAElementInfo.h"
 
 @class PAServerConnection;
 
-@interface PAServerInfo : NSObject
+@interface PAServerInfo : PAElementInfo
 {
-	PAServerConnection *server;
-
 	NSString *userName;
 	NSString *hostName;
 	NSString *serverName;
@@ -29,7 +28,6 @@
 	UInt32 cookie;
 }
 
-@property (nonatomic, readonly) PAServerConnection *server;
 @property (nonatomic, readonly) NSString *userName;
 @property (nonatomic, readonly) NSString *hostName;
 @property (nonatomic, readonly) NSString *serverName;

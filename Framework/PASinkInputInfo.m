@@ -16,7 +16,6 @@
 
 @implementation PASinkInputInfo
 
-@synthesize server;
 @synthesize index;
 @synthesize bufferUsec;
 @synthesize sinkUsec;
@@ -57,8 +56,14 @@ static void staticMuteSetCallback(pa_context *context, int success, void *userda
 
 - (void) setVolume: (UInt32) v
 {
+	NSLog(@"%s() v = %d", __func__, v);
+	
+	pa_cvolume pav;
+	pa_cvolume_init(&pav);
+	pa_cvolume_set(&pav, [channelNames count], v);
+	
 	pa_threaded_mainloop_lock(server.impl.PAMainLoop);
-	//pa_context_set_sink_volume_by_index(server.impl.PAContext, index, v, NULL, NULL);
+	pa_context_set_sink_input_volume(server.impl.PAContext, index, &pav, NULL, NULL);
 	pa_threaded_mainloop_unlock(server.impl.PAMainLoop);
 
 	volume = v;

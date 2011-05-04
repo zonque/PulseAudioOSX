@@ -10,19 +10,15 @@
  ***/
 
 #import <Foundation/Foundation.h>
-#import "PAElementInfo.h"
+#import "PAServerConnection.h"
 
-@class PAServerConnection;
+#define PAElementInfoChangedNotification @"PAElementInfoChangedNotification"
 
-@interface PACardInfo : PAElementInfo
+@interface PAElementInfo : NSObject
 {
-	NSString *name;
-	NSString *driver;
-	NSDictionary *properties;
+	PAServerConnection *server;
 }
 
-@property (nonatomic, readonly) NSString *name;
-@property (nonatomic, readonly) NSString *driver;
-@property (nonatomic, readonly) NSDictionary *properties;
+@property (nonatomic, readonly) PAServerConnection *server;
 
 @end
