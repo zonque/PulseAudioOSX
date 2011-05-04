@@ -23,11 +23,11 @@
 #import <PulseAudio/PulseAudio.h>
 #import <PulseAudio/PAServiceDiscovery.h>
 
+#import "StreamListView.h"
 #import "StreamView.h"
 #import "Introspect.h"
 
-@interface WindowController : NSObject <PAServerConnectionDelegate,
-					PAServiceDiscoveryDelegate>
+@interface Server : NSObject <PAServerConnectionDelegate>
 {	
 	IBOutlet NSWindow               *window;
 	IBOutlet NSTabView              *tabView;
@@ -36,7 +36,6 @@
 	IBOutlet NSProgressIndicator    *connectionProgressIndicator;
 	IBOutlet NSPopUpButton          *serverSelector;
 	IBOutlet NSTextField            *connectStatus;
-	IBOutlet NSTableView		*serverTableView;
 	
 	IBOutlet StreamListView		*playbackStreamListView;
 	IBOutlet StreamListView		*recordStreamListView;
@@ -45,22 +44,16 @@
 	
 	IBOutlet Introspect		*introspect;
 	
-	IBOutlet NSWindow		*connectPanel;
-	
-	NSMutableArray	*serverArray;
-	
+		
 	PAServerConnection *connection;
-	PAServiceDiscovery *discovery;
 	
 	NSMutableDictionary *statisticDict;    
 }
 
-- (void) awakeFromNib;
 - (void) enableGUI: (BOOL) enabled;
 - (void) connectToServer: (NSString *) server;
 
 - (IBAction) connectToServerAction: (id) sender;
-- (IBAction) displayAbout: (id) sender;
 - (IBAction) reloadStatistics: (id) sender;
 
 @end

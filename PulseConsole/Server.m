@@ -22,9 +22,9 @@
 #import <PulseAudio/PulseAudio.h>
 
 #import "StreamListView.h"
-#import "WindowController.h"
+#import "Server.h"
 
-@implementation WindowController
+@implementation Server
 
 - (void) stopProgressIndicator
 {
@@ -77,42 +77,42 @@
 	[introspect repaintViews];
 }
 
+- (id) init
+{
+	[super init];
+	NSLog(@" INIT ");
+	return self;
+}
+
+#pragma mark ### NSDocument ###
+
+- (void) sheetDidEnd: (NSWindow *) sheet
+	  returnCode: (NSInteger) returnCode
+	 contextInfo: (void *)contextInfo
+{
+	NSLog(@"sheet did end");
+}
+
 - (void) awakeFromNib
 {
 	[statisticsTableView setEnabled: NO];
-
+	
 	statisticDict = [NSMutableDictionary dictionaryWithCapacity: 0];
 	[statisticDict retain];
 	
 	connection = [[PAServerConnection alloc] init];
 	connection.delegate = self;
-
-	discovery = [[PAServiceDiscovery alloc] init];
-	discovery.delegate = self;
-	[discovery start];
 	
 	introspect.connection = connection;
-
+	
 	sinkStreamListView.streamType = StreamTypeSink;
 	sourceStreamListView.streamType = StreamTypeSource;
 	
-	serverArray = [[NSMutableArray arrayWithCapacity: 0] retain];
-	
-        [NSApp beginSheet: connectPanel
-           modalForWindow: window
-	    modalDelegate: self
-           didEndSelector: @selector(didEndSheet:returnCode:contextInfo:)
-	      contextInfo: nil];
-	
-	
-	[self connectToServer: @"localhost"];
+	//[self connectToServer: @"localhost"];	
 }
 
 - (void) dealloc
 {
-	[connection disconnect];
-	[connection release];
-	
 	[statisticDict removeAllObjects];
 	[statisticDict release];
 	
@@ -133,10 +133,6 @@
 objectValueForTableColumn: (NSTableColumn *) col
 	    row: (NSInteger) rowIndex
 {
-	if (tableView == serverTableView) {
-		return [serverArray objectAtIndex: rowIndex];
-	}
-	
 	if (tableView == statisticsTableView) {
 		if ([[col identifier] isEqualToString: @"key"])
 			return [[statisticDict allKeys] objectAtIndex: rowIndex];
@@ -151,9 +147,6 @@ objectValueForTableColumn: (NSTableColumn *) col
 - (NSInteger) numberOfRowsInTableView:(NSTableView *)tableView
 {
 	NSDictionary *item = nil;
-	
-	if (tableView == serverTableView)
-		return [serverArray count];
 	
 	if (tableView == statisticsTableView)
 		item = statisticDict;
@@ -260,27 +253,6 @@ objectValueForTableColumn: (NSTableColumn *) col
 }
 #endif
 
-#pragma mark ### PAServiceDiscoveryDelegate ###
-
-- (void) PAServiceDiscovery: (PAServiceDiscovery *) discovery
-	     serverAppeared: (NSNetService *) service
-{
-	[serverSelector addItemWithTitle: [service name]];
-	[serverArray addObject: [service name]];
-	[serverTableView reloadData];
-}
-
-- (void) PAServiceDiscovery: (PAServiceDiscovery *) discovery
-	  serverDisappeared: (NSNetService *) service
-{
-	[serverSelector removeItemWithTitle: [service name]];
-	
-	for (NSString *s in serverArray)
-		if ([s isEqualToString: [service name]])
-			[serverArray removeObject: s];
-	[serverTableView reloadData];
-}
-
 #pragma mark ### IBActions ###
 
 - (IBAction) connectToServerAction: (id) sender
@@ -289,16 +261,6 @@ objectValueForTableColumn: (NSTableColumn *) col
 	//[self repaintViews: nil];
 	
 	[self connectToServer: [sender titleOfSelectedItem]];
-}
-
-- (IBAction) displayAbout: (id) sender
-{
-	NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity: 0];
-	[d setValue: [NSString stringWithFormat: @"pulseaudio library version %@",
-						[PAServerConnection libraryVersion]]
-	     forKey: @"Copyright"];
-	
-	[NSApp orderFrontStandardAboutPanelWithOptions: d];
 }
 
 - (IBAction) reloadStatistics: (id) sender
