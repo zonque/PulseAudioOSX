@@ -87,6 +87,8 @@
 - (NSString *) serverName;
 - (void) shutdownServer;
 
+- (NSString *) lastError;
+
 + (NSString *) libraryVersion;
 + (NSString *) frameworkPath;
 + (NSArray *) availableModules;

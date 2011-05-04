@@ -110,6 +110,11 @@ static NSString *frameworkPath = @"/Library/Frameworks/PulseAudio.framework/";
 	return [impl serverName];
 }
 
+- (NSString *) lastError
+{
+	return impl.lastError;
+}
+
 - (void) shutdownServer
 {
 	[impl shutdownServer];

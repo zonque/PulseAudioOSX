@@ -45,6 +45,8 @@
 	NSMutableArray *clients;
 	NSMutableArray *modules;
 	NSMutableArray *samples;
+	
+	NSString *lastError;
 }
 
 @property (nonatomic, readonly) PAServerInfo *serverInfo;
@@ -56,6 +58,7 @@
 @property (nonatomic, readonly) NSArray *samples;
 @property (nonatomic, readonly) pa_threaded_mainloop *PAMainLoop;
 @property (nonatomic, readonly) pa_context *PAContext;
+@property (nonatomic, readonly) NSString *lastError;
 
 - (id) initForServer: (PAServerConnection *) s;
 

@@ -21,6 +21,7 @@
 @synthesize clients;
 @synthesize modules;
 @synthesize samples;
+@synthesize lastError;
 
 @synthesize PAContext;
 @synthesize PAMainLoop;
@@ -39,6 +40,22 @@ static void staticSourceOutputInfoCallback(pa_context *c, const pa_source_output
 static void staticClientInfoCallback(pa_context *c, const struct pa_client_info *i, int eol, void *userdata);
 static void staticModuleInfoCallback(pa_context *c, const struct pa_module_info *i, int eol, void *userdata);
 static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info *i, int eol, void *userdata);
+
+- (void) updateError
+{
+	if (lastError) {
+		[lastError release];
+		lastError = nil;
+	}
+	
+	if (!PAContext)
+		return;
+	
+	const char *e = pa_strerror(pa_context_errno(PAContext));
+	if (e)
+		lastError = [NSString stringWithCString: e
+					       encoding: NSASCIIStringEncoding];
+}
 
 #pragma mark ### callback catcher ###
 
@@ -71,6 +88,7 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 			break;
 		case PA_CONTEXT_TERMINATED:
 			NSLog(@"Connection terminated.");
+			[self updateError];
 			[server performSelectorOnMainThread: @selector(sendDelegateConnectionEnded)
 						 withObject: nil
 					      waitUntilDone: YES];
@@ -79,6 +97,7 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 			break;
 		case PA_CONTEXT_FAILED:
 			NSLog(@"Connection failed.");
+			[self updateError];
 			[server performSelectorOnMainThread: @selector(sendDelegateConnectionFailed)
 						 withObject: nil
 					      waitUntilDone: YES];
@@ -495,8 +514,12 @@ static void staticClientNameSetCallback(pa_context *c, int success, void *userda
 		NSLog(@"pa_context_new() failed");
 	
 	pa_context_set_state_callback(PAContext, staticContextStateCallback, self);
+
+	const char *host = hostName ? [hostName cStringUsingEncoding: NSASCIIStringEncoding] : NULL;
 	
-	ret = pa_context_connect(PAContext, NULL,
+	NSLog(@"host >%s<", host);
+	
+	ret = pa_context_connect(PAContext, host,
 				 (pa_context_flags_t) (PA_CONTEXT_NOFAIL | PA_CONTEXT_NOAUTOSPAWN),
 				 NULL);
 	
