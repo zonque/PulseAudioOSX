@@ -16,6 +16,7 @@
 		65748F6C13715FCC007044CF /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 65748F6A13715FCC007044CF /* MainMenu.xib */; };
 		65748F8A137161F5007044CF /* DocumentController.m in Sources */ = {isa = PBXBuildFile; fileRef = 65748F89137161F5007044CF /* DocumentController.m */; };
 		6574907013716A92007044CF /* ServerDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 6574906F13716A92007044CF /* ServerDocument.m */; };
+		6574913E137175E8007044CF /* MultipleLinesTextFieldCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6574913D137175E8007044CF /* MultipleLinesTextFieldCell.m */; };
 		65A09CC310F72B3300D07CF1 /* StreamView.m in Sources */ = {isa = PBXBuildFile; fileRef = 65A09CC210F72B3300D07CF1 /* StreamView.m */; };
 		65A09CE210F74DF300D07CF1 /* StreamListView.m in Sources */ = {isa = PBXBuildFile; fileRef = 65A09CE110F74DF300D07CF1 /* StreamListView.m */; };
 		65AF4117136C091D00650E2E /* Introspect.m in Sources */ = {isa = PBXBuildFile; fileRef = 65AF4116136C091D00650E2E /* Introspect.m */; };
@@ -45,6 +46,8 @@
 		65748F89137161F5007044CF /* DocumentController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DocumentController.m; sourceTree = "<group>"; };
 		6574906E13716A92007044CF /* ServerDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServerDocument.h; sourceTree = "<group>"; };
 		6574906F13716A92007044CF /* ServerDocument.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ServerDocument.m; sourceTree = "<group>"; };
+		6574913C137175E8007044CF /* MultipleLinesTextFieldCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MultipleLinesTextFieldCell.h; sourceTree = "<group>"; };
+		6574913D137175E8007044CF /* MultipleLinesTextFieldCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MultipleLinesTextFieldCell.m; sourceTree = "<group>"; };
 		65A09CC110F72B3300D07CF1 /* StreamView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StreamView.h; sourceTree = "<group>"; };
 		65A09CC210F72B3300D07CF1 /* StreamView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StreamView.m; sourceTree = "<group>"; };
 		65A09CE010F74DF300D07CF1 /* StreamListView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StreamListView.h; sourceTree = "<group>"; };
@@ -85,6 +88,8 @@
 				65748F89137161F5007044CF /* DocumentController.m */,
 				6574906E13716A92007044CF /* ServerDocument.h */,
 				6574906F13716A92007044CF /* ServerDocument.m */,
+				6574913C137175E8007044CF /* MultipleLinesTextFieldCell.h */,
+				6574913D137175E8007044CF /* MultipleLinesTextFieldCell.m */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -232,6 +237,7 @@
 				65AF4117136C091D00650E2E /* Introspect.m in Sources */,
 				65748F8A137161F5007044CF /* DocumentController.m in Sources */,
 				6574907013716A92007044CF /* ServerDocument.m in Sources */,
+				6574913E137175E8007044CF /* MultipleLinesTextFieldCell.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

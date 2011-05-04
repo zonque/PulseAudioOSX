@@ -26,6 +26,8 @@
 
 @implementation Server
 
+@synthesize delegate;
+
 - (void) stopProgressIndicator
 {
 	[connectionProgressIndicator stopAnimation: self];
@@ -43,19 +45,6 @@
 	[connection disconnect];	
 	[connection connectToHost: server
 			     port: -1];
-}
-
-- (void) bonjourServiceAdded: (NSNotification *) notification
-{
-	NSDictionary *dict = [notification userInfo];
-	NSString *name = [dict valueForKey: @"name"];
-	
-	[serverSelector addItemWithTitle: name];
-	
-	if ([serverSelector numberOfItems] == 1) {
-		[self connectToServer: name];
-		[connectionProgressIndicator startAnimation: self];
-	}
 }
 
 - (void) enableGUI: (BOOL) enabled
@@ -107,8 +96,6 @@
 	
 	sinkStreamListView.streamType = StreamTypeSink;
 	sourceStreamListView.streamType = StreamTypeSource;
-	
-	//[self connectToServer: @"localhost"];	
 }
 
 - (void) dealloc
@@ -162,14 +149,37 @@ objectValueForTableColumn: (NSTableColumn *) col
 	[self enableGUI: YES];
 }
 
-- (void) PAServerConnectionFailed: (PAServerConnection *) connection
+- (void) signalEnd
 {
-	[self enableGUI: NO];
+	[delegate serverSignalledEnd: self];	
 }
 
-- (void) PAServerConnectionEnded: (PAServerConnection *) connection
+- (void) PAServerConnectionFailed: (PAServerConnection *) c
 {
 	[self enableGUI: NO];
+	NSBeginCriticalAlertSheet(@"Connection failed",
+				  @"Close",
+				  nil, nil,
+				  window,
+				  self,
+				  @selector(signalEnd),
+				  @selector(signalEnd),
+				  NULL,
+				  [connection lastError]);
+}
+
+- (void) PAServerConnectionEnded: (PAServerConnection *) c
+{
+	[self enableGUI: NO];
+	NSBeginCriticalAlertSheet(@"Connection terminated",
+				  @"Close",
+				  nil, nil,
+				  window,
+				  self,
+				  @selector(signalEnd),
+				  @selector(signalEnd),
+				  NULL,
+				  [connection lastError]);	
 }
 
 - (void) PAServerConnection: (PAServerConnection *) connection
@@ -194,7 +204,6 @@ objectValueForTableColumn: (NSTableColumn *) col
 - (void) PAServerConnection: (PAServerConnection *) connection
 	  sinkInputsChanged: (NSArray *) inputs
 {
-	NSLog(@"%s", __func__);
 	[introspect sinkInputsChanged: inputs];
 }
 
@@ -208,7 +217,6 @@ objectValueForTableColumn: (NSTableColumn *) col
 - (void) PAServerConnection: (PAServerConnection *) connection
        sourceOutputsChanged: (NSArray *) outputs
 {
-	NSLog(@"%s", __func__);
 	[introspect sourceOutputsChanged: outputs];
 }
 
@@ -254,14 +262,6 @@ objectValueForTableColumn: (NSTableColumn *) col
 #endif
 
 #pragma mark ### IBActions ###
-
-- (IBAction) connectToServerAction: (id) sender
-{	
-	[self enableGUI: NO];
-	//[self repaintViews: nil];
-	
-	[self connectToServer: [sender titleOfSelectedItem]];
-}
 
 - (IBAction) reloadStatistics: (id) sender
 {

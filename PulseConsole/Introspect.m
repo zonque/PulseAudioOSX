@@ -132,6 +132,7 @@
 	[parameterTableView setEnabled: NO];
 	[propertyTableView setEnabled: NO];
 	
+	// color picked from iTunes
 	[selectionTableView setBackgroundColor: [NSColor colorWithCalibratedRed: 217.0 / 255.0 
 									  green: 223.0 / 255.0
 									   blue: 230.0 / 255.0

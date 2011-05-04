@@ -20,7 +20,7 @@
  ***/
 
 #import "ServerDocument.h"
-
+#import "MultipleLinesTextFieldCell.h"
 
 @implementation ServerDocument
 
@@ -60,14 +60,22 @@
 		if (selectedRow < 0)
 			return;
 		
-		NSString *name = [serverArray objectAtIndex: selectedRow];
-		[server connectToServer: name];		
+		NSNetService *service = [serverArray objectAtIndex: selectedRow];
+		
+//		NSString *host = [PAServiceDiscovery ipOfService: service];		
+		NSString *host = [service hostName];
+		[server connectToServer: host];		
 	} else {
 		[[self windowForSheet] performClose: self];
 	}
 }
 
 #pragma mark ### NSDocument ###
+
+- (void) awakeFromNib
+{
+	server.delegate = self;
+}
 
 - (void) windowControllerDidLoadNib: (NSWindowController *) controller
 {
@@ -117,7 +125,12 @@
 objectValueForTableColumn: (NSTableColumn *) col
 	    row: (NSInteger) rowIndex
 {
-	return [serverArray objectAtIndex: rowIndex];
+	if ([[col identifier] isEqualToString: @"image"])
+		return [NSImage imageNamed: @"NSBonjour"];
+
+	NSNetService *service = [serverArray objectAtIndex: rowIndex];
+
+	return [NSString stringWithFormat: @"%@|%@", [service name], [service hostName]];
 }
 
 - (NSInteger) numberOfRowsInTableView:(NSTableView *)tableView
@@ -130,18 +143,31 @@ objectValueForTableColumn: (NSTableColumn *) col
 - (void) PAServiceDiscovery: (PAServiceDiscovery *) discovery
 	     serverAppeared: (NSNetService *) service
 {
-	[serverArray addObject: [service name]];
+	[serverArray addObject: service];
 	[serverTableView reloadData];
 }
 
 - (void) PAServiceDiscovery: (PAServiceDiscovery *) discovery
 	  serverDisappeared: (NSNetService *) service
-{	
-	for (NSString *s in serverArray)
-		if ([s isEqualToString: [service name]])
-			[serverArray removeObject: s];
+{
+	NSMutableArray *newArray = [NSMutableArray arrayWithArray: serverArray];
+	
+	for (NSNetService *s in serverArray)
+		if (service == s)
+			[newArray removeObject: service];
 
+	[serverArray release];
+	serverArray = [newArray retain];
+		
 	[serverTableView reloadData];
 }
+
+#pragma mark ### ServerDelegate ###
+
+- (void) serverSignalledEnd: (Server *) server
+{
+	[[self windowForSheet] performClose: self];
+}
+
 
 @end

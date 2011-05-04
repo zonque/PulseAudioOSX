@@ -20,23 +20,9 @@
  ***/
 
 #import <Cocoa/Cocoa.h>
-#import <PulseAudio/PAServiceDiscovery.h>
-#import "Server.h"
 
-@interface ServerDocument : NSDocument <PAServiceDiscoveryDelegate,
-					NSTabViewDelegate,
-					ServerDelegate>
+@interface MultipleLinesTextFieldCell : NSTextFieldCell
 {
-	IBOutlet NSTableView *serverTableView;
-	IBOutlet NSWindow *connectPanel;
-	IBOutlet Server *server;
-
-	NSMutableArray *serverArray;
-	PAServiceDiscovery *discovery;
 }
-
-- (IBAction) connect: (id) sender;
-- (IBAction) cancel: (id) sender;
-- (IBAction) noop: (id) sender;
 
 @end

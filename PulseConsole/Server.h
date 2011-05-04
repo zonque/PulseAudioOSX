@@ -27,6 +27,13 @@
 #import "StreamView.h"
 #import "Introspect.h"
 
+@class Server;
+
+@protocol ServerDelegate
+- (void) serverSignalledEnd: (Server *) server;
+@end
+
+
 @interface Server : NSObject <PAServerConnectionDelegate>
 {	
 	IBOutlet NSWindow               *window;
@@ -34,7 +41,6 @@
 	IBOutlet NSTableView            *statisticsTableView;
 	IBOutlet NSTextView             *commandShell;
 	IBOutlet NSProgressIndicator    *connectionProgressIndicator;
-	IBOutlet NSPopUpButton          *serverSelector;
 	IBOutlet NSTextField            *connectStatus;
 	
 	IBOutlet StreamListView		*playbackStreamListView;
@@ -44,16 +50,18 @@
 	
 	IBOutlet Introspect		*introspect;
 	
-		
+	NSObject <ServerDelegate>	*delegate;
+	
 	PAServerConnection *connection;
 	
 	NSMutableDictionary *statisticDict;    
 }
 
+@property (nonatomic, assign) NSObject <ServerDelegate>	*delegate;
+
 - (void) enableGUI: (BOOL) enabled;
 - (void) connectToServer: (NSString *) server;
 
-- (IBAction) connectToServerAction: (id) sender;
 - (IBAction) reloadStatistics: (id) sender;
 
 @end
