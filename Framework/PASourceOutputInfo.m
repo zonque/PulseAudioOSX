@@ -48,8 +48,8 @@
 					  encoding: NSUTF8StringEncoding] retain];
 	
 	channelNames = [[PAServerConnection createChannelNamesArray: &info->channel_map] retain];
-	driver = [NSString stringWithCString: info->driver
-				    encoding: NSUTF8StringEncoding];
+	driver = [[NSString stringWithCString: info->driver
+				    encoding: NSUTF8StringEncoding] retain];
 	if (info->resample_method)
 		resampleMethod = [[NSString stringWithCString: info->resample_method
 						    encoding: NSUTF8StringEncoding] retain];
