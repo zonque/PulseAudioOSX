@@ -41,14 +41,12 @@
 {
 	NSRect frame = [self frame];
 	NSScrollView *enclosingScrollView = [self enclosingScrollView];
-	NSEnumerator *enumerator = [streamViewItems objectEnumerator];
-	NSView *object;
 	float height = 0.0f;
 	
 	NSLog(@"DEBUG: %s name >%@<\n", __func__, name);
 	
-	while (object = [enumerator nextObject])
-		height += [object frame].size.height;
+	for (NSView *v in streamViewItems)
+		height += [v frame].size.height;
 
 	StreamView *view = [[StreamView alloc] initWithFrame: NSMakeRect(0.0, height, frame.size.width, 70.0)
 							type: streamType
@@ -67,16 +65,25 @@
 	[enclosingScrollView setNeedsDisplay: YES];
 }
 
+- (void) removeStreamView: (id) info
+{
+	for (StreamView *v in streamViewItems)
+		if (v.info == info) {
+			[streamViewItems removeObject: v];
+			break;
+		}
+	
+	[self recalcLayout];
+}
+
 - (void) recalcLayout
 {
-	NSEnumerator *enumerator = [streamViewItems objectEnumerator];
-	NSView *object;
 	float y = 0.0f;
 
-	while (object = [enumerator nextObject]) {
-		NSRect rect = [object frame];
+	for (NSView *v in streamViewItems) {
+		NSRect rect = [v frame];
 		rect.origin.y = y;
-		[object setFrameOrigin: rect.origin];
+		[v setFrameOrigin: rect.origin];
 		y += rect.size.height;
 	}
 	
@@ -86,11 +93,8 @@
 
 - (void) setFrameSize: (NSSize) size
 {
-	NSEnumerator *enumerator = [streamViewItems objectEnumerator];
-	NSView *object;
-	
-	while (object = [enumerator nextObject])
-		[object setFrameSize: NSMakeSize(size.width, [object frame].size.height)];
+	for (NSView *v in streamViewItems)
+		[v setFrameSize: NSMakeSize(size.width, [v frame].size.height)];
 
 	[self recalcLayout];
 }
@@ -106,25 +110,107 @@
 	[self recalcLayout];
 }
 
-- (void) sinksChanged: (NSArray *) sinks
+- (void) itemAdded: (PAElementInfo *) info
 {
-	if (streamType != StreamTypeSink)
-		return;
-
-	for (PASinkInfo *sink in sinks)
-		[self addStreamView: sink
-			       name: sink.name];
+	[self addStreamView: info
+		       name: info.name];
+	[self recalcLayout];
 }
 
-- (void) sourcesChanged: (NSArray *) sources
+- (void) itemRemoved: (PAElementInfo *) info
 {
-	if (streamType != StreamTypeSource)
-		return;
-	
-	for (PASourceInfo *source in sources)
-		[self addStreamView: source
-			       name: source.name];	
+	[self removeStreamView: info];
+	[self recalcLayout];	
 }
 
+- (void) itemChanged: (PAElementInfo *) info
+{
+	for (StreamView *v in streamViewItems)
+		if (v.info == info)
+			[v update];
+}
+
+
+#pragma mark # sink
+
+- (void) sinkInfoAdded: (PASinkInfo *) sink
+{
+	if (streamType == StreamTypeSink)
+		[self itemAdded: sink];
+}
+
+- (void) sinkInfoRemoved: (PASinkInfo *) sink
+{
+	if (streamType == StreamTypeSink)
+		[self itemRemoved: sink];	
+}
+
+- (void) sinkInfoChanged: (PASinkInfo *) sink
+{
+	if (streamType == StreamTypeSink)
+		[self itemChanged: sink];	
+}
+
+#pragma mark # sink input
+
+- (void) sinkInputInfoAdded: (PASinkInputInfo *) input
+{
+	if (streamType == StreamTypePlayback)
+		[self itemAdded: input];
+}
+
+- (void) sinkInputInfoRemoved: (PASinkInputInfo *) input
+{
+	if (streamType == StreamTypePlayback)
+		[self itemRemoved: input];	
+}
+
+- (void) sinkInputInfoChanged: (PASinkInputInfo *) input
+{
+	if (streamType == StreamTypePlayback)
+		[self itemChanged: input];	
+}
+
+
+#pragma mark # source
+
+- (void) sourceInfoAdded: (PASourceInfo *) source
+{
+	if (streamType == StreamTypeSource)
+		[self itemAdded: source];
+}
+
+- (void) sourceInfoRemoved: (PASourceInfo *) source
+{
+	if (streamType == StreamTypeSource)
+		[self itemRemoved: source];
+}
+
+- (void) sourceInfoChanged: (PASourceInfo *) source
+{
+	if (streamType == StreamTypeSource)
+		[self itemChanged: source];	
+}
+
+
+#pragma mark # source output
+
+- (void) sourceOutputInfoAdded: (PASourceOutputInfo *) output
+{
+	if (streamType == StreamTypeRecording)
+		[self itemAdded: output];
+}
+
+- (void) sourceOutputInfoRemoved: (PASourceOutputInfo *) output
+{
+	if (streamType == StreamTypeRecording)
+		[self itemRemoved: output];
+}
+
+- (void) sourceOutputInfoChanged: (PASourceOutputInfo *) output
+{
+	if (streamType == StreamTypeRecording)
+		[self itemChanged: output];
+}
 
 @end

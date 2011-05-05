@@ -43,13 +43,17 @@ enum {
 	NSInteger expandedHeight;
 	CGFloat longestChannelLabel;
 	
-	id info;
+	PAElementInfo *info;
 	NSInteger type;
 }
+
+@property (nonatomic, readonly) PAElementInfo *info;
 
 - (id) initWithFrame: (NSRect) rect
 		type: (NSInteger) _type
 		name: (NSString *) _name
-		info: (id) _info;
+		info: (PAElementInfo *) _info;
+
+- (void) update;
 
 @end

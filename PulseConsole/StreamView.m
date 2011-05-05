@@ -19,6 +19,8 @@
  USA.
  ***/
 
+#define MAX_VOLUME 0x10000
+
 #import <PulseAudio/PulseAudio.h>
 #import "StreamView.h"
 #import "StreamListView.h"
@@ -29,12 +31,14 @@
 
 @implementation StreamView
 
+@synthesize info;
+
 #pragma mark === NSView subclass ===
 
 - (id) initWithFrame: (NSRect) rect
 		type: (NSInteger) _type
 		name: (NSString *) _name
-		info: (id) _info
+		info: (PAElementInfo *) _info
 {
 	rect.size.height = COLLAPSED_HEIGHT;
 	type = _type;
@@ -51,6 +55,7 @@
 	[masterSlider setTag: -1];
 	[masterSlider setAction: @selector(sliderMovedCallback:)];
 	[masterSlider setTarget: self];
+	[masterSlider setMaxValue: MAX_VOLUME];
 	[self addSubview: masterSlider];
 	
 	label = [[NSTextField alloc] initWithFrame: NSMakeRect(LEFT_MARGIN,
@@ -113,8 +118,10 @@
 			channelNames = ((PASourceInfo *) info).channelNames;
 			break;
 		case StreamTypeRecording:
+			channelNames = ((PASourceOutputInfo *) info).channelNames;
 			break;
 		case StreamTypePlayback:
+			channelNames = ((PASinkInputInfo *) info).channelNames;
 			break;
 	}
 	
@@ -148,6 +155,7 @@
 		[slider setTag: i];
 		[slider setAction: @selector(sliderMovedCallback:)];
 		[slider setTarget: self];
+		[slider setMaxValue: MAX_VOLUME];
 		[self addSubview: slider];
 		[channelSliders addObject: slider];
 		
@@ -186,12 +194,9 @@
 	[meterView setFrameSize: NSMakeSize(size.width - LEFT_MARGIN - RIGHT_MARGIN,
 					    [meterView frame].size.height)];
 	
-	NSEnumerator *enumerator = [channelSliders objectEnumerator];
-	NSView *object;
-	
-	while (object = [enumerator nextObject])
-		[object setFrameSize: NSMakeSize(size.width - LEFT_MARGIN - RIGHT_MARGIN - longestChannelLabel - 10.0f,
-						 [object frame].size.height)];
+	for (NSView *slider in channelSliders)
+		[slider setFrameSize: NSMakeSize(size.width - LEFT_MARGIN - RIGHT_MARGIN - longestChannelLabel - 10.0f,
+						 [slider frame].size.height)];
 	
 	[endpointSelect setFrameOrigin: NSMakePoint(size.width - [endpointSelect frame].size.width - RIGHT_MARGIN,
 						    [endpointSelect frame].origin.y)];
@@ -206,6 +211,15 @@
 
 - (void) drawRect: (NSRect) rect
 {
+}
+
+- (void) update
+{
+	if (type == StreamTypePlayback) {
+		PASinkInputInfo *i = (PASinkInputInfo *) info;
+		NSLog(@" XXX %d", i.volume);
+		[masterSlider setIntValue: i.volume];
+	}
 }
 
 #pragma mark ### local GUI callbacks ###
@@ -237,6 +251,13 @@
 
 - (void) sliderMovedCallback: (id) sender
 {
+	switch (type) {
+		case StreamTypePlayback: {
+			PASinkInputInfo *i = (PASinkInputInfo *) info;
+			i.volume = [sender intValue];
+			break;
+		}
+	}
 }
 
 @end

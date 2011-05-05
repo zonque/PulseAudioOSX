@@ -1,10 +1,23 @@
-//
-//  Introspect.m
-//  PulseConsole
-//
-//  Created by Daniel on 30.04.11.
-//  Copyright 2011 caiaq. All rights reserved.
-//
+/***
+ This file is part of PulseConsole
+ 
+ Copyright 2010,2011 Daniel Mack <pulseaudio@zonque.de>
+ 
+ PulseConsole is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2.1 of the License, or
+ (at your option) any later version.
+ 
+ PulseConsole is distributed in the hope that it will be useful, but
+ WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with PulseAudio; if not, write to the Free Software
+ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ USA.
+ ***/
 
 #import <PulseAudio/PulseAudio.h>
 #import "Introspect.h"
@@ -16,9 +29,6 @@
 #pragma mark ### fooo ###
 - (void) enableGUI: (BOOL) enabled
 {
-	if (!enabled)
-		activeItem = nil;
-
 	NSLog(@" %s() %d selectionTableView %@", __func__, enabled, selectionTableView);
 
 	[selectionTableView setEnabled: enabled];
@@ -33,82 +43,62 @@
 	[propertyTableView reloadData];
 }
 
-- (void) contentChanged
-{
-	activeItem = nil;
-	[selectionTableView deselectAll: nil];
-	[self repaintViews];
-}
-
 - (void) awakeFromNib
 {
 	outlineToplevel = [NSMutableArray arrayWithCapacity: 0];
 	[outlineToplevel retain];
 
-	serverinfo = [NSMutableDictionary dictionaryWithCapacity: 0];
-	cards = [NSMutableArray arrayWithCapacity: 0];
-	sinks = [NSMutableArray arrayWithCapacity: 0];
-	sinkInputs = [NSMutableArray arrayWithCapacity: 0];
-	sources = [NSMutableArray arrayWithCapacity: 0];
-	sourceOutputs = [NSMutableArray arrayWithCapacity: 0];
-	clients = [NSMutableArray arrayWithCapacity: 0];
-	modules = [NSMutableArray arrayWithCapacity: 0];
-	samplecache = [NSMutableArray arrayWithCapacity: 0];
+	parameters = [[NSMutableDictionary dictionaryWithCapacity: 0] retain];
+	properties = [[NSMutableDictionary dictionaryWithCapacity: 0] retain];
 	
-	NSMutableDictionary *d, *v;
-
-	v = [NSMutableDictionary dictionaryWithCapacity: 0];
-	[v setObject: @"Server Information"
-	      forKey: @"label"];
-	[v setObject: serverinfo
-	      forKey: @"parameters"];
+	NSMutableDictionary *d;
 
 	d = [NSMutableDictionary dictionaryWithCapacity: 0];
 	[d setObject: @"General"
 	      forKey: @"label"];
-	[d setObject: [NSArray arrayWithObject: v]
+	[d setObject: [NSArray arrayWithObject: [connection serverInfo]]
 	      forKey: @"children"];
 	[outlineToplevel addObject: d];
 	
 	d = [NSMutableDictionary dictionaryWithCapacity: 0];
 	[d setObject: @"Cards"
 	      forKey: @"label"];
-	[d setObject: cards
+	[d setObject: [connection presentCards]
 	      forKey: @"children"];
 	[outlineToplevel addObject: d];
 	
 	d = [NSMutableDictionary dictionaryWithCapacity: 0];
 	[d setObject: @"Sinks"
 	      forKey: @"label"];
-	[d setObject: sinks
+	[d setObject: [connection presentSinks]
 	      forKey: @"children"];
 	[outlineToplevel addObject: d];
 	
 	d = [NSMutableDictionary dictionaryWithCapacity: 0];
 	[d setObject: @"Sources"
 	      forKey: @"label"];
-	[d setObject: sources
+	[d setObject: [connection presentSources]
 	      forKey: @"children"];
 	[outlineToplevel addObject: d];
 
 	d = [NSMutableDictionary dictionaryWithCapacity: 0];
 	[d setObject: @"Sink inputs"
 	      forKey: @"label"];
-	[d setObject: sinkInputs
+	[d setObject: [connection presentSinkInputs]
 	      forKey: @"children"];
 	[outlineToplevel addObject: d];
 	
 	d = [NSMutableDictionary dictionaryWithCapacity: 0];
 	[d setObject: @"Source outputs"
 	      forKey: @"label"];
-	[d setObject: sourceOutputs
+	[d setObject: [connection presentSourceOutputs]
 	      forKey: @"children"];
 	[outlineToplevel addObject: d];
 	
 	d = [NSMutableDictionary dictionaryWithCapacity: 0];
 	[d setObject: @"Clients"
 	      forKey: @"label"];
-	[d setObject: clients
+	[d setObject: [connection presentClients]
 	      forKey: @"children"];
 	[outlineToplevel addObject: d];
 	
@@ -117,14 +107,14 @@
 	      forKey: @"label"];
 	[d setObject: [NSNumber numberWithBool: YES]
 	      forKey: @"canAdd"];
-	[d setObject: modules
+	[d setObject: [connection presentModules]
 	      forKey: @"children"];
 	[outlineToplevel addObject: d];
 	
 	d = [NSMutableDictionary dictionaryWithCapacity: 0];
 	[d setObject: @"Sample Cache"
 	      forKey: @"label"];
-	[d setObject: samplecache
+	[d setObject: [connection presentSamples]
 	      forKey: @"children"];
 	[outlineToplevel addObject: d];
 	
@@ -141,44 +131,13 @@
 
 - (void) dealloc
 {
-	[serverinfo removeAllObjects];
-	[serverinfo release];
-	
-	[sinks removeAllObjects];
-	[sinks release];
-
-	[sinkInputs removeAllObjects];
-	[sinkInputs release];
-
-	[sources removeAllObjects];
-	[sources release];
-
-	[sourceOutputs removeAllObjects];
-	[sourceOutputs release];
-	
-	[cards removeAllObjects];
-	[cards release];
-	
-	[modules removeAllObjects];
-	[modules release];
-	
-	[clients removeAllObjects];
-	[clients release];
-	
+	[parameters release];
+	[properties release];
 	[super dealloc];
 }
 
 - (void) invalidateAll
 {
-	[sinks removeAllObjects];
-	[sinkInputs removeAllObjects];
-	[sources removeAllObjects];
-	[sourceOutputs removeAllObjects];
-	[modules removeAllObjects];
-	[clients removeAllObjects];
-	[samplecache removeAllObjects];
-	[serverinfo removeAllObjects];
-	[cards removeAllObjects];
 }
 
 - (BOOL) tableView: (NSTableView *) tableView
@@ -200,7 +159,7 @@
 	return NO;
 }
 
-- (NSDictionary *) childForRow: (NSInteger) rowIndex
+- (NSObject *) childForRow: (NSInteger) rowIndex
 {
 	UInt32 index = 0;
 	
@@ -221,7 +180,233 @@
 	}
 	
 	return nil;
+}
+
+- (NSInteger) rowForChild: (PAElementInfo *) child
+{
+	UInt32 index = 0;
+
+	for (NSDictionary *d in outlineToplevel) {
+		index++;
+		
+		NSArray *children = [d objectForKey: @"children"];
+		
+		for (PAElementInfo *e in children) {
+			if (e == child)
+				return index;
+
+			index++;
+		}
+	}
 	
+	return -1;
+}
+
+- (void) setActiveItem: (NSObject *) item
+{
+	[parameters removeAllObjects];
+	[properties removeAllObjects];
+	
+	if ([[item className] isEqualToString: @"PAServerInfo"]) {
+		PAServerInfo *info = (PAServerInfo *) item;
+		
+		[parameters setObject: info.userName
+			       forKey: @"User Name"];
+		[parameters setObject: info.hostName
+			       forKey: @"Host Name"];
+		[parameters setObject: info.version
+			       forKey: @"Server Version"];
+		[parameters setObject: info.serverName
+			       forKey: @"Server Name"];
+		[parameters setObject: info.sampleSpec
+			       forKey: @"Sample Spec"];
+		[parameters setObject: info.channelMap
+			       forKey: @"Channel Map"];
+		[parameters setObject: info.defaultSinkName
+			       forKey: @"Default Sink Name"];
+		[parameters setObject: info.defaultSourceName
+			       forKey: @"Default Source Name"];
+		[parameters setObject: [NSNumber numberWithInt: info.cookie]
+			       forKey: @"Cookie"];
+	}
+	
+	if ([[item className] isEqualToString: @"PACardInfo"]) {
+		PACardInfo *card = (PACardInfo *) item;
+
+		[parameters setObject: card.name
+			       forKey: @"Card Name"];
+		[parameters setObject: card.driver
+			       forKey: @"Driver"];
+	
+		[properties addEntriesFromDictionary: card.properties];
+	}
+	
+	if ([[item className] isEqualToString: @"PASinkInfo"]) {
+		PASinkInfo *sink = (PASinkInfo *) item;
+
+		[parameters setObject: sink.name
+			       forKey: @"Sink Name"];
+		[parameters setObject: sink.description
+			       forKey: @"Description"];
+		[parameters setObject: sink.sampleSpec
+			       forKey: @"Sample Spec"];
+		[parameters setObject: sink.channelMap
+			       forKey: @"Channel Map"];		
+		[parameters setObject: [NSNumber numberWithInt: sink.latency]
+			       forKey: @"Latency (us)"];		
+		[parameters setObject: sink.driver
+			       forKey: @"Driver"];		
+		[parameters setObject: [NSNumber numberWithInt: sink.configuredLatency]
+			       forKey: @"Configured Latency (us)"];
+		
+		[properties addEntriesFromDictionary: sink.properties];
+	}
+	
+	if ([[item className] isEqualToString: @"PASinkInputInfo"]) {
+		PASinkInputInfo *input = (PASinkInputInfo *) item;
+
+		[parameters setObject: input.name
+			       forKey: @"Sink Input Name"];
+		[parameters setObject: [NSNumber numberWithInt: [input.channelNames count]]
+			       forKey: @"Number of channels"];
+		[parameters setObject: [NSNumber numberWithInt: input.sinkUsec]
+			       forKey: @"Sink Latency (us)"];		
+		[parameters setObject: [NSNumber numberWithInt: input.bufferUsec]
+			       forKey: @"Buffer Latency (us)"];		
+		[parameters setObject: input.driver
+			       forKey: @"Driver"];
+	
+		if (input.resampleMethod)
+			[parameters setObject: input.resampleMethod
+				       forKey: @"Resample method"];
+		
+		[parameters setObject: [NSNumber numberWithInt: input.index]
+			       forKey: @"Index"];
+		[parameters setObject: [NSNumber numberWithInt: input.volume]
+			       forKey: @"Volume"];
+		[parameters setObject: [NSNumber numberWithBool: input.muted]
+			       forKey: @"Muted"];
+		[parameters setObject: [NSNumber numberWithBool: input.volumeWriteable]
+			       forKey: @"Volume writeable"];
+		
+		[properties addEntriesFromDictionary: input.properties];
+	}
+
+	if ([[item className] isEqualToString: @"PASourceInfo"]) {
+		PASourceInfo *source = (PASourceInfo *) item;
+
+		[parameters setObject: source.name
+			       forKey: @"Source Name"];
+		[parameters setObject: source.description
+			       forKey: @"Description"];
+		[parameters setObject: source.sampleSpec
+			       forKey: @"Sample Spec"];
+		[parameters setObject: source.channelMap
+			       forKey: @"Channel Map"];		
+		[parameters setObject: [NSNumber numberWithInt: source.latency]
+			       forKey: @"Latency (us)"];		
+		[parameters setObject: source.driver
+			       forKey: @"Driver"];		
+		[parameters setObject: [NSNumber numberWithInt: source.configuredLatency]
+			       forKey: @"Configured Latency (us)"];
+		
+		[properties addEntriesFromDictionary: source.properties];
+	}
+	
+	if ([[item className] isEqualToString: @"PASourceOutputInfo"]) {
+		PASourceOutputInfo *output = (PASourceOutputInfo *) output;
+
+		[parameters setObject: output.name
+			       forKey: @"Source Output Name"];
+		[parameters setObject: [NSNumber numberWithInt: [output.channelNames count]]
+			       forKey: @"Number of channels"];
+		[parameters setObject: [NSNumber numberWithInt: output.sourceUsec]
+			       forKey: @"Source Latency (us)"];		
+		[parameters setObject: [NSNumber numberWithInt: output.bufferUsec]
+			       forKey: @"Buffer Latency (us)"];		
+		[parameters setObject: output.driver
+			       forKey: @"Driver"];
+		
+		if (output.resampleMethod)
+			[parameters setObject: output.resampleMethod
+				       forKey: @"Resample method"];
+		
+		[parameters setObject: [NSNumber numberWithInt: output.index]
+			       forKey: @"Index"];
+		[parameters setObject: [NSNumber numberWithBool: output.corked]
+			       forKey: @"Corked"];
+		
+		[properties addEntriesFromDictionary: output.properties];
+	}
+	
+	if ([[item className] isEqualToString: @"PAModuleInfo"]) {
+		PAModuleInfo *module = (PAModuleInfo *) item;
+
+		[parameters setObject: module.name
+			       forKey: @"Module Name"];
+		[parameters setObject: module.argument ?: @""
+			       forKey: @"Arguments"];
+		[parameters setObject: [NSNumber numberWithInt: module.useCount]
+			       forKey: @"Use count"];
+		
+		[properties addEntriesFromDictionary: module.properties];
+	}
+	
+	if ([[item className] isEqualToString: @"PASampleInfo"]) {
+		PASampleInfo *sample = (PASampleInfo *) item;
+
+		[parameters setObject: sample.name
+			       forKey: @"Name"];
+		[parameters setObject: sample.sampleSpec
+			       forKey: @"Sample Spec"];
+		[parameters setObject: sample.channelMap
+			       forKey: @"Channel Map"];
+		[parameters setObject: sample.fileName
+			       forKey: @"File Name"];		
+		[parameters setObject: [NSNumber numberWithInt: sample.duration]
+			       forKey: @"Duration"];
+		[parameters setObject: [NSNumber numberWithInt: sample.bytes]
+			       forKey: @"bytes"];
+		[parameters setObject: sample.lazy ? @"YES" : @"NO"
+			       forKey: @"Lazy"];
+	}
+	
+	if ([[item className] isEqualToString: @"PAClientInfo"]) {
+		PAClientInfo *client = (PAClientInfo *) item;
+
+		[parameters setObject: client.name
+			       forKey: @"Module Name"];
+		[parameters setObject: client.driver
+			       forKey: @"Driver"];
+		
+		[properties addEntriesFromDictionary: client.properties];
+	}
+	
+	[parameterTableView reloadData];
+	[propertyTableView reloadData];
+}
+
+- (void) contentChanged: (PAElementInfo *) item
+{
+	[parameters removeAllObjects];
+	[properties removeAllObjects];
+
+	NSInteger selectedRow = [selectionTableView selectedRow];
+
+	if (selectedRow >= 0) {
+		PAElementInfo *active = (PAElementInfo *) [self childForRow: selectedRow];
+		[selectionTableView deselectAll: nil];
+		[selectionTableView reloadData];
+		
+		NSInteger row = [self rowForChild: active];
+		if (row > 0) {
+			[selectionTableView selectRow: row
+				 byExtendingSelection: NO];
+			[self setActiveItem: active];
+		}
+	}
+
+	[self repaintViews];
 }
 
 #pragma mark ### NSTableViewSource protocol ###
@@ -233,30 +418,43 @@
 {
 }
 
-- (id)tableView:(NSTableView *)tableView
-objectValueForTableColumn:(NSTableColumn *)col
-	    row:(NSInteger)rowIndex
+- (id)tableView: (NSTableView *) tableView
+objectValueForTableColumn: (NSTableColumn *) col
+	    row: (NSInteger) rowIndex
 {
 	NSDictionary *item = nil;
 	
 	if (tableView == selectionTableView) {
-		NSDictionary *child = [self childForRow: rowIndex];
+		NSObject *child = [self childForRow: rowIndex];
 
-		if ([[col identifier] isEqualToString: @"image"]) {
-			
-			///////////
-			return nil;
-			
-			if ([child objectForKey: @"canAdd"])
-				return [NSImage imageNamed: @"NSAddTemplate"];
-			if ([child objectForKey: @"canRemove"])
-				return [NSImage imageNamed: @"NSRemoveTemplate"];
-			
+		if ([[col identifier] isEqualToString: @"image"]) {			
 			return nil;
 		}
 
 		
-		NSString *label = [child objectForKey: @"label"];
+		NSString *label = @"";
+		NSArray *cl = [NSArray arrayWithObjects:
+			       @"PACardInfo",
+			       @"PAClientInfo",
+			       @"PAModuleInfo",
+			       @"PASampleInfo",
+			       @"PAServerInfo",
+			       @"PASinkInfo",
+			       @"PASinkInputInfo",
+			       @"PASourceInfo",
+			       @"PASourceOutputInfo",
+			       @"PASinkInfo",
+			       nil];
+		
+		if ([cl containsObject: [child className]]) {
+			PAElementInfo *info = (PAElementInfo *) child;
+			label = info.name;
+		}
+		
+		if ([label isEqualToString: @""]) {
+			NSDictionary *d = (NSDictionary *) child;
+			label = [d objectForKey: @"label"];
+		}
 		
 		if ([self tableView: tableView
 			isHeaderRow: rowIndex])
@@ -265,13 +463,10 @@ objectValueForTableColumn:(NSTableColumn *)col
 		return [NSString stringWithFormat: @"     %@", label];
 	}
 
-	if (!activeItem)
-		return @"";
-	
 	if (tableView == parameterTableView)
-		item = [activeItem valueForKey: @"parameters"];
+		item = parameters;
 	else if (tableView == propertyTableView)
-		item = [activeItem valueForKey: @"properties"];
+		item = properties;
 	
 	if (!item)
 		return @"";
@@ -287,8 +482,6 @@ objectValueForTableColumn:(NSTableColumn *)col
 
 - (NSInteger) numberOfRowsInTableView: (NSTableView *) tableView
 {
-	NSDictionary *item = nil;
-	
 	if (tableView == selectionTableView) {
 		UInt32 count = 0;
 
@@ -299,16 +492,14 @@ objectValueForTableColumn:(NSTableColumn *)col
 		
 		return count;
 	}
-	
-	if (!activeItem)
-		return 0;
 		
 	if (tableView == parameterTableView)
-		item = [activeItem valueForKey: @"parameters"];
+		return [parameters count];
+
 	else if (tableView == propertyTableView)
-		item = [activeItem valueForKey: @"properties"];
+		return [properties count];
 	
-	return item ? [item count] : 0;
+	return 0;
 }
 
 #pragma mark ### NSTableViewDelegate protocol ###
@@ -334,7 +525,7 @@ objectValueForTableColumn:(NSTableColumn *)col
 		NSArray *children = [d objectForKey: @"children"];
 		
 		if (index + [children count] > selected) {
-			activeItem = [children objectAtIndex: selected - index];
+			[self setActiveItem: [children objectAtIndex: selected - index]];
 			[self repaintViews];
 			return;
 		}
@@ -362,312 +553,6 @@ objectValueForTableColumn:(NSTableColumn *)col
 		[aCell setFont: [NSFont systemFontOfSize: 11.0]];
 		[aCell setTextColor: [NSColor blackColor]];
 	}
-
-	
-}
-
-#pragma mark ### PAServerConnectionDelegate ###
-
-- (void) serverInfoChanged: (PAServerInfo *) info
-{
-	[serverinfo setObject: info.userName
-		       forKey: @"User Name"];
-	[serverinfo setObject: info.hostName
-		       forKey: @"Host Name"];
-	[serverinfo setObject: info.version
-		       forKey: @"Server Version"];
-	[serverinfo setObject: info.serverName
-		       forKey: @"Server Name"];
-	[serverinfo setObject: info.sampleSpec
-		       forKey: @"Sample Spec"];
-	[serverinfo setObject: info.channelMap
-		       forKey: @"Channel Map"];
-	[serverinfo setObject: info.defaultSinkName
-		       forKey: @"Default Sink Name"];
-	[serverinfo setObject: info.defaultSourceName
-		       forKey: @"Default Source Name"];
-	[serverinfo setObject: [NSNumber numberWithInt: info.cookie]
-		       forKey: @"Cookie"];
-	
-	[self contentChanged];
-}
-
-- (void) cardsChanged: (NSArray *) _cards
-{
-	[cards removeAllObjects];
-	
-	for (PACardInfo *card in _cards) {
-		NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithCapacity: 0];
-		[parameters setObject: card.name
-			       forKey: @"Card Name"];
-		[parameters setObject: card.driver
-			       forKey: @"Driver"];
-		
-		NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity: 0];
-		[d setObject: card.name
-		      forKey: @"label"];
-		[d setObject: parameters
-		      forKey: @"parameters"];
-		[d setObject: card.properties
-		      forKey: @"properties"];
-		
-		[cards addObject: d];
-	}
-	
-	[self contentChanged];
-}
-
-- (void) sinksChanged: (NSArray *) _sinks
-{
-	[sinks removeAllObjects];
-	
-	for (PASinkInfo *sink in _sinks) {
-		NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithCapacity: 0];
-		
-		[parameters setObject: sink.name
-			       forKey: @"Sink Name"];
-		[parameters setObject: sink.description
-			       forKey: @"Description"];
-		[parameters setObject: sink.sampleSpec
-			       forKey: @"Sample Spec"];
-		[parameters setObject: sink.channelMap
-			       forKey: @"Channel Map"];		
-		[parameters setObject: [NSNumber numberWithInt: sink.latency]
-			       forKey: @"Latency (us)"];		
-		[parameters setObject: sink.driver
-			       forKey: @"Driver"];		
-		[parameters setObject: [NSNumber numberWithInt: sink.configuredLatency]
-			       forKey: @"Configured Latency (us)"];
-		
-		NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity: 0];
-		[d setObject: sink.name
-		      forKey: @"label"];
-		[d setObject: [NSNumber numberWithInt: sink.volume]
-		      forKey: @"volume"];
-		[d setObject: [NSNumber numberWithInt: sink.nVolumeSteps]
-		      forKey: @"n_volume_steps"];
-		[d setObject: parameters
-		      forKey: @"parameters"];
-		[d setObject: sink.properties
-		      forKey: @"properties"];
-		[d setObject: [NSValue valueWithPointer: sink]
-		      forKey: @"infoPointer"];
-		
-		[sinks addObject: d];		
-	}
-	
-	[self contentChanged];
-}
-
-- (void) sinkInputsChanged: (NSArray *) inputs
-{
-	[sinkInputs removeAllObjects];
-	
-	for (PASinkInputInfo *input in inputs) {
-		NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithCapacity: 0];
-		
-		[parameters setObject: input.name
-			       forKey: @"Sink Input Name"];
-		[parameters setObject: [NSNumber numberWithInt: [input.channelNames count]]
-			       forKey: @"Number of channels"];
-		[parameters setObject: [NSNumber numberWithInt: input.sinkUsec]
-			       forKey: @"Sink Latency (us)"];		
-		[parameters setObject: [NSNumber numberWithInt: input.bufferUsec]
-			       forKey: @"Buffer Latency (us)"];		
-		[parameters setObject: input.driver
-			       forKey: @"Driver"];
-
-		if (input.resampleMethod)
-			[parameters setObject: input.resampleMethod
-				       forKey: @"Resample method"];
-		
-		[parameters setObject: [NSNumber numberWithInt: input.index]
-			       forKey: @"Index"];
-		[parameters setObject: [NSNumber numberWithInt: input.volume]
-			       forKey: @"Volume"];
-		[parameters setObject: [NSNumber numberWithBool: input.muted]
-			       forKey: @"Muted"];
-		[parameters setObject: [NSNumber numberWithBool: input.volumeWriteable]
-			       forKey: @"Volume writeable"];
-		
-		NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity: 0];
-		[d setObject: input.name
-		      forKey: @"label"];
-		[d setObject: parameters
-		      forKey: @"parameters"];
-		[d setObject: input.properties
-		      forKey: @"properties"];
-		
-		[sinkInputs addObject: d];		
-	}
-	
-	[self contentChanged];
-}
-
-- (void) sourcesChanged: (NSArray *) _sources
-{
-	[sources removeAllObjects];
-	
-	for (PASourceInfo *source in _sources) {
-		NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithCapacity: 0];
-		
-		[parameters setObject: source.name
-			       forKey: @"Source Name"];
-		[parameters setObject: source.description
-			       forKey: @"Description"];
-		[parameters setObject: source.sampleSpec
-			       forKey: @"Sample Spec"];
-		[parameters setObject: source.channelMap
-			       forKey: @"Channel Map"];		
-		[parameters setObject: [NSNumber numberWithInt: source.latency]
-			       forKey: @"Latency (us)"];		
-		[parameters setObject: source.driver
-			       forKey: @"Driver"];		
-		[parameters setObject: [NSNumber numberWithInt: source.configuredLatency]
-			       forKey: @"Configured Latency (us)"];
-		
-		NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity: 0];
-		[d setObject: source.name
-		      forKey: @"label"];
-		[d setObject: parameters
-		      forKey: @"parameters"];
-		[d setObject: source.properties
-		      forKey: @"properties"];
-		[d setObject: [NSValue valueWithPointer: source]
-		      forKey: @"infoPointer"];
-		
-		[sources addObject: d];		
-	}	
-	
-	[self contentChanged];
-}
-
-- (void) sourceOutputsChanged: (NSArray *) outputs
-{
-	[sourceOutputs removeAllObjects];
-	
-	for (PASourceOutputInfo *output in outputs) {
-		NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithCapacity: 0];
-		
-		[parameters setObject: output.name
-			       forKey: @"Source Output Name"];
-		[parameters setObject: [NSNumber numberWithInt: [output.channelNames count]]
-			       forKey: @"Number of channels"];
-		[parameters setObject: [NSNumber numberWithInt: output.sourceUsec]
-			       forKey: @"Source Latency (us)"];		
-		[parameters setObject: [NSNumber numberWithInt: output.bufferUsec]
-			       forKey: @"Buffer Latency (us)"];		
-		[parameters setObject: output.driver
-			       forKey: @"Driver"];
-		
-		if (output.resampleMethod)
-			[parameters setObject: output.resampleMethod
-				       forKey: @"Resample method"];
-				
-		[parameters setObject: [NSNumber numberWithInt: output.index]
-			       forKey: @"Index"];
-		[parameters setObject: [NSNumber numberWithBool: output.corked]
-			       forKey: @"Corked"];
-		
-		NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity: 0];
-		[d setObject: output.name
-		      forKey: @"label"];
-		[d setObject: parameters
-		      forKey: @"parameters"];
-		[d setObject: output.properties
-		      forKey: @"properties"];
-		
-		[sourceOutputs addObject: d];		
-	}
-	
-	[self contentChanged];
-}
-
-- (void) clientsChanged: (NSArray *) _clients
-{
-	[clients removeAllObjects];
-	
-	for (PAClientInfo *client in _clients) {
-		NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithCapacity: 0];
-		[parameters setObject: client.name
-			       forKey: @"Module Name"];
-		[parameters setObject: client.driver
-			       forKey: @"Driver"];
-		
-		NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity: 0];
-		[d setObject: client.name
-		      forKey: @"label"];
-		[d setObject: parameters
-		      forKey: @"parameters"];
-		[d setObject: client.properties
-		      forKey: @"properties"];
-		
-		[clients addObject: d];		
-	}
-	
-	[self contentChanged];
-}
-
-- (void) modulesChanged: (NSArray *) _modules
-{
-	[modules removeAllObjects];
-	
-	for (PAModuleInfo *module in _modules) {
-		NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithCapacity: 0];
-		[parameters setObject: module.name
-			       forKey: @"Module Name"];
-		[parameters setObject: module.argument ?: @""
-			       forKey: @"Arguments"];
-		[parameters setObject: [NSNumber numberWithInt: module.useCount]
-			       forKey: @"Use count"];
-		
-		NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity: 0];
-		[d setObject: module.name
-		      forKey: @"label"];		
-		[d setObject: parameters
-		      forKey: @"parameters"];
-		[d setObject: module.properties
-		      forKey: @"properties"];
-		[d setObject: [NSNumber numberWithBool: YES]
-		      forKey: @"canRemove"];
-
-		[modules addObject: d];
-	}	
-	
-	[self contentChanged];
-}
-
-- (void) samplesChanged: (NSArray *) _samples
-{
-	[samplecache removeAllObjects];
-	
-	for (PASampleInfo *sample in _samples) {
-		NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithCapacity: 0];
-		[parameters setObject: sample.name
-			       forKey: @"Name"];
-		[parameters setObject: sample.sampleSpec
-			       forKey: @"Sample Spec"];
-		[parameters setObject: sample.channelMap
-			       forKey: @"Channel Map"];
-		[parameters setObject: sample.fileName
-			       forKey: @"File Name"];		
-		[parameters setObject: [NSNumber numberWithInt: sample.duration]
-			       forKey: @"Duration"];
-		[parameters setObject: [NSNumber numberWithInt: sample.bytes]
-			       forKey: @"bytes"];
-		[parameters setObject: sample.lazy ? @"YES" : @"NO"
-			       forKey: @"Lazy"];
-		
-		NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity: 0];
-		[d setObject: sample.name
-		      forKey: @"label"];		
-		[d setObject: parameters
-		      forKey: @"parameters"];
-		
-		[samplecache addObject: d];
-	}		
-	
-	[self contentChanged];
 }
 
 @end

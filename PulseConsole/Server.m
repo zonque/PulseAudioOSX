@@ -96,13 +96,14 @@
 	
 	sinkStreamListView.streamType = StreamTypeSink;
 	sourceStreamListView.streamType = StreamTypeSource;
+	playbackStreamListView.streamType = StreamTypePlayback;
+	recordStreamListView.streamType = StreamTypeRecording;
 }
 
 - (void) dealloc
 {
 	[statisticDict removeAllObjects];
 	[statisticDict release];
-	
 	
 	[super dealloc];
 }
@@ -182,60 +183,184 @@ objectValueForTableColumn: (NSTableColumn *) col
 				  [connection lastError]);	
 }
 
+#pragma mark # card
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+	      cardInfoAdded: (PACardInfo *) card
+{
+	[introspect contentChanged: card];
+}
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+	    cardInfoRemoved: (PACardInfo *) card
+{
+	[introspect contentChanged: card];
+}
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+	    cardInfoChanged: (PACardInfo *) card
+{
+	[introspect contentChanged: card];
+}
+
+#pragma mark # sink
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+	      sinkInfoAdded: (PASinkInfo *) sink
+{
+	[introspect contentChanged: sink];
+	[sinkStreamListView sinkInfoAdded: sink];
+}
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+	    sinkInfoRemoved: (PASinkInfo *) sink
+{
+	[introspect contentChanged: sink];
+	[sinkStreamListView sinkInfoRemoved: sink];
+}
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+	    sinkInfoChanged: (PASinkInfo *) sink
+{
+	[introspect contentChanged: sink];
+	[sinkStreamListView sinkInfoChanged: sink];
+}
+
+#pragma mark # sink input
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+	 sinkInputInfoAdded: (PASinkInputInfo *) input
+{
+	[introspect contentChanged: input];
+	[playbackStreamListView sinkInputInfoAdded: input];
+}
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+       sinkInputInfoRemoved: (PASinkInputInfo *) input
+{
+	[introspect contentChanged: input];
+	[playbackStreamListView sinkInputInfoRemoved: input];
+}
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+       sinkInputInfoChanged: (PASinkInputInfo *) input
+{
+	[introspect contentChanged: input];
+	[playbackStreamListView sinkInputInfoChanged: input];
+}
+
+#pragma mark # source
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+	    sourceInfoAdded: (PASourceInfo *) source
+{
+	[introspect contentChanged: source];
+	[sinkStreamListView sourceInfoAdded: source];
+}
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+	  sourceInfoRemoved: (PASourceInfo *) source
+{
+	[introspect contentChanged: source];
+	[sinkStreamListView sourceInfoRemoved: source];
+}
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+	  sourceInfoChanged: (PASourceInfo *) source
+{
+	[introspect contentChanged: source];
+	[sinkStreamListView sourceInfoChanged: source];
+}
+
+#pragma mark # source output
+
+- (void) PAServerConnection: (PAServerConnection *) connection	
+      sourceOutputInfoAdded: (PASourceOutputInfo *) output
+{
+	[introspect contentChanged: output];
+	[recordStreamListView sourceOutputInfoAdded: output];
+}
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+    sourceOutputInfoRemoved: (PASourceOutputInfo *) output
+{
+	[introspect contentChanged: output];
+	[recordStreamListView sourceOutputInfoRemoved: output];
+}
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+    sourceOutputInfoChanged: (PASourceOutputInfo *) output
+{
+	[introspect contentChanged: output];
+	[recordStreamListView sourceOutputInfoChanged: output];
+}
+
+#pragma mark # client
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+	    clientInfoAdded: (PAClientInfo *) client
+{
+	[introspect contentChanged: client];
+}
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+	  clientInfoRemoved: (PAClientInfo *) client
+{
+	[introspect contentChanged: client];
+}
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+	  clientInfoChanged: (PAClientInfo *) client
+{
+	[introspect contentChanged: client];
+}
+
+#pragma mark # module
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+	    moduleInfoAdded: (PAModuleInfo *) module
+{
+	[introspect contentChanged: module];
+}
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+	  moduleInfoRemoved: (PAModuleInfo *) module
+{
+	[introspect contentChanged: module];
+}
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+	  moduleInfoChanged: (PAModuleInfo *) module
+{
+	[introspect contentChanged: module];
+}
+
+#pragma mark # sample
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+	    sampleInfoAdded: (PASampleInfo *) sample
+{
+	[introspect contentChanged: sample];
+}
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+	  sampleInfoRemoved: (PASampleInfo *) sample
+{
+	[introspect contentChanged: sample];
+}
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+	  sampleInfoChanged: (PASampleInfo *) sample
+{
+	[introspect contentChanged: sample];
+}
+
+#pragma mark # server info
+
 - (void) PAServerConnection: (PAServerConnection *) connection
 	  serverInfoChanged: (PAServerInfo *) info
 {
-	[introspect serverInfoChanged: info];
-}
-
-- (void) PAServerConnection: (PAServerConnection *) connection
-	       cardsChanged: (NSArray *) cards
-{
-	[introspect cardsChanged: cards];
-}
-
-- (void) PAServerConnection: (PAServerConnection *) connection
-	       sinksChanged: (NSArray *) sinks
-{
-	[sinkStreamListView sinksChanged: sinks];
-	[introspect sinksChanged: sinks];
-}
-
-- (void) PAServerConnection: (PAServerConnection *) connection
-	  sinkInputsChanged: (NSArray *) inputs
-{
-	[introspect sinkInputsChanged: inputs];
-}
-
-- (void) PAServerConnection: (PAServerConnection *) connection
-	     sourcesChanged: (NSArray *) sources
-{
-	[sourceStreamListView sourcesChanged: sources];
-	[introspect sourcesChanged: sources];
-}
-
-- (void) PAServerConnection: (PAServerConnection *) connection
-       sourceOutputsChanged: (NSArray *) outputs
-{
-	[introspect sourceOutputsChanged: outputs];
-}
-
-- (void) PAServerConnection: (PAServerConnection *) connection
-	     clientsChanged: (NSArray *) clients
-{
-	[introspect clientsChanged: clients];
-}
-
-- (void) PAServerConnection: (PAServerConnection *) connection
-	     modulesChanged: (NSArray *) modules
-{
-	[introspect modulesChanged: modules];
-}
-
-- (void) PAServerConnection: (PAServerConnection *) connection
-	     samplesChanged: (NSArray *) samples
-{
-	[introspect samplesChanged: samples];
+	[introspect contentChanged: info];
 }
 
 #if 0
