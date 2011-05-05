@@ -150,15 +150,7 @@ objectValueForTableColumn: (NSTableColumn *) col
 - (void) PAServiceDiscovery: (PAServiceDiscovery *) discovery
 	  serverDisappeared: (NSNetService *) service
 {
-	NSMutableArray *newArray = [NSMutableArray arrayWithArray: serverArray];
-	
-	for (NSNetService *s in serverArray)
-		if (service == s)
-			[newArray removeObject: service];
-
-	[serverArray release];
-	serverArray = [newArray retain];
-		
+	[serverArray removeObject: service];		
 	[serverTableView reloadData];
 }
 
