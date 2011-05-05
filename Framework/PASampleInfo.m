@@ -62,7 +62,7 @@
 	if (initialized)
 		[server performSelectorOnMainThread: @selector(sendDelegateSampleInfoChanged:)
 					 withObject: self
-				      waitUntilDone: YES];
+				      waitUntilDone: NO];
 	initialized = YES;
 }
 

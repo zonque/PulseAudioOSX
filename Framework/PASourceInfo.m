@@ -69,7 +69,7 @@
 	if (initialized)
 		[server performSelectorOnMainThread: @selector(sendDelegateSourceInfoChanged:)
 					 withObject: self
-				      waitUntilDone: YES];
+				      waitUntilDone: NO];
 	
 	initialized = YES;
 }

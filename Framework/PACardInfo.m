@@ -40,7 +40,7 @@
 	if (initialized)
 		[server performSelectorOnMainThread: @selector(sendDelegateCardInfoChanged:)
 					 withObject: self
-				      waitUntilDone: YES];
+				      waitUntilDone: NO];
 	
 	initialized = YES;
 }

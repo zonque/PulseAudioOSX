@@ -83,7 +83,7 @@
 	if (initialized)
 		[server performSelectorOnMainThread: @selector(sendDelegateSinkInfoChanged:)
 					 withObject: self
-				      waitUntilDone: YES];
+				      waitUntilDone: NO];
 	
 	initialized = YES;
 }

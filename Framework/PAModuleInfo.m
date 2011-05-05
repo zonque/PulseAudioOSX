@@ -53,7 +53,7 @@
 	if (initialized)
 		[server performSelectorOnMainThread: @selector(sendDelegateModuleInfoChanged:)
 					 withObject: self
-				      waitUntilDone: YES];	
+				      waitUntilDone: NO];	
 }
 
 - (id) initWithInfoStruct: (const pa_module_info *) info

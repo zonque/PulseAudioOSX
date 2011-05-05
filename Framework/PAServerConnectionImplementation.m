@@ -220,7 +220,7 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 			[publishedCards removeObject: card];
 			[server performSelectorOnMainThread: @selector(sendDelegateCardInfoRemoved:)
 						 withObject: card
-					      waitUntilDone: YES];		
+					      waitUntilDone: NO];		
 		}
 	}
 	
@@ -260,7 +260,7 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 			[publishedSinks removeObject: sink];
 			[server performSelectorOnMainThread: @selector(sendDelegateSinkInfoRemoved:)
 						 withObject: sink
-					      waitUntilDone: YES];
+					      waitUntilDone: NO];
 		}
 	}
 	
@@ -302,7 +302,7 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 			[publishedSinkInputs removeObject: sinkInput];
 			[server performSelectorOnMainThread: @selector(sendDelegateSinkInputInfoRemoved:)
 						 withObject: sinkInput
-					      waitUntilDone: YES];
+					      waitUntilDone: NO];
 		}
 	}
 	
@@ -342,7 +342,7 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 			[publishedSources removeObject: source];
 			[server performSelectorOnMainThread: @selector(sendDelegateSourceInfoRemoved:)
 						 withObject: source
-					      waitUntilDone: YES];
+					      waitUntilDone: NO];
 		}
 	}
 	
@@ -382,7 +382,7 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 			[publishedSourceOutputs removeObject: sourceOutput];
 			[server performSelectorOnMainThread: @selector(sendDelegateSourceOutputInfoRemoved:)
 						 withObject: sourceOutput
-					      waitUntilDone: YES];
+					      waitUntilDone: NO];
 		}
 	}	
 	
@@ -422,7 +422,7 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 			[publishedClients removeObject: client];
 			[server performSelectorOnMainThread: @selector(sendDelegateClientInfoRemoved:)
 						 withObject: client
-					      waitUntilDone: YES];
+					      waitUntilDone: NO];
 		}
 	}
 	
@@ -462,7 +462,7 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 			[publishedModules removeObject: module];
 			[server performSelectorOnMainThread: @selector(sendDelegateModuleInfoRemoved:)
 						 withObject: module
-					      waitUntilDone: YES];
+					      waitUntilDone: NO];
 		}
 	}	
 	
@@ -502,7 +502,7 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 			[publishedSamples removeObject: sample];
 			[server performSelectorOnMainThread: @selector(sendDelegateSampleInfoRemoved:)
 						 withObject: sample
-					      waitUntilDone: YES];
+					      waitUntilDone: NO];
 		}
 	}
 	

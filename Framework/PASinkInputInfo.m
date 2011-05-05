@@ -115,7 +115,7 @@ static void staticMuteSetCallback(pa_context *context, int success, void *userda
 	if (initialized)
 		[server performSelectorOnMainThread: @selector(sendDelegateSinkInputInfoChanged:)
 					 withObject: self
-				      waitUntilDone: YES];
+				      waitUntilDone: NO];
 	
 	initialized = YES;
 }
