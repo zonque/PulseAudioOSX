@@ -9,8 +9,10 @@
  (at your option) any later version.
  ***/
 
+#import <pulse/pulseaudio.h>
 #import "PASinkInfoInternal.h"
 #import "PAServerConnectionInternal.h"
+#import "PAServerConnectionImplementation.h"
 
 @implementation PASinkInfo
 
@@ -22,9 +24,26 @@
 @synthesize latency;
 @synthesize configuredLatency;
 @synthesize nVolumeSteps;
-@synthesize volume;
 @synthesize properties;
 @synthesize monitorSourceIndex;
+
+- (UInt32) volume
+{
+	return self->volume;
+}
+
+- (void) setVolume: (UInt32) v
+{
+	pa_cvolume pav;
+	pa_cvolume_init(&pav);
+	pa_cvolume_set(&pav, [channelNames count], v);
+	
+	pa_threaded_mainloop_lock(server.impl.PAMainLoop);
+	pa_context_set_sink_volume_by_index(server.impl.PAContext, index, &pav, NULL, NULL);
+	pa_threaded_mainloop_unlock(server.impl.PAMainLoop);
+	
+	volume = v;
+}
 
 @end
 

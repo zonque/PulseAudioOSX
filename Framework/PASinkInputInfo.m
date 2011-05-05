@@ -27,12 +27,6 @@
 
 @synthesize volumeWriteable;
 
-/*
-static void staticMuteSetCallback(pa_context *context, int success, void *userdata)
-{
-}
- */
-
 - (BOOL) muted
 {
 	return self->muted;
@@ -54,8 +48,6 @@ static void staticMuteSetCallback(pa_context *context, int success, void *userda
 
 - (void) setVolume: (UInt32) v
 {
-	NSLog(@"%s() v = %d", __func__, v);
-	
 	pa_cvolume pav;
 	pa_cvolume_init(&pav);
 	pa_cvolume_set(&pav, [channelNames count], v);
