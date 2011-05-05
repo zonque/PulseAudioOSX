@@ -217,8 +217,8 @@
 {
 	if (type == StreamTypePlayback) {
 		PASinkInputInfo *i = (PASinkInputInfo *) info;
-		NSLog(@" XXX %d", i.volume);
 		[masterSlider setIntValue: i.volume];
+		[masterSlider setNeedsDisplay: YES];
 	}
 }
 

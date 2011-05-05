@@ -147,6 +147,7 @@ objectValueForTableColumn: (NSTableColumn *) col
 - (void) PAServerConnectionEstablished: (PAServerConnection *) c
 {
 	[window setTitle: [connection serverName]];
+	[introspect serverReady];
 	[self enableGUI: YES];
 }
 
@@ -255,21 +256,21 @@ objectValueForTableColumn: (NSTableColumn *) col
 	    sourceInfoAdded: (PASourceInfo *) source
 {
 	[introspect contentChanged: source];
-	[sinkStreamListView sourceInfoAdded: source];
+	[sourceStreamListView sourceInfoAdded: source];
 }
 
 - (void) PAServerConnection: (PAServerConnection *) connection
 	  sourceInfoRemoved: (PASourceInfo *) source
 {
 	[introspect contentChanged: source];
-	[sinkStreamListView sourceInfoRemoved: source];
+	[sourceStreamListView sourceInfoRemoved: source];
 }
 
 - (void) PAServerConnection: (PAServerConnection *) connection
 	  sourceInfoChanged: (PASourceInfo *) source
 {
 	[introspect contentChanged: source];
-	[sinkStreamListView sourceInfoChanged: source];
+	[sourceStreamListView sourceInfoChanged: source];
 }
 
 #pragma mark # source output

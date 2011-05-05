@@ -43,13 +43,22 @@
 	[propertyTableView reloadData];
 }
 
-- (void) awakeFromNib
+- (id) init
 {
-	outlineToplevel = [NSMutableArray arrayWithCapacity: 0];
-	[outlineToplevel retain];
+	[super init];
 
+	outlineToplevel = [[NSMutableArray arrayWithCapacity: 0] retain];
 	parameters = [[NSMutableDictionary dictionaryWithCapacity: 0] retain];
 	properties = [[NSMutableDictionary dictionaryWithCapacity: 0] retain];
+
+	return self;
+}
+
+- (void) serverReady
+{
+	[outlineToplevel removeAllObjects];
+	[parameters removeAllObjects];
+	[properties removeAllObjects];	
 	
 	NSMutableDictionary *d;
 
@@ -117,7 +126,10 @@
 	[d setObject: [connection presentSamples]
 	      forKey: @"children"];
 	[outlineToplevel addObject: d];
-	
+}
+
+- (void) awakeFromNib
+{
 	[selectionTableView setEnabled: NO];
 	[parameterTableView setEnabled: NO];
 	[propertyTableView setEnabled: NO];

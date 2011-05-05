@@ -36,6 +36,7 @@
 
 @property (nonatomic, retain) PAServerConnection *connection;
 
+- (void) serverReady;
 - (void) invalidateAll;
 - (void) contentChanged: (PAElementInfo *) item;
 - (void) enableGUI: (BOOL) enabled;
