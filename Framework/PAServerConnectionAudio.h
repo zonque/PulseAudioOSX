@@ -28,12 +28,20 @@
 	
 	Float64			 sampleRate;
 	UInt32			 ioProcBufferSize;
+	
+	NSString		*sinkForPlayback;
+	NSString		*sourceForRecord;
 }
+
+@property (nonatomic, readonly) NSString *sinkForPlayback;
+@property (nonatomic, readonly) NSString *sourceForRecord;
 
 - (id) initWithPAServerConnection: (PAServerConnection *) serverConnection
 			  context: (pa_context *) context
 			nChannels: (UInt32) nChannels
 		       sampleRate: (Float64) sampleRate
-		 ioProcBufferSize: (UInt32) ioProcBufferSize;
+		 ioProcBufferSize: (UInt32) ioProcBufferSize
+		  sinkForPlayback: (NSString *) sinkForPlayback
+		  sourceForRecord: (NSString *) sourceForRecord;
 
 @end

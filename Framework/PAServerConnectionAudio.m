@@ -15,6 +15,9 @@
 
 @implementation PAServerConnectionAudio
 
+@synthesize sinkForPlayback;
+@synthesize sourceForRecord;
+
 - (void) streamStartedCallback: (pa_stream *) stream
 {
 	NSLog(@"%s() %s", __func__, stream == PARecordStream ? "input" : "output");
@@ -127,6 +130,8 @@ static void staticStreamBufferAttrCallback(pa_stream *stream, void *userdata)
 			nChannels: (UInt32) nChannels
 		       sampleRate: (Float64) _sampleRate
 		 ioProcBufferSize: (UInt32) _ioProcBufferSize
+		  sinkForPlayback: (NSString *) sink
+		  sourceForRecord: (NSString *) source
 {
 	[super init];
 	
@@ -136,6 +141,16 @@ static void staticStreamBufferAttrCallback(pa_stream *stream, void *userdata)
 	PAContext = _context;
 
 	ioBufferFrameSize = _ioProcBufferSize;
+	
+	if (sinkForPlayback)
+		[sinkForPlayback release];
+	
+	sinkForPlayback = [sink retain];
+	
+	if (sourceForRecord)
+		[sourceForRecord release];
+	
+	sourceForRecord = [source retain];
 	
 	sampleSpec.format = PA_SAMPLE_FLOAT32;
 	sampleSpec.rate = _sampleRate;
@@ -159,7 +174,9 @@ static void staticStreamBufferAttrCallback(pa_stream *stream, void *userdata)
 	pa_stream_set_overflow_callback(PAPlaybackStream, staticStreamOverflowCallback, self);
 	pa_stream_set_underflow_callback(PAPlaybackStream, staticStreamUnderflowCallback, self);
 	pa_stream_set_buffer_attr_callback(PAPlaybackStream, staticStreamBufferAttrCallback, self);
-	ret = pa_stream_connect_playback(PAPlaybackStream, NULL, &bufAttr,
+	ret = pa_stream_connect_playback(PAPlaybackStream, 
+					 sink ? [sink cStringUsingEncoding: NSASCIIStringEncoding] : NULL,
+					 &bufAttr,
 					 (pa_stream_flags_t)  (PA_STREAM_INTERPOLATE_TIMING |
 							       PA_STREAM_AUTO_TIMING_UPDATE),
 					 NULL, NULL);

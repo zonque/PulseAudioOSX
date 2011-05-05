@@ -38,7 +38,7 @@
 @property (nonatomic, readonly) UInt32 latency;
 @property (nonatomic, readonly) UInt32 configuredLatency;
 @property (nonatomic, readonly) UInt32 nVolumeSteps;
-@property (nonatomic, readonly) UInt32 volume;
+@property (nonatomic, readwrite) UInt32 volume;
 @property (nonatomic, readonly) UInt32 monitorSourceIndex;
 @property (nonatomic, readonly) NSDictionary *properties;
 

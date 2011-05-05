@@ -82,7 +82,9 @@
 - (BOOL) isConnected;
 - (BOOL) addAudioStreams: (UInt32) nChannels
 	      sampleRate: (Float32) sampleRate
-	ioProcBufferSize: (UInt32) ioProcBufferSize;
+	ioProcBufferSize: (UInt32) ioProcBufferSize
+	 sinkForPlayback: (NSString *) sinkForPlayback
+	 sourceForRecord: (NSString *) sourceForRecord;
 
 - (NSString *) clientName;
 - (void) setClientName: (NSString *) name;
