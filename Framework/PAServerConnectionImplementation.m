@@ -210,19 +210,18 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 	}
 	
 	if (eol) {
-		NSMutableArray *a = [NSMutableArray arrayWithArray: publishedCards];
+		NSMutableArray *d = [NSMutableArray arrayWithCapacity: 0];
 
 		for (PACardInfo *card in publishedCards)
-			if (![presentCards containsObject: card]) {
-				[server performSelectorOnMainThread: @selector(sendDelegateCardInfoRemoved:)
-							 withObject: card
-						      waitUntilDone: YES];		
+			if (![presentCards containsObject: card])
+				[d addObject: card];
 
-				[a removeObject: card];
-			}
-		
-		[publishedCards removeAllObjects];
-		[publishedCards addObjectsFromArray: a];
+		for (PACardInfo *card in d) {
+			[publishedCards removeObject: card];
+			[server performSelectorOnMainThread: @selector(sendDelegateCardInfoRemoved:)
+						 withObject: card
+					      waitUntilDone: YES];		
+		}
 	}
 	
 	[pool drain];
@@ -251,19 +250,18 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 	}
 	
 	if (eol) {
-		NSMutableArray *a = [NSMutableArray arrayWithArray: publishedSinks];
+		NSMutableArray *d = [NSMutableArray arrayWithCapacity: 0];
 
 		for (PASinkInfo *sink in publishedSinks)
-			if (![presentSinks containsObject: sink]) {
-				[server performSelectorOnMainThread: @selector(sendDelegateSinkInfoRemoved:)
-							 withObject: sink
-						      waitUntilDone: YES];		
-				
-				[a removeObject: sink];
-			}		
+			if (![presentSinks containsObject: sink])
+				[d addObject: sink];
 
-		[publishedSinks removeAllObjects];
-		[publishedSinks addObjectsFromArray: a];
+		for (PASinkInfo *sink in d) {
+			[publishedSinks removeObject: sink];
+			[server performSelectorOnMainThread: @selector(sendDelegateSinkInfoRemoved:)
+						 withObject: sink
+					      waitUntilDone: YES];
+		}
 	}
 	
 	[pool drain];
@@ -292,21 +290,20 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 	}
 
 	if (eol) {
-		NSMutableArray *a = [NSMutableArray arrayWithArray: publishedSinkInputs];
+		NSMutableArray *d = [NSMutableArray arrayWithCapacity: 0];
 
 		NSLog(@"publishedSinkInputs: %d presentSinkInputs: %d", [publishedSinkInputs count], [presentSinkInputs count]);
 		
 		for (PASinkInputInfo *sinkInput in publishedSinkInputs)
-			if (![presentSinkInputs containsObject: sinkInput]) {
-				[server performSelectorOnMainThread: @selector(sendDelegateSinkInputInfoRemoved:)
-							 withObject: sinkInput
-						      waitUntilDone: YES];		
-				
-				[a removeObject: sinkInput];
-			}
-		
-		[publishedSinkInputs removeAllObjects];
-		[publishedSinkInputs addObjectsFromArray: a];
+			if (![presentSinkInputs containsObject: sinkInput])
+				[d addObject: sinkInput];
+
+		for (PASinkInputInfo *sinkInput in d) {
+			[publishedSinkInputs removeObject: sinkInput];
+			[server performSelectorOnMainThread: @selector(sendDelegateSinkInputInfoRemoved:)
+						 withObject: sinkInput
+					      waitUntilDone: YES];
+		}
 	}
 	
 	[pool drain];
@@ -335,19 +332,18 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 	}
 	
 	if (eol) {
-		NSMutableArray *a = [NSMutableArray arrayWithArray: publishedSources];
+		NSMutableArray *d = [NSMutableArray arrayWithCapacity: 0];
 
 		for (PASourceInfo *source in publishedSources)
-			if (![presentSources containsObject: source]) {
-				[server performSelectorOnMainThread: @selector(sendDelegateSourceInfoRemoved:)
-							 withObject: source
-						      waitUntilDone: YES];		
-				
-				[a removeObject: source];
-			}
+			if (![presentSources containsObject: source])
+				[d addObject: source];
 		
-		[publishedSources removeAllObjects];
-		[publishedSources addObjectsFromArray: a];
+		for (PASourceInfo *source in d) {
+			[publishedSources removeObject: source];
+			[server performSelectorOnMainThread: @selector(sendDelegateSourceInfoRemoved:)
+						 withObject: source
+					      waitUntilDone: YES];
+		}
 	}
 	
 	[pool drain];
@@ -376,19 +372,18 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 	}
 	
 	if (eol) {
-		NSMutableArray *a = [NSMutableArray arrayWithArray: publishedSourceOutputs];
+		NSMutableArray *d = [NSMutableArray arrayWithCapacity: 0];
 
 		for (PASourceOutputInfo *sourceOutput in publishedSourceOutputs)
-			if (![presentSourceOutputs containsObject: sourceOutput]) {
-				[server performSelectorOnMainThread: @selector(sendDelegateSourceOutputInfoRemoved:)
-							 withObject: sourceOutput
-						      waitUntilDone: YES];		
-				
-				[a removeObject: sourceOutput];
-			}
+			if (![presentSourceOutputs containsObject: sourceOutput])
+				[d addObject: sourceOutput];
 		
-		[publishedSourceOutputs removeAllObjects];
-		[publishedSourceOutputs addObjectsFromArray: a];
+		for (PASourceOutputInfo *sourceOutput in d) {
+			[publishedSourceOutputs removeObject: sourceOutput];
+			[server performSelectorOnMainThread: @selector(sendDelegateSourceOutputInfoRemoved:)
+						 withObject: sourceOutput
+					      waitUntilDone: YES];
+		}
 	}	
 	
 	[pool drain];
@@ -417,19 +412,18 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 	}
 	
 	if (eol) {
-		NSMutableArray *a = [NSMutableArray arrayWithArray: publishedClients];
+		NSMutableArray *d = [NSMutableArray arrayWithCapacity: 0];
 		
 		for (PAClientInfo *client in publishedClients)
-			if (![presentClients containsObject: client]) {
-				[server performSelectorOnMainThread: @selector(sendDelegateClientInfoRemoved:)
-							 withObject: client
-						      waitUntilDone: YES];		
-				
-				[a removeObject: client];
-			}
-		
-		[publishedClients removeAllObjects];
-		[publishedClients addObjectsFromArray: a];
+			if (![presentClients containsObject: client])
+				[d addObject: client];
+
+		for (PAClientInfo *client in d) {
+			[publishedClients removeObject: client];
+			[server performSelectorOnMainThread: @selector(sendDelegateClientInfoRemoved:)
+						 withObject: client
+					      waitUntilDone: YES];
+		}
 	}
 	
 	[pool drain];
@@ -458,19 +452,18 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 	}
 	
 	if (eol) {
-		NSMutableArray *a = [NSMutableArray arrayWithArray: publishedModules];
+		NSMutableArray *d = [NSMutableArray arrayWithCapacity: 0];
 
 		for (PAModuleInfo *module in publishedModules)
-			if (![presentModules containsObject: module]) {
-				[server performSelectorOnMainThread: @selector(sendDelegateModuleInfoRemoved:)
-							 withObject: module
-						      waitUntilDone: YES];		
-				
-				[a removeObject: module];
-			}
-		
-		[publishedModules removeAllObjects];
-		[publishedModules addObjectsFromArray: a];
+			if (![presentModules containsObject: module])
+				[d addObject: module];
+
+		for (PAModuleInfo *module in d) {
+			[publishedModules removeObject: module];
+			[server performSelectorOnMainThread: @selector(sendDelegateModuleInfoRemoved:)
+						 withObject: module
+					      waitUntilDone: YES];
+		}
 	}	
 	
 	[pool drain];
@@ -499,19 +492,18 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 	}
 
 	if (eol) {
-		NSMutableArray *a = [NSMutableArray arrayWithArray: publishedSamples];
+		NSMutableArray *d = [NSMutableArray arrayWithCapacity: 0];
 
 		for (PASampleInfo *sample in publishedSamples)
-			if (![presentSamples containsObject: sample]) {
-				[server performSelectorOnMainThread: @selector(sendDelegateSampleInfoRemoved:)
-							 withObject: sample
-						      waitUntilDone: YES];		
-				
-				[a removeObject: sample];
-			}
+			if (![presentSamples containsObject: sample])
+				[d addObject: sample];
 		
-		[publishedSamples removeAllObjects];
-		[publishedSamples addObjectsFromArray: a];
+		for (PASampleInfo *sample in d) {
+			[publishedSamples removeObject: sample];
+			[server performSelectorOnMainThread: @selector(sendDelegateSampleInfoRemoved:)
+						 withObject: sample
+					      waitUntilDone: YES];
+		}
 	}
 	
 	[pool drain];
