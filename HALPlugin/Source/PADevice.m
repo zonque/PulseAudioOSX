@@ -21,6 +21,9 @@
 @synthesize name;
 @synthesize delegate;
 @synthesize deviceAudio;
+@synthesize serverName;
+@synthesize sinkForPlayback;
+@synthesize sourceForRecord;
 
 #pragma mark ### audio object handling ###
 
@@ -70,7 +73,7 @@
 - (void) connectToServer
 {
 	if (![serverConnection isConnected])
-		[serverConnection connectToHost: nil
+		[serverConnection connectToHost: serverName
 					   port: -1];
 }
 
@@ -103,7 +106,27 @@
 }
 
 - (void) setConfig: (NSDictionary *) config
-{	
+{
+	if (serverName) {
+		[serverName retain];
+		serverName = nil;
+	}
+
+	if (sinkForPlayback) {
+		[sinkForPlayback retain];
+		sinkForPlayback = nil;
+	}
+	
+	if (sourceForRecord) {
+		[sourceForRecord retain];
+		sourceForRecord = nil;
+	}
+
+	serverName = [[config objectForKey: @"serverName"] retain];
+	sinkForPlayback = [[config objectForKey: @"sinkForPlayback"] retain];
+	sourceForRecord = [[config objectForKey: @"sourceForRecord"] retain];
+	
+	[self reconnectIfConnected];
 }
 
 #pragma mark ### PADevice ###
@@ -744,7 +767,9 @@
 	NSLog(@"%s()", __func__);
 	BOOL ret = [serverConnection addAudioStreams: [deviceAudio countActiveChannels]
 					  sampleRate: deviceAudio.sampleRate
-				    ioProcBufferSize: deviceAudio.ioProcBufferSize];
+				    ioProcBufferSize: deviceAudio.ioProcBufferSize
+				     sinkForPlayback: sinkForPlayback
+				     sourceForRecord: sourceForRecord];
 	if (ret) {
 		if (delegate)
 			[delegate deviceStarted: self];

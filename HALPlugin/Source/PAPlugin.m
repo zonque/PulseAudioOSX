@@ -161,7 +161,15 @@
 	[dict setObject: [NSNumber numberWithFloat: audio.sampleRate]
 		 forKey: @"sampleRate"];
 	[dict setObject: device.name
-		 forKey: @"deviceName"];	
+		 forKey: @"deviceName"];
+	[dict setObject: device.serverName
+		 forKey: @"serverName"];
+	[dict setObject: device.sinkForPlayback
+		 forKey: @"sinkForPlayback"];
+	[dict setObject: device.sourceForRecord
+		 forKey: @"sourceForRecord"];
+
+	// needed for back channel
 	[dict setObject: helperConnection.name
 		 forKey: @"connectionName"];
 	

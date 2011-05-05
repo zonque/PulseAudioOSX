@@ -44,10 +44,18 @@
 	
 	PAServerConnection *serverConnection;
 	PADeviceAudio *deviceAudio;
+	
+	NSString *serverName;
+	NSString *sinkForPlayback;
+	NSString *sourceForRecord;
 }
 
 @property (nonatomic, readonly) PADeviceAudio *deviceAudio;
 @property (nonatomic, readonly) NSString *name;
+@property (nonatomic, readonly) NSString *serverName;
+@property (nonatomic, readonly) NSString *sinkForPlayback;
+@property (nonatomic, readonly) NSString *sourceForRecord;
+
 @property (nonatomic, assign) NSObject *delegate;
 
 - (id) initWithPluginRef: (AudioHardwarePlugInRef) ref
