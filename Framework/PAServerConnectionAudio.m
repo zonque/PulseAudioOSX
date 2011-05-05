@@ -148,9 +148,7 @@ static void staticStreamBufferAttrCallback(pa_stream *stream, void *userdata)
 	
 	int ret;
 
-	NSString *str = [NSString stringWithFormat: @"%@ playback", [serverConnection clientName]];
-	PAPlaybackStream = pa_stream_new(PAContext, [str cStringUsingEncoding: NSASCIIStringEncoding],
-					 &sampleSpec, NULL);
+	PAPlaybackStream = pa_stream_new(PAContext, "Playback", &sampleSpec, NULL);
 
 	if (!PAPlaybackStream)
 		return nil;
@@ -170,16 +168,13 @@ static void staticStreamBufferAttrCallback(pa_stream *stream, void *userdata)
 		return nil;
 	
 	/*
-	 NSString *str = [NSString stringWithFormat: @"%@ record", [serverConnection clientName]];
-	 pa_threaded_mainloop_lock(PAMainLoop);
-	 PARecordStream = pa_stream_new(PAContext, tmp, &sampleSpec, NULL);
+	 PARecordStream = pa_stream_new(PAContext, "Record", &sampleSpec, NULL);
 	 //pa_stream_set_read_callback(PARecordStream, staticStreamReadCallback, self);
 	 pa_stream_set_event_callback(PARecordStream, staticStreamEventCallback, self);
 	 pa_stream_set_overflow_callback(PARecordStream, staticStreamOverflowCallback, self);
 	 pa_stream_set_underflow_callback(PARecordStream, staticStreamUnderflowCallback, self);
 	 pa_stream_set_buffer_attr_callback(PARecordStream, staticStreamBufferAttrCallback, self);
 	 pa_stream_connect_record(PARecordStream, NULL, &bufAttr, (pa_stream_flags_t) 0);
-	 pa_threaded_mainloop_unlock(PAMainLoop);
 	 */
 	
 	return self;
