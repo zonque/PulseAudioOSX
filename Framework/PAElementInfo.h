@@ -10,15 +10,24 @@
  ***/
 
 #import <Foundation/Foundation.h>
-#import "PAServerConnection.h"
 
 #define PAElementInfoChangedNotification @"PAElementInfoChangedNotification"
 
+@class PAServerConnection;
+
 @interface PAElementInfo : NSObject
 {
+	UInt32 index;
 	PAServerConnection *server;
+	NSString *name;
+	
+	BOOL initialized;
 }
 
+- (id) initWithServer: (PAServerConnection *) s;
+
+@property (nonatomic, readonly) UInt32 index;
 @property (nonatomic, readonly) PAServerConnection *server;
+@property (nonatomic, readonly) NSString *name;
 
 @end

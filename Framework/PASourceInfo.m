@@ -15,7 +15,6 @@
 
 @implementation PASourceInfo
 
-@synthesize name;
 @synthesize description;
 @synthesize sampleSpec;
 @synthesize channelMap;
@@ -30,28 +29,56 @@
 
 @implementation PASourceInfo (internal)
 
+- (void) loadFromInfoStruct: (const pa_source_info *) info
+{
+	char tmp[0x100];
+	
+	index = info->index;
+	latency = info->latency;
+	configuredLatency = info->configured_latency;
+	
+	if (name)
+		[name release];
+	name = [[NSString stringWithCString: info->name
+				   encoding: NSUTF8StringEncoding] retain];
+	
+	if (description)
+		[description release];
+	description = [[NSString stringWithCString: info->description
+					  encoding: NSUTF8StringEncoding] retain];
+	
+	if (sampleSpec)
+		[sampleSpec release];
+	sampleSpec = [[NSString stringWithCString: pa_sample_spec_snprint(tmp, sizeof(tmp), &info->sample_spec)
+					 encoding: NSUTF8StringEncoding] retain];
+	
+	if (channelMap)
+		[channelMap release];
+	channelMap = [[NSString stringWithCString: pa_channel_map_snprint(tmp, sizeof(tmp), &info->channel_map)
+					 encoding: NSUTF8StringEncoding] retain];
+
+	if (driver)
+		[driver release];
+	driver = [[NSString stringWithCString: info->driver
+				     encoding: NSUTF8StringEncoding] retain];
+
+	if (properties)
+		[properties release];
+	properties = [[PAServerConnection createDictionaryFromProplist: info->proplist] retain];
+	
+	if (initialized)
+		[server performSelectorOnMainThread: @selector(sendDelegateSourceInfoChanged:)
+					 withObject: self
+				      waitUntilDone: YES];
+	
+	initialized = YES;
+}
+
 - (id) initWithInfoStruct: (const pa_source_info *) info
 		   server: (PAServerConnection *) s
 {
-	[super init];
-
-	char tmp[0x100];
-	
-	name = [[NSString stringWithCString: info->name
-				   encoding: NSUTF8StringEncoding] retain];
-	description = [[NSString stringWithCString: info->description
-					  encoding: NSUTF8StringEncoding] retain];
-	sampleSpec = [[NSString stringWithCString: pa_sample_spec_snprint(tmp, sizeof(tmp), &info->sample_spec)
-					 encoding: NSUTF8StringEncoding] retain];
-	channelMap = [[NSString stringWithCString: pa_channel_map_snprint(tmp, sizeof(tmp), &info->channel_map)
-					 encoding: NSUTF8StringEncoding] retain];
-	driver = [[NSString stringWithCString: info->driver
-				     encoding: NSUTF8StringEncoding] retain];
-	latency = info->latency;
-	configuredLatency = info->configured_latency;
-	properties = [[PAServerConnection createDictionaryFromProplist: info->proplist] retain];
-	server = s;
-	
+	[super initWithServer: s];
+	[self loadFromInfoStruct: info];
 	return self;
 }
 

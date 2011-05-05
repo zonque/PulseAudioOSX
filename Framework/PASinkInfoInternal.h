@@ -20,5 +20,7 @@
 + (PASinkInfo *) createFromInfoStruct: (const pa_sink_info *) info
 			       server: (PAServerConnection *) s;
 
+- (void) loadFromInfoStruct: (const pa_sink_info *) info;
+
 @end
 

@@ -14,8 +14,6 @@
 
 @implementation PAModuleInfo
 
-@synthesize index;
-@synthesize name;
 @synthesize argument;
 @synthesize useCount;
 @synthesize properties;
@@ -29,21 +27,40 @@
 
 @implementation PAModuleInfo (internal)
 
-- (id) initWithInfoStruct: (const pa_module_info *) info
-		   server: (PAServerConnection *) s
+- (void) loadFromInfoStruct: (const pa_module_info *) info
 {
-	[super init];
+	index = info->index;
+	useCount = info->n_used;
+
+	if (name)
+		[name release];
 	
 	name = [[NSString stringWithCString: info->name
 				   encoding: NSUTF8StringEncoding] retain];
+	if (argument) {
+		[argument release];
+		argument = nil;
+	}
+	
 	if (info->argument)
 		argument = [[NSString stringWithCString: info->argument
 					       encoding: NSUTF8StringEncoding] retain];
-	index = info->index;
-	useCount = info->n_used;
-	properties = [[PAServerConnection createDictionaryFromProplist: info->proplist] retain];
-	server = s;
+	if (properties)
+		[properties release];
 	
+	properties = [[PAServerConnection createDictionaryFromProplist: info->proplist] retain];
+	
+	if (initialized)
+		[server performSelectorOnMainThread: @selector(sendDelegateModuleInfoChanged:)
+					 withObject: self
+				      waitUntilDone: YES];	
+}
+
+- (id) initWithInfoStruct: (const pa_module_info *) info
+		   server: (PAServerConnection *) s
+{
+	[super initWithServer: s];
+	[self loadFromInfoStruct: info];
 	return self;
 }
 

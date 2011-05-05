@@ -12,11 +12,8 @@
 #import <Foundation/Foundation.h>
 #import "PAElementInfo.h"
 
-@class PAServerConnection;
-
 @interface PASinkInfo : PAElementInfo
 {
-	NSString *name;
 	NSString *description;
 	NSString *sampleSpec;
 	NSString *channelMap;
@@ -24,7 +21,6 @@
 	
 	NSArray *channelNames;
 	
-	UInt32 index;
 	UInt32 latency;
 	UInt32 configuredLatency;
 	UInt32 nVolumeSteps;
@@ -34,13 +30,11 @@
 	NSDictionary *properties;
 }
 
-@property (nonatomic, readonly) NSString *name;
 @property (nonatomic, readonly) NSString *description;
 @property (nonatomic, readonly) NSString *sampleSpec;
 @property (nonatomic, readonly) NSString *channelMap;
 @property (nonatomic, readonly) NSString *driver;
 @property (nonatomic, readonly) NSArray *channelNames;
-@property (nonatomic, readonly) UInt32 index;
 @property (nonatomic, readonly) UInt32 latency;
 @property (nonatomic, readonly) UInt32 configuredLatency;
 @property (nonatomic, readonly) UInt32 nVolumeSteps;

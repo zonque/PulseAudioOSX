@@ -73,6 +73,8 @@
 		[delegate PAServerConnectionFailed: self];
 }
 
+// server info
+
 - (void) sendDelegateServerInfoChanged: (PAServerInfo *) serverInfo
 {
 	if (delegate && [delegate respondsToSelector: @selector(PAServerConnection:serverInfoChanged:)])
@@ -80,65 +82,193 @@
 			   serverInfoChanged: serverInfo];
 }
 
-- (void) sendDelegateCardsChanged: (NSArray *) cards
+// card
+
+- (void) sendDelegateCardInfoAdded: (PACardInfo *) card
 {
-	if (delegate && [delegate respondsToSelector: @selector(PAServerConnection:cardsChanged:)])
+	if (delegate && [delegate respondsToSelector: @selector(PAServerConnection:cardInfoAdded:)])
 		[delegate PAServerConnection: self
-				cardsChanged: cards];	
+			       cardInfoAdded: card];
 }
 
-- (void) sendDelegateSinksChanged: (NSArray *) sinks
+- (void) sendDelegateCardInfoRemoved: (PACardInfo *) card
 {
-	if (delegate && [delegate respondsToSelector: @selector(PAServerConnection:sinksChanged:)])
+	if (delegate && [delegate respondsToSelector: @selector(PAServerConnection:cardInfoRemoved:)])
 		[delegate PAServerConnection: self
-				sinksChanged: sinks];
+			     cardInfoRemoved: card];
 }
 
-- (void) sendDelegateSinkInputsChanged: (NSArray *) sinkInputs
+- (void) sendDelegateCardInfoChanged: (PACardInfo *) card
 {
-	if (delegate && [delegate respondsToSelector: @selector(PAServerConnection:sinkInputsChanged:)])
+	if (delegate && [delegate respondsToSelector: @selector(PAServerConnection:cardInfoChanged:)])
 		[delegate PAServerConnection: self
-			   sinkInputsChanged: sinkInputs];
+			     cardInfoChanged: card];
 }
 
-- (void) sendDelegateSourcesChanged: (NSArray *) sources
+// sink
+
+- (void) sendDelegateSinkInfoAdded: (PASinkInfo *) sink
 {
-	if (delegate && [delegate respondsToSelector: @selector(PAServerConnection:sourcesChanged:)])
+	if (delegate && [delegate respondsToSelector: @selector(PAServerConnection:sinkInfoAdded:)])
 		[delegate PAServerConnection: self
-			      sourcesChanged: sources];
+			       sinkInfoAdded: sink];
 }
 
-- (void) sendDelegateSourceOutputsChanged: (NSArray *) sourceOutputs
+- (void) sendDelegateSinkInfoRemoved: (PASinkInfo *) sink
 {
-	if (delegate && [delegate respondsToSelector: @selector(PAServerConnection:sourceOutputsChanged:)])
+	if (delegate && [delegate respondsToSelector: @selector(PAServerConnection:sinkInfoRemoved:)])
 		[delegate PAServerConnection: self
-			sourceOutputsChanged: sourceOutputs];
+			     sinkInfoRemoved: sink];
 }
 
-- (void) sendDelegateClientsChanged: (NSArray *) clients
+- (void) sendDelegateSinkInfoChanged: (PASinkInfo *) sink
 {
-	if (delegate && [delegate respondsToSelector: @selector(PAServerConnection:clientsChanged:)])
+	if (delegate && [delegate respondsToSelector: @selector(PAServerConnection:sinkInfoChanged:)])
 		[delegate PAServerConnection: self
-			      clientsChanged: clients];
+			     sinkInfoChanged: sink];
 }
 
-- (void) sendDelegateModulesChanged: (NSArray *) modules
+// sink input
+
+- (void) sendDelegateSinkInputInfoAdded: (PASinkInputInfo *) sinkInput
 {
-	if (delegate && [delegate respondsToSelector: @selector(PAServerConnection:modulesChanged:)])
+	if (delegate && [delegate respondsToSelector: @selector(PAServerConnection:sinkInputInfoAdded:)])
 		[delegate PAServerConnection: self
-			      modulesChanged: modules];
+			  sinkInputInfoAdded: sinkInput];
 }
 
-- (void) sendDelegateSamplesChanged: (NSArray *) samples
+- (void) sendDelegateSinkInputInfoRemoved: (PASinkInputInfo *) sinkInput
 {
-	if (delegate && [delegate respondsToSelector: @selector(PAServerConnection:samplesChanged:)])
+	if (delegate && [delegate respondsToSelector: @selector(PAServerConnection:sinkInputInfoRemoved:)])
 		[delegate PAServerConnection: self
-			      samplesChanged: samples];
+			sinkInputInfoRemoved: sinkInput];
+}
+
+- (void) sendDelegateSinkInputInfoChanged: (PASinkInputInfo *) sinkInput
+{
+	if (delegate && [delegate respondsToSelector: @selector(PAServerConnection:sinkInputInfoChanged:)])
+		[delegate PAServerConnection: self
+			sinkInputInfoChanged: sinkInput];
+}
+
+// source
+
+- (void) sendDelegateSourceInfoAdded: (PASourceInfo *) source
+{
+	if (delegate && [delegate respondsToSelector: @selector(PAServerConnection:sourceInfoAdded:)])
+		[delegate PAServerConnection: self
+			     sourceInfoAdded: source];
+}
+
+- (void) sendDelegateSourceInfoRemoved: (PASourceInfo *) source
+{
+	if (delegate && [delegate respondsToSelector: @selector(PAServerConnection:sourceInfoRemoved:)])
+		[delegate PAServerConnection: self
+			   sourceInfoRemoved: source];
+}
+
+- (void) sendDelegateSourceInfoChanged: (PASourceInfo *) source
+{
+	if (delegate && [delegate respondsToSelector: @selector(PAServerConnection:sourceInfoChanged:)])
+		[delegate PAServerConnection: self
+			   sourceInfoChanged: source];
+}
+
+// source output
+
+- (void) sendDelegateSourceOutputInfoAdded: (PASourceOutputInfo *) sourceOutput
+{
+	if (delegate && [delegate respondsToSelector: @selector(PAServerConnection:sourceOutputInfoAdded:)])
+		[delegate PAServerConnection: self
+		       sourceOutputInfoAdded: sourceOutput];
+}
+
+- (void) sendDelegateSourceOutputInfoRemoved: (PASourceOutputInfo *) sourceOutput
+{
+	if (delegate && [delegate respondsToSelector: @selector(PAServerConnection:sourceOutputInfoRemoved:)])
+		[delegate PAServerConnection: self
+		     sourceOutputInfoRemoved: sourceOutput];
+}
+
+- (void) sendDelegateSourceOutputInfoChanged: (PASourceOutputInfo *) sourceOutput
+{
+	if (delegate && [delegate respondsToSelector: @selector(PAServerConnection:sourceOutputInfoChanged:)])
+		[delegate PAServerConnection: self
+		     sourceOutputInfoChanged: sourceOutput];
+}
+
+// client
+
+- (void) sendDelegateClientInfoAdded: (PAClientInfo *) client
+{
+	if (delegate && [delegate respondsToSelector: @selector(PAServerConnection:clientInfoAdded:)])
+		[delegate PAServerConnection: self
+			     clientInfoAdded: client];
+}
+
+- (void) sendDelegateClientInfoRemoved: (PAClientInfo *) client
+{
+	if (delegate && [delegate respondsToSelector: @selector(PAServerConnection:clientInfoRemoved:)])
+		[delegate PAServerConnection: self
+			   clientInfoRemoved: client];
+}
+
+- (void) sendDelegateClientInfoChanged: (PAClientInfo *) client
+{
+	if (delegate && [delegate respondsToSelector: @selector(PAServerConnection:clientInfoChanged:)])
+		[delegate PAServerConnection: self
+			   clientInfoChanged: client];
+}
+
+// module
+
+- (void) sendDelegateModuleInfoAdded: (PAModuleInfo *) module
+{
+	if (delegate && [delegate respondsToSelector: @selector(PAServerConnection:moduleInfoAdded:)])
+		[delegate PAServerConnection: self
+			     moduleInfoAdded: module];
+}
+
+- (void) sendDelegateModuleInfoRemoved: (PAModuleInfo *) module
+{
+	if (delegate && [delegate respondsToSelector: @selector(PAServerConnection:moduleInfoRemoved:)])
+		[delegate PAServerConnection: self
+			   moduleInfoRemoved: module];
+}
+
+- (void) sendDelegateModuleInfoChanged: (PAModuleInfo *) module
+{
+	if (delegate && [delegate respondsToSelector: @selector(PAServerConnection:moduleInfoChanged:)])
+		[delegate PAServerConnection: self
+			   moduleInfoChanged: module];
 }
 
 - (BOOL) unloadModule: (PAModuleInfo *) module
 {
 	return [impl unloadModule: module];
+}
+
+// sample
+
+- (void) sendDelegateSampleInfoAdded: (PASampleInfo *) sample
+{
+	if (delegate && [delegate respondsToSelector: @selector(PAServerConnection:sampleInfoAdded:)])
+		[delegate PAServerConnection: self
+			     sampleInfoAdded: sample];
+}
+
+- (void) sendDelegateSampleInfoRemoved: (PASampleInfo *) sample
+{
+	if (delegate && [delegate respondsToSelector: @selector(PAServerConnection:sampleInfoRemoved:)])
+		[delegate PAServerConnection: self
+			   sampleInfoRemoved: sample];
+}
+
+- (void) sendDelegateSampleInfoChanged: (PASampleInfo *) sample
+{
+	if (delegate && [delegate respondsToSelector: @selector(PAServerConnection:sampleInfoChanged:)])
+		[delegate PAServerConnection: self
+			   sampleInfoChanged: sample];
 }
 
 @end

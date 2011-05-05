@@ -54,6 +54,8 @@
 	cookie = info->cookie;
 	
 	server = s;
+	
+	name = @"Server Information";
 }
 
 @end

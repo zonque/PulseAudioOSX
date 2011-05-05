@@ -14,7 +14,6 @@
 
 @implementation PASampleInfo
 
-@synthesize name;
 @synthesize sampleSpec;
 @synthesize channelMap;
 @synthesize fileName;
@@ -27,26 +26,51 @@
 
 @implementation PASampleInfo (internal)
 
-- (id) initWithInfoStruct: (const pa_sample_info *) info
-		   server: (PAServerConnection *) s
+- (void) loadFromInfoStruct: (const pa_sample_info *) info
 {
-	[super init];
-
 	char tmp[100];
+	
+	index = info->index;
+	duration = info->duration;
+	bytes = info->bytes;
+	lazy = info->lazy;	
+
+	if (name)
+		[name release];
 	
 	name = [[NSString stringWithCString: info->name
 				   encoding: NSUTF8StringEncoding] retain];
+	if (sampleSpec)
+		[sampleSpec release];
+	
 	sampleSpec = [[NSString stringWithCString: pa_sample_spec_snprint(tmp, sizeof(tmp), &info->sample_spec)
 					 encoding: NSUTF8StringEncoding] retain];
+	if (channelMap)
+		[channelMap release];
+	
 	channelMap = [[NSString stringWithCString: pa_channel_map_snprint(tmp, sizeof(tmp), &info->channel_map)
 					 encoding: NSUTF8StringEncoding] retain];
-	fileName = [[NSString stringWithCString: info->filename
-				       encoding: NSUTF8StringEncoding] retain];
-	duration = info->duration;
-	bytes = info->bytes;
-	lazy = info->lazy;
-	server = s;
+	if (fileName) {
+		[fileName release];
+		fileName = nil;
+	}
 	
+	if (info->filename)
+		fileName = [[NSString stringWithCString: info->filename
+					       encoding: NSUTF8StringEncoding] retain];
+	
+	if (initialized)
+		[server performSelectorOnMainThread: @selector(sendDelegateSampleInfoChanged:)
+					 withObject: self
+				      waitUntilDone: YES];
+	initialized = YES;
+}
+
+- (id) initWithInfoStruct: (const pa_sample_info *) info
+		   server: (PAServerConnection *) s
+{
+	[super initWithServer: s];
+	[self loadFromInfoStruct: info];
 	return self;
 }
 

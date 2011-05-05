@@ -21,5 +21,7 @@
 + (PASourceOutputInfo *) createFromInfoStruct: (const pa_source_output_info *) info
 			       server: (PAServerConnection *) s;
 
+- (void) loadFromInfoStruct: (const pa_source_output_info *) info;
+
 @end
 

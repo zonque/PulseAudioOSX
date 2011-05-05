@@ -12,15 +12,11 @@
 #import <Foundation/Foundation.h>
 #import "PAElementInfo.h"
 
-@class PAServerConnection;
-
 @interface PASourceOutputInfo : PAElementInfo
 {
-	UInt32 index;
 	UInt32 bufferUsec;
 	UInt32 sourceUsec;
 	
-	NSString *name;
 	NSString *resampleMethod;
 	NSString *driver;
 
@@ -30,11 +26,9 @@
 	BOOL corked;
 }
 
-@property (nonatomic, readonly) UInt32 index;
 @property (nonatomic, readonly) UInt32 bufferUsec;
 @property (nonatomic, readonly) UInt32 sourceUsec;
 
-@property (nonatomic, readonly) NSString *name;
 @property (nonatomic, readonly) NSString *resampleMethod;
 @property (nonatomic, readonly) NSString *driver;
 

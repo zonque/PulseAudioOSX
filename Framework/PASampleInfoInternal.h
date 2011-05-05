@@ -20,5 +20,7 @@
 + (PASampleInfo *) createFromInfoStruct: (const pa_sample_info *) info
 			       server: (PAServerConnection *) s;
 
+- (void) loadFromInfoStruct: (const pa_sample_info *) info;
+
 @end
 

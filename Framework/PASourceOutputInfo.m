@@ -14,11 +14,9 @@
 
 @implementation PASourceOutputInfo
 
-@synthesize index;
 @synthesize bufferUsec;
 @synthesize sourceUsec;
 
-@synthesize name;
 @synthesize resampleMethod;
 @synthesize driver;
 
@@ -32,28 +30,56 @@
 
 @implementation PASourceOutputInfo (internal)
 
-- (id) initWithInfoStruct: (const pa_source_output_info *) info
-		   server: (PAServerConnection *) s
+- (void) loadFromInfoStruct: (const pa_source_output_info *) info
 {
-	[super init];
-
 	index = info->index;
 	bufferUsec = info->buffer_usec;
 	sourceUsec = info->source_usec;
 	corked = !!info->corked;
-	
-	if (info->name)
-		name = [[NSString stringWithCString: info->name
-					  encoding: NSUTF8StringEncoding] retain];
-	
-	channelNames = [[PAServerConnection createChannelNamesArray: &info->channel_map] retain];
+
+	if (name)
+		[name release];
+
+	name = [[NSString stringWithCString: info->name
+				   encoding: NSUTF8StringEncoding] retain];
+
+	if (driver)
+		[driver release];
+
 	driver = [[NSString stringWithCString: info->driver
-				    encoding: NSUTF8StringEncoding] retain];
+				     encoding: NSUTF8StringEncoding] retain];
+
+	if (channelNames)
+		[channelNames release];
+
+	channelNames = [[PAServerConnection createChannelNamesArray: &info->channel_map] retain];
+
+	if (resampleMethod) {
+		[resampleMethod release];
+		resampleMethod = nil;
+	}
+	
 	if (info->resample_method)
 		resampleMethod = [[NSString stringWithCString: info->resample_method
-						    encoding: NSUTF8StringEncoding] retain];
+						     encoding: NSUTF8StringEncoding] retain];
+	if (properties)
+		[properties release];
+
 	properties = [[PAServerConnection createDictionaryFromProplist: info->proplist] retain];
-	server = s;
+		       
+	if (initialized)
+		[server performSelectorOnMainThread: @selector(sendDelegateSourceOutputInfoChanged:)
+					 withObject: self
+				      waitUntilDone: YES];
+	
+	initialized = YES;
+}
+
+- (id) initWithInfoStruct: (const pa_source_output_info *) info
+		   server: (PAServerConnection *) s
+{
+	[super initWithServer: s];
+	[self loadFromInfoStruct: info];
 	
 	return self;
 }

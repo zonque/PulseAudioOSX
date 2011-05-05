@@ -12,16 +12,19 @@
 #import "PAElementInfo.h"
 
 @implementation PAElementInfo
+@synthesize index;
 @synthesize server;
+@synthesize name;
+
+- (id) initWithServer: (PAServerConnection *) s
+{
+	[super init];
+	server = s;
+	return self;
+}
+
 @end
 
 @implementation PAElementInfo (internal)
-
-- (void) notifyChange
-{
-	[[NSNotificationCenter defaultCenter] postNotificationName: PAElementInfoChangedNotification
-							    object: self
-							  userInfo: nil];
-}
 
 @end

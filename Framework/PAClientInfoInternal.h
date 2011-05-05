@@ -20,5 +20,7 @@
 + (PAClientInfo *) createFromInfoStruct: (const pa_client_info *) info
 				 server: (PAServerConnection *) s;
 
+- (void) loadFromInfoStruct: (const pa_client_info *) info;
+
 @end
 

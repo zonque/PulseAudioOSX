@@ -120,6 +120,51 @@ static NSString *frameworkPath = @"/Library/Frameworks/PulseAudio.framework/";
 	[impl shutdownServer];
 }
 
+- (NSArray *) presentCards
+{
+	return impl.presentCards;
+}
+
+- (NSArray *) presentSinks
+{
+	return impl.presentSinks;
+}
+
+- (NSArray *) presentSinkInputs
+{
+	return impl.presentSinkInputs;
+}
+
+- (NSArray *) presentSources
+{
+	return impl.presentSources;
+}
+
+- (NSArray *) presentSourceOutputs
+{
+	return impl.presentSourceOutputs;
+}
+
+- (NSArray *) presentClients
+{
+	return impl.presentClients;
+}
+
+- (NSArray *) presentModules
+{
+	return impl.presentModules;
+}
+
+- (NSArray *) presentSamples
+{
+	return impl.presentSamples;
+}
+
+- (PAServerInfo *) serverInfo
+{
+	return impl.serverInfo;
+}
+
 + (NSString *) libraryVersion
 {
 	return [NSString stringWithCString: pa_get_library_version()

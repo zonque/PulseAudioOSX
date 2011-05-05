@@ -14,8 +14,6 @@
 
 @implementation PASinkInfo
 
-@synthesize index;
-@synthesize name;
 @synthesize description;
 @synthesize sampleSpec;
 @synthesize channelMap;
@@ -33,35 +31,68 @@
 
 @implementation PASinkInfo (internal)
 
-- (id) initWithInfoStruct: (const pa_sink_info *) info
-		   server: (PAServerConnection *) s
+- (void) loadFromInfoStruct: (const pa_sink_info *) info
 {
-	[super init];
-
 	char tmp[0x100];
 	
-	name = [[NSString stringWithCString: info->name
-				   encoding: NSUTF8StringEncoding] retain];
-	description = [[NSString stringWithCString: info->description
-					  encoding: NSUTF8StringEncoding] retain];
-	sampleSpec = [[NSString stringWithCString: pa_sample_spec_snprint(tmp, sizeof(tmp), &info->sample_spec)
-					 encoding: NSUTF8StringEncoding] retain];
-	channelMap = [[NSString stringWithCString: pa_channel_map_snprint(tmp, sizeof(tmp), &info->channel_map)
-					 encoding: NSUTF8StringEncoding] retain];
-	channelNames = [[PAServerConnection createChannelNamesArray: &info->channel_map] retain];
-	driver = [[NSString stringWithCString: info->driver
-				     encoding: NSUTF8StringEncoding] retain];
-	
 	index = info->index;
+
 	latency = info->latency;
 	configuredLatency = info->configured_latency;
 	nVolumeSteps = info->n_volume_steps;
 	volume = pa_cvolume_avg(&info->volume);	
 	monitorSourceIndex = info->monitor_source;
 	
+	if (name)
+		[name release];
+	
+	name = [[NSString stringWithCString: info->name
+				   encoding: NSUTF8StringEncoding] retain];
+	
+	if (description)
+		[description release];
+	
+	description = [[NSString stringWithCString: info->description
+					  encoding: NSUTF8StringEncoding] retain];
+	if (sampleSpec)
+		[sampleSpec release];
+	
+	sampleSpec = [[NSString stringWithCString: pa_sample_spec_snprint(tmp, sizeof(tmp), &info->sample_spec)
+					 encoding: NSUTF8StringEncoding] retain];
+	
+	if (channelMap)
+		[channelMap release];
+	
+	channelMap = [[NSString stringWithCString: pa_channel_map_snprint(tmp, sizeof(tmp), &info->channel_map)
+					 encoding: NSUTF8StringEncoding] retain];
+	if (driver)
+		[driver release];
+	
+	driver = [[NSString stringWithCString: info->driver
+				     encoding: NSUTF8StringEncoding] retain];
+	if (channelNames)
+		[channelNames release];
+	
+	channelNames = [[PAServerConnection createChannelNamesArray: &info->channel_map] retain];
+
+	if (properties)
+		[properties release];
+	
 	properties = [[PAServerConnection createDictionaryFromProplist: info->proplist] retain];
-	server = s;
-		
+	
+	if (initialized)
+		[server performSelectorOnMainThread: @selector(sendDelegateSinkInfoChanged:)
+					 withObject: self
+				      waitUntilDone: YES];
+	
+	initialized = YES;
+}
+
+- (id) initWithInfoStruct: (const pa_sink_info *) info
+		   server: (PAServerConnection *) s
+{
+	[super initWithServer: s];
+	[self loadFromInfoStruct: info];
 	return self;
 }
 

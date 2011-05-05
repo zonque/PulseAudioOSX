@@ -18,7 +18,9 @@
 @class PAServerConnection;
 @class PAServerInfo;
 @class PASinkInfo;
+@class PASinkInputInfo;
 @class PASourceInfo;
+@class PASourceOutputInfo;
 @class PAServerConnectionImplementation;
 
 @protocol PAServerConnectionDelegate
@@ -30,22 +32,80 @@
 
 - (void) PAServerConnection: (PAServerConnection *) connection
 	  serverInfoChanged: (PAServerInfo *) serverInfo;
+
+#pragma mark # card
+
 - (void) PAServerConnection: (PAServerConnection *) connection
-	       cardsChanged: (NSArray *) cards;
+	      cardInfoAdded: (PACardInfo *) card;
 - (void) PAServerConnection: (PAServerConnection *) connection
-	       sinksChanged: (NSArray *) sinks;
+	    cardInfoRemoved: (PACardInfo *) card;
 - (void) PAServerConnection: (PAServerConnection *) connection
-	  sinkInputsChanged: (NSArray *) inputs;
+	    cardInfoChanged: (PACardInfo *) card;
+
+#pragma mark # sink
+
 - (void) PAServerConnection: (PAServerConnection *) connection
-	     sourcesChanged: (NSArray *) sources;
+	      sinkInfoAdded: (PASinkInfo *) sink;
 - (void) PAServerConnection: (PAServerConnection *) connection
-       sourceOutputsChanged: (NSArray *) outputs;
+	    sinkInfoRemoved: (PASinkInfo *) sink;
 - (void) PAServerConnection: (PAServerConnection *) connection
-	     clientsChanged: (NSArray *) clients;
+	    sinkInfoChanged: (PASinkInfo *) sink;
+
+#pragma mark # sink input
+
 - (void) PAServerConnection: (PAServerConnection *) connection
-	     modulesChanged: (NSArray *) modules;
+	 sinkInputInfoAdded: (PASinkInputInfo *) input;
 - (void) PAServerConnection: (PAServerConnection *) connection
-	     samplesChanged: (NSArray *) samples;
+       sinkInputInfoRemoved: (PASinkInputInfo *) input;
+- (void) PAServerConnection: (PAServerConnection *) connection
+       sinkInputInfoChanged: (PASinkInputInfo *) input;
+
+#pragma mark # source
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+	    sourceInfoAdded: (PASourceInfo *) source;
+- (void) PAServerConnection: (PAServerConnection *) connection
+	  sourceInfoRemoved: (PASourceInfo *) source;
+- (void) PAServerConnection: (PAServerConnection *) connection
+	  sourceInfoChanged: (PASourceInfo *) source;
+
+#pragma mark # source output
+
+- (void) PAServerConnection: (PAServerConnection *) connection	
+      sourceOutputInfoAdded: (PASourceOutputInfo *) output;
+- (void) PAServerConnection: (PAServerConnection *) connection
+    sourceOutputInfoRemoved: (PASourceOutputInfo *) output;
+- (void) PAServerConnection: (PAServerConnection *) connection
+    sourceOutputInfoChanged: (PASourceOutputInfo *) output;
+
+#pragma mark # client
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+	    clientInfoAdded: (PAClientInfo *) client;
+- (void) PAServerConnection: (PAServerConnection *) connection
+	  clientInfoRemoved: (PAClientInfo *) client;
+- (void) PAServerConnection: (PAServerConnection *) connection
+	  clientInfoChanged: (PAClientInfo *) client;
+
+#pragma mark # module
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+	    moduleInfoAdded: (PAModuleInfo *) module;
+- (void) PAServerConnection: (PAServerConnection *) connection
+	  moduleInfoRemoved: (PAModuleInfo *) module;
+- (void) PAServerConnection: (PAServerConnection *) connection
+	  moduleInfoChanged: (PAModuleInfo *) module;
+
+#pragma mark # sample
+
+- (void) PAServerConnection: (PAServerConnection *) connection
+	    sampleInfoAdded: (PASampleInfo *) sample;
+- (void) PAServerConnection: (PAServerConnection *) connection
+	  sampleInfoRemoved: (PASampleInfo *) sample;
+- (void) PAServerConnection: (PAServerConnection *) connection
+	  sampleInfoChanged: (PASampleInfo *) sample;
+
+#pragma mark # audio
 
 - (UInt32) PAServerConnection: (PAServerConnection *) connection
 	      hasPlaybackData: (Byte *) playbackData
@@ -62,6 +122,16 @@
 
 @property (nonatomic, assign) NSObject <PAServerConnectionDelegate> *delegate;
 @property (nonatomic, readonly) PAServerConnectionImplementation *impl;
+
+- (NSArray *) presentCards;
+- (NSArray *) presentSinks;
+- (NSArray *) presentSinkInputs;
+- (NSArray *) presentSources;
+- (NSArray *) presentSourceOutputs;
+- (NSArray *) presentClients;
+- (NSArray *) presentModules;
+- (NSArray *) presentSamples;
+- (PAServerInfo *) serverInfo;
 
 - (void) connectToHost: (NSString *) hostName
 		  port: (int) port;

@@ -12,11 +12,8 @@
 #import <Foundation/Foundation.h>
 #import "PAElementInfo.h"
 
-@class PAServerConnection;
-
 @interface PASourceInfo : PAElementInfo
 {
-	NSString *name;
 	NSString *description;
 	NSString *sampleSpec;
 	NSString *channelMap;
@@ -30,7 +27,6 @@
 	NSDictionary *properties;
 }
 
-@property (nonatomic, readonly) NSString *name;
 @property (nonatomic, readonly) NSString *description;
 @property (nonatomic, readonly) NSString *sampleSpec;
 @property (nonatomic, readonly) NSString *channelMap;

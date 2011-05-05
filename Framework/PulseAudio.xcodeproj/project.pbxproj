@@ -11,7 +11,7 @@
 		6571514E13683F4A00D60887 /* PAServerConnectionAudio.m in Sources */ = {isa = PBXBuildFile; fileRef = 6571514C13683F4A00D60887 /* PAServerConnectionAudio.m */; };
 		657159771369B34600D60887 /* PAHelperConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = 657159751369B34600D60887 /* PAHelperConnection.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		657159781369B34600D60887 /* PAHelperConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 657159761369B34600D60887 /* PAHelperConnection.m */; };
-		657493731371A94B007044CF /* PAElementInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 657493721371A94B007044CF /* PAElementInfo.h */; };
+		657493731371A94B007044CF /* PAElementInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 657493721371A94B007044CF /* PAElementInfo.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		657493751371A9C9007044CF /* PAElementInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 657493741371A9C9007044CF /* PAElementInfo.m */; };
 		657493791371ABC7007044CF /* PAElementInfoInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = 657493771371ABC7007044CF /* PAElementInfoInternal.h */; };
 		65AF3EC7136ACBE900650E2E /* PAServiceDiscovery.h in Headers */ = {isa = PBXBuildFile; fileRef = 65AF3EC5136ACBE900650E2E /* PAServiceDiscovery.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -236,11 +236,11 @@
 				65CCFCD013671B4A00834815 /* PAClientInfo.m */,
 				65CCFCCC13671B4300834815 /* PAModuleInfo.m */,
 				65CCFCD413671B5000834815 /* PASampleInfo.m */,
-				65CCFCB11367180C00834815 /* PAServerInfo.m */,
 				65CCFCC413671B3900834815 /* PASinkInfo.m */,
 				65AF429A136DB43D00650E2E /* PASinkInputInfo.m */,
 				65CCFCC813671B3D00834815 /* PASourceInfo.m */,
 				65AF429E136DB44600650E2E /* PASourceOutputInfo.m */,
+				65CCFCB11367180C00834815 /* PAServerInfo.m */,
 			);
 			name = Info;
 			sourceTree = "<group>";
@@ -253,11 +253,11 @@
 				65CCFCCF13671B4A00834815 /* PAClientInfo.h */,
 				65CCFCCB13671B4300834815 /* PAModuleInfo.h */,
 				65CCFCD313671B5000834815 /* PASampleInfo.h */,
-				65CCFCB01367180C00834815 /* PAServerInfo.h */,
 				65CCFCC313671B3900834815 /* PASinkInfo.h */,
 				65AF4299136DB43D00650E2E /* PASinkInputInfo.h */,
 				65CCFCC713671B3D00834815 /* PASourceInfo.h */,
 				65AF429D136DB44600650E2E /* PASourceOutputInfo.h */,
+				65CCFCB01367180C00834815 /* PAServerInfo.h */,
 			);
 			name = Info;
 			sourceTree = "<group>";

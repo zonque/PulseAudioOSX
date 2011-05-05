@@ -12,19 +12,13 @@
 #import <Foundation/Foundation.h>
 #import "PAElementInfo.h"
 
-@class PAServerConnection;
-
 @interface PAModuleInfo : PAElementInfo
 {
-	UInt32 index;
-	NSString *name;
 	NSString *argument;
 	UInt32 useCount;
 	NSDictionary *properties;
 }
 
-@property (nonatomic, readonly) UInt32 index;
-@property (nonatomic, readonly) NSString *name;
 @property (nonatomic, readonly) NSString *argument;
 @property (nonatomic, readonly) UInt32 useCount;
 @property (nonatomic, readonly) NSDictionary *properties;

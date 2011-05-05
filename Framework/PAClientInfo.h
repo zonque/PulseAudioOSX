@@ -12,16 +12,12 @@
 #import <Foundation/Foundation.h>
 #import "PAElementInfo.h"
 
-@class PAServerConnection;
-
 @interface PAClientInfo : PAElementInfo
 {
-	NSString *name;
 	NSString *driver;
 	NSDictionary *properties;
 }
 
-@property (nonatomic, readonly) NSString *name;
 @property (nonatomic, readonly) NSString *driver;
 @property (nonatomic, readonly) NSDictionary *properties;
 

@@ -12,16 +12,12 @@
 #import <Foundation/Foundation.h>
 #import "PAElementInfo.h"
 
-@class PAServerConnection;
-
 @interface PASinkInputInfo : PAElementInfo
 {
-	UInt32 index;
 	UInt32 volume;
 	UInt32 bufferUsec;
 	UInt32 sinkUsec;
 	
-	NSString *name;
 	NSString *resampleMethod;
 	NSString *driver;
 
@@ -32,12 +28,10 @@
 	BOOL volumeWriteable;
 }
 
-@property (nonatomic, readonly) UInt32 index;
 @property (nonatomic, readwrite) UInt32 volume;
 @property (nonatomic, readonly) UInt32 bufferUsec;
 @property (nonatomic, readonly) UInt32 sinkUsec;
 
-@property (nonatomic, readonly) NSString *name;
 @property (nonatomic, readonly) NSString *resampleMethod;
 @property (nonatomic, readonly) NSString *driver;
 

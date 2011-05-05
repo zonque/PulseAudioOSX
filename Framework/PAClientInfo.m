@@ -15,7 +15,6 @@
 
 @implementation PAClientInfo
 
-@synthesize name;
 @synthesize driver;
 @synthesize properties;
 
@@ -24,18 +23,35 @@
 
 @implementation PAClientInfo (internal)
 
+- (void) loadFromInfoStruct: (const pa_client_info *) info
+{
+	index = info->index;
+
+	if (name)
+		[name release];
+	name = [[NSString stringWithCString: info->name
+				  encoding: NSUTF8StringEncoding] retain];
+	if (driver)
+		[driver release];
+	driver = [[NSString stringWithCString: info->driver
+				    encoding: NSUTF8StringEncoding] retain];
+	if (properties)
+		[properties release];
+	properties = [[PAServerConnection createDictionaryFromProplist: info->proplist] retain];
+
+	if (initialized)
+		[server performSelectorOnMainThread: @selector(sendDelegateClientInfoChanged:)
+					 withObject: self
+				      waitUntilDone: YES];
+	
+	initialized = YES;
+}
+
 - (id) initWithInfoStruct: (const pa_client_info *) info
 		   server: (PAServerConnection *) s
 {
-	[super init];
-
-	name = [[NSString stringWithCString: info->name
-				   encoding: NSUTF8StringEncoding] retain];
-	driver = [[NSString stringWithCString: info->driver
-				     encoding: NSUTF8StringEncoding] retain];
-	properties = [[PAServerConnection createDictionaryFromProplist: info->proplist] retain];
-	server = s;
-
+	[super initWithServer: s];
+	[self loadFromInfoStruct: info];
 	return self;
 }
 

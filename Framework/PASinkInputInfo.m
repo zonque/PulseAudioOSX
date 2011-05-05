@@ -16,11 +16,9 @@
 
 @implementation PASinkInputInfo
 
-@synthesize index;
 @synthesize bufferUsec;
 @synthesize sinkUsec;
 
-@synthesize name;
 @synthesize resampleMethod;
 @synthesize driver;
 
@@ -74,30 +72,59 @@ static void staticMuteSetCallback(pa_context *context, int success, void *userda
 
 @implementation PASinkInputInfo (internal)
 
-- (id) initWithInfoStruct: (const pa_sink_input_info *) info
-		   server: (PAServerConnection *) s
+- (void) loadFromInfoStruct: (const pa_sink_input_info *) info
 {
-	[super init];
-	
 	index = info->index;
 	bufferUsec = info->buffer_usec;
 	sinkUsec = info->sink_usec;
 	muted = !!info->mute;
+	volume = pa_cvolume_avg(&info->volume);
 	volumeWriteable = !!info->volume_writable;
+
+	if (name) {
+		[name release];
+		name = nil;
+	}
 	
 	if (info->name)
 		name = [[NSString stringWithCString: info->name
 					   encoding: NSUTF8StringEncoding] retain];
-	
-	channelNames = [[PAServerConnection createChannelNamesArray: &info->channel_map] retain];
+
+	if (driver)
+		[driver release];
 	driver = [[NSString stringWithCString: info->driver
 				     encoding: NSUTF8StringEncoding] retain];
+
+	if (resampleMethod) {
+		[resampleMethod release];
+		resampleMethod = nil;
+	}
+	
 	if (info->resample_method)
 		resampleMethod = [[NSString stringWithCString: info->resample_method
-						     encoding: NSUTF8StringEncoding] retain];
-	properties = [[PAServerConnection createDictionaryFromProplist: info->proplist] retain];	
-	server = s;
+						      encoding: NSUTF8StringEncoding] retain];
+
+	if (channelNames)
+		[channelNames release];
+	channelNames = [[PAServerConnection createChannelNamesArray: &info->channel_map] retain];
+
+	if (properties)
+		[properties release];
+	properties = [[PAServerConnection createDictionaryFromProplist: info->proplist] retain];
 	
+	if (initialized)
+		[server performSelectorOnMainThread: @selector(sendDelegateSinkInputInfoChanged:)
+					 withObject: self
+				      waitUntilDone: YES];
+	
+	initialized = YES;
+}
+
+- (id) initWithInfoStruct: (const pa_sink_input_info *) info
+		   server: (PAServerConnection *) s
+{
+	[super initWithServer: s];
+	[self loadFromInfoStruct: info];
 	return self;
 }
 

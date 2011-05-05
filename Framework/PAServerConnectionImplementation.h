@@ -37,28 +37,42 @@
 	
 	PAServerInfo *serverInfo;
 	
-	NSMutableArray *cards;
-	NSMutableArray *sinks;
-	NSMutableArray *sinkInputs;
-	NSMutableArray *sources;
-	NSMutableArray *sourceOutputs;
-	NSMutableArray *clients;
-	NSMutableArray *modules;
-	NSMutableArray *samples;
+	NSMutableArray *presentCards;
+	NSMutableArray *presentSinks;
+	NSMutableArray *presentSinkInputs;
+	NSMutableArray *presentSources;
+	NSMutableArray *presentSourceOutputs;
+	NSMutableArray *presentClients;
+	NSMutableArray *presentModules;
+	NSMutableArray *presentSamples;
+
+	NSMutableArray *publishedCards;
+	NSMutableArray *publishedSinks;
+	NSMutableArray *publishedSinkInputs;
+	NSMutableArray *publishedSources;
+	NSMutableArray *publishedSourceOutputs;
+	NSMutableArray *publishedClients;
+	NSMutableArray *publishedModules;
+	NSMutableArray *publishedSamples;
 	
 	NSString *lastError;
 }
 
-@property (nonatomic, readonly) PAServerInfo *serverInfo;
-@property (nonatomic, readonly) NSArray *cards;
-@property (nonatomic, readonly) NSArray *sinks;
-@property (nonatomic, readonly) NSArray *sources;
-@property (nonatomic, readonly) NSArray *clients;
-@property (nonatomic, readonly) NSArray *modules;
-@property (nonatomic, readonly) NSArray *samples;
 @property (nonatomic, readonly) pa_threaded_mainloop *PAMainLoop;
 @property (nonatomic, readonly) pa_context *PAContext;
 @property (nonatomic, readonly) NSString *lastError;
+
+@property (nonatomic, readonly) NSArray *presentCards;
+@property (nonatomic, readonly) NSArray *presentSinks;
+@property (nonatomic, readonly) NSArray *presentSinkInputs;
+@property (nonatomic, readonly) NSArray *presentSources;
+@property (nonatomic, readonly) NSArray *presentSourceOutputs;
+@property (nonatomic, readonly) NSArray *presentClients;
+@property (nonatomic, readonly) NSArray *presentModules;
+@property (nonatomic, readonly) NSArray *presentSamples;
+
+@property (nonatomic, readonly) PAServerInfo *serverInfo;
+
 
 - (id) initForServer: (PAServerConnection *) s;
 

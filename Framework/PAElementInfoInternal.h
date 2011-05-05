@@ -14,6 +14,4 @@
 
 @interface PAElementInfo (internal)
 
-- (void) notifyChange;
-
 @end

@@ -20,5 +20,7 @@
 + (PAModuleInfo *) createFromInfoStruct: (const pa_module_info *) info
 			       server: (PAServerConnection *) s;
 
+- (void) loadFromInfoStruct: (const pa_module_info *) info;
+
 @end
 

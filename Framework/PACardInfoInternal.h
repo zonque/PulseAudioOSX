@@ -20,5 +20,7 @@
 + (PACardInfo *) createFromInfoStruct: (const pa_card_info *) info
 			       server: (PAServerConnection *) s;
 
+- (void) loadFromInfoStruct: (const pa_card_info *) info;
+
 @end
 

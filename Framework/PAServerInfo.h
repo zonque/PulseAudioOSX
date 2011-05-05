@@ -12,8 +12,6 @@
 #import <Foundation/Foundation.h>
 #import "PAElementInfo.h"
 
-@class PAServerConnection;
-
 @interface PAServerInfo : PAElementInfo
 {
 	NSString *userName;

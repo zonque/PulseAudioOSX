@@ -14,17 +14,19 @@
 
 @implementation PAServerConnectionImplementation
 
-@synthesize serverInfo;
-@synthesize cards;
-@synthesize sinks;
-@synthesize sources;
-@synthesize clients;
-@synthesize modules;
-@synthesize samples;
 @synthesize lastError;
-
 @synthesize PAContext;
 @synthesize PAMainLoop;
+
+@synthesize presentCards;
+@synthesize presentSinks;
+@synthesize presentSinkInputs;
+@synthesize presentSources;
+@synthesize presentSourceOutputs;
+@synthesize presentClients;
+@synthesize presentModules;
+@synthesize presentSamples;
+@synthesize serverInfo;
 
 #pragma mark ### static forwards ###
 static void staticContextSubscribeCallback(pa_context *c, pa_subscription_event_type_t t, uint32_t index, void *userdata);
@@ -40,6 +42,8 @@ static void staticSourceOutputInfoCallback(pa_context *c, const pa_source_output
 static void staticClientInfoCallback(pa_context *c, const struct pa_client_info *i, int eol, void *userdata);
 static void staticModuleInfoCallback(pa_context *c, const struct pa_module_info *i, int eol, void *userdata);
 static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info *i, int eol, void *userdata);
+
+#pragma mark ### error handling ###
 
 - (void) updateError
 {
@@ -118,39 +122,39 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 	
 	switch (type & ~PA_SUBSCRIPTION_EVENT_TYPE_MASK) {
 		case PA_SUBSCRIPTION_EVENT_SINK:
-			[sinks removeAllObjects];
+			[presentSinks removeAllObjects];
 			pa_context_get_sink_info_list(PAContext, staticSinkInfoCallback, self);
 			break;
 		case PA_SUBSCRIPTION_EVENT_SINK_INPUT:
-			[sinkInputs removeAllObjects];
+			[presentSinkInputs removeAllObjects];
 			pa_context_get_sink_input_info_list(PAContext, staticSinkInputInfoCallback, self);
 			break;
 		case PA_SUBSCRIPTION_EVENT_SOURCE:
-			[sources removeAllObjects];
+			[presentSources removeAllObjects];
 			pa_context_get_source_info_list(PAContext, staticSourceInfoCallback, self);
 			break;
 		case PA_SUBSCRIPTION_EVENT_SOURCE_OUTPUT:
-			[sourceOutputs removeAllObjects];
+			[presentSourceOutputs removeAllObjects];
 			pa_context_get_source_output_info_list(PAContext, staticSourceOutputInfoCallback, self);
 			break;
 		case PA_SUBSCRIPTION_EVENT_MODULE:
-			[modules removeAllObjects];
+			[presentModules removeAllObjects];
 			pa_context_get_module_info_list(PAContext, staticModuleInfoCallback, self);
 			break;
 		case PA_SUBSCRIPTION_EVENT_CLIENT:
-			[clients removeAllObjects];
+			[presentClients removeAllObjects];
 			pa_context_get_client_info_list(PAContext, staticClientInfoCallback, self);
 			break;
 		case PA_SUBSCRIPTION_EVENT_SAMPLE_CACHE:
-			[samples removeAllObjects];
+			[presentSamples removeAllObjects];
 			pa_context_get_sample_info_list(PAContext, staticSampleInfoCallback, self);
+			break;
+		case PA_SUBSCRIPTION_EVENT_CARD:
+			[presentCards removeAllObjects];
+			pa_context_get_card_info_list(PAContext, staticCardInfoCallback, self);
 			break;
 		case PA_SUBSCRIPTION_EVENT_SERVER:
 			pa_context_get_server_info(PAContext, staticServerInfoCallback, self);
-			break;
-		case PA_SUBSCRIPTION_EVENT_CARD:
-			[cards removeAllObjects];
-			pa_context_get_card_info_list(PAContext, staticCardInfoCallback, self);
 			break;
 			
 		default:
@@ -180,7 +184,6 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 	[server performSelectorOnMainThread: @selector(sendDelegateServerInfoChanged:)
 				 withObject: serverInfo
 			      waitUntilDone: NO];
-	
 	[pool drain];
 }
 
@@ -190,15 +193,36 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
 	if (info) {
+		for (PACardInfo *card in publishedCards)
+			if (card.index == info->index) {
+				[presentCards addObject: card];
+				[card loadFromInfoStruct: info];
+				return;
+			}
+		
 		PACardInfo *card = [PACardInfo createFromInfoStruct: info
 							     server: server];
-		[cards addObject: card];
+		[publishedCards addObject: card];
+		[presentCards addObject: card];
+		[server performSelectorOnMainThread: @selector(sendDelegateCardInfoAdded:)
+					 withObject: card
+				      waitUntilDone: NO];		
 	}
 	
 	if (eol) {
-		[server performSelectorOnMainThread: @selector(sendDelegateCardsChanged:)
-					 withObject: cards
-				      waitUntilDone: NO];		
+		NSMutableArray *a = [NSMutableArray arrayWithArray: publishedCards];
+
+		for (PACardInfo *card in publishedCards)
+			if (![presentCards containsObject: card]) {
+				[server performSelectorOnMainThread: @selector(sendDelegateCardInfoRemoved:)
+							 withObject: card
+						      waitUntilDone: YES];		
+
+				[a removeObject: card];
+			}
+		
+		[publishedCards removeAllObjects];
+		[publishedCards addObjectsFromArray: a];
 	}
 	
 	[pool drain];
@@ -210,15 +234,36 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
 	if (info) {
+		for (PASinkInfo *sink in publishedSinks)
+			if (sink.index == info->index) {
+				[presentSinks addObject: sink];
+				[sink loadFromInfoStruct: info];
+				return;
+			}
+		
 		PASinkInfo *sink = [PASinkInfo createFromInfoStruct: info
 							     server: server];
-		[sinks addObject: sink];
+		[publishedSinks addObject: sink];
+		[presentSinks addObject: sink];
+		[server performSelectorOnMainThread: @selector(sendDelegateSinkInfoAdded:)
+					 withObject: sink
+				      waitUntilDone: NO];		
 	}
 	
 	if (eol) {
-		[server performSelectorOnMainThread: @selector(sendDelegateSinksChanged:)
-					 withObject: sinks
-				      waitUntilDone: NO];		
+		NSMutableArray *a = [NSMutableArray arrayWithArray: publishedSinks];
+
+		for (PASinkInfo *sink in publishedSinks)
+			if (![presentSinks containsObject: sink]) {
+				[server performSelectorOnMainThread: @selector(sendDelegateSinkInfoRemoved:)
+							 withObject: sink
+						      waitUntilDone: YES];		
+				
+				[a removeObject: sink];
+			}		
+
+		[publishedSinks removeAllObjects];
+		[publishedSinks addObjectsFromArray: a];
 	}
 	
 	[pool drain];
@@ -230,15 +275,38 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
 	if (info) {
-		PASinkInputInfo *input = [PASinkInputInfo createFromInfoStruct: info
-									server: server];
-		[sinkInputs addObject: input];
-	}
-	
-	if (eol) {
-		[server performSelectorOnMainThread: @selector(sendDelegateSinkInputsChanged:)
-					 withObject: sinkInputs
+		for (PASinkInputInfo *sinkInput in publishedSinkInputs)
+			if (sinkInput.index == info->index) {
+				[presentSinkInputs addObject: sinkInput];
+				[sinkInput loadFromInfoStruct: info];
+				return;
+			}
+		
+		PASinkInputInfo *sinkInput = [PASinkInputInfo createFromInfoStruct: info
+									    server: server];
+		[publishedSinkInputs addObject: sinkInput];
+		[presentSinkInputs addObject: sinkInput];
+		[server performSelectorOnMainThread: @selector(sendDelegateSinkInputInfoAdded:)
+					 withObject: sinkInput
 				      waitUntilDone: NO];		
+	}
+
+	if (eol) {
+		NSMutableArray *a = [NSMutableArray arrayWithArray: publishedSinkInputs];
+
+		NSLog(@"publishedSinkInputs: %d presentSinkInputs: %d", [publishedSinkInputs count], [presentSinkInputs count]);
+		
+		for (PASinkInputInfo *sinkInput in publishedSinkInputs)
+			if (![presentSinkInputs containsObject: sinkInput]) {
+				[server performSelectorOnMainThread: @selector(sendDelegateSinkInputInfoRemoved:)
+							 withObject: sinkInput
+						      waitUntilDone: YES];		
+				
+				[a removeObject: sinkInput];
+			}
+		
+		[publishedSinkInputs removeAllObjects];
+		[publishedSinkInputs addObjectsFromArray: a];
 	}
 	
 	[pool drain];
@@ -248,17 +316,38 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 			eol: (BOOL) eol
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	
+
 	if (info) {
+		for (PASourceInfo *source in publishedSources)
+			if (source.index == info->index) {
+				[presentSources addObject: source];
+				[source loadFromInfoStruct: info];
+				return;
+			}
+		
 		PASourceInfo *source = [PASourceInfo createFromInfoStruct: info
 								   server: server];
-		[sources addObject: source];
+		[publishedSources addObject: source];
+		[presentSources addObject: source];
+		[server performSelectorOnMainThread: @selector(sendDelegateSourceInfoAdded:)
+					 withObject: source
+				      waitUntilDone: NO];		
 	}
 	
 	if (eol) {
-		[server performSelectorOnMainThread: @selector(sendDelegateSourcesChanged:)
-					 withObject: sources
-				      waitUntilDone: NO];		
+		NSMutableArray *a = [NSMutableArray arrayWithArray: publishedSources];
+
+		for (PASourceInfo *source in publishedSources)
+			if (![presentSources containsObject: source]) {
+				[server performSelectorOnMainThread: @selector(sendDelegateSourceInfoRemoved:)
+							 withObject: source
+						      waitUntilDone: YES];		
+				
+				[a removeObject: source];
+			}
+		
+		[publishedSources removeAllObjects];
+		[publishedSources addObjectsFromArray: a];
 	}
 	
 	[pool drain];
@@ -268,18 +357,39 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 			      eol: (BOOL) eol
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	
+
 	if (info) {
-		PASourceOutputInfo *output = [PASourceOutputInfo createFromInfoStruct: info
-									       server: server];
-		[sourceOutputs addObject: output];
+		for (PASourceOutputInfo *sourceOutput in publishedSourceOutputs)
+			if (sourceOutput.index == info->index) {
+				[presentSourceOutputs addObject: sourceOutput];
+				[sourceOutput loadFromInfoStruct: info];
+				return;
+			}
+		
+		PASourceOutputInfo *sourceOutput = [PASourceOutputInfo createFromInfoStruct: info
+										     server: server];
+		[publishedSourceOutputs addObject: sourceOutput];
+		[presentSourceOutputs addObject: sourceOutput];
+		[server performSelectorOnMainThread: @selector(sendDelegateSourceOutputInfoAdded:)
+					 withObject: sourceOutput
+				      waitUntilDone: NO];		
 	}
 	
 	if (eol) {
-		[server performSelectorOnMainThread: @selector(sendDelegateSourceOutputsChanged:)
-					 withObject: sourceOutputs
-				      waitUntilDone: NO];		
-	}
+		NSMutableArray *a = [NSMutableArray arrayWithArray: publishedSourceOutputs];
+
+		for (PASourceOutputInfo *sourceOutput in publishedSourceOutputs)
+			if (![presentSourceOutputs containsObject: sourceOutput]) {
+				[server performSelectorOnMainThread: @selector(sendDelegateSourceOutputInfoRemoved:)
+							 withObject: sourceOutput
+						      waitUntilDone: YES];		
+				
+				[a removeObject: sourceOutput];
+			}
+		
+		[publishedSourceOutputs removeAllObjects];
+		[publishedSourceOutputs addObjectsFromArray: a];
+	}	
 	
 	[pool drain];
 }
@@ -288,17 +398,38 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 			eol: (BOOL) eol
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	
+
 	if (info) {
+		for (PAClientInfo *client in publishedClients)
+			if (client.index == info->index) {
+				[presentClients addObject: client];
+				[client loadFromInfoStruct: info];
+				return;
+			}
+		
 		PAClientInfo *client = [PAClientInfo createFromInfoStruct: info
 								   server: server];
-		[clients addObject: client];
+		[publishedClients addObject: client];
+		[presentClients addObject: client];
+		[server performSelectorOnMainThread: @selector(sendDelegateClientInfoAdded:)
+					 withObject: client
+				      waitUntilDone: NO];		
 	}
 	
 	if (eol) {
-		[server performSelectorOnMainThread: @selector(sendDelegateClientsChanged:)
-					 withObject: clients
-				      waitUntilDone: NO];		
+		NSMutableArray *a = [NSMutableArray arrayWithArray: publishedClients];
+		
+		for (PAClientInfo *client in publishedClients)
+			if (![presentClients containsObject: client]) {
+				[server performSelectorOnMainThread: @selector(sendDelegateClientInfoRemoved:)
+							 withObject: client
+						      waitUntilDone: YES];		
+				
+				[a removeObject: client];
+			}
+		
+		[publishedClients removeAllObjects];
+		[publishedClients addObjectsFromArray: a];
 	}
 	
 	[pool drain];
@@ -308,18 +439,39 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 			eol: (BOOL) eol
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	
+
 	if (info) {
+		for (PAModuleInfo *module in publishedModules)
+			if (module.index == info->index) {
+				[presentModules addObject: module];
+				[module loadFromInfoStruct: info];
+				return;
+			}
+		
 		PAModuleInfo *module = [PAModuleInfo createFromInfoStruct: info
 								   server: server];
-		[modules addObject: module];
+		[publishedModules addObject: module];
+		[presentModules addObject: module];
+		[server performSelectorOnMainThread: @selector(sendDelegateModuleInfoAdded:)
+					 withObject: module
+				      waitUntilDone: NO];		
 	}
 	
 	if (eol) {
-		[server performSelectorOnMainThread: @selector(sendDelegateModulesChanged:)
-					 withObject: modules
-				      waitUntilDone: NO];		
-	}
+		NSMutableArray *a = [NSMutableArray arrayWithArray: publishedModules];
+
+		for (PAModuleInfo *module in publishedModules)
+			if (![presentModules containsObject: module]) {
+				[server performSelectorOnMainThread: @selector(sendDelegateModuleInfoRemoved:)
+							 withObject: module
+						      waitUntilDone: YES];		
+				
+				[a removeObject: module];
+			}
+		
+		[publishedModules removeAllObjects];
+		[publishedModules addObjectsFromArray: a];
+	}	
 	
 	[pool drain];
 }
@@ -328,17 +480,38 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 			eol: (BOOL) eol
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	
+
 	if (info) {
+		for (PASampleInfo *sample in publishedSamples)
+			if (sample.index == info->index) {
+				[presentSamples addObject: sample];
+				[sample loadFromInfoStruct: info];
+				return;
+			}
+		
 		PASampleInfo *sample = [PASampleInfo createFromInfoStruct: info
 								   server: server];
-		[samples addObject: sample];
+		[publishedSamples addObject: sample];
+		[presentSamples addObject: sample];
+		[server performSelectorOnMainThread: @selector(sendDelegateSampleInfoAdded:)
+					 withObject: sample
+				      waitUntilDone: NO];		
 	}
-	
+
 	if (eol) {
-		[server performSelectorOnMainThread: @selector(sendDelegateSamplesChanged:)
-					 withObject: samples
-				      waitUntilDone: NO];				
+		NSMutableArray *a = [NSMutableArray arrayWithArray: publishedSamples];
+
+		for (PASampleInfo *sample in publishedSamples)
+			if (![presentSamples containsObject: sample]) {
+				[server performSelectorOnMainThread: @selector(sendDelegateSampleInfoRemoved:)
+							 withObject: sample
+						      waitUntilDone: YES];		
+				
+				[a removeObject: sample];
+			}
+		
+		[publishedSamples removeAllObjects];
+		[publishedSamples addObjectsFromArray: a];
 	}
 	
 	[pool drain];
@@ -346,13 +519,13 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
 
 - (void) moduleLoadedCallback: (UInt32) index
 {
-	[modules removeAllObjects];
+	[presentModules removeAllObjects];
 	pa_context_get_module_info_list(PAContext, staticModuleInfoCallback, self);
 }
 
 - (void) moduleUnloadedCallback: (BOOL) success
 {
-	[modules removeAllObjects];
+	[presentModules removeAllObjects];
 	pa_context_get_module_info_list(PAContext, staticModuleInfoCallback, self);
 }
 
@@ -721,15 +894,24 @@ static void staticClientNameSetCallback(pa_context *c, int success, void *userda
 
 	serverInfo = [[[PAServerInfo alloc] init] retain];
 	
-	cards = [[NSMutableArray arrayWithCapacity: 0] retain];
-	sinks = [[NSMutableArray arrayWithCapacity: 0] retain];
-	sinkInputs = [[NSMutableArray arrayWithCapacity: 0] retain];
-	sources = [[NSMutableArray arrayWithCapacity: 0] retain];
-	sourceOutputs = [[NSMutableArray arrayWithCapacity: 0] retain];
-	clients = [[NSMutableArray arrayWithCapacity: 0] retain];
-	modules = [[NSMutableArray arrayWithCapacity: 0] retain];
-	samples = [[NSMutableArray arrayWithCapacity: 0] retain];
-		
+	presentCards = [[NSMutableArray arrayWithCapacity: 0] retain];
+	presentSinks = [[NSMutableArray arrayWithCapacity: 0] retain];
+	presentSinkInputs = [[NSMutableArray arrayWithCapacity: 0] retain];
+	presentSources = [[NSMutableArray arrayWithCapacity: 0] retain];
+	presentSourceOutputs = [[NSMutableArray arrayWithCapacity: 0] retain];
+	presentClients = [[NSMutableArray arrayWithCapacity: 0] retain];
+	presentModules = [[NSMutableArray arrayWithCapacity: 0] retain];
+	presentSamples = [[NSMutableArray arrayWithCapacity: 0] retain];
+
+	publishedCards = [[NSMutableArray arrayWithCapacity: 0] retain];
+	publishedSinks = [[NSMutableArray arrayWithCapacity: 0] retain];
+	publishedSinkInputs = [[NSMutableArray arrayWithCapacity: 0] retain];
+	publishedSources = [[NSMutableArray arrayWithCapacity: 0] retain];
+	publishedSourceOutputs = [[NSMutableArray arrayWithCapacity: 0] retain];
+	publishedClients = [[NSMutableArray arrayWithCapacity: 0] retain];
+	publishedModules = [[NSMutableArray arrayWithCapacity: 0] retain];
+	publishedSamples = [[NSMutableArray arrayWithCapacity: 0] retain];
+	
 	return self;
 }
 
@@ -738,14 +920,24 @@ static void staticClientNameSetCallback(pa_context *c, int success, void *userda
 	if (audio)
 		[audio release];
 	
-	[cards release];
-	[sinks release];
-	[sinkInputs release];
-	[sources release];
-	[sourceOutputs release];
-	[clients release];
-	[modules release];
-	[samples release];
+	[presentCards release];
+	[presentSinks release];
+	[presentSinkInputs release];
+	[presentSources release];
+	[presentSourceOutputs release];
+	[presentClients release];
+	[presentModules release];
+	[presentSamples release];
+	
+	[publishedCards release];
+	[publishedSinks release];
+	[publishedSinkInputs release];
+	[publishedSources release];
+	[publishedSourceOutputs release];
+	[publishedClients release];
+	[publishedModules release];
+	[publishedSamples release];	
+
 	[serverInfo release];
 	
 	[super dealloc];
