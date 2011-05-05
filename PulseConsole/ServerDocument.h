@@ -24,7 +24,8 @@
 #import "Server.h"
 
 @interface ServerDocument : NSDocument <PAServiceDiscoveryDelegate,
-					NSTabViewDelegate,
+					NSTableViewDelegate,
+					NSTableViewDataSource,
 					ServerDelegate>
 {
 	IBOutlet NSTableView *serverTableView;

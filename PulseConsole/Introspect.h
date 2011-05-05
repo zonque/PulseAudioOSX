@@ -26,7 +26,6 @@
 	IBOutlet NSTableView	*selectionTableView;
 	IBOutlet NSTableView	*parameterTableView;
 	IBOutlet NSTableView	*propertyTableView;
-	IBOutlet NSButton	*activeButton;
 
 	NSMutableArray *outlineToplevel;
 	NSMutableDictionary *parameters;
