@@ -445,23 +445,47 @@ objectValueForTableColumn: (NSTableColumn *) col
 
 		
 		NSString *label = @"";
-		NSArray *cl = [NSArray arrayWithObjects:
-			       @"PACardInfo",
-			       @"PAClientInfo",
-			       @"PAModuleInfo",
-			       @"PASampleInfo",
-			       @"PAServerInfo",
-			       @"PASinkInfo",
-			       @"PASinkInputInfo",
-			       @"PASourceInfo",
-			       @"PASourceOutputInfo",
-			       @"PASinkInfo",
-			       nil];
 		
-		if ([cl containsObject: [child className]]) {
+		if ([[child className] isEqualToString: @"PACardInfo"]   ||
+		    [[child className] isEqualToString: @"PAClientInfo"] ||
+		    [[child className] isEqualToString: @"PAModuleInfo"] ||
+		    [[child className] isEqualToString: @"PASampleInfo"] ||
+		    [[child className] isEqualToString: @"PAServerInfo"]) {
 			PAElementInfo *info = (PAElementInfo *) child;
 			label = info.name;
 		}
+
+		if ([[child className] isEqualToString: @"PASinkInfo"]) {
+			PASinkInfo *info = (PASinkInfo *) child;
+			NSDictionary *p = info.properties;
+			label = [NSString stringWithFormat: @"%@: %@",
+						[p objectForKey: @"device.string"],
+						info.name];
+		}
+	
+		if ([[child className] isEqualToString: @"PASourceInfo"]) {
+			PASourceInfo *info = (PASourceInfo *) child;
+			NSDictionary *p = info.properties;
+			label = [NSString stringWithFormat: @"%@: %@",
+				 [p objectForKey: @"device.string"],
+				 info.name];			
+		}
+		
+		if ([[child className] isEqualToString: @"PASinkInputInfo"]) {
+			PASinkInputInfo *info = (PASinkInputInfo *) child;
+			NSDictionary *p = info.properties;
+			label = [NSString stringWithFormat: @"%@: %@",
+				 [p objectForKey: @"application.name"],
+				 info.name];
+		}		
+
+		if ([[child className] isEqualToString: @"PASourceOutputInfo"]) {
+			PASourceOutputInfo *info = (PASourceOutputInfo *) child;
+			NSDictionary *p = info.properties;
+			label = [NSString stringWithFormat: @"%@: %@",
+				 [p objectForKey: @"application.name"],
+				 info.name];
+		}		
 		
 		if ([label isEqualToString: @""]) {
 			NSDictionary *d = (NSDictionary *) child;

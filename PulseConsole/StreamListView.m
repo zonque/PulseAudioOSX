@@ -111,9 +111,10 @@
 }
 
 - (void) itemAdded: (PAElementInfo *) info
+	      name: (NSString *) name
 {
 	[self addStreamView: info
-		       name: info.name];
+		       name: name];
 	[self recalcLayout];
 }
 
@@ -136,7 +137,10 @@
 - (void) sinkInfoAdded: (PASinkInfo *) sink
 {
 	if (streamType == StreamTypeSink)
-		[self itemAdded: sink];
+		[self itemAdded: sink
+			   name: [NSString stringWithFormat: @"%@: %@",
+				  [sink.properties objectForKey: @"device.string"],
+				  sink.name]];
 }
 
 - (void) sinkInfoRemoved: (PASinkInfo *) sink
@@ -156,7 +160,10 @@
 - (void) sinkInputInfoAdded: (PASinkInputInfo *) input
 {
 	if (streamType == StreamTypePlayback)
-		[self itemAdded: input];
+		[self itemAdded: input
+			   name: [NSString stringWithFormat: @"%@: %@",
+				  [input.properties objectForKey: @"application.name"],
+				  input.name]];
 }
 
 - (void) sinkInputInfoRemoved: (PASinkInputInfo *) input
@@ -177,7 +184,10 @@
 - (void) sourceInfoAdded: (PASourceInfo *) source
 {
 	if (streamType == StreamTypeSource)
-		[self itemAdded: source];
+		[self itemAdded: source
+			   name: [NSString stringWithFormat: @"%@: %@",
+				  [source.properties objectForKey: @"device.string"],
+				  source.name]];
 }
 
 - (void) sourceInfoRemoved: (PASourceInfo *) source
@@ -198,7 +208,10 @@
 - (void) sourceOutputInfoAdded: (PASourceOutputInfo *) output
 {
 	if (streamType == StreamTypeRecording)
-		[self itemAdded: output];
+		[self itemAdded: output
+			   name: [NSString stringWithFormat: @"%@: %@",
+				  [output.properties objectForKey: @"application.name"],
+				  output.name]];
 }
 
 - (void) sourceOutputInfoRemoved: (PASourceOutputInfo *) output

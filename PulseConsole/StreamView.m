@@ -113,6 +113,7 @@
 	switch (type) {
 		case StreamTypeSink:
 			channelNames = ((PASinkInfo *) info).channelNames;
+			[masterSlider setIntValue: ((PASinkInfo *) info).volume];
 			break;
 		case StreamTypeSource:
 			channelNames = ((PASourceInfo *) info).channelNames;
@@ -122,6 +123,7 @@
 			break;
 		case StreamTypePlayback:
 			channelNames = ((PASinkInputInfo *) info).channelNames;
+			[masterSlider setIntValue: ((PASinkInputInfo *) info).volume];
 			break;
 	}
 	
@@ -254,6 +256,12 @@
 	switch (type) {
 		case StreamTypePlayback: {
 			PASinkInputInfo *i = (PASinkInputInfo *) info;
+			i.volume = [sender intValue];
+			break;
+		}
+		
+		case StreamTypeSink: {
+			PASinkInfo *i = (PASinkInfo *) info;
 			i.volume = [sender intValue];
 			break;
 		}
