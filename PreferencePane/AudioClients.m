@@ -26,10 +26,15 @@
 	[clientDetailsBox selectTabViewItemAtIndex: 1];
 
 	clientList = [[NSMutableArray arrayWithCapacity: 0] retain];
-	serviceDict = [[NSMutableDictionary dictionaryWithCapacity: 0] retain];
-
+	knownServers = [[NSMutableArray arrayWithCapacity: 0] retain];
+	knownSinks = [[NSMutableArray arrayWithCapacity: 0] retain];
+	knownSources = [[NSMutableArray arrayWithCapacity: 0] retain];
+	
 	[serverSelectButton removeAllItems];
-	[serverSelectButton addItemWithTitle: @"localhost"];
+	[sinkSelectButton removeAllItems];
+	[sourceSelectButton removeAllItems];
+
+//	[serverSelectButton addItemWithTitle: @"localhost"];
 
 	discovery = [[PAServiceDiscovery alloc] init];
 	discovery.delegate = self;
@@ -147,16 +152,6 @@ enum {
 		
 	id key;
 	BOOL found = NO;
-	NSEnumerator *enumerator = [serviceDict keyEnumerator];
-	while (key = [enumerator nextObject]) {
-		NSNetService *service = [serviceDict objectForKey: key];
-		NSString *ip = [PAServiceDiscovery ipOfService: service];
-
-		//if ([ip isEqualToString: serverIP]) {
-		//	[serverSelectButton selectItemWithTitle: [service name]];
-		//	found = YES;
-		//}
-	}
 	
 	//if (!found)
 	//	[serverSelectButton selectItemWithTitle: serverIP];
@@ -175,17 +170,9 @@ enum {
 	NSNumber *pid = [client objectForKey: @"pid"];
 	NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithCapacity: 0];
 	NSString *serverName = [serverSelectButton titleOfSelectedItem];
-	NSNetService *service = [serviceDict objectForKey: serverName];
 	NSNumber *serverPort = NULL;
 	NSString *serverIP;
 	
-	if (service) {
-		serverIP = [PAServiceDiscovery ipOfService: service];
-		serverPort = [NSNumber numberWithInt: [service port]];
-	} else {
-		serverIP = @"localhost";
-	}
-
 	[userInfo setObject: serverIP
 		     forKey: @"serverName"];
 	[userInfo setObject: pid
@@ -200,10 +187,46 @@ enum {
 		   forKey: @"serverName"];
 }
 
+- (IBAction) selectServer: (id) sender
+{
+	[sinkSelectButton removeAllItems];
+	[sourceSelectButton removeAllItems];
+	
+	NSInteger selected = [serverSelectButton indexOfSelectedItem];
+	if (selected < 0)
+		return;
+	
+	NSNetService *server = [knownServers objectAtIndex: selected];
+	NSDictionary *txt = [NSNetService dictionaryFromTXTRecordData: [server TXTRecordData]];
+	NSData *serverMachine = [txt objectForKey: @"machine-id"];
+
+	for (NSNetService *s in knownSinks) {
+		NSDictionary *txt = [NSNetService dictionaryFromTXTRecordData: [s TXTRecordData]];
+		NSData *machine = [txt objectForKey: @"machine-id"];
+
+		if (machine && [machine isEqualToData: serverMachine]) {
+			NSData *description = [txt objectForKey: @"description"];
+			[sinkSelectButton addItemWithTitle: [NSString stringWithCString: [description bytes]
+									       encoding: NSASCIIStringEncoding]];
+		}
+	}
+
+	for (NSNetService *s in knownSources) {
+		NSDictionary *txt = [NSNetService dictionaryFromTXTRecordData: [s TXTRecordData]];
+		NSData *machine = [txt objectForKey: @"machine-id"];
+
+		if (machine && [machine isEqualToData: serverMachine]) {
+			NSData *description = [txt objectForKey: @"description"];
+			[sourceSelectButton addItemWithTitle: [NSString stringWithCString: [description bytes]
+										 encoding: NSASCIIStringEncoding]];
+		}
+	}
+}
+
 #pragma mark ### PAServiceDiscoveryDelegate ###
 
 - (void) PAServiceDiscovery: (PAServiceDiscovery *) discovery
-	       sinkAppeared: (NSNetService *) service
+	     serverAppeared: (NSNetService *) service
 {
 	NSString *name = [service name];
 	NSArray *addresses = [service addresses];
@@ -211,13 +234,49 @@ enum {
 	if ([addresses count] == 0)
 		return;
 	
-	[serverSelectButton addItemWithTitle: name];	
+	[knownServers addObject: service];
+	[serverSelectButton addItemWithTitle: name];
+	
+	if ([serverSelectButton indexOfSelectedItem] < 0)
+		[serverSelectButton selectItemAtIndex: 0];
+	
+	[self selectServer: nil];
+}
+
+- (void) PAServiceDiscovery: (PAServiceDiscovery *) discovery
+	  serverDisappeared: (NSNetService *) service
+{
+	[knownServers addObject: service];
+	[serverSelectButton removeItemWithTitle: [service name]];
+	[self selectServer: nil];
+}
+
+- (void) PAServiceDiscovery: (PAServiceDiscovery *) discovery
+	       sinkAppeared: (NSNetService *) service
+{
+	[knownSinks addObject: service];
+	[self selectServer: nil];
 }
 
 - (void) PAServiceDiscovery: (PAServiceDiscovery *) discovery
 	    sinkDisappeared: (NSNetService *) service
 {
-	[serverSelectButton removeItemWithTitle: [service name]];
+	[knownSinks removeObject: service];
+	[self selectServer: nil];
+}
+
+- (void) PAServiceDiscovery: (PAServiceDiscovery *) discovery
+	     sourceAppeared: (NSNetService *) service
+{
+	[knownSources addObject: service];
+	[self selectServer: nil];
+}
+
+- (void) PAServiceDiscovery: (PAServiceDiscovery *) discovery
+	  sourceDisappeared: (NSNetService *) service
+{
+	[knownSources removeObject: service];
+	[self selectServer: nil];
 }
 
 @end

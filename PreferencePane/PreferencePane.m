@@ -36,7 +36,6 @@
 
 	[self PAHelperConnection: helperConnection
 	      preferencesChanged: preferences];
-	 
 }
 
 #pragma mark ### GUI ###

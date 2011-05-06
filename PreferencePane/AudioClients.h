@@ -24,14 +24,19 @@
 	IBOutlet NSTextField		*PIDLabel;
 	IBOutlet NSTextField		*IOBufferSizeLabel;
 	IBOutlet NSPopUpButton		*serverSelectButton;
+	IBOutlet NSPopUpButton		*sinkSelectButton;
+	IBOutlet NSPopUpButton		*sourceSelectButton;
 	IBOutlet NSTextField		*userNameField;
 	IBOutlet NSSecureTextField	*passwordField;
 	IBOutlet NSTextField		*connectionStatusTextField;
 	IBOutlet NSButton		*persistenCheckButton;
 
 	NSMutableArray			*clientList;
-	NSMutableDictionary		*serviceDict;
 	PAServiceDiscovery		*discovery;
+	
+	NSMutableArray *knownServers;
+	NSMutableArray *knownSinks;
+	NSMutableArray *knownSources;
 }
 
 /* Helper callbacks */
@@ -49,6 +54,7 @@
 
 /* GUI */
 - (IBAction) selectClient: (id) sender;
+- (IBAction) selectServer: (id) sender;
 - (IBAction) connectClient: (id) sender;
 
 @end
