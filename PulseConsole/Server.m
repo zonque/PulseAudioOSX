@@ -210,21 +210,26 @@ objectValueForTableColumn: (NSTableColumn *) col
 	      sinkInfoAdded: (PASinkInfo *) sink
 {
 	[introspect contentChanged: sink];
-	[sinkStreamListView sinkInfoAdded: sink];
+	NSString *name = [NSString stringWithFormat: @"%@: %@",
+			  [sink.properties objectForKey: @"device.string"],
+			  sink.name];
+	
+	[sinkStreamListView addItem: sink
+			       name: name];
 }
 
 - (void) PAServerConnection: (PAServerConnection *) connection
 	    sinkInfoRemoved: (PASinkInfo *) sink
 {
 	[introspect contentChanged: sink];
-	[sinkStreamListView sinkInfoRemoved: sink];
+	[sinkStreamListView removeItem: sink];	
 }
 
 - (void) PAServerConnection: (PAServerConnection *) connection
 	    sinkInfoChanged: (PASinkInfo *) sink
 {
 	[introspect contentChanged: sink];
-	[sinkStreamListView sinkInfoChanged: sink];
+	[sinkStreamListView updateItem: sink];	
 }
 
 #pragma mark # sink input
@@ -233,21 +238,26 @@ objectValueForTableColumn: (NSTableColumn *) col
 	 sinkInputInfoAdded: (PASinkInputInfo *) input
 {
 	[introspect contentChanged: input];
-	[playbackStreamListView sinkInputInfoAdded: input];
+	NSString *name = [NSString stringWithFormat: @"%@: %@",
+			  [input.properties objectForKey: @"application.name"],
+			  input.name];
+	
+	[playbackStreamListView addItem: input
+				   name: name];
 }
 
 - (void) PAServerConnection: (PAServerConnection *) connection
        sinkInputInfoRemoved: (PASinkInputInfo *) input
 {
 	[introspect contentChanged: input];
-	[playbackStreamListView sinkInputInfoRemoved: input];
+	[playbackStreamListView removeItem: input];	
 }
 
 - (void) PAServerConnection: (PAServerConnection *) connection
        sinkInputInfoChanged: (PASinkInputInfo *) input
 {
 	[introspect contentChanged: input];
-	[playbackStreamListView sinkInputInfoChanged: input];
+	[playbackStreamListView updateItem: input];	
 }
 
 #pragma mark # source
@@ -256,21 +266,25 @@ objectValueForTableColumn: (NSTableColumn *) col
 	    sourceInfoAdded: (PASourceInfo *) source
 {
 	[introspect contentChanged: source];
-	[sourceStreamListView sourceInfoAdded: source];
+	NSString *name = [NSString stringWithFormat: @"%@: %@",
+			  [source.properties objectForKey: @"device.string"],
+			  source.name];
+	[sourceStreamListView addItem: source
+				 name: name];
 }
 
 - (void) PAServerConnection: (PAServerConnection *) connection
 	  sourceInfoRemoved: (PASourceInfo *) source
 {
 	[introspect contentChanged: source];
-	[sourceStreamListView sourceInfoRemoved: source];
+	[sourceStreamListView removeItem: source];
 }
 
 - (void) PAServerConnection: (PAServerConnection *) connection
 	  sourceInfoChanged: (PASourceInfo *) source
 {
 	[introspect contentChanged: source];
-	[sourceStreamListView sourceInfoChanged: source];
+	[sourceStreamListView updateItem: source];
 }
 
 #pragma mark # source output
@@ -279,21 +293,26 @@ objectValueForTableColumn: (NSTableColumn *) col
       sourceOutputInfoAdded: (PASourceOutputInfo *) output
 {
 	[introspect contentChanged: output];
-	[recordStreamListView sourceOutputInfoAdded: output];
+	NSString *name = [NSString stringWithFormat: @"%@: %@",
+			  [output.properties objectForKey: @"application.name"],
+			  output.name];
+
+	[recordStreamListView addItem: output
+				 name: name];
 }
 
 - (void) PAServerConnection: (PAServerConnection *) connection
     sourceOutputInfoRemoved: (PASourceOutputInfo *) output
 {
 	[introspect contentChanged: output];
-	[recordStreamListView sourceOutputInfoRemoved: output];
+	[recordStreamListView removeItem: output];
 }
 
 - (void) PAServerConnection: (PAServerConnection *) connection
     sourceOutputInfoChanged: (PASourceOutputInfo *) output
 {
 	[introspect contentChanged: output];
-	[recordStreamListView sourceOutputInfoChanged: output];
+	[recordStreamListView updateItem: output];
 }
 
 #pragma mark # client

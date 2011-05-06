@@ -61,8 +61,6 @@
 			return;
 		
 		NSNetService *service = [serverArray objectAtIndex: selectedRow];
-		
-//		NSString *host = [PAServiceDiscovery ipOfService: service];		
 		NSString *host = [service hostName];
 		[server connectToServer: host];		
 	} else {

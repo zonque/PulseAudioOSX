@@ -110,120 +110,25 @@
 	[self recalcLayout];
 }
 
-- (void) itemAdded: (PAElementInfo *) info
-	      name: (NSString *) name
+- (void) addItem: (PAElementInfo *) info
+	    name: (NSString *) name
 {
 	[self addStreamView: info
 		       name: name];
 	[self recalcLayout];
 }
 
-- (void) itemRemoved: (PAElementInfo *) info
+- (void) removeItem: (PAElementInfo *) info
 {
 	[self removeStreamView: info];
 	[self recalcLayout];	
 }
 
-- (void) itemChanged: (PAElementInfo *) info
+- (void) updateItem: (PAElementInfo *) info
 {
 	for (StreamView *v in streamViewItems)
 		if (v.info == info)
 			[v update];
-}
-
-
-#pragma mark # sink
-
-- (void) sinkInfoAdded: (PASinkInfo *) sink
-{
-	if (streamType == StreamTypeSink)
-		[self itemAdded: sink
-			   name: [NSString stringWithFormat: @"%@: %@",
-				  [sink.properties objectForKey: @"device.string"],
-				  sink.name]];
-}
-
-- (void) sinkInfoRemoved: (PASinkInfo *) sink
-{
-	if (streamType == StreamTypeSink)
-		[self itemRemoved: sink];	
-}
-
-- (void) sinkInfoChanged: (PASinkInfo *) sink
-{
-	if (streamType == StreamTypeSink)
-		[self itemChanged: sink];	
-}
-
-#pragma mark # sink input
-
-- (void) sinkInputInfoAdded: (PASinkInputInfo *) input
-{
-	if (streamType == StreamTypePlayback)
-		[self itemAdded: input
-			   name: [NSString stringWithFormat: @"%@: %@",
-				  [input.properties objectForKey: @"application.name"],
-				  input.name]];
-}
-
-- (void) sinkInputInfoRemoved: (PASinkInputInfo *) input
-{
-	if (streamType == StreamTypePlayback)
-		[self itemRemoved: input];	
-}
-
-- (void) sinkInputInfoChanged: (PASinkInputInfo *) input
-{
-	if (streamType == StreamTypePlayback)
-		[self itemChanged: input];	
-}
-
-
-#pragma mark # source
-
-- (void) sourceInfoAdded: (PASourceInfo *) source
-{
-	if (streamType == StreamTypeSource)
-		[self itemAdded: source
-			   name: [NSString stringWithFormat: @"%@: %@",
-				  [source.properties objectForKey: @"device.string"],
-				  source.name]];
-}
-
-- (void) sourceInfoRemoved: (PASourceInfo *) source
-{
-	if (streamType == StreamTypeSource)
-		[self itemRemoved: source];
-}
-
-- (void) sourceInfoChanged: (PASourceInfo *) source
-{
-	if (streamType == StreamTypeSource)
-		[self itemChanged: source];	
-}
-
-
-#pragma mark # source output
-
-- (void) sourceOutputInfoAdded: (PASourceOutputInfo *) output
-{
-	if (streamType == StreamTypeRecording)
-		[self itemAdded: output
-			   name: [NSString stringWithFormat: @"%@: %@",
-				  [output.properties objectForKey: @"application.name"],
-				  output.name]];
-}
-
-- (void) sourceOutputInfoRemoved: (PASourceOutputInfo *) output
-{
-	if (streamType == StreamTypeRecording)
-		[self itemRemoved: output];
-}
-
-- (void) sourceOutputInfoChanged: (PASourceOutputInfo *) output
-{
-	if (streamType == StreamTypeRecording)
-		[self itemChanged: output];
 }
 
 @end

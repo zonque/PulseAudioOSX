@@ -32,28 +32,9 @@
 - (void) removeAllStreams;
 - (void) recalcLayout;
 
-#pragma mark # sink
-
-- (void) sinkInfoAdded: (PASinkInfo *) sink;
-- (void) sinkInfoRemoved: (PASinkInfo *) sink;
-- (void) sinkInfoChanged: (PASinkInfo *) sink;
-
-#pragma mark # sink input
-
-- (void) sinkInputInfoAdded: (PASinkInputInfo *) input;
-- (void) sinkInputInfoRemoved: (PASinkInputInfo *) input;
-- (void) sinkInputInfoChanged: (PASinkInputInfo *) input;
-
-#pragma mark # source
-
-- (void) sourceInfoAdded: (PASourceInfo *) source;
-- (void) sourceInfoRemoved: (PASourceInfo *) source;
-- (void) sourceInfoChanged: (PASourceInfo *) source;
-
-#pragma mark # source output
-
-- (void) sourceOutputInfoAdded: (PASourceOutputInfo *) output;
-- (void) sourceOutputInfoRemoved: (PASourceOutputInfo *) output;
-- (void) sourceOutputInfoChanged: (PASourceOutputInfo *) output;
+- (void) addItem: (PAElementInfo *) info
+	    name: (NSString *) name;
+- (void) removeItem: (PAElementInfo *) info;
+- (void) updateItem: (PAElementInfo *) info;
 
 @end
