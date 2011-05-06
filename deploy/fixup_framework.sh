@@ -41,7 +41,7 @@ cp -a $papath/bin/* $binpath/
 cp -a $papath/lib/*.dylib $libpath/
 cp -a $papath/lib/pulse-1.0/modules/* $modpath/
 
-exit
+#exit
 
 function copy_with_symlinks()
 {
@@ -73,10 +73,11 @@ function relocate_libs()
 	while [ $run -eq 1 ]; do
 		run=0
 
-		for file in $(find $path -type f -depth 1); do
+		for file in $(find $path -type f -depth 1 | grep -v "PulseAudio$"); do
 			(file $file | grep -qi binary) && \
 				install_name_tool -id $prefix/$(basename $file) $file
 			for deplib in $(otool -L $file | grep $pattern | cut -d" " -f1); do
+
 				basename=$(basename $deplib)
 				if [ ! -e $path/$basename ]; then
 					echo "Copying $deplib"
