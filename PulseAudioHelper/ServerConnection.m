@@ -21,10 +21,11 @@ static NSString *tcpModuleName = @"module-native-protocol-tcp";
 {
 	networkEnabled = [[preferences valueForKey: @"localServerNetworkEnabled"] boolValue];
 
-	if (!networkEnabled && networkModuleLoaded)
-		[connection unloadModuleWithName: tcpModuleName];
+	if (!networkEnabled && networkModule)
+		if ([networkModule unload]);
+			networkModule = nil;
 	
-	if (networkEnabled && !networkModuleLoaded)
+	if (networkEnabled && !networkModule)
 		[connection loadModuleWithName: tcpModuleName
 				     arguments: @"auth-anonymous=1"];
 }
@@ -59,23 +60,27 @@ static NSString *tcpModuleName = @"module-native-protocol-tcp";
 - (void) PAServerConnectionFailed: (PAServerConnection *) connection
 {
 	NSLog(@"%s", __func__);
+	networkModule = nil;
 }
 
 - (void) PAServerConnectionEnded: (PAServerConnection *) connection
 {
 	NSLog(@"%s", __func__);
+	networkModule = nil;
 }
 
 - (void) PAServerConnection: (PAServerConnection *) connection
-	     modulesChanged: (NSArray *) modules
+	    moduleInfoAdded: (PAModuleInfo *) module
 {
-	networkModuleLoaded = NO;
+	if ([module.name isEqualToString: tcpModuleName])
+		networkModule = module;
+}
 
-	for (PAModuleInfo *info in modules)
-		if ([info.name isEqualToString: tcpModuleName])
-			networkModuleLoaded = YES;
-	
-	NSLog(@" ::: networkModuleLoaded %d (%d mods)", networkModuleLoaded, [modules count]);
+- (void) PAServerConnection: (PAServerConnection *) connection
+	  moduleInfoRemoved: (PAModuleInfo *) module;
+{
+	if ([module.name isEqualToString: tcpModuleName])
+		networkModule = nil;
 }
 
 @end

@@ -18,7 +18,7 @@
 	PAServerConnection *connection;
 	Preferences *preferences;
 	BOOL networkEnabled;
-	BOOL networkModuleLoaded;
+	PAModuleInfo *networkModule;
 }
 
 /* PAServerConnectionDelegate */
