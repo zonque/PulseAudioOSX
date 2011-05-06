@@ -1,8 +1,8 @@
 /***
  This file is part of PulseAudioOSX
- 
+
  Copyright 2010,2011 Daniel Mack <pulseaudio@zonque.de>
- 
+
  PulseAudioOSX is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 2.1 of the License, or
@@ -17,16 +17,16 @@
 #import "Preferences.h"
 
 @interface GrowlNotifications : NSObject <
-				GrowlApplicationBridgeDelegate,
-				PAServiceDiscoveryDelegate,
-				PAServerConnectionDelegate
-				>
+                                GrowlApplicationBridgeDelegate,
+                                PAServiceDiscoveryDelegate,
+                                PAServerConnectionDelegate
+                                >
 {
-	PAServiceDiscovery *discovery;
-	NSData *logoData;
-	BOOL growlReady;
-	//ServerConnection *serverConnection;
-	Preferences *preferences;
+        PAServiceDiscovery *discovery;
+        NSData *logoData;
+        BOOL growlReady;
+        //ServerConnection *serverConnection;
+        Preferences *preferences;
 }
 
 - (id) initWithPreferences: (Preferences *) p;
@@ -40,19 +40,19 @@
 /* PAServiceDiscoveryDelegate */
 
 - (void) PAServiceDiscovery: (PAServiceDiscovery *) discovery
-	     serverAppeared: (NSNetService *) service;
+             serverAppeared: (NSNetService *) service;
 - (void) PAServiceDiscovery: (PAServiceDiscovery *) discovery
-	  serverDisappeared: (NSNetService *) service;
+          serverDisappeared: (NSNetService *) service;
 
 - (void) PAServiceDiscovery: (PAServiceDiscovery *) discovery
-	       sinkAppeared: (NSNetService *) service;
+               sinkAppeared: (NSNetService *) service;
 - (void) PAServiceDiscovery: (PAServiceDiscovery *) discovery
-	    sinkDisappeared: (NSNetService *) service;
+            sinkDisappeared: (NSNetService *) service;
 
 - (void) PAServiceDiscovery: (PAServiceDiscovery *) discovery
-	     sourceAppeared: (NSNetService *) service;
+             sourceAppeared: (NSNetService *) service;
 - (void) PAServiceDiscovery: (PAServiceDiscovery *) discovery
-	  sourceDisappeared: (NSNetService *) service;
+          sourceDisappeared: (NSNetService *) service;
 
 /* PAServerConnectionDelegate */
 //...

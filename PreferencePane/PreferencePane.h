@@ -1,8 +1,8 @@
 /***
  This file is part of PulseAudioOSX
- 
+
  Copyright 2010,2011 Daniel Mack <pulseaudio@zonque.de>
- 
+
  PulseAudioOSX is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 2.1 of the License, or
@@ -18,18 +18,18 @@
 #import "Growl.h"
 
 @interface PreferencePane : NSPreferencePane <
-				PAHelperConnectionDelegate,
-				GrowlDelegate,
-				LocalServerDelegate>
+                                PAHelperConnectionDelegate,
+                                GrowlDelegate,
+                                LocalServerDelegate>
 {
-	IBOutlet NSButton *statusBarEnabledButton;
-	IBOutlet LoginItemController *loginItemController;
+        IBOutlet NSButton *statusBarEnabledButton;
+        IBOutlet LoginItemController *loginItemController;
 
-	IBOutlet AudioClients *audioClients;
-	IBOutlet Growl *growl;
-	IBOutlet LocalServer *localServer;
-	
-	PAHelperConnection *helperConnection;
+        IBOutlet AudioClients *audioClients;
+        IBOutlet Growl *growl;
+        IBOutlet LocalServer *localServer;
+
+        PAHelperConnection *helperConnection;
 }
 
 - (IBAction) setPulseAudioEnabled: (id) sender;
@@ -39,13 +39,13 @@
 
 - (void) PAHelperConnectionDied: (PAHelperConnection *) connection;
 - (void) PAHelperConnection: (PAHelperConnection *) connection
-	audioClientsChanged: (NSArray *) array;
+        audioClientsChanged: (NSArray *) array;
 - (void) PAHelperConnection: (PAHelperConnection *) connection
-	 preferencesChanged: (NSDictionary *) preferences;
+         preferencesChanged: (NSDictionary *) preferences;
 
 #pragma mark ### GrowlDelegate/LocalServerDelegate ###
 
 - (void) setPreferences: (id) value
-		 forKey: (NSString *) key;
+                 forKey: (NSString *) key;
 
 @end

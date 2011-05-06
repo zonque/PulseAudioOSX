@@ -10,36 +10,36 @@
 
 int main (int argc, const char * argv[])
 {
-	NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
+        NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
         [NSApplication sharedApplication];
 
-	Preferences *prefs = [[[Preferences alloc] init] autorelease];
+        Preferences *prefs = [[[Preferences alloc] init] autorelease];
 
-	ConnectionServer *server = [[[ConnectionServer alloc] init] autorelease];
-	server.preferences = prefs;
-	
-	GrowlNotifications *gn = [[[GrowlNotifications alloc] initWithPreferences: prefs] autorelease];
-	StatusBar *bar = [[[StatusBar alloc] init] autorelease];
-	bar.preferences = prefs;
+        ConnectionServer *server = [[[ConnectionServer alloc] init] autorelease];
+        server.preferences = prefs;
 
-	ServerTask *task = [[[ServerTask alloc] initWithPreferences: prefs] autorelease];
+        GrowlNotifications *gn = [[[GrowlNotifications alloc] initWithPreferences: prefs] autorelease];
+        StatusBar *bar = [[[StatusBar alloc] init] autorelease];
+        bar.preferences = prefs;
 
-	ServerConnection *sc = [[ServerConnection alloc] initWithPreferences: prefs];
-	
+        ServerTask *task = [[[ServerTask alloc] initWithPreferences: prefs] autorelease];
+
+        ServerConnection *sc = [[ServerConnection alloc] initWithPreferences: prefs];
+
 #if 0
-	[[NSNotificationCenter defaultCenter] postNotificationName: PAOSX_HelperMsgServiceStarted
-							    object: PAOSX_HelperName
-							  userInfo: nil
-						deliverImmediately: YES];	
+        [[NSNotificationCenter defaultCenter] postNotificationName: PAOSX_HelperMsgServiceStarted
+                                                            object: PAOSX_HelperName
+                                                          userInfo: nil
+                                                deliverImmediately: YES];
 #endif
 
-	[server start];
-	
-	[NSApp setDelegate: bar];
-	[NSApp run];
-	
-	[task stop];
+        [server start];
 
-	[pool drain];
-	return 0;
+        [NSApp setDelegate: bar];
+        [NSApp run];
+
+        [task stop];
+
+        [pool drain];
+        return 0;
 }

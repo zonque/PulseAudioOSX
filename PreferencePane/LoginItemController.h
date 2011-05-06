@@ -22,7 +22,7 @@
 
 
 @interface LoginItemController : NSObject {
-	IBOutlet NSButton *btnToggleLoginItem;
+        IBOutlet NSButton *btnToggleLoginItem;
 }
 
 - (IBAction) toggleLoginItem:(id)sender;

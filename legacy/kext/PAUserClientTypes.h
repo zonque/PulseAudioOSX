@@ -1,8 +1,8 @@
 /***
  This file is part of PulseAudioKext
- 
+
  Copyright (c) 2010 Daniel Mack <daniel@caiaq.de>
- 
+
  PulseAudioKext is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 2.1 of the License, or
@@ -12,68 +12,68 @@
 #ifndef PAUSERCLIENT_TYPES_H
 #define PAUSERCLIENT_TYPES_H
 
-#define DEVICENAME_MAX	64
+#define DEVICENAME_MAX        64
 
 /* clockDirection values */
 enum {
-	kPADeviceClockFromKernel = 0,
-	kPADeviceClockFromClient,
+        kPADeviceClockFromKernel = 0,
+        kPADeviceClockFromClient,
 };
 
 /* synchronous functions */
 enum {
-	kPAUserClientGetNumberOfDevices		= 0,
-	kPAUserClientAddDevice			= 1,
-	kPAUserClientRemoveDevice		= 2,
-	kPAUserClientGetDeviceInfo		= 3,
-	kPAUserClientSetSampleRate		= 4,
+        kPAUserClientGetNumberOfDevices                = 0,
+        kPAUserClientAddDevice                        = 1,
+        kPAUserClientRemoveDevice                = 2,
+        kPAUserClientGetDeviceInfo                = 3,
+        kPAUserClientSetSampleRate                = 4,
 };
 
 enum {
-	kPAUserClientAsyncReadSamplePointer	= 0,
-	kPAUserClientAsyncReadNotification	= 1,
+        kPAUserClientAsyncReadSamplePointer        = 0,
+        kPAUserClientAsyncReadNotification        = 1,
 };
 
 enum {
-	kPAUserClientNotificationEngineStarted		= 0,
-	kPAUserClientNotificationEngineStopped		= 1,
-	kPAUserClientNotificationSampleRateChanged	= 2,
-	kPAUserClientNotificationMax,
+        kPAUserClientNotificationEngineStarted                = 0,
+        kPAUserClientNotificationEngineStopped                = 1,
+        kPAUserClientNotificationSampleRateChanged        = 2,
+        kPAUserClientNotificationMax,
 };
 
 /* shared memory */
 enum {
-	kPAMemoryInputSampleData = 0,
-	kPAMemoryOutputSampleData
+        kPAMemoryInputSampleData = 0,
+        kPAMemoryOutputSampleData
 };
 
 struct PAVirtualDevice {
-	/* to be provided upon creation */
-	char name[DEVICENAME_MAX];
-	UInt32 channelsIn, channelsOut;
-	UInt32 clockDirection;
-	UInt32 blockSize;
+        /* to be provided upon creation */
+        char name[DEVICENAME_MAX];
+        UInt32 channelsIn, channelsOut;
+        UInt32 clockDirection;
+        UInt32 blockSize;
 
-	/* field to read back from driver */
-	UInt32 index;
-	UInt32 currentSamplerate;
-	UInt32 nUsers;
-	UInt32 audioBufferSize;
+        /* field to read back from driver */
+        UInt32 index;
+        UInt32 currentSamplerate;
+        UInt32 nUsers;
+        UInt32 audioBufferSize;
 
 };
 
 struct samplePointerUpdateEvent {
-	UInt32 timeStampSec;
-	UInt32 timeStampNanoSec;
-	UInt32 index;
-	UInt32 samplePointer;
+        UInt32 timeStampSec;
+        UInt32 timeStampNanoSec;
+        UInt32 index;
+        UInt32 samplePointer;
 };
 
 struct notificationBlock {
-	UInt32 timeStampSec;
-	UInt32 timeStampNanoSec;
-	UInt32 notificationType;
-	UInt32 value;
+        UInt32 timeStampSec;
+        UInt32 timeStampNanoSec;
+        UInt32 notificationType;
+        UInt32 value;
 };
 
 #endif /* PAUSERCLIENT_TYPES_H */

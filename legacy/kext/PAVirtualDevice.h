@@ -1,8 +1,8 @@
 /***
  This file is part of PulseAudioKext
- 
+
  Copyright (c) 2010,2011 Daniel Mack <pulseaudio@zonque.de>
- 
+
  PulseAudioKext is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 2.1 of the License, or
@@ -25,32 +25,32 @@ class PAUserClient;
 
 class PAVirtualDevice : public IOService
 {
-	OSDeclareDefaultStructors(PAVirtualDevice)
-	struct PAVirtualDeviceInfo deviceInfo;
-	PAEngine		*audioEngine;
+        OSDeclareDefaultStructors(PAVirtualDevice)
+        struct PAVirtualDeviceInfo deviceInfo;
+        PAEngine                *audioEngine;
 
 public:
-	bool			init(OSDictionary* dictionary);
-	bool			start(IOService *provider);
-	void			stop(IOService *provider);
+        bool                        init(OSDictionary* dictionary);
+        bool                        start(IOService *provider);
+        void                        stop(IOService *provider);
 
-	bool			terminate(IOOptionBits options);
+        bool                        terminate(IOOptionBits options);
 
-	void			free(void);
+        void                        free(void);
 
-	void			reportSamplePointer(UInt32 pointer);
-	void			sendNotification(UInt32 notificationType, UInt32 value);
+        void                        reportSamplePointer(UInt32 pointer);
+        void                        sendNotification(UInt32 notificationType, UInt32 value);
 
-	void			setInfo(const struct PAVirtualDeviceInfo *info);
-	void			getInfo(struct PAVirtualDeviceInfo *info);
-	IOReturn		setSamplerate(UInt rate);
-	void			writeSamplePointer(struct samplePointerUpdateEvent *ev);
+        void                        setInfo(const struct PAVirtualDeviceInfo *info);
+        void                        getInfo(struct PAVirtualDeviceInfo *info);
+        IOReturn                setSamplerate(UInt rate);
+        void                        writeSamplePointer(struct samplePointerUpdateEvent *ev);
 
-	IOAudioEngineState	engineState();
-	
-	IOMemoryDescriptor	*audioInputBuf;
-	IOMemoryDescriptor	*audioOutputBuf;
-	void			*refCon;
+        IOAudioEngineState        engineState();
+
+        IOMemoryDescriptor        *audioInputBuf;
+        IOMemoryDescriptor        *audioOutputBuf;
+        void                        *refCon;
 };
 
 #endif /* PA_VIRTUALDEVICE_H */
