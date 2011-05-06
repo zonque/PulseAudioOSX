@@ -175,6 +175,8 @@
 		[dict setObject: device.sourceForRecord
 			 forKey: @"sourceForRecord"];
 
+	CFShow(dict);
+	
 	// needed for back channel
 	[dict setObject: helperConnection.name
 		 forKey: @"connectionName"];

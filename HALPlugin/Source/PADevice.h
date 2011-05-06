@@ -55,8 +55,12 @@
 @property (nonatomic, readonly) NSString *serverName;
 @property (nonatomic, readonly) NSString *sinkForPlayback;
 @property (nonatomic, readonly) NSString *sourceForRecord;
-
 @property (nonatomic, assign) NSObject *delegate;
+
+- (NSString *) serverName;
+- (NSString *) sinkForPlayback;
+- (NSString *) sourceForRecord;
+
 
 - (id) initWithPluginRef: (AudioHardwarePlugInRef) ref
 	      deviceName: (NSString *) _name

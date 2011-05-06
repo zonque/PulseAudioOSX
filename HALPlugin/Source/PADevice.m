@@ -111,14 +111,14 @@
 		[serverName retain];
 		serverName = nil;
 	}
-
+	
 	if (sinkForPlayback) {
-		[sinkForPlayback retain];
+		[sinkForPlayback release];
 		sinkForPlayback = nil;
 	}
 	
 	if (sourceForRecord) {
-		[sourceForRecord retain];
+		[sourceForRecord release];
 		sourceForRecord = nil;
 	}
 
@@ -127,6 +127,33 @@
 	sourceForRecord = [[config objectForKey: @"sourceForRecord"] retain];
 	
 	[self reconnectIfConnected];
+}
+
+- (NSString *) serverName
+{
+	if (!serverConnection)
+		return nil;
+	
+	if ([serverConnection isLocal])
+		return @"localhost";
+
+	return [serverConnection serverName];
+}
+
+- (NSString *) sinkForPlayback
+{
+	if (!serverConnection)
+		return nil;
+	
+	return [serverConnection connectedSink];
+}
+
+- (NSString *) sourceForRecord
+{
+	if (!serverConnection)
+		return nil;
+	
+	return [serverConnection connectedSource];
 }
 
 #pragma mark ### PADevice ###
@@ -770,13 +797,8 @@
 				    ioProcBufferSize: deviceAudio.ioProcBufferSize
 				     sinkForPlayback: sinkForPlayback
 				     sourceForRecord: sourceForRecord];
-	if (ret) {
-		if (delegate)
-			[delegate deviceStarted: self];
-	} else {
+	if (!ret)
 		NSLog(@"%s(): addAudioStreams failed!?", __func__);
-	}
-
 }
 
 - (void) PAServerConnectionFailed: (PAServerConnection *) connection
@@ -789,6 +811,23 @@
 	NSLog(@"%s()", __func__);
 	if (delegate)
 		[delegate deviceStopped: self];
+}
+
+- (void) PAServerConnectionAudioStarted: (PAServerConnection *) connection
+{
+	NSLog(@"%s()", __func__);
+	
+	if (sinkForPlayback)
+		[sinkForPlayback release];
+	
+	if (sourceForRecord)
+		[sourceForRecord release];
+
+	sinkForPlayback = [[serverConnection connectedSink] retain];
+	sourceForRecord = [[serverConnection connectedSource] retain];
+	
+	if (delegate)
+		[delegate deviceStarted: self];	
 }
 
 - (UInt32) PAServerConnection: (PAServerConnection *) connection
