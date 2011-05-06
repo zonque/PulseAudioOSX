@@ -146,14 +146,14 @@ objectValueForTableColumn: (NSTableColumn *) col
 
 - (void) PAServerConnectionEstablished: (PAServerConnection *) c
 {
-	[window setTitle: [connection serverName]];
+	[window setTitle: [connection isLocal] ? @"Local Server" : [connection serverName]];
 	[introspect serverReady];
 	[self enableGUI: YES];
 }
 
 - (void) signalEnd
 {
-	[delegate serverSignalledEnd: self];	
+	[delegate serverSignalledEnd: self];
 }
 
 - (void) PAServerConnectionFailed: (PAServerConnection *) c
