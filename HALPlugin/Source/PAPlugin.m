@@ -162,12 +162,18 @@
 		 forKey: @"sampleRate"];
 	[dict setObject: device.name
 		 forKey: @"deviceName"];
-	[dict setObject: device.serverName
-		 forKey: @"serverName"];
-	[dict setObject: device.sinkForPlayback
-		 forKey: @"sinkForPlayback"];
-	[dict setObject: device.sourceForRecord
-		 forKey: @"sourceForRecord"];
+	
+	if (device.serverName)
+		[dict setObject: device.serverName
+			 forKey: @"serverName"];
+	
+	if (device.sinkForPlayback)
+		[dict setObject: device.sinkForPlayback
+			 forKey: @"sinkForPlayback"];
+	
+	if (device.sourceForRecord)
+		[dict setObject: device.sourceForRecord
+			 forKey: @"sourceForRecord"];
 
 	// needed for back channel
 	[dict setObject: helperConnection.name
