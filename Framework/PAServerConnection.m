@@ -119,6 +119,16 @@ static NSString *frameworkPath = @"/Library/Frameworks/PulseAudio.framework/";
 	return impl.lastError;
 }
 
+- (NSString *) connectedSink
+{
+	return impl.sinkForPlayback;
+}
+
+- (NSString *) connectedSource
+{
+	return impl.sourceForRecord;
+}
+
 - (void) shutdownServer
 {
 	[impl shutdownServer];

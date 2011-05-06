@@ -124,7 +124,7 @@ static NSString *kMDNSLocalDomain = @"local.";
 	[lock unlock];
 }
 
-- (void)netServiceDidStop:(NSNetService *)sender
+- (void) netServiceDidStop:(NSNetService *)sender
 {
 	[lock lock];
 	[netServices removeObject: sender];

@@ -34,7 +34,9 @@
 	pa_context		*PAContext;
 	
 	PAServerConnectionAudio *audio;	
-	
+	NSString *sinkForPlayback;
+	NSString *sourceForRecord;
+
 	PAServerInfo *serverInfo;
 	
 	NSMutableArray *presentCards;
@@ -73,6 +75,8 @@
 
 @property (nonatomic, readonly) PAServerInfo *serverInfo;
 
+@property (nonatomic, readonly) NSString *sinkForPlayback;
+@property (nonatomic, readonly) NSString *sourceForRecord;
 
 - (id) initForServer: (PAServerConnection *) s;
 

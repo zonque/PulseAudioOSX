@@ -10,7 +10,7 @@
  ***/
 
 #import <pulse/pulseaudio.h>
-#import "PAServerConnection.h"
+#import "PAServerConnectionInternal.h"
 #import "PAServerConnectionAudio.h"
 
 @implementation PAServerConnectionAudio
@@ -21,6 +21,34 @@
 - (void) streamStartedCallback: (pa_stream *) stream
 {
 	NSLog(@"%s() %s", __func__, stream == PARecordStream ? "input" : "output");
+	
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	
+	NSString *device = [NSString stringWithCString: pa_stream_get_device_name(stream)
+					      encoding: NSASCIIStringEncoding];
+	
+	if (stream == PAPlaybackStream)
+		if (!sinkForPlayback)
+			sinkForPlayback = [device retain];
+
+	if (stream == PARecordStream)
+		if (!sourceForRecord)
+			sourceForRecord = [device retain];
+	
+	BOOL ready = YES;
+
+	if (PAPlaybackStream && !pa_stream_get_state(PAPlaybackStream) == PA_STREAM_READY)
+		ready = NO;
+
+	if (PARecordStream && !pa_stream_get_state(PARecordStream) == PA_STREAM_READY)
+		ready = NO;
+
+	if (ready)
+		[serverConnection performSelectorOnMainThread: @selector(setAudioStarted)
+						   withObject: nil
+						waitUntilDone: NO];
+
+	[pool drain];
 }
 
 - (void) streamWriteCallback: (pa_stream *) stream
@@ -161,7 +189,7 @@ static void staticStreamBufferAttrCallback(pa_stream *stream, void *userdata)
 	bufAttr.minreq = -1;
 	bufAttr.prebuf = -1;
 	
-	int ret;
+	int ret = 0;
 
 	PAPlaybackStream = pa_stream_new(PAContext, "Playback", &sampleSpec, NULL);
 
@@ -174,15 +202,6 @@ static void staticStreamBufferAttrCallback(pa_stream *stream, void *userdata)
 	pa_stream_set_overflow_callback(PAPlaybackStream, staticStreamOverflowCallback, self);
 	pa_stream_set_underflow_callback(PAPlaybackStream, staticStreamUnderflowCallback, self);
 	pa_stream_set_buffer_attr_callback(PAPlaybackStream, staticStreamBufferAttrCallback, self);
-	ret = pa_stream_connect_playback(PAPlaybackStream, 
-					 sink ? [sink cStringUsingEncoding: NSASCIIStringEncoding] : NULL,
-					 &bufAttr,
-					 (pa_stream_flags_t)  (PA_STREAM_INTERPOLATE_TIMING |
-							       PA_STREAM_AUTO_TIMING_UPDATE),
-					 NULL, NULL);
-	
-	if (ret != 0)
-		return nil;
 	
 	/*
 	 PARecordStream = pa_stream_new(PAContext, "Record", &sampleSpec, NULL);
@@ -193,6 +212,18 @@ static void staticStreamBufferAttrCallback(pa_stream *stream, void *userdata)
 	 pa_stream_set_buffer_attr_callback(PARecordStream, staticStreamBufferAttrCallback, self);
 	 pa_stream_connect_record(PARecordStream, NULL, &bufAttr, (pa_stream_flags_t) 0);
 	 */
+
+	if (PAPlaybackStream)
+		ret = pa_stream_connect_playback(PAPlaybackStream, 
+						 sink ? [sink cStringUsingEncoding: NSASCIIStringEncoding] : NULL,
+						 &bufAttr,
+						 (pa_stream_flags_t)  (PA_STREAM_INTERPOLATE_TIMING |
+								       PA_STREAM_AUTO_TIMING_UPDATE),
+						 NULL, NULL);
+	
+	if (ret != 0)
+		return nil;
+	
 	
 	return self;
 }
@@ -205,16 +236,26 @@ static void staticStreamBufferAttrCallback(pa_stream *stream, void *userdata)
 		pa_stream_unref(PAPlaybackStream);
 		PAPlaybackStream = NULL;
 	}
-	
+
 	if (PARecordStream) {
 		pa_stream_disconnect(PARecordStream);
 		pa_stream_unref(PARecordStream);
 		PARecordStream = NULL;
 	}
 	
+	if (sinkForPlayback) {
+		[sinkForPlayback release];
+		sinkForPlayback = nil;
+	}
+	
+	if (sourceForRecord) {
+		[sourceForRecord release];
+		sourceForRecord = nil;
+	}
+
 	pa_xfree(inputDummyBuffer);
 	inputDummyBuffer = NULL;
-	
+
 	pa_xfree(outputDummyBuffer);
 	outputDummyBuffer = NULL;
 

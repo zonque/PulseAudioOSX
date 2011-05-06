@@ -11,6 +11,8 @@
 
 #import <Foundation/Foundation.h>
 
+@class PAServerConnectionAudio;
+
 @interface PAServerConnectionAudio : NSObject
 {
 	PAServerConnection	*serverConnection;

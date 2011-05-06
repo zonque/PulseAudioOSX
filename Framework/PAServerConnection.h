@@ -107,6 +107,7 @@
 
 #pragma mark # audio
 
+- (void) PAServerConnectionAudioStarted: (PAServerConnection *) connection;
 - (UInt32) PAServerConnection: (PAServerConnection *) connection
 	      hasPlaybackData: (Byte *) playbackData
 		   recordData: (const Byte *) recordData
@@ -160,6 +161,9 @@
 - (void) shutdownServer;
 
 - (NSString *) lastError;
+
+- (NSString *) connectedSink;
+- (NSString *) connectedSource;
 
 + (NSString *) libraryVersion;
 + (NSString *) frameworkPath;

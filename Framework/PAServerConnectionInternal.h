@@ -29,6 +29,7 @@
 + (NSDictionary *) createDictionaryFromProplist: (pa_proplist *) plist;
 + (NSArray *) createChannelNamesArray: (const pa_channel_map *) map;
 
+- (void) setAudioStarted;
 - (BOOL) unloadModule: (PAModuleInfo *) module;
 
 @end

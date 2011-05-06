@@ -55,6 +55,12 @@
 	return array;
 }
 
+- (void) setAudioStarted
+{
+	if (delegate && [delegate respondsToSelector: @selector(PAServerConnectionAudioStarted:)])
+		[delegate PAServerConnectionAudioStarted: self];
+}
+
 - (void) sendDelegateConnectionEstablished
 {
 	if (delegate && [delegate respondsToSelector: @selector(PAServerConnectionEstablished:)])

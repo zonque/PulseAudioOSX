@@ -28,6 +28,9 @@
 @synthesize presentSamples;
 @synthesize serverInfo;
 
+@synthesize sinkForPlayback;
+@synthesize sourceForRecord;
+
 #pragma mark ### static forwards ###
 static void staticContextSubscribeCallback(pa_context *c, pa_subscription_event_type_t t, uint32_t index, void *userdata);
 static void staticContextEventCallback(pa_context *c, const char *name, pa_proplist *p, void *userdata);
@@ -730,8 +733,8 @@ static void staticClientNameSetCallback(pa_context *c, int success, void *userda
 - (BOOL) addAudioStreams: (UInt32) nChannels
 	      sampleRate: (Float32) sampleRate
 	ioProcBufferSize: (UInt32) ioProcBufferSize
-	 sinkForPlayback: (NSString *) sinkForPlayback
-	 sourceForRecord: (NSString *) sourceForRecord
+	 sinkForPlayback: (NSString *) sink
+	 sourceForRecord: (NSString *) source
 {
 	if (![self isConnected])
 		return NO;
@@ -745,11 +748,21 @@ static void staticClientNameSetCallback(pa_context *c, int success, void *userda
 								  nChannels: nChannels
 								 sampleRate: sampleRate
 							   ioProcBufferSize: ioProcBufferSize
-							    sinkForPlayback: sinkForPlayback
-							    sourceForRecord: sourceForRecord];
+							    sinkForPlayback: sink
+							    sourceForRecord: source];
 	pa_threaded_mainloop_unlock(PAMainLoop);
 	
 	return audio != nil;
+}
+
+- (NSString *) sinkForPlayback
+{
+	return audio ? audio.sinkForPlayback : nil;
+}
+
+- (NSString *) sourceForRecord
+{
+	return audio ? audio.sourceForRecord : nil;	
 }
 
 - (BOOL) loadModuleWithName: (NSString *) name
@@ -864,10 +877,7 @@ static void staticClientNameSetCallback(pa_context *c, int success, void *userda
 {
 	if (![self isConnected])
 		return nil;
-	
-	if ([self isLocal])
-		return @"Local server";
-	
+
 	pa_threaded_mainloop_lock(PAMainLoop);
 	NSString *name = [NSString stringWithCString: pa_context_get_server(PAContext)
 					    encoding: NSASCIIStringEncoding];
