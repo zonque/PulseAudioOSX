@@ -123,7 +123,7 @@ enum {
 		[clientDetailsBox selectTabViewItemAtIndex: kClientDetailBoxDisabledTab];
 		return;
 	}
-
+	
 	NSRunningApplication *app = [client objectForKey: @"application"];
 
 	NSString *arch = @"unknown";
@@ -149,12 +149,40 @@ enum {
 	[audioDeviceLabel setStringValue: [client objectForKey: @"deviceName"]];
 	[PIDLabel setStringValue: [NSString stringWithFormat: @"%d, %@", app.processIdentifier, arch]];
 	[IOBufferSizeLabel setStringValue: [[client objectForKey: @"ioProcBufferSize"] stringValue]];
-		
-	id key;
-	BOOL found = NO;
+
+	[serverSelectButton selectItemWithTitle: [client objectForKey: @"serverName"]];
+
+	NSData *data;
 	
-	//if (!found)
-	//	[serverSelectButton selectItemWithTitle: serverIP];
+	for (NSNetService *s in knownSinks) {
+		NSDictionary *txt = [NSNetService dictionaryFromTXTRecordData: [s TXTRecordData]];		
+		data = [txt objectForKey: @"description"];
+		NSString *description = [NSString stringWithCString: [data bytes]
+							   encoding: NSASCIIStringEncoding];
+		data = [txt objectForKey: @"device"];
+		NSString *device = [NSString stringWithCString: [data bytes]
+						      encoding: NSASCIIStringEncoding];
+
+		if ([device isEqualToString: [client objectForKey: @"sinkForPlayback"]]) {
+			[sinkSelectButton selectItemWithTitle: description];
+			break;
+		}
+	}	
+
+	for (NSNetService *s in knownSources) {
+		NSDictionary *txt = [NSNetService dictionaryFromTXTRecordData: [s TXTRecordData]];		
+		data = [txt objectForKey: @"description"];
+		NSString *description = [NSString stringWithCString: [data bytes]
+							   encoding: NSASCIIStringEncoding];
+		data = [txt objectForKey: @"device"];
+		NSString *device = [NSString stringWithCString: [data bytes]
+						      encoding: NSASCIIStringEncoding];
+		
+		if ([device isEqualToString: [client objectForKey: @"sourceForRecord"]]) {
+			[sinkSelectButton selectItemWithTitle: description];
+			break;
+		}
+	}	
 
 	NSInteger connectionStatus = [[client objectForKey: @"connectionStatus"] intValue];
 	[connectionStatusTextField setStringValue: [connectionStatusStrings objectAtIndex: connectionStatus]];
