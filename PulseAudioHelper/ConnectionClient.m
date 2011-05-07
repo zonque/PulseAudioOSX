@@ -52,6 +52,8 @@
         NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary: device];
         NSString *deviceName = [dict objectForKey: @"deviceName"];
 
+        NSLog(@"%s() self = %p", __func__, self);
+
         [dict setObject: [NSString stringWithFormat: @"%@.%@", connectionName, deviceName]
                                              forKey: @"uuid"];
         [audioClients addObject: dict];
@@ -69,10 +71,16 @@
 - (void) setConfig: (NSDictionary *) config
  forDeviceWithUUID: (NSString *) uuid
 {
-        for (NSDictionary *client in audioClients)
+        NSLog(@"%s() self = %p", __func__, self);
+        NSLog(@"client server %s() ,,, uuid %@ ... %d clients", __func__, uuid, [audioClients count]);
+
+        for (NSDictionary *client in audioClients) {
+                NSLog(@" .. client %@", client);
                 if ([[client objectForKey: @"uuid"] isEqualToString: uuid]) {
                         NSString *deviceName = [client objectForKey: @"deviceName"];
                         NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithCapacity: 0];
+
+                        NSLog(@"client server %s()", __func__);
 
                         [userInfo setObject: @"setAudioDeviceConfig"
                                      forKey: @"command"];
@@ -85,6 +93,7 @@
                                                                                        object: PAOSX_HelperName
                                                                                      userInfo: userInfo];
                 }
+        }
 }
 
 - (void) audioClientsChanged : (NSArray *) clients

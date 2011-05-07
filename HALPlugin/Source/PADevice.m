@@ -102,6 +102,7 @@
         if (!serverConnection || ![serverConnection isConnected])
                 return;
 
+        [self disconnectFromServer];
         [self checkConnection];
 }
 
@@ -122,6 +123,8 @@
                 sourceForRecord = nil;
         }
 
+        NSLog(@"%s()", __func__);
+        
         serverName = [[config objectForKey: @"serverName"] retain];
         sinkForPlayback = [[config objectForKey: @"sinkForPlayback"] retain];
         sourceForRecord = [[config objectForKey: @"sourceForRecord"] retain];

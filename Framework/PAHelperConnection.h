@@ -25,6 +25,10 @@
 - (NSDictionary *) getPreferences;
 - (void) setPreferences: (id) object
                  forKey: (NSString *) key;
+- (void) setConfig: (NSDictionary *) config
+ forDeviceWithUUID: (NSString *) uuid;
+- (NSArray *) currentAudioDevices;
+
 @end
 
 @protocol PAHelperConnectionDelegate

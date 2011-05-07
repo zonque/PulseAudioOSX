@@ -13,6 +13,8 @@
 
 @implementation AudioClients
 
+@synthesize delegate;
+
 - (void) dealloc
 {
         [clientList release];
@@ -196,23 +198,27 @@ enum {
         NSInteger selected = [clientTableView selectedRow];
         NSMutableDictionary *client = [clientList objectAtIndex: selected];
         NSNumber *pid = [client objectForKey: @"pid"];
-        NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithCapacity: 0];
-        NSString *serverName = [serverSelectButton titleOfSelectedItem];
+        NSMutableDictionary *config = [NSMutableDictionary dictionaryWithCapacity: 0];
         NSNumber *serverPort = NULL;
-        NSString *serverIP;
+        NSNetService *service = [knownServers objectAtIndex: [serverSelectButton indexOfSelectedItem]];
+        NSString *serverName = [service hostName]; //[PAServiceDiscovery ipOfService: service];
 
-        [userInfo setObject: serverIP
-                     forKey: @"serverName"];
-        [userInfo setObject: pid
-                     forKey: @"pid"];
-        if (serverPort)
-                [userInfo setObject: serverPort
-                             forKey: @"serverPort"];
-
-        // ...
-
-        [client setObject: serverName
+        [config setObject: [serverSelectButton titleOfSelectedItem]
                    forKey: @"serverName"];
+        [config setObject: pid
+                   forKey: @"pid"];
+
+        if (serverPort)
+                [config setObject: serverPort
+                           forKey: @"serverPort"];
+        
+        [config setObject: serverName
+                   forKey: @"serverName"];
+        
+        [delegate setAudioDeviceConfig: config
+                     forDeviceWithUUID: [client objectForKey: @"uuid"]];
+        
+        // ...        
 }
 
 - (IBAction) selectServer: (id) sender

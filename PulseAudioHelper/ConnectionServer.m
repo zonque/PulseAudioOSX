@@ -80,9 +80,7 @@
 - (void) setConfig: (NSDictionary *) config
  forDeviceWithUUID: (NSString *) uuid
 {
-        ConnectionClient *c = [self findClientByConnection: currentConnection];
-
-        if (c)
+        for (ConnectionClient *c in clientArray)
                 [c setConfig: config
            forDeviceWithUUID: uuid];
 }
@@ -90,6 +88,16 @@
 - (NSDictionary *) getPreferences
 {
         return preferences.preferencesDict;
+}
+
+- (NSArray *) currentAudioDevices
+{
+        NSMutableArray *array = [NSMutableArray arrayWithCapacity: 0];
+        
+        for (ConnectionClient *c in clientArray)
+                [array addObjectsFromArray: c.audioClients];
+        
+        return array;
 }
 
 - (void) setPreferences: (id) object

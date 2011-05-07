@@ -31,7 +31,14 @@
 
         growl.delegate = self;
         localServer.delegate = self;
+        audioClients.delegate = self;
 
+        NSArray *currentAudioDevices = [helperConnection.serverProxy currentAudioDevices];
+        
+        CFShow(currentAudioDevices);
+        
+        [audioClients audioClientsChanged: currentAudioDevices];
+        
         NSDictionary *preferences = [helperConnection.serverProxy getPreferences];
 
         [self PAHelperConnection: helperConnection
@@ -82,6 +89,17 @@
 {
         [helperConnection.serverProxy setPreferences: value
                                               forKey: key];
+}
+
+#pragma mark ### AudioClientsDelegate ###
+
+- (void) setAudioDeviceConfig: (NSDictionary *) config
+            forDeviceWithUUID: (NSString *) uuid
+{
+        NSLog(@"%s()", __func__);
+
+        [helperConnection.serverProxy setConfig: config
+                              forDeviceWithUUID: uuid];        
 }
 
 @end

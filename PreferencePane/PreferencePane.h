@@ -18,9 +18,10 @@
 #import "Growl.h"
 
 @interface PreferencePane : NSPreferencePane <
-                                PAHelperConnectionDelegate,
-                                GrowlDelegate,
-                                LocalServerDelegate>
+                                                PAHelperConnectionDelegate,
+                                                GrowlDelegate,
+                                                LocalServerDelegate,
+                                                AudioClientsDelegate>
 {
         IBOutlet NSButton *statusBarEnabledButton;
         IBOutlet LoginItemController *loginItemController;
@@ -47,5 +48,10 @@
 
 - (void) setPreferences: (id) value
                  forKey: (NSString *) key;
+
+#pragma mark ### AudioClientsDelegate ###
+
+- (void) setAudioDeviceConfig: (NSDictionary *) config
+            forDeviceWithUUID: (NSString *) uuid;
 
 @end

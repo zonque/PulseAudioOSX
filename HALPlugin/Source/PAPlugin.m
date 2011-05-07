@@ -136,6 +136,8 @@
                   setConfig: (NSDictionary *) config
           forDeviceWithName: (NSString *) name
 {
+        NSLog(@"%s() name %@", __func__, name);
+        
         for (PADevice *dev in devicesArray)
                 if ([dev.name isEqualToString: name])
                         [dev setConfig: config];

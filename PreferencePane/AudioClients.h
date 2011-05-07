@@ -14,30 +14,42 @@
 #import <PreferencePanes/PreferencePanes.h>
 #import <PulseAudio/PAServiceDiscovery.h>
 
+@protocol AudioClientsDelegate
+
+- (void) setAudioDeviceConfig: (NSDictionary *) config
+            forDeviceWithUUID: (NSString *) uuid;
+
+@end
+
+
 @interface AudioClients : NSObject <PAServiceDiscoveryDelegate>
 {
-        IBOutlet NSTableView                *clientTableView;
-        IBOutlet IKImageView                *imageView;
-        IBOutlet NSTabView                *clientDetailsBox;
-        IBOutlet NSTextField                *clientNameLabel;
-        IBOutlet NSTextField                *audioDeviceLabel;
-        IBOutlet NSTextField                *PIDLabel;
-        IBOutlet NSTextField                *IOBufferSizeLabel;
-        IBOutlet NSPopUpButton                *serverSelectButton;
-        IBOutlet NSPopUpButton                *sinkSelectButton;
-        IBOutlet NSPopUpButton                *sourceSelectButton;
-        IBOutlet NSTextField                *userNameField;
-        IBOutlet NSSecureTextField        *passwordField;
-        IBOutlet NSTextField                *connectionStatusTextField;
-        IBOutlet NSButton                *persistenCheckButton;
+        IBOutlet NSTableView            *clientTableView;
+        IBOutlet IKImageView            *imageView;
+        IBOutlet NSTabView              *clientDetailsBox;
+        IBOutlet NSTextField            *clientNameLabel;
+        IBOutlet NSTextField            *audioDeviceLabel;
+        IBOutlet NSTextField            *PIDLabel;
+        IBOutlet NSTextField            *IOBufferSizeLabel;
+        IBOutlet NSPopUpButton          *serverSelectButton;
+        IBOutlet NSPopUpButton          *sinkSelectButton;
+        IBOutlet NSPopUpButton          *sourceSelectButton;
+        IBOutlet NSTextField            *userNameField;
+        IBOutlet NSSecureTextField      *passwordField;
+        IBOutlet NSTextField            *connectionStatusTextField;
+        IBOutlet NSButton               *persistenCheckButton;
 
-        NSMutableArray                        *clientList;
-        PAServiceDiscovery                *discovery;
+        NSMutableArray                  *clientList;
+        PAServiceDiscovery              *discovery;
 
         NSMutableArray *knownServers;
         NSMutableArray *knownSinks;
         NSMutableArray *knownSources;
+        
+        NSObject <AudioClientsDelegate> *delegate;
 }
+
+@property (nonatomic, assign) NSObject <AudioClientsDelegate> *delegate;
 
 /* Helper callbacks */
 - (void) audioClientsChanged: (NSArray *) clients;
