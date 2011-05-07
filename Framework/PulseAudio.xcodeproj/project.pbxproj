@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6524AF7C13771A17000EF60D /* ULINetSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 6524AF7A13771A17000EF60D /* ULINetSocket.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		6524AF7D13771A17000EF60D /* ULINetSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 6524AF7B13771A17000EF60D /* ULINetSocket.m */; };
 		6571514D13683F4A00D60887 /* PAServerConnectionAudio.h in Headers */ = {isa = PBXBuildFile; fileRef = 6571514B13683F4A00D60887 /* PAServerConnectionAudio.h */; };
 		6571514E13683F4A00D60887 /* PAServerConnectionAudio.m in Sources */ = {isa = PBXBuildFile; fileRef = 6571514C13683F4A00D60887 /* PAServerConnectionAudio.m */; };
 		657159771369B34600D60887 /* PAHelperConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = 657159751369B34600D60887 /* PAHelperConnection.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -58,6 +60,8 @@
 		0867D69BFE84028FC02AAC07 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		089C1667FE841158C02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		32DBCF5E0370ADEE00C91783 /* PulseAudio_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PulseAudio_Prefix.pch; sourceTree = "<group>"; };
+		6524AF7A13771A17000EF60D /* ULINetSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ULINetSocket.h; sourceTree = "<group>"; };
+		6524AF7B13771A17000EF60D /* ULINetSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ULINetSocket.m; sourceTree = "<group>"; };
 		6571514B13683F4A00D60887 /* PAServerConnectionAudio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PAServerConnectionAudio.h; sourceTree = "<group>"; };
 		6571514C13683F4A00D60887 /* PAServerConnectionAudio.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PAServerConnectionAudio.m; sourceTree = "<group>"; };
 		657159751369B34600D60887 /* PAHelperConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PAHelperConnection.h; sourceTree = "<group>"; };
@@ -191,6 +195,8 @@
 		32C88DFF0371C24200C91783 /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
+				6524AF7A13771A17000EF60D /* ULINetSocket.h */,
+				6524AF7B13771A17000EF60D /* ULINetSocket.m */,
 				32DBCF5E0370ADEE00C91783 /* PulseAudio_Prefix.pch */,
 			);
 			name = "Other Sources";
@@ -296,6 +302,7 @@
 				65AF4425136ECC5300650E2E /* PAServerConnectionImplementation.h in Headers */,
 				657493731371A94B007044CF /* PAElementInfo.h in Headers */,
 				657493791371ABC7007044CF /* PAElementInfoInternal.h in Headers */,
+				6524AF7C13771A17000EF60D /* ULINetSocket.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -378,6 +385,7 @@
 				65AF441E136EC4B600650E2E /* PAServerConnectionInternal.m in Sources */,
 				65AF4426136ECC5300650E2E /* PAServerConnectionImplementation.m in Sources */,
 				657493751371A9C9007044CF /* PAElementInfo.m in Sources */,
+				6524AF7D13771A17000EF60D /* ULINetSocket.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

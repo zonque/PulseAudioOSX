@@ -4,120 +4,186 @@
  Copyright 2010,2011 Daniel Mack <pulseaudio@zonque.de>
 
  PulseAudioOSX is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2.1 of the License, or
- (at your option) any later version.
+ it under the terms of the GNU Lesser General Public License (LGPL) as
+ published by the Free Software Foundation; either version 2.1 of the
+ License, or (at your option) any later version.
  ***/
 
 #import "PAHelperConnection.h"
+#import "ULINetSocket.h"
 
 @implementation PAHelperConnection
 
-@synthesize name;
 @synthesize delegate;
-@synthesize serverProxy;
+@synthesize socket;
 
 #pragma mark ### NotificationCenter callbacks ###
 
-- (void) connectionDidDie: (NSNotification *) notification
+- (void) dispatchMessage: (NSData *) msg
 {
-        NSLog(@"%s()", __func__);
+	if (!delegate ||
+	    ![delegate respondsToSelector: @selector(PAHelperConnection:receivedMessage:dict:)])
+		return;
+	
+	NSString *errorString;
+	NSDictionary *dict = [NSPropertyListSerialization propertyListFromData: msg
+							      mutabilityOption: NSPropertyListImmutable
+									format: NULL
+							      errorDescription: &errorString];
 
-        if (serverProxy)
-                [serverProxy release];
-
-        serverProxy = nil;
-
-        if (delegate)
-                [delegate PAHelperConnectionDied: self];
+	if (errorString || !dict) {
+		NSLog(@"ERROR: %@\n", errorString);
+		return;
+	}
+	
+	[delegate PAHelperConnection: self
+		     receivedMessage: [dict objectForKey: PAOSX_MessageNameKey]
+				dict: [dict objectForKey: PAOSX_MessageDictionaryKey]];
 }
 
-- (void) serverMessage: (NSNotification *) notification
+- (void) sendMessage: (NSString *) name
+		dict: (NSDictionary *) dict;
 {
-        NSDictionary *userInfo = [notification userInfo];
-        NSString *command = [userInfo objectForKey: @"command"];
+	NSMutableDictionary *msg = [NSMutableDictionary dictionaryWithCapacity: 0];
+	
+	[msg setObject: name
+		forKey: PAOSX_MessageNameKey];
+	[msg setObject: dict
+		forKey: PAOSX_MessageDictionaryKey];
+	
+	if (![socket isConnected])
+		return;
 
-        if (!delegate)
-                return;
+	NSString *errorString;
+	NSData *data = [NSPropertyListSerialization dataFromPropertyList: msg
+								  format: NSPropertyListXMLFormat_v1_0
+							errorDescription: &errorString];
 
-        if ([command isEqualToString: @"audioClientsChanged"]) {
-                NSArray *audioClients = [userInfo objectForKey: @"audioClients"];
-
-                if ([delegate respondsToSelector: @selector(PAHelperConnection:audioClientsChanged:)])
-                        [delegate PAHelperConnection: self
-                                 audioClientsChanged: audioClients];
-        }
-
-        if ([command isEqualToString: @"preferencesChanged"]) {
-                NSDictionary *preferences = [userInfo objectForKey: @"preferences"];
-
-                if ([delegate respondsToSelector: @selector(PAHelperConnection:preferencesChanged:)])
-                        [delegate PAHelperConnection: self
-                                  preferencesChanged: preferences];
-        }
-
-        if ([command isEqualToString: @"setAudioDeviceConfig"]) {
-                NSDictionary *config = [userInfo objectForKey: @"config"];
-                NSString *deviceName = [userInfo objectForKey: @"deviceName"];
-
-                if ([delegate respondsToSelector: @selector(PAHelperConnection:setConfig:forDeviceWithName:)])
-                        [delegate PAHelperConnection: self
-                                           setConfig: config
-                                   forDeviceWithName: deviceName];
-        }
+	if (errorString || !data) {
+		NSLog(@"ERROR: %@\n", errorString);
+		return;
+	}
+	
+	PAHelperProtocolHeader hdr;
+	hdr.magic = PAOSX_HelperMagic;
+	hdr.length = [data length];
+	
+	NSMutableData *payload = [NSMutableData dataWithBytes: &hdr
+						       length: sizeof(hdr)];
+	[payload appendData: data];	
+	[socket writeData: payload];
 }
 
-#pragma mark ### vended selectors ###
-
-- (void) setConfig: (NSDictionary *) config
- forDeviceWithName: (NSString *) _name
+- (id) init
 {
-        if (delegate &&
-            [delegate respondsToSelector: @selector(PAHelperConnection:setConfig:forDeviceWithName:)])
-                [delegate PAHelperConnection: self
-                                   setConfig: config
-                           forDeviceWithName: _name];
+	[super init];
+
+	inboundData = [[NSMutableData data] retain];
+	
+	socket = [[ULINetSocket alloc] init];
+	[socket setDelegate: self];
+	[socket retain];
+	
+	return self;
 }
 
-#pragma mark PAHelperConnection ###
+- (id) initWithSocket: (ULINetSocket *) s
+{
+	[super init];
+
+	inboundData = [[NSMutableData data] retain];
+	socket = [s retain];
+	[socket setDelegate: self];
+	[socket open];
+
+	return self;	
+}
+
+- (void) scheduleOnCurrentRunLoop
+{
+	[socket scheduleOnCurrentRunLoop];
+}
+
+- (void) dealloc
+{
+	[socket close];
+	[socket release];
+	[inboundData release];
+
+	[super dealloc];
+}
 
 - (BOOL) connect
 {
-        if (serverProxy)
-                return YES;
+	if ([socket isConnected])
+		return YES;
 
-        serverProxy = [NSConnection rootProxyForConnectionWithRegisteredName: PAOSX_HelperName
-                                                                        host: nil];
-        if (!serverProxy)
-                return NO;
-
-        // connect to the server
-        NSConnection *connection = [serverProxy connectionForProxy];
-        [[NSNotificationCenter defaultCenter] addObserver: self
-                                                 selector: @selector(connectionDidDie:)
-                                                     name: NSConnectionDidDieNotification
-                                                   object: connection];
-
-        [serverProxy setProtocolForProxy: @protocol(PAHelperConnection)];
-        [serverProxy retain];
-
-        // make up a new name ...
-        name = [NSString stringWithFormat: @"%@.%p", [[NSProcessInfo processInfo] globallyUniqueString], self];
-
-        [[NSDistributedNotificationCenter defaultCenter] addObserver: self
-                                                            selector: @selector(serverMessage:)
-                                                                name: name
-                                                              object: PAOSX_HelperName];
-
-        // ... tell the server about it, so it can connect back
-        [serverProxy registerClientWithName: name];
-
-        return YES;
+	if ([socket connectToLocalSocketPath: PAOSX_HelperSocket])
+		return [socket scheduleOnCurrentRunLoop];
+	else
+		return NO;
 }
 
 - (BOOL) isConnected
 {
-        return serverProxy != nil;
+        return [socket isConnected];
+}
+
+#pragma mark ### ULINetSocketDelegate
+
+-(void) netsocketConnected: (ULINetSocket*) inNetSocket
+{
+	NSLog(@"framework: %s() ", __func__);
+	if (delegate &&
+	    [delegate respondsToSelector: @selector(PAHelperConnectionEstablished:)])
+		[delegate PAHelperConnectionEstablished: self];
+}
+
+-(void)	netsocketDisconnected: (ULINetSocket*) inNetSocket
+{
+	if (delegate &&
+	    [delegate respondsToSelector: @selector(PAHelperConnectionDied:)])
+		[delegate PAHelperConnectionDied: self];
+}
+
+-(void)	netsocket: (ULINetSocket*) inNetSocket
+connectionTimedOut: (NSTimeInterval) inTimeout
+{
+	[self netsocketDisconnected: inNetSocket];
+}
+
+-(void)	netsocket: (ULINetSocket*) inNetSocket
+    dataAvailable: (unsigned) inAmount
+{
+	[inboundData appendData: [inNetSocket readData]];
+	
+	const PAHelperProtocolHeader *hdr = [inboundData bytes];
+	
+	NSLog(@"%s() %d %d", __func__, hdr->length, [inboundData length]);
+
+	if (hdr->magic != PAOSX_HelperMagic) {
+		NSLog(@"Protocol error");
+		[socket close];
+		[socket release];
+		socket = nil;
+		return;
+	}
+	
+	// if the message is not yet fully received, just wait for more data
+	if (hdr->length > [inboundData length])
+		return;
+
+	[self dispatchMessage: [inboundData subdataWithRange: NSMakeRange(sizeof(*hdr), hdr->length)]];
+	
+	NSUInteger consumed = hdr->length + sizeof(*hdr);
+
+	if ([inboundData length] == consumed) {
+		[inboundData setLength: 0];
+		return;
+	}
+	
+	NSData *newData = [inboundData subdataWithRange: NSMakeRange(consumed, [inboundData length] - consumed)];
+	[inboundData setData: newData];
 }
 
 @end

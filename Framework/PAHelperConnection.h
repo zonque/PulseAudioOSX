@@ -4,64 +4,66 @@
  Copyright 2010,2011 Daniel Mack <pulseaudio@zonque.de>
 
  PulseAudioOSX is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2.1 of the License, or
- (at your option) any later version.
+ it under the terms of the GNU Lesser General Public License (LGPL) as
+ published by the Free Software Foundation; either version 2.1 of the
+ License, or (at your option) any later version.
  ***/
 
 #import <Foundation/Foundation.h>
+#import "ULINetSocket.h"
 
-#define PAOSX_HelperName                        @"org.pulseaudio.PulseAudioHelper"
-#define PAOSX_HelperMsgServiceStarted                @"org.pulseaudio.PulseAudioHelper.serviceStarted"
+#define PAOSX_HelperName                @"org.pulseaudio.PulseAudioHelper"
+#define PAOSX_HelperMsgServiceStarted   @"org.pulseaudio.PulseAudioHelper.serviceStarted"
+
+#define PAOSX_HelperSocket              @"/tmp/PAOSX_HelperSocket"
+#define PAOSX_HelperMagic 0xaffedead
+
+
+#define PAOSX_MessageNameKey			@"MessageName"
+#define PAOSX_MessageDictionaryKey		@"MessageDictionaryKey"
+#define PAOSX_MessageRegisterClient		@"MessageRegisterClient"
+#define PAOSX_MessageAudioClientStarted		@"MessageAudioClientStarted"
+#define PAOSX_MessageAudioClientStopped		@"MessageAudioClientStopped"
+#define PAOSX_MessageAudioClientsUpdate		@"MessageAudioClientsUpdate"
+#define PAOSX_MessageRequestPreferences		@"MessageRequestPreferences"
+#define PAOSX_MessageSetPreferences		@"MessageSetPreferences"
+#define PAOSX_MessageSetAudioDevices		@"MessageSetAudioDevices"
+#define PAOSX_MessageSetAudioClientConfig	@"MessageSetAudioClientConfig"
+
+typedef struct PAHelperProtocolHeader {
+	UInt32 magic;
+	UInt32 length;
+} PAHelperProtocolHeader;
 
 @class PAHelperConnection;
 
-@protocol PAHelperConnection
-@optional
-- (void) registerClientWithName: (NSString *) s;
-- (void) announceDevice: (NSDictionary *) device;
-- (void) signOffDevice: (NSString *) name;
-- (void) audioClientsChanged: (NSArray *) array;
-- (NSDictionary *) getPreferences;
-- (void) setPreferences: (id) object
-                 forKey: (NSString *) key;
-- (void) setConfig: (NSDictionary *) config
- forDeviceWithUUID: (NSString *) uuid;
-- (NSArray *) currentAudioDevices;
-
-@end
-
 @protocol PAHelperConnectionDelegate
-@required
-- (void) PAHelperConnectionDied: (PAHelperConnection *) connection;
-
 @optional
-// for preference pane
+- (void) PAHelperConnectionEstablished: (PAHelperConnection *) connection;
+- (void) PAHelperConnectionDied: (PAHelperConnection *) connection;
 - (void) PAHelperConnection: (PAHelperConnection *) connection
-        audioClientsChanged: (NSArray *) array;
-
-- (void) PAHelperConnection: (PAHelperConnection *) connection
-         preferencesChanged: (NSDictionary *) preferences;
-
-// for audio devices
-- (void) PAHelperConnection: (PAHelperConnection *) connection
-                  setConfig: (NSDictionary *) config
-          forDeviceWithName: (NSString *) name;
-
+	    receivedMessage: (NSString *) name
+		       dict: (NSDictionary *) msg;
 @end
 
-@interface PAHelperConnection : NSObject <NSConnectionDelegate>
+@interface PAHelperConnection : NSObject
 {
-        id serverProxy;
         NSObject <PAHelperConnectionDelegate> *delegate;
-        NSString *name;
+
+	@private
+	ULINetSocket *socket;
+	NSMutableData *inboundData;
 }
 
-@property (nonatomic, assign) id <PAHelperConnection> serverProxy;
 @property (nonatomic, assign) NSObject <PAHelperConnectionDelegate> *delegate;
-@property (nonatomic, readonly) NSString *name;
+@property (nonatomic, readonly) ULINetSocket *socket;
+
+- (id) initWithSocket: (ULINetSocket *) socket;
+- (void) scheduleOnCurrentRunLoop;
 
 - (BOOL) connect;
 - (BOOL) isConnected;
+- (void) sendMessage: (NSString *) name
+		dict: (NSDictionary *) msg;
 
 @end
