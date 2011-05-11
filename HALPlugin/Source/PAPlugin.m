@@ -14,13 +14,31 @@
 #import "PAStream.h"
 #import "PADeviceAudio.h"
 
-#ifdef ENABLE_DEBUG
+#ifdef ENABLE_DEBUGX
 #define DebugProperty(x...) DebugLog(x)
 #else
 #define DebugProperty(x...) do {} while(0)
 #endif
 
 @implementation PAPlugin
+
+- (void) log: (NSString *) s
+{
+        NSString *t = [NSString stringWithFormat: @"%@ (%@ pid %d): %@\n", 
+                        [[NSDate date] description],
+                        [[NSProcessInfo processInfo] processName],
+                        [[NSProcessInfo processInfo] processIdentifier],
+                        s];
+        
+        int fd = open("/blabla", O_WRONLY | O_CREAT | O_APPEND, 0666);
+
+        if (fd >= 0) {
+                int w = write(fd, [t cStringUsingEncoding: NSASCIIStringEncoding], [t length]);
+                close(fd);
+        }
+        
+        //printf(" XXX %s", [t cStringUsingEncoding: NSASCIIStringEncoding]);
+}
 
 - (void) publishOwnedObjects
 {
@@ -40,24 +58,15 @@
 
 - (void) createDevices
 {
-        devicesArray = [[NSMutableArray arrayWithCapacity: 0] retain];
-
-        NSDictionary *prefs = [helperConnection.serverProxy getPreferences];
-
-        if (!prefs)
-                return;
-
-        NSArray *array = [prefs objectForKey: @"audioDevices"];
-
-        for (NSDictionary *dict in array) {
-                PADevice *dev = [[PADevice alloc] initWithPluginRef: pluginRef
-                                                         deviceName: [dict objectForKey: @"deviceName"]
-                                                     nInputChannels: [[dict objectForKey: @"nInputChannels"] intValue]
-                                                    nOutputChannels: [[dict objectForKey: @"nOutputChannels"] intValue]];
-                dev.owningObjectID = self.objectID;
-                dev.delegate = self;
-                [devicesArray addObject: dev];
-        }
+	PADevice *dev;
+	
+	dev = [[PADevice alloc] initWithPluginRef: pluginRef
+				       deviceName: @"PulseAudio"
+				   nInputChannels: 2
+				  nOutputChannels: 2];
+	dev.owningObjectID = self.objectID;
+	dev.delegate = self;
+	[devicesArray addObject: dev];
 
         [self publishOwnedObjects];
 }
@@ -65,11 +74,7 @@
 - (void) destroyDevices
 {
         [self depublishOwnedObjects];
-
-        if (devicesArray) {
-                [devicesArray release];
-                devicesArray = nil;
-        }
+        [devicesArray removeAllObjects];
 }
 
 - (id) initWithPluginRef: (AudioHardwarePlugInRef) _pluginRef
@@ -77,6 +82,8 @@
         [super initWithPluginRef: _pluginRef];
 
         DebugLog(@"_pluginRef %p", _pluginRef);
+
+        devicesArray = [[NSMutableArray arrayWithCapacity: 0] retain];
 
         helperConnection = [[[PAHelperConnection alloc] init] retain];
         helperConnection.delegate = self;
@@ -88,6 +95,7 @@
 {
         [self destroyDevices];
         [helperConnection release];
+        [devicesArray release];
 
         [super dealloc];
 }
@@ -117,21 +125,20 @@
         [array addObjectsFromArray: devicesArray];
 }
 
-#pragma mark ### callbacks ###
-
-- (void) helperServiceStarted: (NSNotification *) notification
-{
-        if ([helperConnection connect])
-                [self createDevices];
-}
-
 #pragma mark PAHelperConnectionDelegate ###
+
+- (void) PAHelperConnectionEstablished: (PAHelperConnection *) connection
+{
+	if ([devicesArray count] == 0)
+		[self createDevices];
+}
 
 - (void) PAHelperConnectionDied: (PAHelperConnection *) connection
 {
         [self destroyDevices];
 }
 
+/*
 - (void) PAHelperConnection: (PAHelperConnection *) connection
                   setConfig: (NSDictionary *) config
           forDeviceWithName: (NSString *) name
@@ -141,6 +148,16 @@
         for (PADevice *dev in devicesArray)
                 if ([dev.name isEqualToString: name])
                         [dev setConfig: config];
+}
+ */
+
+- (void) PAHelperConnection: (PAHelperConnection *) connection
+	    receivedMessage: (NSString *) name
+		       dict: (NSDictionary *) dict
+{
+	if ([name isEqualToString: PAOSX_MessageSetPreferences])
+		for (PADevice *d in devicesArray)
+			[d setPreferences: dict];
 }
 
 #pragma mark ### PADeviceDelegate ###
@@ -156,14 +173,14 @@
 
         NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithCapacity: 0];
 
-        [dict setObject: [NSNumber numberWithInt: getpid()]
-                 forKey: @"pid"];
         [dict setObject: [NSNumber numberWithInt: audio.ioProcBufferSize]
                  forKey: @"ioProcBufferSize"];
         [dict setObject: [NSNumber numberWithFloat: audio.sampleRate]
                  forKey: @"sampleRate"];
         [dict setObject: device.name
                  forKey: @"deviceName"];
+        [dict setObject: [NSNumber numberWithInt: getpid()]
+                 forKey: @"pid"];
 
         if (device.serverName)
                 [dict setObject: device.serverName
@@ -177,21 +194,16 @@
                 [dict setObject: device.sourceForRecord
                          forKey: @"sourceForRecord"];
 
-        CFShow(dict);
-
-        // needed for back channel
-        [dict setObject: helperConnection.name
-                 forKey: @"connectionName"];
-
-        [helperConnection.serverProxy announceDevice: dict];
+	[helperConnection sendMessage: PAOSX_MessageAudioClientStarted
+				 dict: dict];	
 }
 
 - (void) deviceStopped: (PADevice *) device
 {
-        if (![helperConnection isConnected])
-                return;
-
-        [helperConnection.serverProxy signOffDevice: device.name];
+	NSDictionary *dict = [NSDictionary dictionaryWithObject: device.name
+							 forKey: @"deviceName"];
+	[helperConnection sendMessage: PAOSX_MessageAudioClientStarted
+				 dict: dict];	
 }
 
 #pragma mark ### PlugIn Operations ###
@@ -205,15 +217,17 @@
 {
         self.objectID = oid;
 
+        [self log: @"initializeWithObjectID"];
+
         [[NSDistributedNotificationCenter defaultCenter] addObserver: self
                                                             selector: @selector(helperServiceStarted:)
                                                                 name: PAOSX_HelperMsgServiceStarted
                                                               object: NULL
                                                   suspensionBehavior: NSNotificationSuspensionBehaviorDeliverImmediately];
 
-        if ([helperConnection connect])
-                [self createDevices];
-
+	if ([helperConnection connect])
+		[self createDevices];
+	
         return kAudioHardwareNoError;
 }
 
@@ -326,6 +340,14 @@
 
         if (o) {
                 [o lock];
+                
+                NSLog(@"XXXX asking id %d (%@) for '%c%c%c%c'",
+                              (int) oid, [o className],
+                              ((int) address->mSelector >> 24) & 0xff,
+                              ((int) address->mSelector >> 16) & 0xff,
+                              ((int) address->mSelector >> 8)  & 0xff,
+                              ((int) address->mSelector >> 0)  & 0xff);
+
                 ret = [o getPropertyData: address
                        qualifierDataSize: qualifierDataSize
                            qualifierData: qualifierData

@@ -148,6 +148,9 @@
 - (void) PAHelperConnection: (PAHelperConnection *) connection
                   setConfig: (NSDictionary *) config
           forDeviceWithName: (NSString *) name;
+- (void) PAHelperConnection: (PAHelperConnection *) connection
+	    receivedMessage: (NSString *) name
+		       dict: (NSDictionary *) msg;
 
 #pragma mark ### PADeviceDelegate ###
 

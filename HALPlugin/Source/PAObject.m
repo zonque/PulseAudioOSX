@@ -92,7 +92,7 @@
         for (PAObject *o in array)
                 list[count++] = o.objectID;
 
-        DebugLog("publishing %d objects with pluginRef %p", count, pluginRef);
+        DebugLog("publishing %d objects with pluginRef %p (owningObjectID %d)", count, pluginRef, owningObjectID);
         for (UInt32 i = 0; i < count; i++)
                 DebugLog(" ... %d", list[i]);
 
@@ -113,7 +113,7 @@
         for (PAObject *o in array)
                 list[count++] = o.objectID;
 
-        DebugLog("DEpublishing %d objects with pluginRef %p", count, pluginRef);
+        DebugLog("DEpublishing %d objects with pluginRef %p (owningObjectID %d)", count, pluginRef, owningObjectID);
         for (UInt32 i = 0; i < count; i++)
                 DebugLog(" ... %d", list[i]);
 
@@ -157,7 +157,7 @@
 - (OSStatus) getPropertyDataSize: (const AudioObjectPropertyAddress *) address
                qualifierDataSize: (UInt32) qualifierDataSize
                    qualifierData: (const void *) qualifierData
-                     outSize: (UInt32 *) outDataSize
+                         outSize: (UInt32 *) outDataSize
 {
         switch (address->mSelector) {
                 case kAudioObjectPropertyOwnedObjects: {

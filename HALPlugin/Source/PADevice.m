@@ -72,7 +72,7 @@
 
 - (void) connectToServer
 {
-        if (![serverConnection isConnected])
+        if (serverName && ![serverConnection isConnected])
                 [serverConnection connectToHost: serverName
                                            port: -1];
 }
@@ -130,6 +130,14 @@
         sourceForRecord = [[config objectForKey: @"sourceForRecord"] retain];
 
         [self reconnectIfConnected];
+}
+
+- (void) setPreferences: (NSDictionary *) preferences
+{
+	if (!serverName) {
+		serverName = [preferences objectForKey: @"defaultServer"];
+		[self checkConnection];
+	}
 }
 
 - (NSString *) serverName
@@ -220,25 +228,31 @@
                 [outputStreamArray addObject: stream];
         }
 
-        name = [_name retain];
+        name = _name;
         manufacturer = @"pulseaudio.org";
         modelUID = [NSString stringWithFormat: @"%@:%d,%d",
                                         name,
                                         [inputStreamArray count],
                                         [outputStreamArray count]];
-        deviceUID = [NSString stringWithFormat: @"org.pulseaudio.HALPlugin.%@", modelUID];
+        deviceUID = [NSString stringWithFormat: @"PAHALPlugin.%@", modelUID];
 
+        [name retain];
+        [modelUID retain];
+        [deviceUID retain];
+        
         return self;
 }
 
 - (void) dealloc
 {
-        [name release];
         [serverConnection disconnect];
         [serverConnection release];
         [deviceAudio release];
         [inputStreamArray release];
         [outputStreamArray release];
+        [name release];
+        [modelUID release];
+        [deviceUID release];
         [super dealloc];
 }
 
@@ -542,7 +556,7 @@
 
                 case kAudioObjectPropertyManufacturer:
                         *(NSString **) outData = [manufacturer copy];
-                        *ioDataSize = sizeof(CFStringRef);
+                        *ioDataSize = sizeof(NSString *);
                         return kAudioHardwareNoError;
 
                 case kAudioDevicePropertyDeviceName:
@@ -802,6 +816,8 @@
                                      sourceForRecord: sourceForRecord];
         if (!ret)
                 NSLog(@"%s(): addAudioStreams failed!?", __func__);
+
+        [delegate deviceStarted: self];
 }
 
 - (void) PAServerConnectionFailed: (PAServerConnection *) connection
@@ -829,6 +845,7 @@
         sinkForPlayback = [[serverConnection connectedSink] retain];
         sourceForRecord = [[serverConnection connectedSource] retain];
 
+        // announce the device again, as the config changed
         if (delegate)
                 [delegate deviceStarted: self];
 }

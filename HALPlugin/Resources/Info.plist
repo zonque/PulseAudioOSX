@@ -22,14 +22,14 @@
 	<string>0.1.0</string>
 	<key>CFPlugInFactories</key>
 	<dict>
-		<key>45F4645C-E875-4364-9296-95837C4B7291</key>
+		<key>45F4645C-E875-4364-9296-95837C4B7292</key>
 		<string>New_PAHAL_PlugIn</string>
 	</dict>
 	<key>CFPlugInTypes</key>
 	<dict>
 		<key>F8BB1C28-BAE8-11D6-9C31-00039315CD46</key>
 		<array>
-			<string>45F4645C-E875-4364-9296-95837C4B7291</string>
+			<string>45F4645C-E875-4364-9296-95837C4B7292</string>
 		</array>
 	</dict>
 </dict>

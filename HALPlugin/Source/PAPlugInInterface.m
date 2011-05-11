@@ -103,7 +103,6 @@ Interface_ObjectHasProperty(AudioHardwarePlugInRef inSelf,
                             AudioObjectID inObjectID,
                             const AudioObjectPropertyAddress *inAddress)
 {
-        TraceCall();
         PAPlugInInterface *interface = toPluginInterface(inSelf);
         return [interface.plugin objectHasProperty: inObjectID
                               propertyID: inAddress];
@@ -115,7 +114,6 @@ Interface_ObjectIsPropertySettable(AudioHardwarePlugInRef inSelf,
                                    const AudioObjectPropertyAddress *inAddress,
                                    Boolean *outIsSettable)
 {
-        TraceCall();
         PAPlugInInterface *interface = toPluginInterface(inSelf);
         return [interface.plugin objectIsPropertySettable: inObjectID
                                        propertyID: inAddress
@@ -130,7 +128,6 @@ Interface_ObjectGetPropertyDataSize(AudioHardwarePlugInRef inSelf,
                                     const void *inQualifierData,
                                     UInt32 *outDataSize)
 {
-        TraceCall();
         PAPlugInInterface *interface = toPluginInterface(inSelf);
         return [interface.plugin objectGetPropertyDataSize: inObjectID
                                       propertyID: inAddress
@@ -148,7 +145,6 @@ Interface_ObjectGetPropertyData(AudioHardwarePlugInRef inSelf,
                                 UInt32 *ioDataSize,
                                 void *outData)
 {
-        TraceCall();
         PAPlugInInterface *interface = toPluginInterface(inSelf);
         return [interface.plugin objectGetPropertyData: inObjectID
                                   propertyID: inAddress
@@ -167,7 +163,6 @@ Interface_ObjectSetPropertyData(AudioHardwarePlugInRef inSelf,
                                 UInt32 inDataSize,
                                 const void *inData)
 {
-        TraceCall();
         PAPlugInInterface *interface = toPluginInterface(inSelf);
         return [interface.plugin objectSetPropertyData: inObjectID
                                   propertyID: inAddress

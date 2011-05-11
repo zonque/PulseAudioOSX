@@ -69,6 +69,7 @@
 
 - (PAStream *) findStreamByID: (AudioObjectID) searchID;
 - (void) setConfig: (NSDictionary *) config;
+- (void) setPreferences: (NSDictionary *) preferences;
 
 #pragma mark ### PAObject ###
 
