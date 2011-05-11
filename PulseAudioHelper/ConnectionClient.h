@@ -10,24 +10,36 @@
  ***/
 
 #import <Foundation/Foundation.h>
+#import <PulseAudio/ULINetSocket.h>
 
+@class ConnectionClient;
+@class ConnectionServer;
 
-@interface ConnectionClient : NSObject
+@protocol ConnectionClientDelegate
+- (void) connectionClientDied: (ConnectionClient *) client;
+- (void) connectionClientChangedAudioClients: (ConnectionClient *) client;
+- (void) connectionClient: (ConnectionClient *) client
+       changedPreferences: (NSDictionary *) changed;
+@end
+
+@interface ConnectionClient : NSObject <PAHelperConnectionDelegate>
 {
-        NSConnection *connection;
+	ConnectionServer *server;
+	PAHelperConnection *connection;
         NSMutableArray *audioClients;
-        NSString *connectionName;
+        NSLock *lock;
+	
+	NSObject <ConnectionClientDelegate> *delegate;
 }
 
-@property (nonatomic, readonly) NSConnection *connection;
+@property (nonatomic, assign) NSObject <ConnectionClientDelegate> *delegate;
+@property (nonatomic, readonly) ULINetSocket *socket;
 @property (nonatomic, readonly) NSArray *audioClients;
 
-- (id) initWithConnection: (NSConnection *) c;
-- (void) registerClientWithName: (NSString *) name;
-- (void) announceDevice: (NSDictionary *) device;
-- (void) signOffDevice: (NSString *) signedOffName;
-- (void) audioClientsChanged : (NSArray *) clients;
-- (void) preferencesChanged : (NSDictionary *) preferences;
+- (id) initWithSocket: (ULINetSocket *) socket
+	    forServer: (ConnectionServer *) server;
+- (void) sendAudioClientsChanged : (NSArray *) clients;
+- (void) sendPreferencesChanged : (NSDictionary *) preferences;
 - (void) setConfig: (NSDictionary *) config
  forDeviceWithUUID: (NSString *) uuid;
 

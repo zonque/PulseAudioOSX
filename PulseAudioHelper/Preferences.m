@@ -60,20 +60,9 @@ static NSString *kPAPreferencesStatusBarEnabledKey        = @"statusBarEnabled";
                             forKey: kPAPreferencesGrowlFlagsKey];
         [preferencesDict setObject: [NSNumber numberWithBool: YES]
                             forKey: @"localServerNetworkEnabled"];
-
-        NSMutableArray *audioDevices = [NSMutableArray arrayWithCapacity: 0];
-        NSMutableDictionary *audioDevice = [NSMutableDictionary dictionaryWithCapacity: 0];
-        [audioDevice setObject: @"PulseAudio"
-                        forKey: @"deviceName"];
-        [audioDevice setObject: [NSNumber numberWithInt: 2]
-                        forKey: @"nInputChannels"];
-        [audioDevice setObject: [NSNumber numberWithInt: 2]
-                        forKey: @"nOutputChannels"];
-        [audioDevices addObject: audioDevice];
-
-        [preferencesDict setObject: audioDevices
-                            forKey: @"audioDevices"];
-
+        [preferencesDict setObject: @"localhost"
+                            forKey: @"defaultServer"];
+	
         [preferencesDict writeToFile: [self preferencesFilePath]
                           atomically: YES];
 }

@@ -17,156 +17,81 @@
 @implementation ConnectionServer
 
 @synthesize currentConnection;
-
 @synthesize preferences;
-
-- (ConnectionClient *) findClientByConnection: (NSConnection *) connection
-{
-        for (ConnectionClient *c in clientArray)
-                if (c.connection == connection)
-                        return c;
-
-        return nil;
-}
-
-- (void) audioClientsChanged
-{
-        NSMutableArray *array = [NSMutableArray arrayWithCapacity: 0];
-
-        for (ConnectionClient *c in clientArray)
-                [array addObjectsFromArray: c.audioClients];
-
-        for (ConnectionClient *c in clientArray)
-                [c audioClientsChanged: array];
-}
-
-- (void) preferencesChanged
-{
-        for (ConnectionClient *c in clientArray)
-                if (c.connection != currentConnection)
-                        [c preferencesChanged: preferences.preferencesDict];
-}
-
-#pragma mark ### PAHelperConnection protocol ###
-
-- (void) registerClientWithName: (NSString *) name
-{
-        ConnectionClient *c = [self findClientByConnection: currentConnection];
-
-        if (c)
-                [c registerClientWithName: name];
-}
-
-- (void) announceDevice: (NSDictionary *) device
-{
-        ConnectionClient *c = [self findClientByConnection: currentConnection];
-
-        if (c) {
-                [c announceDevice: device];
-                [self audioClientsChanged];
-        }
-}
-
-- (void) signOffDevice: (NSString *) signedOffName
-{
-        ConnectionClient *c = [self findClientByConnection: currentConnection];
-
-        if (c) {
-                [c signOffDevice: signedOffName];
-                [self audioClientsChanged];
-        }
-}
-
-- (void) setConfig: (NSDictionary *) config
- forDeviceWithUUID: (NSString *) uuid
-{
-        for (ConnectionClient *c in clientArray)
-                [c setConfig: config
-           forDeviceWithUUID: uuid];
-}
-
-- (NSDictionary *) getPreferences
-{
-        return preferences.preferencesDict;
-}
-
-- (NSArray *) currentAudioDevices
-{
-        NSMutableArray *array = [NSMutableArray arrayWithCapacity: 0];
-        
-        for (ConnectionClient *c in clientArray)
-                [array addObjectsFromArray: c.audioClients];
-        
-        return array;
-}
-
-- (void) setPreferences: (id) object
-                 forKey: (NSString *) key
-{
-        [preferences setValue: object
-                       forKey: key];
-        [self preferencesChanged];
-}
-
-#pragma mark ### NSConnection callbacks ###
-
-- (void) connectionDied: (NSNotification *) notification
-{
-        NSConnection *connection = [notification object];
-        ConnectionClient *c = [self findClientByConnection: connection];
-
-        if (c) {
-                BOOL hadAudioClients = ([c.audioClients count] > 0);
-                [c release];
-                [clientArray removeObject: c];
-
-                if (hadAudioClients)
-                        [self audioClientsChanged];
-        }
-}
-
-- (void) connectionInitialized: (NSNotification *) notification
-{
-        NSConnection *connection = [notification object];
-        ConnectionClient *c = [[ConnectionClient alloc] initWithConnection: connection];
-        [clientArray addObject: c];
-}
 
 - (void) start
 {
         clientArray = [[NSMutableArray arrayWithCapacity: 0] retain];
 
-        serviceConnection = [NSConnection serviceConnectionWithName: PAOSX_HelperName
-                                                         rootObject: self];
-        [serviceConnection setDelegate: self];
-        [serviceConnection addRunLoop: [NSRunLoop currentRunLoop]];
-        [serviceConnection retain];
+	serviceSocket = [[ULINetSocket alloc] init];
+	[serviceSocket setDelegate: self];
+	[serviceSocket listenOnLocalSocketPath: PAOSX_HelperSocket
+			 maxPendingConnections: 100];
+	[serviceSocket scheduleOnCurrentRunLoop];
 }
 
-#pragma mark ### NSConnectionDelegate ###
+#pragma mark ### ULINetSocketDelegate ###
 
-- (BOOL) connection: (NSConnection *) parentConnection
-shouldMakeNewConnection: (NSConnection *) newConnnection
+-(void)	netsocketDisconnected: (ULINetSocket *) inNetSocket
 {
-
-        [[NSNotificationCenter defaultCenter] addObserver: self
-                                                 selector: @selector(connectionInitialized:)
-                                                     name: NSConnectionDidInitializeNotification
-                                                   object: newConnnection];
-        [[NSNotificationCenter defaultCenter] addObserver: self
-                                                 selector: @selector(connectionDied:)
-                                                     name: NSConnectionDidDieNotification
-                                                   object: newConnnection];
-
-        return YES;
+	for (ConnectionClient *c in clientArray)
+		if (c.socket == inNetSocket) {
+			NSLog(@"%s(): client %p died", __func__, c);
+			[clientArray removeObject: c];
+			[c release];
+			return;
+		}
 }
 
-- (BOOL) connection: (NSConnection *) conn
-      handleRequest: (NSDistantObjectRequest *) doReq
+-(void)	netsocket: (ULINetSocket *) inNetSocket
+connectionTimedOut: (NSTimeInterval) inTimeout
 {
-        ConnectionServer *server = [conn rootObject];
-        server.currentConnection = conn;
-        return NO;
+	NSLog(@"%s()", __func__);
+	[self netsocketDisconnected: inNetSocket];
+}
+
+-(void)	netsocket: (ULINetSocket *) inNetSocket
+connectionAccepted: (ULINetSocket *) inNewNetSocket
+{
+	ConnectionClient *c = [[ConnectionClient alloc] initWithSocket: inNewNetSocket
+							     forServer: self];
+	c.delegate = self;
+	[clientArray addObject: c];
+}
+
+#pragma mark ### ConnectionClientDelegate ###
+
+- (void) connectionClientDied: (ConnectionClient *) client
+{
+	BOOL hasAudio = ([client.audioClients count] > 0);
+	[clientArray removeObject: client];
+	
+	if (hasAudio)
+		[self connectionClientChangedAudioClients: nil];
+}
+
+- (void) connectionClientChangedAudioClients: (ConnectionClient *) client
+{
+        NSMutableArray *array = [NSMutableArray arrayWithCapacity: 0];
+	
+        for (ConnectionClient *c in clientArray)
+		[array addObjectsFromArray: c.audioClients];
+	
+        for (ConnectionClient *c in clientArray)
+		if (c != client)
+			[c sendAudioClientsChanged: array];	
+}
+
+- (void) connectionClient: (ConnectionClient *) client
+       changedPreferences: (NSDictionary *) changed;
+{
+	for (id key in [changed allKeys])
+		[preferences setValue: [changed objectForKey: key]
+			       forKey: key];
+	
+	for (ConnectionClient *c in clientArray)
+		if (c != client)
+			[c sendPreferencesChanged: preferences.preferencesDict];
 }
 
 @end

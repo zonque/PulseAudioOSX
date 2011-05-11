@@ -10,14 +10,20 @@
  ***/
 
 #import <Foundation/Foundation.h>
+#import <PulseAudio/ULINetSocket.h>
+#import "ConnectionClient.h"
 #import "Preferences.h"
 
-@interface ConnectionServer : NSObject <NSConnectionDelegate, PAHelperConnection>
+@interface ConnectionServer : NSObject <ULINetSocketDelegate,
+					PAHelperConnectionDelegate,
+					ConnectionClientDelegate>
 {
         NSMutableArray *clientArray;
         NSConnection *currentConnection;
         NSConnection *serviceConnection;
 
+	ULINetSocket *serviceSocket;
+	
         Preferences *preferences;
 }
 
@@ -25,7 +31,5 @@
 @property (nonatomic, retain) Preferences *preferences;
 
 - (void) start;
-- (BOOL) connection: (NSConnection *) parentConnection
-        shouldMakeNewConnection: (NSConnection *) newConnnection;
 
 @end

@@ -26,20 +26,19 @@ int main (int argc, const char * argv[])
 
         ServerConnection *sc = [[ServerConnection alloc] initWithPreferences: prefs];
 
-#if 0
-        [[NSNotificationCenter defaultCenter] postNotificationName: PAOSX_HelperMsgServiceStarted
-                                                            object: PAOSX_HelperName
-                                                          userInfo: nil
-                                                deliverImmediately: YES];
-#endif
-
         [server start];
+
+        [[NSDistributedNotificationCenter defaultCenter] postNotificationName: PAOSX_HelperMsgServiceStarted
+                                                                       object: PAOSX_HelperName
+                                                                     userInfo: nil
+                                                           deliverImmediately: YES];
+
 
         [NSApp setDelegate: bar];
         [NSApp run];
 
         [task stop];
-
         [pool drain];
+
         return 0;
 }

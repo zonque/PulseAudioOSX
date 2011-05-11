@@ -13,20 +13,35 @@
 #import <PulseAudio/PAHelperConnection.h>
 
 #import "ConnectionClient.h"
+#import "ConnectionServer.h"
+#import "Preferences.h"
 
 @implementation ConnectionClient
 
-@synthesize connection;
 @synthesize audioClients;
+@synthesize delegate;
 
-- (id) initWithConnection: (NSConnection *) c
+- (ULINetSocket *) socket
+{
+	return connection.socket;
+}
+
+- (id) initWithSocket: (ULINetSocket *) _socket
+	    forServer: (ConnectionServer *) _server;
+
 {
         [super init];
 
-        connection = c;
-        [connection retain];
+        lock = [[NSLock alloc] init];
+	server = [_server retain];
+	audioClients = [[NSMutableArray arrayWithCapacity: 0] retain];
+	
+	connection = [[PAHelperConnection alloc] initWithSocket: _socket];
+	[connection setDelegate: self];
+	[connection scheduleOnCurrentRunLoop];
+	[connection retain];
 
-        audioClients = [[NSMutableArray arrayWithCapacity: 0] retain];
+	NSLog(@"%s(): new client for socket %p", __func__, _socket);
 
         return self;
 }
@@ -34,98 +49,102 @@
 - (void) dealloc
 {
         [connection release];
-        if (connectionName)
-                [connectionName release];
-
         [audioClients release];
+	[server release];
+        [lock release];
 
         [super dealloc];
-}
-
-- (void) registerClientWithName: (NSString *) name
-{
-        connectionName = [name retain];
-}
-
-- (void) announceDevice: (NSDictionary *) device
-{
-        NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary: device];
-        NSString *deviceName = [dict objectForKey: @"deviceName"];
-
-        NSLog(@"%s() self = %p", __func__, self);
-
-        [dict setObject: [NSString stringWithFormat: @"%@.%@", connectionName, deviceName]
-                                             forKey: @"uuid"];
-        [audioClients addObject: dict];
-}
-
-- (void) signOffDevice: (NSString *) signedOffName
-{
-        for (NSDictionary *client in audioClients)
-                if ([[client objectForKey: @"deviceName"] isEqualToString: signedOffName]) {
-                        [audioClients removeObject: client];
-                        return;
-                }
 }
 
 - (void) setConfig: (NSDictionary *) config
  forDeviceWithUUID: (NSString *) uuid
 {
-        NSLog(@"%s() self = %p", __func__, self);
-        NSLog(@"client server %s() ,,, uuid %@ ... %d clients", __func__, uuid, [audioClients count]);
+        NSLog(@"%s() self = %p uuid %@", __func__, self, uuid);
+
+        [lock lock];
 
         for (NSDictionary *client in audioClients) {
-                NSLog(@" .. client %@", client);
-                if ([[client objectForKey: @"uuid"] isEqualToString: uuid]) {
-                        NSString *deviceName = [client objectForKey: @"deviceName"];
-                        NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithCapacity: 0];
-
-                        NSLog(@"client server %s()", __func__);
-
-                        [userInfo setObject: @"setAudioDeviceConfig"
-                                     forKey: @"command"];
-                        [userInfo setObject: config
-                                     forKey: @"config"];
-                        [userInfo setObject: deviceName
-                                     forKey: @"deviceName"];
-
-                        [[NSDistributedNotificationCenter defaultCenter] postNotificationName: connectionName
-                                                                                       object: PAOSX_HelperName
-                                                                                     userInfo: userInfo];
-                }
+                NSLog(@" client uuid: %@", [client objectForKey: @"uuid"]);
+                if ([[client objectForKey: @"uuid"] isEqualToString: uuid])
+			[connection sendMessage: PAOSX_MessageSetAudioClientConfig
+					   dict: config];
         }
+        
+        [lock unlock];
 }
 
-- (void) audioClientsChanged : (NSArray *) clients
+- (void) sendAudioClientsChanged: (NSArray *) clients
 {
-        if (!connectionName)
-                return;
-
-        NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithCapacity: 0];
-        [userInfo setObject: @"audioClientsChanged"
-                     forKey: @"command"];
-        [userInfo setObject: clients
-                     forKey: @"audioClients"];
-
-        [[NSDistributedNotificationCenter defaultCenter] postNotificationName: connectionName
-                                                                       object: PAOSX_HelperName
-                                                                     userInfo: userInfo];
+        [lock lock];
+	[connection sendMessage: PAOSX_MessageAudioClientsUpdate
+			   dict: [NSDictionary dictionaryWithObject: clients
+							     forKey: @"clients"]];
+	NSLog(@"%s(): clients %@", __func__, clients);
+        [lock unlock];
 }
 
-- (void) preferencesChanged : (NSDictionary *) preferences
+- (void) sendPreferencesChanged: (NSDictionary *) preferences
 {
-        if (!connectionName)
-                return;
+        [lock lock];
+	[connection sendMessage: PAOSX_MessageSetPreferences
+			   dict: preferences];	
+        [lock unlock];
+}
 
-        NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithCapacity: 0];
-        [userInfo setObject: @"preferencesChanged"
-                     forKey: @"command"];
-        [userInfo setObject: preferences
-                     forKey: @"preferences"];
+- (void) PAHelperConnectionEstablished: (PAHelperConnection *) c
+{
+	NSDictionary *p = server.preferences.preferencesDict;
+	[connection sendMessage: PAOSX_MessageSetPreferences
+			   dict: p];
+}
 
-        [[NSDistributedNotificationCenter defaultCenter] postNotificationName: connectionName
-                                                                       object: PAOSX_HelperName
-                                                                     userInfo: userInfo];
+- (void) PAHelperConnectionDied: (PAHelperConnection *) c
+{
+	NSLog(@"%s(): connection %p", __func__, c);
+	[delegate connectionClientDied: self];
+}
+
+- (void) PAHelperConnection: (PAHelperConnection *) c
+	    receivedMessage: (NSString *) name
+		       dict: (NSDictionary *) dict
+{
+	NSLog(@"%s(): %@ -> %@", __func__, name, dict);
+	
+	if ([name isEqualToString: PAOSX_MessageAudioClientStarted]) {
+		NSString *deviceName = [dict objectForKey: @"deviceName"];
+		BOOL found = NO;
+		
+		for (NSDictionary *client in audioClients)
+			if ([[client objectForKey: @"deviceName"] isEqualToString: deviceName])
+				found = YES;
+			
+		if (!found) {
+			NSMutableDictionary *client = [NSMutableDictionary dictionaryWithDictionary: dict];
+			NSString *uuid = [NSString stringWithFormat: @"%p.%@", self, deviceName];
+
+			[client setObject: uuid
+				   forKey: @"uuid"];
+			
+			[audioClients addObject: client];
+			NSLog(@" adding new audioclient. count %d", [audioClients count]);
+			[delegate connectionClientChangedAudioClients: self];
+		}
+	}
+
+	if ([name isEqualToString: PAOSX_MessageAudioClientStopped]) {
+		NSString *deviceName = [dict objectForKey: @"deviceName"];
+		
+		for (NSDictionary *client in audioClients)
+			if ([[client objectForKey: @"deviceName"] isEqualToString: deviceName]) {
+				[audioClients removeObject: client];
+				[delegate connectionClientChangedAudioClients: self];
+				return;
+			}
+	}
+	
+	if ([name isEqualToString: PAOSX_MessageSetPreferences])
+		[delegate connectionClient: self
+			changedPreferences: dict];
 }
 
 @end
