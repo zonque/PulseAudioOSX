@@ -26,6 +26,7 @@
         helperConnection = [[PAHelperConnection alloc] init];
         helperConnection.delegate = self;
         if (![helperConnection connect]) {
+		//FIXME
                 [NSApp terminate: nil];
         }
 
@@ -33,6 +34,7 @@
         localServer.delegate = self;
         audioClients.delegate = self;
 
+	/*
         NSArray *currentAudioDevices = [helperConnection.serverProxy currentAudioDevices];
         
         CFShow(currentAudioDevices);
@@ -40,9 +42,7 @@
         [audioClients audioClientsChanged: currentAudioDevices];
         
         NSDictionary *preferences = [helperConnection.serverProxy getPreferences];
-
-        [self PAHelperConnection: helperConnection
-              preferencesChanged: preferences];
+	 */	
 }
 
 #pragma mark ### GUI ###
@@ -51,8 +51,10 @@
         NSButton *button = sender;
         BOOL enabled = ([button state] == NSOnState);
 
-        [helperConnection.serverProxy setPreferences: [NSNumber numberWithBool: enabled]
-                                              forKey: @"statusBarEnabled"];
+	NSDictionary *p = [NSDictionary dictionaryWithObject: [NSNumber numberWithBool: enabled]
+						      forKey: @"statusBarEnabled"];
+	[helperConnection sendMessage: PAOSX_MessageSetPreferences
+				 dict: p];
 }
 
 - (IBAction) setPulseAudioEnabled: (id) sender
@@ -67,6 +69,7 @@
         NSLog(@"%s()", __func__);
 }
 
+/*
 - (void) PAHelperConnection: (PAHelperConnection *) connection
         audioClientsChanged: (NSArray *) array
 {
@@ -81,14 +84,32 @@
 
         [growl preferencesChanged: preferences];
 }
+*/
+
+- (void) PAHelperConnection: (PAHelperConnection *) connection
+	    receivedMessage: (NSString *) name
+		       dict: (NSDictionary *) msg
+{
+	NSLog(@"%s() %@ -> %@", __func__, name, msg);
+	
+	if ([name isEqualToString: PAOSX_MessageAudioClientsUpdate])
+		[audioClients audioClientsChanged: [msg objectForKey: @"clients"]];
+
+	if ([name isEqualToString: PAOSX_MessageSetPreferences]) {
+		BOOL statusBarEnabled = [[msg objectForKey: @"statusBarEnabled"] boolValue];
+		[statusBarEnabledButton setState: statusBarEnabled];
+		[growl preferencesChanged: msg];
+	}
+}
 
 #pragma mark ### GrowlDelegate ###
 
 - (void) setPreferences: (id) value
                  forKey: (NSString *) key
 {
-        [helperConnection.serverProxy setPreferences: value
-                                              forKey: key];
+	[helperConnection sendMessage: PAOSX_MessageSetPreferences
+				 dict: [NSDictionary dictionaryWithObject: value
+								   forKey: key]];
 }
 
 #pragma mark ### AudioClientsDelegate ###
@@ -97,9 +118,10 @@
             forDeviceWithUUID: (NSString *) uuid
 {
         NSLog(@"%s()", __func__);
-
+/*
         [helperConnection.serverProxy setConfig: config
-                              forDeviceWithUUID: uuid];        
+                              forDeviceWithUUID: uuid];
+ */
 }
 
 @end

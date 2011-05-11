@@ -40,9 +40,8 @@
 
 - (void) PAHelperConnectionDied: (PAHelperConnection *) connection;
 - (void) PAHelperConnection: (PAHelperConnection *) connection
-        audioClientsChanged: (NSArray *) array;
-- (void) PAHelperConnection: (PAHelperConnection *) connection
-         preferencesChanged: (NSDictionary *) preferences;
+	    receivedMessage: (NSString *) name
+		       dict: (NSDictionary *) msg;
 
 #pragma mark ### GrowlDelegate/LocalServerDelegate ###
 
