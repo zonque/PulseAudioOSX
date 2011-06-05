@@ -123,7 +123,7 @@
                 sourceForRecord = nil;
         }
 
-        NSLog(@"%s()", __func__);
+        NSLog(@"%s() config %@", __func__, config);
         
         serverName = [[config objectForKey: @"serverName"] retain];
         sinkForPlayback = [[config objectForKey: @"sinkForPlayback"] retain];

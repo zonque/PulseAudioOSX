@@ -82,9 +82,7 @@
         [super initWithPluginRef: _pluginRef];
 
         DebugLog(@"_pluginRef %p", _pluginRef);
-
         devicesArray = [[NSMutableArray arrayWithCapacity: 0] retain];
-
         helperConnection = [[[PAHelperConnection alloc] init] retain];
         helperConnection.delegate = self;
 
@@ -138,19 +136,6 @@
         [self destroyDevices];
 }
 
-/*
-- (void) PAHelperConnection: (PAHelperConnection *) connection
-                  setConfig: (NSDictionary *) config
-          forDeviceWithName: (NSString *) name
-{
-        NSLog(@"%s() name %@", __func__, name);
-        
-        for (PADevice *dev in devicesArray)
-                if ([dev.name isEqualToString: name])
-                        [dev setConfig: config];
-}
- */
-
 - (void) PAHelperConnection: (PAHelperConnection *) connection
 	    receivedMessage: (NSString *) name
 		       dict: (NSDictionary *) dict
@@ -158,6 +143,14 @@
 	if ([name isEqualToString: PAOSX_MessageSetPreferences])
 		for (PADevice *d in devicesArray)
 			[d setPreferences: dict];
+	
+	if ([name isEqualToString: PAOSX_MessageSetAudioClientConfig]) {
+		NSString *deviceName = [dict objectForKey: @"deviceName"];
+		
+		for (PADevice *d in devicesArray)
+			if ([d.name isEqualToString: deviceName])
+				[d setConfig: dict];
+	}
 }
 
 #pragma mark ### PADeviceDelegate ###
@@ -219,13 +212,7 @@
 
         [self log: @"initializeWithObjectID"];
 
-        [[NSDistributedNotificationCenter defaultCenter] addObserver: self
-                                                            selector: @selector(helperServiceStarted:)
-                                                                name: PAOSX_HelperMsgServiceStarted
-                                                              object: NULL
-                                                  suspensionBehavior: NSNotificationSuspensionBehaviorDeliverImmediately];
-
-	if ([helperConnection connect])
+	if ([helperConnection connectWithRetry: YES])
 		[self createDevices];
 	
         return kAudioHardwareNoError;
