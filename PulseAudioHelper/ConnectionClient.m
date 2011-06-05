@@ -59,7 +59,7 @@
 - (void) setConfig: (NSDictionary *) config
  forDeviceWithUUID: (NSString *) uuid
 {
-        NSLog(@"%s() self = %p uuid %@", __func__, self, uuid);
+        NSLog(@"%s(%p) uuid %@", __func__, self, uuid);
 
         [lock lock];
 
@@ -75,20 +75,20 @@
 
 - (void) sendAudioClientsChanged: (NSArray *) clients
 {
-        [lock lock];
+//        [lock lock];
+	NSLog(@"%s(%p): clients %@", __func__, self, clients);
 	[connection sendMessage: PAOSX_MessageAudioClientsUpdate
 			   dict: [NSDictionary dictionaryWithObject: clients
 							     forKey: @"clients"]];
-	NSLog(@"%s(): clients %@", __func__, clients);
-        [lock unlock];
+//        [lock unlock];
 }
 
 - (void) sendPreferencesChanged: (NSDictionary *) preferences
 {
-        [lock lock];
+//        [lock lock];
 	[connection sendMessage: PAOSX_MessageSetPreferences
 			   dict: preferences];	
-        [lock unlock];
+//        [lock unlock];
 }
 
 - (void) PAHelperConnectionEstablished: (PAHelperConnection *) c
@@ -96,6 +96,10 @@
 	NSDictionary *p = server.preferences.preferencesDict;
 	[connection sendMessage: PAOSX_MessageSetPreferences
 			   dict: p];
+	
+	[connection sendMessage: PAOSX_MessageAudioClientsUpdate
+			   dict: [NSDictionary dictionaryWithObject: [delegate allAudioClients]
+							     forKey: @"clients"]];
 }
 
 - (void) PAHelperConnectionDied: (PAHelperConnection *) c

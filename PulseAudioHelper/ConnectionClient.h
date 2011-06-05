@@ -20,6 +20,7 @@
 - (void) connectionClientChangedAudioClients: (ConnectionClient *) client;
 - (void) connectionClient: (ConnectionClient *) client
        changedPreferences: (NSDictionary *) changed;
+- (NSArray *) allAudioClients;
 @end
 
 @interface ConnectionClient : NSObject <PAHelperConnectionDelegate>

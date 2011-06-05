@@ -70,16 +70,23 @@ connectionAccepted: (ULINetSocket *) inNewNetSocket
 		[self connectionClientChangedAudioClients: nil];
 }
 
-- (void) connectionClientChangedAudioClients: (ConnectionClient *) client
+- (NSArray *) allAudioClients
 {
         NSMutableArray *array = [NSMutableArray arrayWithCapacity: 0];
 	
         for (ConnectionClient *c in clientArray)
 		[array addObjectsFromArray: c.audioClients];
 	
+	return array;
+}
+
+- (void) connectionClientChangedAudioClients: (ConnectionClient *) client
+{
+	NSArray *a = [self allAudioClients];
+	
         for (ConnectionClient *c in clientArray)
 		if (c != client)
-			[c sendAudioClientsChanged: array];	
+			[c sendAudioClientsChanged: a];	
 }
 
 - (void) connectionClient: (ConnectionClient *) client
