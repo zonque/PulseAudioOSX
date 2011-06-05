@@ -49,11 +49,13 @@ function copy_with_symlinks()
 	dest=$2
 	sdir=$(dirname $source)
 
+	echo cp -a $source $dest
 	cp -a $source $dest
 
 	while [ "$(stat -f%T $source)" == "@" ]; do
 		source=$sdir/$(readlink $source)
 		echo "follow link $source"
+		echo cp -a $source $dest
 		cp -a $source $dest
 	done
 }
@@ -73,13 +75,13 @@ function relocate_libs()
 	while [ $run -eq 1 ]; do
 		run=0
 
-		for file in $(find $path -type f -depth 1 | grep -v "PulseAudio$"); do
+		for file in $(find $path -type f -depth 1); do
 			(file $file | grep -qi binary) && \
 				install_name_tool -id $prefix/$(basename $file) $file
 			for deplib in $(otool -L $file | grep $pattern | cut -d" " -f1); do
 
 				basename=$(basename $deplib)
-				if [ ! -e $path/$basename ]; then
+				if [ ! -e $libpath/$basename ]; then
 					echo "Copying $deplib"
 					copy_with_symlinks $deplib $libpath/
 					run=1
@@ -93,11 +95,13 @@ function relocate_libs()
 				#fi
 
 				if [ -f $path/$basename ]; then
-					install_name_tool -id $prefix/$baselib $path/$basename
+					echo install_name_tool -id $prefix/$basename $path/$basename
+					install_name_tool -id $prefix/$basename $path/$basename
 				fi
 
 				echo "resolving dependency $deplib for $(basename $file) ..."
 
+				echo install_name_tool -change $deplib $prefix/$basename $file
 				install_name_tool -change $deplib $prefix/$basename $file
 			done
 		done
