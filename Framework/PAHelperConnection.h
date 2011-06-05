@@ -53,6 +53,8 @@ typedef struct PAHelperProtocolHeader {
 	@private
 	ULINetSocket *socket;
 	NSMutableData *inboundData;
+	BOOL retry;
+	NSTimer *retryTimer;
 }
 
 @property (nonatomic, assign) NSObject <PAHelperConnectionDelegate> *delegate;
@@ -61,7 +63,7 @@ typedef struct PAHelperProtocolHeader {
 - (id) initWithSocket: (ULINetSocket *) socket;
 - (void) scheduleOnCurrentRunLoop;
 
-- (BOOL) connect;
+- (BOOL) connectWithRetry: (BOOL) retry;
 - (BOOL) isConnected;
 - (void) sendMessage: (NSString *) name
 		dict: (NSDictionary *) msg;

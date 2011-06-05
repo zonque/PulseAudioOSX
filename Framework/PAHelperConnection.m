@@ -109,19 +109,45 @@
 	[socket close];
 	[socket release];
 	[inboundData release];
+	
+	if (retryTimer)
+		[retryTimer invalidate];
 
 	[super dealloc];
 }
 
-- (BOOL) connect
+- (void) retryConnect: (NSTimer *) timer
 {
+	NSLog(@"retrying ...");
+
+	if ([socket connectToLocalSocketPath: PAOSX_HelperSocket]) {
+		NSLog(@"success!");
+		[socket scheduleOnCurrentRunLoop];
+		[retryTimer invalidate];
+	}
+}
+
+- (BOOL) connectWithRetry: (BOOL) _retry
+{
+	retry = _retry;
+
 	if ([socket isConnected])
 		return YES;
 
 	if ([socket connectToLocalSocketPath: PAOSX_HelperSocket])
 		return [socket scheduleOnCurrentRunLoop];
-	else
+	else {
+		if (retry) {
+			retryTimer = [NSTimer timerWithTimeInterval: 5.0
+							     target: self
+							   selector: @selector(retryConnect:)
+							   userInfo: nil
+							    repeats: YES];
+			[[NSRunLoop currentRunLoop] addTimer: retryTimer
+						     forMode: NSRunLoopCommonModes];
+		}
 		return NO;
+	}
 }
 
 - (BOOL) isConnected
@@ -144,46 +170,56 @@
 	if (delegate &&
 	    [delegate respondsToSelector: @selector(PAHelperConnectionDied:)])
 		[delegate PAHelperConnectionDied: self];
+	
+	if (retry)
+		[self connectWithRetry: YES];
 }
 
 -(void)	netsocket: (ULINetSocket*) inNetSocket
 connectionTimedOut: (NSTimeInterval) inTimeout
 {
 	[self netsocketDisconnected: inNetSocket];
+
+	if (retry)
+		[self connectWithRetry: YES];
 }
 
 -(void)	netsocket: (ULINetSocket*) inNetSocket
     dataAvailable: (unsigned) inAmount
 {
 	[inboundData appendData: [inNetSocket readData]];
-	
-	const PAHelperProtocolHeader *hdr = [inboundData bytes];
-	
-	NSLog(@"%s() %d %d", __func__, hdr->length, [inboundData length]);
+	NSUInteger pos = 0;
 
-	if (hdr->magic != PAOSX_HelperMagic) {
-		NSLog(@"Protocol error");
-		[socket close];
-		[socket release];
-		socket = nil;
-		return;
+	for (;;) {
+		if (pos >= [inboundData length])
+			break;
+		
+		Byte *b = ((Byte *) [inboundData bytes]) + pos;
+		const PAHelperProtocolHeader *hdr = (const PAHelperProtocolHeader *) b;
+
+		if (hdr->magic != PAOSX_HelperMagic) {
+			NSLog(@"Protocol error");
+			[socket close];
+			[socket release];
+			socket = nil;
+			return;
+		}
+		
+		// if the message is not yet fully received, just wait for more data
+		if (hdr->length > [inboundData length])
+			break;
+
+		pos += sizeof(*hdr);
+		[self dispatchMessage: [inboundData subdataWithRange: NSMakeRange(pos, hdr->length)]];
+		pos += hdr->length;
 	}
 	
-	// if the message is not yet fully received, just wait for more data
-	if (hdr->length > [inboundData length])
-		return;
-
-	[self dispatchMessage: [inboundData subdataWithRange: NSMakeRange(sizeof(*hdr), hdr->length)]];
-	
-	NSUInteger consumed = hdr->length + sizeof(*hdr);
-
-	if ([inboundData length] == consumed) {
+	if ([inboundData length] == pos) {
 		[inboundData setLength: 0];
-		return;
+	} else {
+		NSData *newData = [inboundData subdataWithRange: NSMakeRange(pos, [inboundData length] - pos)];
+		[inboundData setData: newData];
 	}
-	
-	NSData *newData = [inboundData subdataWithRange: NSMakeRange(consumed, [inboundData length] - consumed)];
-	[inboundData setData: newData];
 }
 
 @end
