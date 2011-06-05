@@ -412,8 +412,8 @@
 
                 NSInteger row = [self rowForChild: active];
                 if (row > 0) {
-                        [selectionTableView selectRow: row
-                                 byExtendingSelection: NO];
+                        [selectionTableView selectRowIndexes: [NSIndexSet indexSetWithIndex: row]
+                                        byExtendingSelection: NO];
                         [self setActiveItem: active];
                 }
         }
