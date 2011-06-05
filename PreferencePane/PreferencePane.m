@@ -25,7 +25,8 @@
 {
         helperConnection = [[PAHelperConnection alloc] init];
         helperConnection.delegate = self;
-        if (![helperConnection connect]) {
+	
+        if (![helperConnection connectWithRetry: NO]) {
 		//FIXME
                 [NSApp terminate: nil];
         }
@@ -117,11 +118,16 @@
 - (void) setAudioDeviceConfig: (NSDictionary *) config
             forDeviceWithUUID: (NSString *) uuid
 {
-        NSLog(@"%s()", __func__);
-/*
-        [helperConnection.serverProxy setConfig: config
-                              forDeviceWithUUID: uuid];
- */
+        NSLog(@"%s() uuid %@ config %@", __func__, uuid, config);
+	NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithCapacity: 0];
+	
+	[dict setObject: config
+		 forKey: @"config"];
+	[dict setObject: uuid
+		 forKey: @"uuid"];
+	
+	[helperConnection sendMessage: PAOSX_MessageSetAudioClientConfig
+				 dict: dict];
 }
 
 @end
