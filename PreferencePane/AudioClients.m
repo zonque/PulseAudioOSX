@@ -69,16 +69,16 @@
 
 #pragma mark ### NSTableViewSource protocol ###
 
-- (void)tableView: (NSTableView *) aTableView
-   setObjectValue: obj
-   forTableColumn: (NSTableColumn *) col
-              row: (int) rowIndex
+- (void) tableView: (NSTableView *) aTableView
+    setObjectValue: obj
+    forTableColumn: (NSTableColumn *) col
+               row: (int) rowIndex
 {
 }
 
-- (id)tableView: (NSTableView *) tableView
-        objectValueForTableColumn: (NSTableColumn *) col
-        row: (int) rowIndex
+- (id) tableView: (NSTableView *) tableView
+objectValueForTableColumn: (NSTableColumn *) col
+	     row: (int) rowIndex
 {
         NSDictionary *client = [clientList objectAtIndex: rowIndex];
         NSRunningApplication *app = [client objectForKey: @"application"];
@@ -151,7 +151,6 @@ enum {
         [audioDeviceLabel setStringValue: [client objectForKey: @"deviceName"]];
         [PIDLabel setStringValue: [NSString stringWithFormat: @"%d, %@", app.processIdentifier, arch]];
         [IOBufferSizeLabel setStringValue: [[client objectForKey: @"ioProcBufferSize"] stringValue]];
-
         [serverSelectButton selectItemWithTitle: [client objectForKey: @"serverName"]];
 
         NSData *data;
@@ -202,9 +201,13 @@ enum {
         NSNumber *serverPort = NULL;
         NSNetService *service = [knownServers objectAtIndex: [serverSelectButton indexOfSelectedItem]];
         NSString *serverName = [service hostName]; //[PAServiceDiscovery ipOfService: service];
-
+	
         [config setObject: [serverSelectButton titleOfSelectedItem]
                    forKey: @"serverName"];
+        [config setObject: [sinkSelectButton titleOfSelectedItem]
+                   forKey: @"sinkName"];
+        [config setObject: [sourceSelectButton titleOfSelectedItem]
+                   forKey: @"sourceName"];
         [config setObject: pid
                    forKey: @"pid"];
 
@@ -214,26 +217,25 @@ enum {
         
         [config setObject: serverName
                    forKey: @"serverName"];
-        
+	
         [delegate setAudioDeviceConfig: config
                      forDeviceWithUUID: [client objectForKey: @"uuid"]];
-        
-        // ...        
 }
 
 - (IBAction) selectServer: (id) sender
 {
-        [sinkSelectButton removeAllItems];
-        [sourceSelectButton removeAllItems];
-
         NSInteger selected = [serverSelectButton indexOfSelectedItem];
-        if (selected < 0)
-                return;
+	
+	NSLog(@" ... selected %d", selected);
+	
+	if (selected < 0)
+		return;
 
         NSNetService *server = [knownServers objectAtIndex: selected];
         NSDictionary *txt = [NSNetService dictionaryFromTXTRecordData: [server TXTRecordData]];
         NSData *serverMachine = [txt objectForKey: @"machine-id"];
 
+	[sinkSelectButton removeAllItems];
         for (NSNetService *s in knownSinks) {
                 NSDictionary *txt = [NSNetService dictionaryFromTXTRecordData: [s TXTRecordData]];
                 NSData *machine = [txt objectForKey: @"machine-id"];
@@ -245,6 +247,7 @@ enum {
                 }
         }
 
+        [sourceSelectButton removeAllItems];
         for (NSNetService *s in knownSources) {
                 NSDictionary *txt = [NSNetService dictionaryFromTXTRecordData: [s TXTRecordData]];
                 NSData *machine = [txt objectForKey: @"machine-id"];
@@ -271,8 +274,9 @@ enum {
         [knownServers addObject: service];
         [serverSelectButton addItemWithTitle: name];
 
-        if ([serverSelectButton indexOfSelectedItem] < 0)
-                [serverSelectButton selectItemAtIndex: 0];
+	NSInteger selected = [serverSelectButton indexOfSelectedItem];
+	if (selected < 0)
+		[serverSelectButton selectItemAtIndex: 0];	
 
         [self selectServer: nil];
 }
