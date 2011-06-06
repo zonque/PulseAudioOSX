@@ -101,4 +101,14 @@ connectionAccepted: (ULINetSocket *) inNewNetSocket
 			[c sendPreferencesChanged: preferences.preferencesDict];
 }
 
+- (void) connectionClient: (ConnectionClient *) client
+     setAudioClientConfig: (NSDictionary *) config
+		  forUUID: (NSString *) uuid
+{
+        for (ConnectionClient *c in clientArray)
+		if (c != client)
+			[c setConfig: config
+		   forDeviceWithUUID: uuid];	
+}
+
 @end

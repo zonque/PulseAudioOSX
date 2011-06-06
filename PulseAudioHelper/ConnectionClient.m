@@ -65,9 +65,13 @@
 
         for (NSDictionary *client in audioClients) {
                 NSLog(@" client uuid: %@", [client objectForKey: @"uuid"]);
-                if ([[client objectForKey: @"uuid"] isEqualToString: uuid])
+                if ([[client objectForKey: @"uuid"] isEqualToString: uuid]) {
+			NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary: client];
+			[dict addEntriesFromDictionary: config];
+			NSLog(@" dict = %@", dict);
 			[connection sendMessage: PAOSX_MessageSetAudioClientConfig
-					   dict: config];
+					   dict: dict];
+		}
         }
         
         [lock unlock];
@@ -75,20 +79,20 @@
 
 - (void) sendAudioClientsChanged: (NSArray *) clients
 {
-//        [lock lock];
+        [lock lock];
 	NSLog(@"%s(%p): clients %@", __func__, self, clients);
 	[connection sendMessage: PAOSX_MessageAudioClientsUpdate
 			   dict: [NSDictionary dictionaryWithObject: clients
 							     forKey: @"clients"]];
-//        [lock unlock];
+        [lock unlock];
 }
 
 - (void) sendPreferencesChanged: (NSDictionary *) preferences
 {
-//        [lock lock];
+        [lock lock];
 	[connection sendMessage: PAOSX_MessageSetPreferences
 			   dict: preferences];	
-//        [lock unlock];
+        [lock unlock];
 }
 
 - (void) PAHelperConnectionEstablished: (PAHelperConnection *) c
@@ -149,6 +153,14 @@
 	if ([name isEqualToString: PAOSX_MessageSetPreferences])
 		[delegate connectionClient: self
 			changedPreferences: dict];
+	
+	if ([name isEqualToString: PAOSX_MessageSetAudioClientConfig]) {
+		NSString *uuid = [dict objectForKey: @"uuid"];
+		NSDictionary *config = [dict objectForKey: @"config"];
+		[delegate connectionClient: self
+		      setAudioClientConfig: config
+				   forUUID: uuid];
+	}
 }
 
 @end

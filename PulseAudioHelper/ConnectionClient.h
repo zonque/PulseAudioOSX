@@ -20,6 +20,9 @@
 - (void) connectionClientChangedAudioClients: (ConnectionClient *) client;
 - (void) connectionClient: (ConnectionClient *) client
        changedPreferences: (NSDictionary *) changed;
+- (void) connectionClient: (ConnectionClient *) client
+     setAudioClientConfig: (NSDictionary *) config
+		  forUUID: (NSString *) uuid;
 - (NSArray *) allAudioClients;
 @end
 
@@ -43,5 +46,7 @@
 - (void) sendPreferencesChanged : (NSDictionary *) preferences;
 - (void) setConfig: (NSDictionary *) config
  forDeviceWithUUID: (NSString *) uuid;
+- (void) sendSetAudioClientConfig: (NSDictionary *) config
+			  forUUID: (NSString *) uuid;
 
 @end
