@@ -143,10 +143,10 @@
 	if ([name isEqualToString: PAOSX_MessageSetPreferences])
 		for (PADevice *d in devicesArray)
 			[d setPreferences: dict];
-	
+
 	if ([name isEqualToString: PAOSX_MessageSetAudioClientConfig]) {
 		NSString *deviceName = [dict objectForKey: @"deviceName"];
-		
+
 		for (PADevice *d in devicesArray)
 			if ([d.name isEqualToString: deviceName])
 				[d setConfig: dict];
