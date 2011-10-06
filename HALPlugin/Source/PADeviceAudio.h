@@ -1,8 +1,8 @@
 /***
  This file is part of PulseAudioOSX
-
+ 
  Copyright 2010,2011 Daniel Mack <pulseaudio@zonque.de>
-
+ 
  PulseAudioOSX is free software; you can redistribute it and/or modify
  it under the terms of the GNU Lesser General Public License (LGPL) as
  published by the Free Software Foundation; either version 2.1 of the
@@ -18,12 +18,12 @@ typedef struct IOProcTracker IOProcTracker;
 
 @interface PADeviceAudio : NSObject
 {
-        PADevice *device;
-        IOProcTracker *tracker;
-        NSLock *lock;
-        UInt32 ioProcBufferSize;
-        UInt32 bytesPerSampleFrame;
-        Float64 sampleRate;
+    PADevice *device;
+    IOProcTracker *tracker;
+    NSLock *lock;
+    UInt32 ioProcBufferSize;
+    UInt32 bytesPerSampleFrame;
+    Float64 sampleRate;
 }
 
 @property (nonatomic, assign) UInt32 ioProcBufferSize;

@@ -302,7 +302,7 @@
 					CoreServices,
 				);
 				PRODUCT_NAME = PulseAudio;
-				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.6.sdk";
+				SDKROOT = "";
 				VALID_ARCHS = "i386 x86_64";
 				WRAPPER_EXTENSION = plugin;
 			};
@@ -318,6 +318,8 @@
 		2D926CFD08DA3A5A00AB1DB7 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1)";
+				ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1 = "x86_64 i386 ppc";
 			};
 			name = Debug;
 		};

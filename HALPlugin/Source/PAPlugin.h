@@ -1,8 +1,8 @@
 /***
  This file is part of PulseAudioOSX
-
+ 
  Copyright 2010,2011 Daniel Mack <pulseaudio@zonque.de>
-
+ 
  PulseAudioOSX is free software; you can redistribute it and/or modify
  it under the terms of the GNU Lesser General Public License (LGPL) as
  published by the Free Software Foundation; either version 2.1 of the
@@ -16,8 +16,8 @@
 
 @interface PAPlugin : PAObject <PAHelperConnectionDelegate, PADeviceDelegate>
 {
-        NSMutableArray *devicesArray;
-        PAHelperConnection *helperConnection;
+    NSMutableArray *devicesArray;
+    PAHelperConnection *helperConnection;
 }
 
 #pragma mark ### PAObject ###
@@ -34,7 +34,7 @@
 - (void) objectShow: (AudioObjectID) oid;
 
 - (BOOL) objectHasProperty: (AudioObjectID) oid
-                  propertyID: (const AudioObjectPropertyAddress *) property;
+                propertyID: (const AudioObjectPropertyAddress *) property;
 
 - (OSStatus) objectIsPropertySettable: (AudioObjectID) oid
                            propertyID: (const AudioObjectPropertyAddress *) property
@@ -147,8 +147,8 @@
 - (void) PAHelperConnectionEstablished: (PAHelperConnection *) connection;
 - (void) PAHelperConnectionDied: (PAHelperConnection *) connection;
 - (void) PAHelperConnection: (PAHelperConnection *) connection
-	    receivedMessage: (NSString *) name
-		       dict: (NSDictionary *) msg;
+            receivedMessage: (NSString *) name
+                       dict: (NSDictionary *) msg;
 
 #pragma mark ### PADeviceDelegate ###
 

@@ -1,8 +1,8 @@
 /***
  This file is part of PulseAudioOSX
-
+ 
  Copyright 2010,2011 Daniel Mack <pulseaudio@zonque.de>
-
+ 
  PulseAudioOSX is free software; you can redistribute it and/or modify
  it under the terms of the GNU Lesser General Public License (LGPL) as
  published by the Free Software Foundation; either version 2.1 of the
@@ -27,27 +27,27 @@
 
 @interface PADevice : PAObject <PAServerConnectionDelegate>
 {
-        NSMutableArray *inputStreamArray;
-        NSMutableArray *outputStreamArray;
-
-        NSObject <PADeviceDelegate> *delegate;
-
-        NSString *name;
-        NSString *manufacturer;
-        NSString *modelUID;
-        NSString *deviceUID;
-
-        BOOL isRunning;
-
-        AudioStreamBasicDescription streamDescription;
-        AudioStreamRangedDescription physicalFormat;
-
-        PAServerConnection *serverConnection;
-        PADeviceAudio *deviceAudio;
-
-        NSString *serverName;
-        NSString *sinkForPlayback;
-        NSString *sourceForRecord;
+    NSMutableArray *inputStreamArray;
+    NSMutableArray *outputStreamArray;
+    
+    NSObject <PADeviceDelegate> *delegate;
+    
+    NSString *name;
+    NSString *manufacturer;
+    NSString *modelUID;
+    NSString *deviceUID;
+    
+    BOOL isRunning;
+    
+    AudioStreamBasicDescription streamDescription;
+    AudioStreamRangedDescription physicalFormat;
+    
+    PAServerConnection *serverConnection;
+    PADeviceAudio *deviceAudio;
+    
+    NSString *serverName;
+    NSString *sinkForPlayback;
+    NSString *sourceForRecord;
 }
 
 @property (nonatomic, readonly) PADeviceAudio *deviceAudio;
