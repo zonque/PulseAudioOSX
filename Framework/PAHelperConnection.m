@@ -1,8 +1,8 @@
 /***
  This file is part of PulseAudioOSX
-
+ 
  Copyright 2010,2011 Daniel Mack <pulseaudio@zonque.de>
-
+ 
  PulseAudioOSX is free software; you can redistribute it and/or modify
  it under the terms of the GNU Lesser General Public License (LGPL) as
  published by the Free Software Foundation; either version 2.1 of the
@@ -27,38 +27,38 @@
 	
 	NSString *errorString;
 	NSDictionary *dict = [NSPropertyListSerialization propertyListFromData: msg
-							      mutabilityOption: NSPropertyListImmutable
-									format: NULL
-							      errorDescription: &errorString];
-
+                                                          mutabilityOption: NSPropertyListImmutable
+                                                                    format: NULL
+                                                          errorDescription: &errorString];
+    
 	if (errorString || !dict) {
 		NSLog(@"ERROR: %@\n", errorString);
 		return;
 	}
 	
 	[delegate PAHelperConnection: self
-		     receivedMessage: [dict objectForKey: PAOSX_MessageNameKey]
-				dict: [dict objectForKey: PAOSX_MessageDictionaryKey]];
+                 receivedMessage: [dict objectForKey: PAOSX_MessageNameKey]
+                            dict: [dict objectForKey: PAOSX_MessageDictionaryKey]];
 }
 
 - (void) sendMessage: (NSString *) name
-		dict: (NSDictionary *) dict;
+                dict: (NSDictionary *) dict;
 {
 	NSMutableDictionary *msg = [NSMutableDictionary dictionaryWithCapacity: 0];
 	
 	[msg setObject: name
-		forKey: PAOSX_MessageNameKey];
+            forKey: PAOSX_MessageNameKey];
 	[msg setObject: dict
-		forKey: PAOSX_MessageDictionaryKey];
+            forKey: PAOSX_MessageDictionaryKey];
 	
 	if (![socket isConnected])
 		return;
-
+    
 	NSString *errorString;
 	NSData *data = [NSPropertyListSerialization dataFromPropertyList: msg
-								  format: NSPropertyListXMLFormat_v1_0
-							errorDescription: &errorString];
-
+                                                              format: NSPropertyListXMLFormat_v1_0
+                                                    errorDescription: &errorString];
+    
 	if (errorString || !data) {
 		NSLog(@"ERROR: %@\n", errorString);
 		return;
@@ -69,7 +69,7 @@
 	hdr.length = [data length];
 	
 	NSMutableData *payload = [NSMutableData dataWithBytes: &hdr
-						       length: sizeof(hdr)];
+                                                   length: sizeof(hdr)];
 	[payload appendData: data];	
 	[socket writeData: payload];
 }
@@ -77,7 +77,7 @@
 - (id) init
 {
 	[super init];
-
+    
 	inboundData = [[NSMutableData data] retain];
 	
 	socket = [[ULINetSocket alloc] init];
@@ -90,12 +90,12 @@
 - (id) initWithSocket: (ULINetSocket *) s
 {
 	[super init];
-
+    
 	inboundData = [[NSMutableData data] retain];
 	socket = [s retain];
 	[socket setDelegate: self];
 	[socket open];
-
+    
 	return self;	
 }
 
@@ -112,14 +112,14 @@
 	
 	if (retryTimer)
 		[retryTimer invalidate];
-
+    
 	[super dealloc];
 }
 
 - (void) retryConnect: (NSTimer *) timer
 {
 	NSLog(@"retrying ...");
-
+    
 	if ([socket connectToLocalSocketPath: PAOSX_HelperSocket]) {
 		NSLog(@"success!");
 		[socket scheduleOnCurrentRunLoop];
@@ -130,21 +130,21 @@
 - (BOOL) connectWithRetry: (BOOL) _retry
 {
 	retry = _retry;
-
+    
 	if ([socket isConnected])
 		return YES;
-
+    
 	if ([socket connectToLocalSocketPath: PAOSX_HelperSocket])
 		return [socket scheduleOnCurrentRunLoop];
 	else {
 		if (retry) {
 			retryTimer = [NSTimer timerWithTimeInterval: 5.0
-							     target: self
-							   selector: @selector(retryConnect:)
-							   userInfo: nil
-							    repeats: YES];
+                                                 target: self
+                                               selector: @selector(retryConnect:)
+                                               userInfo: nil
+                                                repeats: YES];
 			[[NSRunLoop currentRunLoop] addTimer: retryTimer
-						     forMode: NSRunLoopCommonModes];
+                                         forMode: NSRunLoopCommonModes];
 		}
 		return NO;
 	}
@@ -152,7 +152,7 @@
 
 - (BOOL) isConnected
 {
-        return [socket isConnected];
+    return [socket isConnected];
 }
 
 #pragma mark ### ULINetSocketDelegate
@@ -179,7 +179,7 @@
 connectionTimedOut: (NSTimeInterval) inTimeout
 {
 	[self netsocketDisconnected: inNetSocket];
-
+    
 	if (retry)
 		[self connectWithRetry: YES];
 }
@@ -189,14 +189,14 @@ connectionTimedOut: (NSTimeInterval) inTimeout
 {
 	[inboundData appendData: [inNetSocket readData]];
 	NSUInteger pos = 0;
-
+    
 	for (;;) {
 		if (pos >= [inboundData length])
 			break;
 		
 		Byte *b = ((Byte *) [inboundData bytes]) + pos;
 		const PAHelperProtocolHeader *hdr = (const PAHelperProtocolHeader *) b;
-
+        
 		if (hdr->magic != PAOSX_HelperMagic) {
 			NSLog(@"Protocol error");
 			[socket close];
@@ -208,7 +208,7 @@ connectionTimedOut: (NSTimeInterval) inTimeout
 		// if the message is not yet fully received, just wait for more data
 		if (hdr->length > [inboundData length])
 			break;
-
+        
 		pos += sizeof(*hdr);
 		[self dispatchMessage: [inboundData subdataWithRange: NSMakeRange(pos, hdr->length)]];
 		pos += hdr->length;

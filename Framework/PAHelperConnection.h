@@ -1,8 +1,8 @@
 /***
  This file is part of PulseAudioOSX
-
+ 
  Copyright 2010,2011 Daniel Mack <pulseaudio@zonque.de>
-
+ 
  PulseAudioOSX is free software; you can redistribute it and/or modify
  it under the terms of the GNU Lesser General Public License (LGPL) as
  published by the Free Software Foundation; either version 2.1 of the
@@ -42,15 +42,15 @@ typedef struct PAHelperProtocolHeader {
 - (void) PAHelperConnectionEstablished: (PAHelperConnection *) connection;
 - (void) PAHelperConnectionDied: (PAHelperConnection *) connection;
 - (void) PAHelperConnection: (PAHelperConnection *) connection
-	    receivedMessage: (NSString *) name
-		       dict: (NSDictionary *) msg;
+            receivedMessage: (NSString *) name
+                       dict: (NSDictionary *) msg;
 @end
 
 @interface PAHelperConnection : NSObject
 {
-        NSObject <PAHelperConnectionDelegate> *delegate;
-
-	@private
+    NSObject <PAHelperConnectionDelegate> *delegate;
+    
+@private
 	ULINetSocket *socket;
 	NSMutableData *inboundData;
 	BOOL retry;
@@ -66,6 +66,6 @@ typedef struct PAHelperProtocolHeader {
 - (BOOL) connectWithRetry: (BOOL) retry;
 - (BOOL) isConnected;
 - (void) sendMessage: (NSString *) name
-		dict: (NSDictionary *) msg;
+                dict: (NSDictionary *) msg;
 
 @end

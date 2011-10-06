@@ -1,8 +1,8 @@
 /***
  This file is part of PulseAudioOSX
-
+ 
  Copyright 2010,2011 Daniel Mack <pulseaudio@zonque.de>
-
+ 
  PulseAudioOSX is free software; you can redistribute it and/or modify
  it under the terms of the GNU Lesser General Public License (LGPL) as
  published by the Free Software Foundation; either version 2.1 of the
@@ -24,54 +24,54 @@ static NSString *kMDNSLocalDomain = @"local.";
 
 - (id) init
 {
-        [super init];
-
-        serverBrowser        = [[[NSNetServiceBrowser alloc] init] retain];
-        sinkBrowser        = [[[NSNetServiceBrowser alloc] init] retain];
-        sourceBrowser        = [[[NSNetServiceBrowser alloc] init] retain];
-
-        [serverBrowser        setDelegate: self];
-        [sinkBrowser        setDelegate: self];
-        [sourceBrowser        setDelegate: self];
-
-        netServices = [[NSMutableArray arrayWithCapacity: 0] retain];
-        announcedServices = [[NSMutableArray arrayWithCapacity: 0] retain];
-
-        lock = [[NSLock alloc] init];
-
-        return self;
+    [super init];
+    
+    serverBrowser        = [[[NSNetServiceBrowser alloc] init] retain];
+    sinkBrowser        = [[[NSNetServiceBrowser alloc] init] retain];
+    sourceBrowser        = [[[NSNetServiceBrowser alloc] init] retain];
+    
+    [serverBrowser        setDelegate: self];
+    [sinkBrowser        setDelegate: self];
+    [sourceBrowser        setDelegate: self];
+    
+    netServices = [[NSMutableArray arrayWithCapacity: 0] retain];
+    announcedServices = [[NSMutableArray arrayWithCapacity: 0] retain];
+    
+    lock = [[NSLock alloc] init];
+    
+    return self;
 }
 
 - (void) dealloc
 {
-        [serverBrowser release];
-        [sinkBrowser release];
-        [sourceBrowser release];
-        [netServices release];
-        [announcedServices release];
-        [lock release];
-        [super dealloc];
+    [serverBrowser release];
+    [sinkBrowser release];
+    [sourceBrowser release];
+    [netServices release];
+    [announcedServices release];
+    [lock release];
+    [super dealloc];
 }
 
 - (void) start
 {
-        [serverBrowser searchForServicesOfType: kMDNSPulseServer
-                                      inDomain: kMDNSLocalDomain];
-        [sinkBrowser searchForServicesOfType: kMDNSPulseSink
-                                    inDomain: kMDNSLocalDomain];
-        [sourceBrowser searchForServicesOfType: kMDNSPulseSource
-                                      inDomain: kMDNSLocalDomain];
+    [serverBrowser searchForServicesOfType: kMDNSPulseServer
+                                  inDomain: kMDNSLocalDomain];
+    [sinkBrowser searchForServicesOfType: kMDNSPulseSink
+                                inDomain: kMDNSLocalDomain];
+    [sourceBrowser searchForServicesOfType: kMDNSPulseSource
+                                  inDomain: kMDNSLocalDomain];
 }
 
 + (NSString *) ipOfService: (NSNetService *) service
 {
-        NSData *addr = [[service addresses] objectAtIndex: 0];
-        struct sockaddr_in *address_sin = (struct sockaddr_in *)[addr bytes];
-        return [NSString stringWithFormat: @"%d.%d.%d.%d",
-                (address_sin->sin_addr.s_addr >> 0) & 0xff,
-                (address_sin->sin_addr.s_addr >> 8) & 0xff,
-                (address_sin->sin_addr.s_addr >> 16) & 0xff,
-                (address_sin->sin_addr.s_addr >> 24) & 0xff];
+    NSData *addr = [[service addresses] objectAtIndex: 0];
+    struct sockaddr_in *address_sin = (struct sockaddr_in *)[addr bytes];
+    return [NSString stringWithFormat: @"%d.%d.%d.%d",
+            (address_sin->sin_addr.s_addr >> 0) & 0xff,
+            (address_sin->sin_addr.s_addr >> 8) & 0xff,
+            (address_sin->sin_addr.s_addr >> 16) & 0xff,
+            (address_sin->sin_addr.s_addr >> 24) & 0xff];
 }
 
 
@@ -79,57 +79,57 @@ static NSString *kMDNSLocalDomain = @"local.";
 
 - (void)netServiceDidResolveAddress:(NSNetService *)sender
 {
-        NSArray *addresses = [sender addresses];
-
-        if (!delegate)
-                return;
-
-        if ([addresses count] == 0)
-                return;
-
-        [lock lock];
-
-        if ([announcedServices containsObject: sender]) {
-                [lock unlock];
-                return;
-        }
-
-        NSString *type = [sender type];
-
-        if ([type hasPrefix: kMDNSPulseServer] &&
-            [delegate respondsToSelector: @selector(PAServiceDiscovery:serverAppeared:)])
-                [delegate PAServiceDiscovery: self
-                              serverAppeared: sender];
-
-        if ([type hasPrefix: kMDNSPulseSink] &&
-            [delegate respondsToSelector: @selector(PAServiceDiscovery:sinkAppeared:)])
-                [delegate PAServiceDiscovery: self
-                                sinkAppeared: sender];
-
-        if ([type hasPrefix: kMDNSPulseSource] &&
-            [delegate respondsToSelector: @selector(PAServiceDiscovery:sourceAppeared:)])
-                [delegate PAServiceDiscovery: self
-                              sourceAppeared: sender];
-
-        [announcedServices addObject: sender];
+    NSArray *addresses = [sender addresses];
+    
+    if (!delegate)
+        return;
+    
+    if ([addresses count] == 0)
+        return;
+    
+    [lock lock];
+    
+    if ([announcedServices containsObject: sender]) {
         [lock unlock];
+        return;
+    }
+    
+    NSString *type = [sender type];
+    
+    if ([type hasPrefix: kMDNSPulseServer] &&
+        [delegate respondsToSelector: @selector(PAServiceDiscovery:serverAppeared:)])
+        [delegate PAServiceDiscovery: self
+                      serverAppeared: sender];
+    
+    if ([type hasPrefix: kMDNSPulseSink] &&
+        [delegate respondsToSelector: @selector(PAServiceDiscovery:sinkAppeared:)])
+        [delegate PAServiceDiscovery: self
+                        sinkAppeared: sender];
+    
+    if ([type hasPrefix: kMDNSPulseSource] &&
+        [delegate respondsToSelector: @selector(PAServiceDiscovery:sourceAppeared:)])
+        [delegate PAServiceDiscovery: self
+                      sourceAppeared: sender];
+    
+    [announcedServices addObject: sender];
+    [lock unlock];
 }
 
 - (void) netService: (NSNetService *) sender
       didNotResolve: (NSDictionary *) errorDict
 {
-        [lock lock];
-        [netServices removeObject: sender];
-        [announcedServices removeObject: sender];
-        [lock unlock];
+    [lock lock];
+    [netServices removeObject: sender];
+    [announcedServices removeObject: sender];
+    [lock unlock];
 }
 
 - (void) netServiceDidStop:(NSNetService *)sender
 {
-        [lock lock];
-        [netServices removeObject: sender];
-        [announcedServices removeObject: sender];
-        [lock unlock];
+    [lock lock];
+    [netServices removeObject: sender];
+    [announcedServices removeObject: sender];
+    [lock unlock];
 }
 
 #pragma mark ### NSNetServiceBrowserDelegate ###
@@ -138,42 +138,42 @@ static NSString *kMDNSLocalDomain = @"local.";
             didFindService: (NSNetService *) netService
                 moreComing: (BOOL) moreServicesComing
 {
-        [lock lock];
-        [netServices addObject: netService];
-        [lock unlock];
-
-        [netService setDelegate: self];
-        [netService resolveWithTimeout: 10.0];
+    [lock lock];
+    [netServices addObject: netService];
+    [lock unlock];
+    
+    [netService setDelegate: self];
+    [netService resolveWithTimeout: 10.0];
 }
 
 - (void) netServiceBrowser: (NSNetServiceBrowser *) netServiceBrowser
           didRemoveService: (NSNetService *) netService
                 moreComing: (BOOL) moreServicesComing
 {
-        if (!delegate)
-                return;
-
-        NSString *type = [netService type];
-
-        if ([type hasPrefix: kMDNSPulseServer] &&
-            [delegate respondsToSelector: @selector(PAServiceDiscovery:serverDisappeared:)])
-                [delegate PAServiceDiscovery: self
-                           serverDisappeared: netService];
-
-        if ([type hasPrefix: kMDNSPulseSink] &&
-            [delegate respondsToSelector: @selector(PAServiceDiscovery:sinkDisappeared:)])
-                [delegate PAServiceDiscovery: self
-                             sinkDisappeared: netService];
-
-        if ([type hasPrefix: kMDNSPulseSource] &&
-            [delegate respondsToSelector: @selector(PAServiceDiscovery:sourceDisappeared:)])
-                [delegate PAServiceDiscovery: self
-                           sourceDisappeared: netService];
-
-        [lock lock];
-        [netServices removeObject: netService];
-        [announcedServices removeObject: netService];
-        [lock unlock];
+    if (!delegate)
+        return;
+    
+    NSString *type = [netService type];
+    
+    if ([type hasPrefix: kMDNSPulseServer] &&
+        [delegate respondsToSelector: @selector(PAServiceDiscovery:serverDisappeared:)])
+        [delegate PAServiceDiscovery: self
+                   serverDisappeared: netService];
+    
+    if ([type hasPrefix: kMDNSPulseSink] &&
+        [delegate respondsToSelector: @selector(PAServiceDiscovery:sinkDisappeared:)])
+        [delegate PAServiceDiscovery: self
+                     sinkDisappeared: netService];
+    
+    if ([type hasPrefix: kMDNSPulseSource] &&
+        [delegate respondsToSelector: @selector(PAServiceDiscovery:sourceDisappeared:)])
+        [delegate PAServiceDiscovery: self
+                   sourceDisappeared: netService];
+    
+    [lock lock];
+    [netServices removeObject: netService];
+    [announcedServices removeObject: netService];
+    [lock unlock];
 }
 
 @end

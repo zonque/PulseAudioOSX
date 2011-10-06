@@ -1,8 +1,8 @@
 /***
  This file is part of PulseAudioOSX
-
+ 
  Copyright 2010,2011 Daniel Mack <pulseaudio@zonque.de>
-
+ 
  PulseAudioOSX is free software; you can redistribute it and/or modify
  it under the terms of the GNU Lesser General Public License (LGPL) as
  published by the Free Software Foundation; either version 2.1 of the
@@ -27,37 +27,37 @@
 
 @interface PAServerConnectionImplementation : NSObject
 {
-        PAServerConnection        *server;
-        char                         procName[100];
-
-        pa_threaded_mainloop        *PAMainLoop;
-        pa_context                *PAContext;
-
-        PAServerConnectionAudio *audio;
-        NSString *sinkForPlayback;
-        NSString *sourceForRecord;
-
-        PAServerInfo *serverInfo;
-
-        NSMutableArray *presentCards;
-        NSMutableArray *presentSinks;
-        NSMutableArray *presentSinkInputs;
-        NSMutableArray *presentSources;
-        NSMutableArray *presentSourceOutputs;
-        NSMutableArray *presentClients;
-        NSMutableArray *presentModules;
-        NSMutableArray *presentSamples;
-
-        NSMutableArray *publishedCards;
-        NSMutableArray *publishedSinks;
-        NSMutableArray *publishedSinkInputs;
-        NSMutableArray *publishedSources;
-        NSMutableArray *publishedSourceOutputs;
-        NSMutableArray *publishedClients;
-        NSMutableArray *publishedModules;
-        NSMutableArray *publishedSamples;
-
-        NSString *lastError;
+    PAServerConnection        *server;
+    char                         procName[100];
+    
+    pa_threaded_mainloop        *PAMainLoop;
+    pa_context                *PAContext;
+    
+    PAServerConnectionAudio *audio;
+    NSString *sinkForPlayback;
+    NSString *sourceForRecord;
+    
+    PAServerInfo *serverInfo;
+    
+    NSMutableArray *presentCards;
+    NSMutableArray *presentSinks;
+    NSMutableArray *presentSinkInputs;
+    NSMutableArray *presentSources;
+    NSMutableArray *presentSourceOutputs;
+    NSMutableArray *presentClients;
+    NSMutableArray *presentModules;
+    NSMutableArray *presentSamples;
+    
+    NSMutableArray *publishedCards;
+    NSMutableArray *publishedSinks;
+    NSMutableArray *publishedSinkInputs;
+    NSMutableArray *publishedSources;
+    NSMutableArray *publishedSourceOutputs;
+    NSMutableArray *publishedClients;
+    NSMutableArray *publishedModules;
+    NSMutableArray *publishedSamples;
+    
+    NSString *lastError;
 }
 
 @property (nonatomic, readonly) pa_threaded_mainloop *PAMainLoop;
