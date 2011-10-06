@@ -1,8 +1,8 @@
 /***
  This file is part of PulseAudioOSX
-
+ 
  Copyright 2010,2011 Daniel Mack <pulseaudio@zonque.de>
-
+ 
  PulseAudioOSX is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 2.1 of the License, or
@@ -21,12 +21,12 @@
 
 - (void) start
 {
-        clientArray = [[NSMutableArray arrayWithCapacity: 0] retain];
-
+    clientArray = [[NSMutableArray arrayWithCapacity: 0] retain];
+    
 	serviceSocket = [[ULINetSocket alloc] init];
 	[serviceSocket setDelegate: self];
 	[serviceSocket listenOnLocalSocketPath: PAOSX_HelperSocket
-			 maxPendingConnections: 100];
+                     maxPendingConnections: 100];
 	[serviceSocket scheduleOnCurrentRunLoop];
 }
 
@@ -54,7 +54,7 @@ connectionTimedOut: (NSTimeInterval) inTimeout
 connectionAccepted: (ULINetSocket *) inNewNetSocket
 {
 	ConnectionClient *c = [[ConnectionClient alloc] initWithSocket: inNewNetSocket
-							     forServer: self];
+                                                         forServer: self];
 	c.delegate = self;
 	[clientArray addObject: c];
 }
@@ -72,9 +72,9 @@ connectionAccepted: (ULINetSocket *) inNewNetSocket
 
 - (NSArray *) allAudioClients
 {
-        NSMutableArray *array = [NSMutableArray arrayWithCapacity: 0];
+    NSMutableArray *array = [NSMutableArray arrayWithCapacity: 0];
 	
-        for (ConnectionClient *c in clientArray)
+    for (ConnectionClient *c in clientArray)
 		[array addObjectsFromArray: c.audioClients];
 	
 	return array;
@@ -84,7 +84,7 @@ connectionAccepted: (ULINetSocket *) inNewNetSocket
 {
 	NSArray *a = [self allAudioClients];
 	
-        for (ConnectionClient *c in clientArray)
+    for (ConnectionClient *c in clientArray)
 		if (c != client)
 			[c sendAudioClientsChanged: a];	
 }
@@ -94,7 +94,7 @@ connectionAccepted: (ULINetSocket *) inNewNetSocket
 {
 	for (id key in [changed allKeys])
 		[preferences setValue: [changed objectForKey: key]
-			       forKey: key];
+                       forKey: key];
 	
 	for (ConnectionClient *c in clientArray)
 		if (c != client)
@@ -103,12 +103,12 @@ connectionAccepted: (ULINetSocket *) inNewNetSocket
 
 - (void) connectionClient: (ConnectionClient *) client
      setAudioClientConfig: (NSDictionary *) config
-		  forUUID: (NSString *) uuid
+                  forUUID: (NSString *) uuid
 {
-        for (ConnectionClient *c in clientArray)
+    for (ConnectionClient *c in clientArray)
 		if (c != client)
 			[c setConfig: config
-		   forDeviceWithUUID: uuid];	
+       forDeviceWithUUID: uuid];	
 }
 
 @end

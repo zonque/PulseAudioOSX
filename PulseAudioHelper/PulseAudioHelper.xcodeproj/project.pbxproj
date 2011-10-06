@@ -9,16 +9,16 @@
 /* Begin PBXBuildFile section */
 		6510B04C135ECADF002A5B90 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65531647135B174500817E2D /* AppKit.framework */; };
 		6510B04D135ECADF002A5B90 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 08FB779EFE84155DC02AAC07 /* Foundation.framework */; };
-		6510B04E135ECADF002A5B90 /* Growl.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 655315BB135B0D9800817E2D /* Growl.framework */; };
 		6510B04F135ECADF002A5B90 /* GrowlNotifications.m in Sources */ = {isa = PBXBuildFile; fileRef = 655315AD135B0BF500817E2D /* GrowlNotifications.m */; };
 		6510B050135ECADF002A5B90 /* Preferences.m in Sources */ = {isa = PBXBuildFile; fileRef = 655319DF135C537600817E2D /* Preferences.m */; };
 		6510B052135ECADF002A5B90 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 08FB7796FE84155DC02AAC07 /* main.m */; };
 		6510B054135ECADF002A5B90 /* ServerTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 6553193C135C3B9E00817E2D /* ServerTask.m */; };
 		6510B055135ECADF002A5B90 /* StatusBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 655317D5135BA57900817E2D /* StatusBar.m */; };
-		6510B192135ECAFF002A5B90 /* Growl.framework in Resources */ = {isa = PBXBuildFile; fileRef = 655315BB135B0D9800817E2D /* Growl.framework */; };
 		6510B1E0135ECD27002A5B90 /* logo.icns in Resources */ = {isa = PBXBuildFile; fileRef = 6510B1DF135ECD27002A5B90 /* logo.icns */; };
+		6560801A143E00FD00A3A719 /* PulseAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65608019143E00FD00A3A719 /* PulseAudio.framework */; };
+		65608020143E011E00A3A719 /* Growl.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6560801F143E011E00A3A719 /* Growl.framework */; };
 		65714F431367507400D60887 /* ConnectionServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 65714F421367507400D60887 /* ConnectionServer.m */; };
-		657159D11369B7D000D60887 /* PulseAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 657159D01369B7D000D60887 /* PulseAudio.framework */; };
+		6587E3DD143DFDC000741331 /* AppKit.framework in Resources */ = {isa = PBXBuildFile; fileRef = 65531647135B174500817E2D /* AppKit.framework */; };
 		65AF3CD8136A8D6600650E2E /* ConnectionClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 65AF3CD7136A8D6600650E2E /* ConnectionClient.m */; };
 		65AF3E89136AC0B700650E2E /* PulseAudio.png in Resources */ = {isa = PBXBuildFile; fileRef = 65AF3E87136AC0B700650E2E /* PulseAudio.png */; };
 		65AF3E8A136AC0B700650E2E /* statusBar.png in Resources */ = {isa = PBXBuildFile; fileRef = 65AF3E88136AC0B700650E2E /* statusBar.png */; };
@@ -35,7 +35,6 @@
 		6510B1DF135ECD27002A5B90 /* logo.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = logo.icns; sourceTree = "<group>"; };
 		655315AC135B0BF500817E2D /* GrowlNotifications.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GrowlNotifications.h; sourceTree = "<group>"; };
 		655315AD135B0BF500817E2D /* GrowlNotifications.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GrowlNotifications.m; sourceTree = "<group>"; };
-		655315BB135B0D9800817E2D /* Growl.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Growl.framework; path = /Library/Frameworks/Growl.framework; sourceTree = "<absolute>"; };
 		65531647135B174500817E2D /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		655317D4135BA57900817E2D /* StatusBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StatusBar.h; sourceTree = "<group>"; };
 		655317D5135BA57900817E2D /* StatusBar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StatusBar.m; sourceTree = "<group>"; };
@@ -43,9 +42,10 @@
 		6553193C135C3B9E00817E2D /* ServerTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ServerTask.m; sourceTree = "<group>"; };
 		655319DE135C537600817E2D /* Preferences.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Preferences.h; sourceTree = "<group>"; };
 		655319DF135C537600817E2D /* Preferences.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Preferences.m; sourceTree = "<group>"; };
+		65608019143E00FD00A3A719 /* PulseAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PulseAudio.framework; path = /Library/Frameworks/PulseAudio.framework; sourceTree = "<absolute>"; };
+		6560801F143E011E00A3A719 /* Growl.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Growl.framework; path = /Library/Frameworks/Growl.framework; sourceTree = "<absolute>"; };
 		65714F411367507400D60887 /* ConnectionServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConnectionServer.h; sourceTree = "<group>"; };
 		65714F421367507400D60887 /* ConnectionServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConnectionServer.m; sourceTree = "<group>"; };
-		657159D01369B7D000D60887 /* PulseAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PulseAudio.framework; path = /Library/Frameworks/PulseAudio.framework; sourceTree = "<absolute>"; };
 		65AF3CD6136A8D6600650E2E /* ConnectionClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConnectionClient.h; sourceTree = "<group>"; };
 		65AF3CD7136A8D6600650E2E /* ConnectionClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConnectionClient.m; sourceTree = "<group>"; };
 		65AF3E87136AC0B700650E2E /* PulseAudio.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = PulseAudio.png; sourceTree = "<group>"; };
@@ -61,8 +61,8 @@
 			files = (
 				6510B04C135ECADF002A5B90 /* AppKit.framework in Frameworks */,
 				6510B04D135ECADF002A5B90 /* Foundation.framework in Frameworks */,
-				6510B04E135ECADF002A5B90 /* Growl.framework in Frameworks */,
-				657159D11369B7D000D60887 /* PulseAudio.framework in Frameworks */,
+				6560801A143E00FD00A3A719 /* PulseAudio.framework in Frameworks */,
+				65608020143E011E00A3A719 /* Growl.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -107,9 +107,9 @@
 		08FB779DFE84155DC02AAC07 /* External Frameworks and Libraries */ = {
 			isa = PBXGroup;
 			children = (
-				657159D01369B7D000D60887 /* PulseAudio.framework */,
+				6560801F143E011E00A3A719 /* Growl.framework */,
+				65608019143E00FD00A3A719 /* PulseAudio.framework */,
 				65531647135B174500817E2D /* AppKit.framework */,
-				655315BB135B0D9800817E2D /* Growl.framework */,
 				08FB779EFE84155DC02AAC07 /* Foundation.framework */,
 			);
 			name = "External Frameworks and Libraries";
@@ -183,7 +183,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6510B192135ECAFF002A5B90 /* Growl.framework in Resources */,
+				6587E3DD143DFDC000741331 /* AppKit.framework in Resources */,
 				6510B1E0135ECD27002A5B90 /* logo.icns in Resources */,
 				65AF3E89136AC0B700650E2E /* PulseAudio.png in Resources */,
 				65AF3E8A136AC0B700650E2E /* statusBar.png in Resources */,
@@ -221,7 +221,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
-				SDKROOT = macosx10.6;
+				SDKROOT = "";
 			};
 			name = Debug;
 		};
@@ -242,6 +242,10 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					/System/Library,
+					/Library,
+				);
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_ENABLE_OBJC_GC = supported;
@@ -261,7 +265,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = PulseAudioHelper;
-				SDKROOT = macosx10.6;
+				SDKROOT = "";
 				VALID_ARCHS = "i386 x86_64";
 			};
 			name = Debug;
