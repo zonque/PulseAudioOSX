@@ -70,23 +70,27 @@ struct IOProcTracker
 
 - (IOProcTracker *) findTracker: (void *) value
 {
+    IOProcTracker *ret = NULL, *t = tracker;
+
     [lock lock];
     
-    for (IOProcTracker *t = tracker; tracker; tracker = tracker->next)
+    for (; t; t = t->next) {
+        NSLog(@"%s(): t %p value %p", __func__, t, value);
         if ((t == value) ||
             (t->proc == value)) {
-            [lock unlock];
-            return t;
+            ret = t;
+            break;
         }
+    }
     
     [lock unlock];
     
-    return NULL;
+    return ret;
 }
 
 - (BOOL) hasActiveProcs
 {
-    for (IOProcTracker *t = tracker; tracker; tracker = tracker->next)
+    for (IOProcTracker *t = tracker; t; t = t->next)
         if (t->enabled)
             return YES;
     

@@ -72,7 +72,10 @@
 
 - (void) connectToServer
 {
-    if (serverName && ![serverConnection isConnected])
+    NSLog(@"%s() .. serverName %s isConnected? %d", __func__,
+          serverName, [serverConnection isConnected]);
+
+    if (![serverConnection isConnected])
         [serverConnection connectToHost: serverName
                                    port: -1];
 }
@@ -86,7 +89,14 @@
 {
     // AudioDeviceStop() is likely to be called from the IOProc thread, so
     // we have to dispatch these calls in from the main thread context.
-    
+    //
+    // When disconnecting, we will face a race condition between the calling
+    // thread and the lock of the mainloop, hence we just don't wait until
+    // the selector in the main thread is done, and implicitly release our
+    // own lock.
+
+    NSLog(@"%s() .. hasActiveProcs? %d", __func__, [deviceAudio hasActiveProcs]);
+
     if ([deviceAudio hasActiveProcs])
         [self performSelectorOnMainThread: @selector(connectToServer)
                                withObject: nil
@@ -94,7 +104,7 @@
     else
         [self performSelectorOnMainThread: @selector(disconnectFromServer)
                                withObject: nil
-                            waitUntilDone: YES];
+                            waitUntilDone: NO];
 }
 
 - (void) reconnectIfConnected
