@@ -293,7 +293,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = PulseAudioHelper;
-				SDKROOT = macosx10.6;
+				SDKROOT = "";
 				VALID_ARCHS = "i386 x86_64";
 				ZERO_LINK = NO;
 			};

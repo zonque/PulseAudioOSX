@@ -247,7 +247,7 @@
 					CoreServices,
 				);
 				PRODUCT_NAME = PulseAudio;
-				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.6.sdk";
+				SDKROOT = "";
 				VALID_ARCHS = "i386 x86_64";
 				WRAPPER_EXTENSION = plugin;
 			};

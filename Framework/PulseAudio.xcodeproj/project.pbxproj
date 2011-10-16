@@ -422,6 +422,7 @@
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = /Library/Frameworks;
 				PRODUCT_NAME = PulseAudio;
+				SDKROOT = "";
 				VALID_ARCHS = "i386 x86_64";
 				WRAPPER_EXTENSION = framework;
 			};
@@ -443,6 +444,7 @@
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = /Library/Frameworks;
 				PRODUCT_NAME = PulseAudio;
+				SDKROOT = "";
 				VALID_ARCHS = "i386 x86_64";
 				WRAPPER_EXTENSION = framework;
 			};
