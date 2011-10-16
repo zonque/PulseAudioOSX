@@ -22,24 +22,6 @@
 
 @implementation PAPlugin
 
-- (void) log: (NSString *) s
-{
-    NSString *t = [NSString stringWithFormat: @"%@ (%@ pid %d): %@\n", 
-                   [[NSDate date] description],
-                   [[NSProcessInfo processInfo] processName],
-                   [[NSProcessInfo processInfo] processIdentifier],
-                   s];
-    
-    int fd = open("/blabla", O_WRONLY | O_CREAT | O_APPEND, 0666);
-    
-    if (fd >= 0) {
-        int w = write(fd, [t cStringUsingEncoding: NSASCIIStringEncoding], [t length]);
-        close(fd);
-    }
-    
-    //printf(" XXX %s", [t cStringUsingEncoding: NSASCIIStringEncoding]);
-}
-
 - (void) publishOwnedObjects
 {
     [super publishOwnedObjects];
@@ -59,8 +41,8 @@
 - (void) createDevices
 {
 	PADevice *dev;
-	
-	dev = [[PADevice alloc] initWithPluginRef: pluginRef
+    
+    dev = [[PADevice alloc] initWithPluginRef: pluginRef
                                    deviceName: @"PulseAudio"
                                nInputChannels: 2
                               nOutputChannels: 2];
@@ -209,8 +191,6 @@
 - (OSStatus) initializeWithObjectID: (AudioObjectID) oid
 {
     self.objectID = oid;
-    
-    [self log: @"initializeWithObjectID"];
     
 	if ([helperConnection connectWithRetry: YES])
 		[self createDevices];
