@@ -1,8 +1,8 @@
 /***
  This file is part of PulseAudioOSX
-
+ 
  Copyright 2010,2011 Daniel Mack <pulseaudio@zonque.de>
-
+ 
  PulseAudioOSX is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 2.1 of the License, or
@@ -18,19 +18,19 @@
 #import "Growl.h"
 
 @interface PreferencePane : NSPreferencePane <
-                                                PAHelperConnectionDelegate,
-                                                GrowlDelegate,
-                                                LocalServerDelegate,
-                                                AudioClientsDelegate>
+PAHelperConnectionDelegate,
+GrowlDelegate,
+LocalServerDelegate,
+AudioClientsDelegate>
 {
-        IBOutlet NSButton *statusBarEnabledButton;
-        IBOutlet LoginItemController *loginItemController;
-
-        IBOutlet AudioClients *audioClients;
-        IBOutlet Growl *growl;
-        IBOutlet LocalServer *localServer;
-
-        PAHelperConnection *helperConnection;
+    IBOutlet NSButton *statusBarEnabledButton;
+    IBOutlet LoginItemController *loginItemController;
+    
+    IBOutlet AudioClients *audioClients;
+    IBOutlet Growl *growl;
+    IBOutlet LocalServer *localServer;
+    
+    PAHelperConnection *helperConnection;
 }
 
 - (IBAction) setPulseAudioEnabled: (id) sender;
@@ -40,8 +40,8 @@
 
 - (void) PAHelperConnectionDied: (PAHelperConnection *) connection;
 - (void) PAHelperConnection: (PAHelperConnection *) connection
-	    receivedMessage: (NSString *) name
-		       dict: (NSDictionary *) msg;
+            receivedMessage: (NSString *) name
+                       dict: (NSDictionary *) msg;
 
 #pragma mark ### GrowlDelegate/LocalServerDelegate ###
 

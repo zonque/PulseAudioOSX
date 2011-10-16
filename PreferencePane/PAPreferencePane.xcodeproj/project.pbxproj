@@ -314,7 +314,7 @@
 				INSTALL_PATH = "$(HOME)/Library/PreferencePanes";
 				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				PRODUCT_NAME = PulseAudio;
-				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.6.sdk";
+				SDKROOT = "";
 				VALID_ARCHS = "i386 x86_64";
 				WRAPPER_EXTENSION = prefPane;
 			};
@@ -333,14 +333,12 @@
 		1DBD214E08BA80EA00186707 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = (
-					ppc,
-					i386,
-				);
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1)";
+				ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1 = "x86_64 i386 ppc";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				PREBINDING = NO;
-				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.6.sdk";
+				SDKROOT = "";
 			};
 			name = Release;
 		};
