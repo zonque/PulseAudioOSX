@@ -74,14 +74,12 @@ struct IOProcTracker
 
     [lock lock];
     
-    for (; t; t = t->next) {
-        NSLog(@"%s(): t %p value %p", __func__, t, value);
+    for (; t; t = t->next)
         if ((t == value) ||
             (t->proc == value)) {
             ret = t;
             break;
         }
-    }
     
     [lock unlock];
     

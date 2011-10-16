@@ -72,9 +72,6 @@
 
 - (void) connectToServer
 {
-    NSLog(@"%s() .. serverName %s isConnected? %d", __func__,
-          serverName, [serverConnection isConnected]);
-
     if (![serverConnection isConnected])
         [serverConnection connectToHost: serverName
                                    port: -1];
@@ -94,8 +91,6 @@
     // thread and the lock of the mainloop, hence we just don't wait until
     // the selector in the main thread is done, and implicitly release our
     // own lock.
-
-    NSLog(@"%s() .. hasActiveProcs? %d", __func__, [deviceAudio hasActiveProcs]);
 
     if ([deviceAudio hasActiveProcs])
         [self performSelectorOnMainThread: @selector(connectToServer)

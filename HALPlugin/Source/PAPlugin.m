@@ -41,7 +41,7 @@
 - (void) createDevices
 {
 	PADevice *dev;
-    
+
     dev = [[PADevice alloc] initWithPluginRef: pluginRef
                                    deviceName: @"PulseAudio"
                                nInputChannels: 2
@@ -139,10 +139,12 @@
 
 - (void) deviceStarted: (PADevice *) device
 {
+    NSLog(@"%s()", __func__);
     if (![helperConnection isConnected])
         return;
-    
+        
     PADeviceAudio *audio = device.deviceAudio;
+    NSLog(@"%s() audio %p", __func__, audio);
     if (!audio)
         return;
     
@@ -177,7 +179,7 @@
 {
 	NSDictionary *dict = [NSDictionary dictionaryWithObject: device.name
                                                      forKey: @"deviceName"];
-	[helperConnection sendMessage: PAOSX_MessageAudioClientStarted
+	[helperConnection sendMessage: PAOSX_MessageAudioClientStopped
                              dict: dict];	
 }
 
