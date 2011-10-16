@@ -12,22 +12,21 @@
 #import <Foundation/Foundation.h>
 #import "ULINetSocket.h"
 
-#define PAOSX_HelperName                @"org.pulseaudio.PulseAudioHelper"
-#define PAOSX_HelperMsgServiceStarted   @"org.pulseaudio.PulseAudioHelper.serviceStarted"
+#define PAOSX_HelperSocket  @"/var/tmp/PAOSX_HelperSocket"
+#define PAOSX_HelperMagic   0xaffedead
 
-#define PAOSX_HelperSocket              @"/tmp/PAOSX_HelperSocket"
-#define PAOSX_HelperMagic 0xaffedead
+#define PAOSX_HelperName                    @"org.pulseaudio.PulseAudioHelper"
+#define PAOSX_HelperMsgServiceStarted       @"org.pulseaudio.PulseAudioHelper.serviceStarted"
 
-
-#define PAOSX_MessageNameKey			@"MessageName"
-#define PAOSX_MessageDictionaryKey		@"MessageDictionaryKey"
-#define PAOSX_MessageRegisterClient		@"MessageRegisterClient"
-#define PAOSX_MessageAudioClientStarted		@"MessageAudioClientStarted"
-#define PAOSX_MessageAudioClientStopped		@"MessageAudioClientStopped"
-#define PAOSX_MessageAudioClientsUpdate		@"MessageAudioClientsUpdate"
-#define PAOSX_MessageRequestPreferences		@"MessageRequestPreferences"
-#define PAOSX_MessageSetPreferences		@"MessageSetPreferences"
-#define PAOSX_MessageSetAudioDevices		@"MessageSetAudioDevices"
+#define PAOSX_MessageNameKey                @"MessageName"
+#define PAOSX_MessageDictionaryKey          @"MessageDictionaryKey"
+#define PAOSX_MessageRegisterClient         @"MessageRegisterClient"
+#define PAOSX_MessageAudioClientStarted     @"MessageAudioClientStarted"
+#define PAOSX_MessageAudioClientStopped     @"MessageAudioClientStopped"
+#define PAOSX_MessageAudioClientsUpdate     @"MessageAudioClientsUpdate"
+#define PAOSX_MessageRequestPreferences     @"MessageRequestPreferences"
+#define PAOSX_MessageSetPreferences         @"MessageSetPreferences"
+#define PAOSX_MessageSetAudioDevices        @"MessageSetAudioDevices"
 #define PAOSX_MessageSetAudioClientConfig	@"MessageSetAudioClientConfig"
 
 typedef struct PAHelperProtocolHeader {
@@ -50,7 +49,7 @@ typedef struct PAHelperProtocolHeader {
 {
     NSObject <PAHelperConnectionDelegate> *delegate;
     
-@private
+    @private
 	ULINetSocket *socket;
 	NSMutableData *inboundData;
 	BOOL retry;

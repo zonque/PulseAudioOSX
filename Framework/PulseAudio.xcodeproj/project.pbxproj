@@ -166,12 +166,12 @@
 			isa = PBXGroup;
 			children = (
 				65AF43DC136EB9DB00650E2E /* Info */,
+				657159761369B34600D60887 /* PAHelperConnection.m */,
 				65CCFBFE1366CF1E00834815 /* PAServerConnection.m */,
 				65AF441C136EC4B600650E2E /* PAServerConnectionInternal.m */,
 				65AF4424136ECC5300650E2E /* PAServerConnectionImplementation.m */,
 				65AF3EC6136ACBE900650E2E /* PAServiceDiscovery.m */,
 				6571514C13683F4A00D60887 /* PAServerConnectionAudio.m */,
-				657159761369B34600D60887 /* PAHelperConnection.m */,
 			);
 			name = Classes;
 			sourceTree = "<group>";

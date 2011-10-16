@@ -118,8 +118,6 @@
 
 - (void) retryConnect: (NSTimer *) timer
 {
-	NSLog(@"retrying ...");
-    
 	if ([socket connectToLocalSocketPath: PAOSX_HelperSocket]) {
 		NSLog(@"success!");
 		[socket scheduleOnCurrentRunLoop];
@@ -133,7 +131,7 @@
     
 	if ([socket isConnected])
 		return YES;
-    
+
 	if ([socket connectToLocalSocketPath: PAOSX_HelperSocket])
 		return [socket scheduleOnCurrentRunLoop];
 	else {
@@ -159,7 +157,6 @@
 
 -(void) netsocketConnected: (ULINetSocket*) inNetSocket
 {
-	NSLog(@"framework: %s() ", __func__);
 	if (delegate &&
 	    [delegate respondsToSelector: @selector(PAHelperConnectionEstablished:)])
 		[delegate PAHelperConnectionEstablished: self];
