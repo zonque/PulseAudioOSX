@@ -76,8 +76,9 @@ function relocate_libs()
 		run=0
 
 		for file in $(find $path -type f -depth 1); do
-			(file $file | grep -qi binary) && \
+			(file $file | grep -qi binary) && [ "$(basename $file)" != "PulseAudio" ] && \
 				install_name_tool -id $prefix/$(basename $file) $file
+
 			for deplib in $(otool -L $file | grep $pattern | cut -d" " -f1); do
 
 				basename=$(basename $deplib)
