@@ -16,10 +16,6 @@
 
 - (void) start
 {
-    
-    ///////////////////////
-    return;
-    
     NSString *binpath = @"/Library/Frameworks/PulseAudio.framework/Resources/bin/pulseaudio";
     NSString *modpath = @"/Library/Frameworks/PulseAudio.framework/Resources/lib/modules/";
     
