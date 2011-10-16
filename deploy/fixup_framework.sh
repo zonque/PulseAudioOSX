@@ -39,7 +39,7 @@ mkdir -p $binpath
 
 cp -a $papath/bin/* $binpath/
 cp -a $papath/lib/*.dylib $libpath/
-cp -a $papath/lib/pulse-1.0/modules/* $modpath/
+cp -a $papath/lib/pulse-0.98/modules/* $modpath/
 
 #exit
 
