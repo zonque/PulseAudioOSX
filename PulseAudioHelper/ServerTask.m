@@ -32,6 +32,7 @@
                      @"-L", @"module-cli-protocol-unix",
                      @"-L", @"module-native-protocol-tcp auth-anonymous=1",
                      @"-p", modpath,
+                     @"--exit-idle-time", @"-1",
                      nil];
     task = [NSTask launchedTaskWithLaunchPath: binpath
                                     arguments: args];
