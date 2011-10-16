@@ -132,9 +132,9 @@
 	if ([socket isConnected])
 		return YES;
 
-	if ([socket connectToLocalSocketPath: PAOSX_HelperSocket])
+	if ([socket connectToLocalSocketPath: PAOSX_HelperSocket]) {
 		return [socket scheduleOnCurrentRunLoop];
-	else {
+	} else {
 		if (retry) {
 			retryTimer = [NSTimer timerWithTimeInterval: 5.0
                                                  target: self

@@ -701,7 +701,7 @@ static void staticClientNameSetCallback(pa_context *c, int success, void *userda
     
     if (PAContext) {
         pa_threaded_mainloop_lock(PAMainLoop);
-        
+
         if (audio) {
             [audio release];
             audio = nil;

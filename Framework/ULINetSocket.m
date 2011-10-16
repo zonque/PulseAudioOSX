@@ -483,7 +483,8 @@ static void _cfsocketCallback( CFSocketRef inCFSocketRef, CFSocketCallBackType i
 
 	// Remove any data left in our outgoing buffer
 	[mIncomingBuffer setLength:0];
-
+    mSocketConnected = YES;
+    
 	return YES;
 }
 
@@ -890,7 +891,7 @@ static void _cfsocketCallback( CFSocketRef inCFSocketRef, CFSocketCallBackType i
 		close( inNativeSocket );
 		return;
 	}
-	
+    
 	// Set socket options
 	socketOptions = kCFSocketAutomaticallyReenableReadCallBack;
 	CFSocketSetSocketFlags( mCFSocketRef, socketOptions );
@@ -1192,11 +1193,10 @@ void
 _cfsocketCallback( CFSocketRef inCFSocketRef, CFSocketCallBackType inType, CFDataRef inAddress, const void* inData, void* inContext )
 {
 	ULINetSocket*	netsocket;
-	
+
 	netsocket = (ULINetSocket*)inContext;
 	if( !netsocket )
 		return;
-	
 	switch( inType )
 	{
 		case kCFSocketConnectCallBack:
