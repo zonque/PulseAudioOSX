@@ -60,8 +60,8 @@ static void staticSampleInfoCallback(pa_context *c, const struct pa_sample_info 
     
     const char *e = pa_strerror(pa_context_errno(PAContext));
     if (e)
-        lastError = [NSString stringWithCString: e
-                                       encoding: NSASCIIStringEncoding];
+        lastError = [[NSString stringWithCString: e
+                                       encoding: NSASCIIStringEncoding] retain];
 }
 
 #pragma mark ### callback catcher ###
