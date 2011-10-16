@@ -8,6 +8,9 @@
 #import "ConnectionServer.h"
 #import "ServerConnection.h"
 
+static GrowlNotifications *gn;
+static ServerConnection *sc;
+
 int main (int argc, const char * argv[])
 {
         NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
@@ -18,13 +21,13 @@ int main (int argc, const char * argv[])
         ConnectionServer *server = [[[ConnectionServer alloc] init] autorelease];
         server.preferences = prefs;
 
-        GrowlNotifications *gn = [[[GrowlNotifications alloc] initWithPreferences: prefs] autorelease];
+        gn = [[[GrowlNotifications alloc] initWithPreferences: prefs] autorelease];
         StatusBar *bar = [[[StatusBar alloc] init] autorelease];
         bar.preferences = prefs;
 
         ServerTask *task = [[[ServerTask alloc] initWithPreferences: prefs] autorelease];
 
-        ServerConnection *sc = [[ServerConnection alloc] initWithPreferences: prefs];
+        sc = [[ServerConnection alloc] initWithPreferences: prefs];
 
         [server start];
 

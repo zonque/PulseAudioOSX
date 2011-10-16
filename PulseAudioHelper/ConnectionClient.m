@@ -57,7 +57,7 @@
 }
 
 - (void) setConfig: (NSDictionary *) config
- forDeviceWithUUID: (NSString *) uuid
+    forDeviceWithUUID: (NSString *) uuid
 {
     NSLog(@"%s(%p) uuid %@", __func__, self, uuid);
     

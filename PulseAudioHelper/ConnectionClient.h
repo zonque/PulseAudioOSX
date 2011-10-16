@@ -46,7 +46,5 @@
 - (void) sendPreferencesChanged : (NSDictionary *) preferences;
 - (void) setConfig: (NSDictionary *) config
  forDeviceWithUUID: (NSString *) uuid;
-- (void) sendSetAudioClientConfig: (NSDictionary *) config
-                          forUUID: (NSString *) uuid;
 
 @end

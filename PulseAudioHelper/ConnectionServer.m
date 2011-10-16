@@ -11,6 +11,9 @@
 
 #import <PulseAudio/PAHelperConnection.h>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+
 #import "ConnectionServer.h"
 #import "ConnectionClient.h"
 
@@ -27,7 +30,14 @@
 	[serviceSocket setDelegate: self];
 	[serviceSocket listenOnLocalSocketPath: PAOSX_HelperSocket
                      maxPendingConnections: 100];
+    /* coreaudiod runs under the _coreaudiod user's permission, so we
+     * have to tweak the socket permissions and allow any user to connect
+     */
+    chmod([PAOSX_HelperSocket cStringUsingEncoding: NSASCIIStringEncoding], S_IRUSR | S_IWUSR |
+                                               S_IRGRP | S_IWGRP |
+                                               S_IROTH | S_IWOTH);
 	[serviceSocket scheduleOnCurrentRunLoop];
+    NSLog(@"PAOSX_HelperSocket: %@", PAOSX_HelperSocket);
 }
 
 #pragma mark ### ULINetSocketDelegate ###
