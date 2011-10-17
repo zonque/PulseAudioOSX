@@ -1,2 +1,2 @@
-version=1.pre1
+version=1.pre2
 
