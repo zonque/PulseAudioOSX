@@ -45,19 +45,19 @@
 }
 
 /*
- - (id) retain
- {
- DebugLog(" retainCount %d (%@)", [self retainCount], [self className])
- [super retain];
- return self;
- }
+- (id) retain
+{
+    DebugLog(" retainCount %d (%@)", [self retainCount], [self className])
+    [super retain];
+    return self;
+}
  
- - (void) release
- {
- DebugLog(" retainCount %d (%@)", [self retainCount], [self className])
- [super release];
- }
- */
+- (void) release
+{
+    DebugLog(" retainCount %d (%@)", [self retainCount], [self className])
+    [super release];
+}
+*/
 
 - (PAObject *) findObjectByID: (AudioObjectID) searchID
 {

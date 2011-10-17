@@ -87,7 +87,7 @@
     // AudioDeviceStop() is likely to be called from the IOProc thread, so
     // we have to dispatch these calls in from the main thread context.
     //
-    // When disconnecting, we will face a race condition between the calling
+    // In this case, we will face a race condition between the calling
     // thread and the lock of the mainloop, hence we just don't wait until
     // the selector in the main thread is done, and implicitly release our
     // own lock.
@@ -95,7 +95,7 @@
     if ([deviceAudio hasActiveProcs])
         [self performSelectorOnMainThread: @selector(connectToServer)
                                withObject: nil
-                            waitUntilDone: YES];
+                            waitUntilDone: NO];
     else
         [self performSelectorOnMainThread: @selector(disconnectFromServer)
                                withObject: nil
@@ -380,14 +380,14 @@
 - (BOOL) hasProperty: (const AudioObjectPropertyAddress *) address
 {
     switch (address->mSelector) {
-            //case kAudioDevicePropertyIcon:
+        //case kAudioDevicePropertyIcon:
         case kAudioDevicePropertyActualSampleRate:
         case kAudioDevicePropertyBufferFrameSize:
         case kAudioDevicePropertyBufferFrameSizeRange:
         case kAudioDevicePropertyBufferSize:
         case kAudioDevicePropertyBufferSizeRange:
         case kAudioDevicePropertyClockDomain:
-            //case kAudioDevicePropertyConfigurationApplication:
+        //case kAudioDevicePropertyConfigurationApplication:
         case kAudioDevicePropertyDeviceCanBeDefaultDevice:
         case kAudioDevicePropertyDeviceCanBeDefaultSystemDevice:
         case kAudioDevicePropertyDeviceHasChanged:
@@ -402,7 +402,7 @@
         case kAudioDevicePropertyLatency:
         case kAudioDevicePropertyModelUID:
         case kAudioDevicePropertyNominalSampleRate:
-            //case kAudioDevicePropertyRelatedDevices:
+        //case kAudioDevicePropertyRelatedDevices:
         case kAudioDevicePropertySafetyOffset:
         case kAudioDevicePropertyStreamConfiguration:
         case kAudioDevicePropertyStreams:
@@ -412,7 +412,7 @@
         case kAudioDevicePropertyAvailableNominalSampleRates:
         case kAudioDevicePropertyUsesVariableBufferFrameSizes:
             
-            // stream properties
+        // stream properties
         case kAudioStreamPropertyAvailableVirtualFormats:
         case kAudioStreamPropertyAvailablePhysicalFormats:
         case kAudioDevicePropertyStreamFormats:

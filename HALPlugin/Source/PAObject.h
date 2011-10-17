@@ -14,8 +14,8 @@
 
 #ifdef ENABLE_DEBUG
 #define DebugLog(format, args...) \
-NSLog(@"%s, line %d: " format "\n", \
-__func__, __LINE__, ## args);
+    NSLog(@"%s, line %d: " format "\n", \
+            __func__, __LINE__, ## args);
 #else
 #define DebugLog(format, args...) do {} while(0)
 #endif
