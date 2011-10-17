@@ -1,4 +1,4 @@
 #!/bin/sh
 
-open /Library/Frameworks/PulseAudio.framework/Resources/PulseAudioHelper.app
+open /Library/Frameworks/PulseAudio.framework/Contents/Resources/PulseAudioHelper.app
 

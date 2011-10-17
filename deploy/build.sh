@@ -37,7 +37,7 @@ cp -a /Library/Frameworks/PulseAudio.framework ${dest}/
 ################################## PulseAudioHelper ##################################
 cd ${base}/../PulseAudioHelper/
 XcodeBuild PulseAudioHelper.xcodeproj
-dest=${targetdir}/Library/Frameworks/PulseAudio.framework/Resources/bin
+dest=${targetdir}/Library/Frameworks/PulseAudio.framework/Contents/Resources
 mkdir -p ${dest}
 cp -a build/Release/PulseAudioHelper.app ${dest}/
 
