@@ -12,7 +12,7 @@ export CC="gcc-4.2"
 #export CFLAGS="-I/opt/local/include -O0 -g"
 export CFLAGS="-I/opt/local/include -O2"
 export LDFLAGS="-L/opt/local/lib"
-staging=/opt/local/pulseaudio
+staging=/Library/Frameworks/PulseAudio.framework/Contents/MacOS
 
 if [ ! -d $staging ]; then
 	echo "$staging does not exist. Please create and make it writeable for your user"
