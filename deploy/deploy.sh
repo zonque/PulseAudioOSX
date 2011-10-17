@@ -35,6 +35,7 @@ test -d ${outdir} || mkdir ${outdir}
 	--version ${version}	\
 	--root ${targetdir}	\
 	--root-volume-only	\
+	--no-relocate		\
 	--verbose
 
 cd ${outdir}
