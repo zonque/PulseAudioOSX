@@ -1,6 +1,5 @@
 #!/bin/sh
 
-dest=/Library/Frameworks/pulse.framework/Resources/bin
-
-cp -a build/Debug/PulseAudioHelper.app $dest
+dest=/Library/Frameworks/PulseAudio.framework/Resources/
+cp -a build/Release/PulseAudioHelper.app $dest
 

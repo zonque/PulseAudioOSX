@@ -11,13 +11,16 @@
 
 #import <Foundation/Foundation.h>
 #import <PulseAudio/ULINetSocket.h>
+
+#import "ServerConnection.h"
 #import "ConnectionClient.h"
 #import "Preferences.h"
 
 @interface ConnectionServer : NSObject <
         ULINetSocketDelegate,
         PAHelperConnectionDelegate,
-        ConnectionClientDelegate
+        ConnectionClientDelegate,
+        ServerConnectionDelegate
     >
 {
     NSMutableArray *clientArray;

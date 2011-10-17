@@ -16,9 +16,9 @@
 
 - (void) start
 {
-    NSString *binpath = @"/Library/Frameworks/PulseAudio.framework/Resources/bin/pulseaudio";
-    NSString *modpath = @"/Library/Frameworks/PulseAudio.framework/Resources/lib/modules/";
-    
+    NSString *binpath = @"/Library/Frameworks/PulseAudio.framework/Contents/MacOS/bin/pulseaudio";
+    NSString *modpath = @"/Library/Frameworks/PulseAudio.framework/Contents/MacOS/lib/pulse-0.98/modules/";
+
     NSArray *args = [NSArray arrayWithObjects:
                      @"-n",
                      @"-L", @"module-bonjour-publish",
@@ -28,7 +28,7 @@
                      @"-L", @"module-cli-protocol-unix",
                      @"-L", @"module-native-protocol-tcp auth-anonymous=1",
                      @"-p", modpath,
-                     @"--exit-idle-time", @"-1",
+                     @"--exit-idle-time=-1",
                      nil];
     task = [NSTask launchedTaskWithLaunchPath: binpath
                                     arguments: args];
@@ -67,7 +67,7 @@
     [super init];
     
     preferences = p;
-    
+
     if ([[preferences valueForKey: @"localServerEnabled"] boolValue])
         [self start];
     

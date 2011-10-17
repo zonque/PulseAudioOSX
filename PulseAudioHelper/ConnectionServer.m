@@ -121,4 +121,18 @@ connectionAccepted: (ULINetSocket *) inNewNetSocket
        forDeviceWithUUID: uuid];	
 }
 
+#pragma mark ### ServerConnectionDelegate ###
+
+- (void) ServerConnectionEstablished: (ServerConnection *) connection
+{
+}
+
+- (void) ServerConnectionFailed: (ServerConnection *) connection
+{
+}
+
+- (void) ServerConnectionEnded: (ServerConnection *) connection
+{
+}
+
 @end

@@ -10,6 +10,7 @@
  ***/
 
 #import "Preferences.h"
+#import "LoginItemController.h"
 
 static NSString *kPAPreferencesGrowlFlagsKey            = @"growlNotificationFlags";
 static NSString *kPAPreferencesGrowlEnabledKey          = @"growlNotificationsEnabled";
@@ -76,6 +77,7 @@ static NSString *kPAPreferencesStatusBarEnabledKey      = @"statusBarEnabled";
     if (!preferencesDict) {
         NSLog(@"Unable to load config file, restoring defaults\n");
         [self makeDefaults];
+        [LoginItemController setLoginItemEnabled: YES];
     }
     
     return self;

@@ -14,6 +14,7 @@
 static NSString *tcpModuleName = @"module-native-protocol-tcp";
 
 @implementation ServerConnection
+@synthesize delegate;
 
 #pragma mark ### NSNotificationCenter ###
 
@@ -43,30 +44,39 @@ static NSString *tcpModuleName = @"module-native-protocol-tcp";
     
     connection = [[PAServerConnection alloc] init];
     connection.delegate = self;
-    [connection connectToHost: nil
-                         port: -1];
     
     return self;
 }
 
+- (void) connect
+{
+    [connection connectToHost: nil
+                         port: -1];
+}
 
 /* PAServerConnectionDelegate */
 
 - (void) PAServerConnectionEstablished: (PAServerConnection *) connection
 {
     NSLog(@"%s", __func__);
+    if (delegate && [delegate respondsToSelector: @selector(ServerConnectionEstablished:)])
+        [delegate ServerConnectionEstablished: self];
 }
 
 - (void) PAServerConnectionFailed: (PAServerConnection *) connection
 {
     NSLog(@"%s", __func__);
     networkModule = nil;
+    if (delegate && [delegate respondsToSelector: @selector(ServerConnectionFailed:)])
+        [delegate ServerConnectionFailed: self];
 }
 
 - (void) PAServerConnectionEnded: (PAServerConnection *) connection
 {
     NSLog(@"%s", __func__);
     networkModule = nil;
+    if (delegate && [delegate respondsToSelector: @selector(ServerConnectionEnded:)])
+        [delegate ServerConnectionEnded: self];
 }
 
 - (void) PAServerConnection: (PAServerConnection *) connection

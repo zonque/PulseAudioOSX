@@ -19,6 +19,7 @@
 		65608020143E011E00A3A719 /* Growl.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6560801F143E011E00A3A719 /* Growl.framework */; };
 		65714F431367507400D60887 /* ConnectionServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 65714F421367507400D60887 /* ConnectionServer.m */; };
 		6587E3DD143DFDC000741331 /* AppKit.framework in Resources */ = {isa = PBXBuildFile; fileRef = 65531647135B174500817E2D /* AppKit.framework */; };
+		658F4B5C144C536200B3C9AC /* LoginItemController.m in Sources */ = {isa = PBXBuildFile; fileRef = 658F4B5B144C536200B3C9AC /* LoginItemController.m */; };
 		65AF3CD8136A8D6600650E2E /* ConnectionClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 65AF3CD7136A8D6600650E2E /* ConnectionClient.m */; };
 		65AF3E89136AC0B700650E2E /* PulseAudio.png in Resources */ = {isa = PBXBuildFile; fileRef = 65AF3E87136AC0B700650E2E /* PulseAudio.png */; };
 		65AF3E8A136AC0B700650E2E /* statusBar.png in Resources */ = {isa = PBXBuildFile; fileRef = 65AF3E88136AC0B700650E2E /* statusBar.png */; };
@@ -46,6 +47,8 @@
 		6560801F143E011E00A3A719 /* Growl.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Growl.framework; path = /Library/Frameworks/Growl.framework; sourceTree = "<absolute>"; };
 		65714F411367507400D60887 /* ConnectionServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConnectionServer.h; sourceTree = "<group>"; };
 		65714F421367507400D60887 /* ConnectionServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConnectionServer.m; sourceTree = "<group>"; };
+		658F4B5A144C536200B3C9AC /* LoginItemController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoginItemController.h; sourceTree = "<group>"; };
+		658F4B5B144C536200B3C9AC /* LoginItemController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LoginItemController.m; sourceTree = "<group>"; };
 		65AF3CD6136A8D6600650E2E /* ConnectionClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConnectionClient.h; sourceTree = "<group>"; };
 		65AF3CD7136A8D6600650E2E /* ConnectionClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConnectionClient.m; sourceTree = "<group>"; };
 		65AF3E87136AC0B700650E2E /* PulseAudio.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = PulseAudio.png; sourceTree = "<group>"; };
@@ -100,6 +103,8 @@
 				655319DF135C537600817E2D /* Preferences.m */,
 				65AF406E136BF96C00650E2E /* ServerConnection.h */,
 				65AF406F136BF96C00650E2E /* ServerConnection.m */,
+				658F4B5A144C536200B3C9AC /* LoginItemController.h */,
+				658F4B5B144C536200B3C9AC /* LoginItemController.m */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -205,6 +210,7 @@
 				65714F431367507400D60887 /* ConnectionServer.m in Sources */,
 				65AF3CD8136A8D6600650E2E /* ConnectionClient.m in Sources */,
 				65AF4070136BF96C00650E2E /* ServerConnection.m in Sources */,
+				658F4B5C144C536200B3C9AC /* LoginItemController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

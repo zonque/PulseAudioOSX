@@ -13,13 +13,26 @@
 #import <PulseAudio/PulseAudio.h>
 #import "Preferences.h"
 
+@class ServerConnection;
+
+@protocol ServerConnectionDelegate
+- (void) ServerConnectionEstablished: (ServerConnection *) connection;
+- (void) ServerConnectionFailed: (ServerConnection *) connection;
+- (void) ServerConnectionEnded: (ServerConnection *) connection;
+@end
+
 @interface ServerConnection : NSObject <PAServerConnectionDelegate>
 {
     PAServerConnection *connection;
     Preferences *preferences;
     BOOL networkEnabled;
     PAModuleInfo *networkModule;
+    NSObject <ServerConnectionDelegate> *delegate;
 }
+
+@property (nonatomic, assign) NSObject <ServerConnectionDelegate> *delegate;
+
+- (void) connect;
 
 /* PAServerConnectionDelegate */
 
