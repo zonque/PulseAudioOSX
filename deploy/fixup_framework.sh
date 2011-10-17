@@ -3,15 +3,15 @@
 #
 # This script is intended to copy resources from the PulseAudio installation
 # location to the Framework bundle and make it self-contained.
-# Therefore, all dependencies to all binaries are resolved, the dependecy libs
+# Therefore, all dependencies to all binaries are resolved, the dependency libs
 # are copied over and install_name_tool is called to modify the library
 # locations inside the binary. The result is a fully encapsulated Framework
 # that has no dependencies other than the typical Mac OS X libraries.
 #
 # Instructions:
 #  - use MacPorts to install the depencency libraries for PulseAudio (see the Wiki for a complete list)
-#  - build the pulseaudio source tree and set --prefix to /opt/local/pulseaudio
-#  - build the Framework sources (which will implicitly link against /opt/local/pulseaudio
+#  - build the pulseaudio source tree and set --prefix to /Library/Frameworks/PulseAudio.framework/Contents/MacOS/
+#  - build the Framework sources (which will implicitly link against /Library/Frameworks/PulseAudio.framework/Contents/MacOS/)
 #  - install the bundle to /Library/Frameworks (use the install.sh script)
 #  - call this script
 #
@@ -63,7 +63,6 @@ function relocate_libs()
 	pattern=$1; shift
 	prefix=$1; shift
 	path=$1; shift
-	libpath=$1; shift
 
 	echo "prefix $prefix"
 
@@ -80,9 +79,11 @@ function relocate_libs()
 			for deplib in $(otool -L $file | grep $pattern | cut -d" " -f1); do
 
 				basename=$(basename $deplib)
-				if [ ! -e $libpath/$basename ]; then
+				newlib=$prefix/$basename
+
+				if [ ! -e $prefix/$basename ]; then
 					echo "Copying $deplib"
-					copy_with_symlinks $deplib $libpath/
+					copy_with_symlinks $deplib $prefix/
 					run=1
 				fi
 
@@ -100,20 +101,29 @@ function relocate_libs()
 
 				echo "resolving dependency $deplib for $(basename $file) ..."
 
-				echo install_name_tool -change $deplib $prefix/$basename $file
-				install_name_tool -change $deplib $prefix/$basename $file
+				echo install_name_tool -change $deplib $newlib $file
+				install_name_tool -change $deplib $newlib $file
 			done
 		done
 	done
 }
 
+relocate_libs $portlibs		$libpath	$modpath
+relocate_libs $portlibs		$libpath	$libpath
+relocate_libs $portlibs		$libpath	$binpath
 
-relocate_libs $portlibs		$libpath	$libpath			$libpath
-relocate_libs $portlibs		$libpath	$binpath			$libpath
-relocate_libs $portlibs		$libpath	$modpath			$libpath
+relocate_libs $papath		$libpath	$modpath
+relocate_libs $papath		$libpath	$libpath
+relocate_libs $papath		$libpath	$binpath
+relocate_libs $papath		$libpath	$framework/Versions/Current/
 
-relocate_libs $papath		$libpath	$libpath			$libpath
-relocate_libs $papath		$libpath	$binpath			$libpath
-relocate_libs $papath		$libpath	$framework/Versions/Current/	$libpath
-relocate_libs $papath		$libpath	$modpath			$libpath
+relocate_libs $portlibs		$libpath	$modpath
+relocate_libs $portlibs		$libpath	$libpath
+relocate_libs $portlibs		$libpath	$binpath
+
+
+
+
+
+
 
