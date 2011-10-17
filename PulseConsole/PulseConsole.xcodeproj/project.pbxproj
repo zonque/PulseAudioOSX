@@ -11,18 +11,21 @@
 		6515F1CC10D3926C0048DEB5 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 6515F1CB10D3926C0048DEB5 /* Credits.rtf */; };
 		6515F1D910D397D60048DEB5 /* logo.icns in Resources */ = {isa = PBXBuildFile; fileRef = 6515F1D810D397D60048DEB5 /* logo.icns */; };
 		65287261111EF7A600C40D7B /* MeterView.m in Sources */ = {isa = PBXBuildFile; fileRef = 65287260111EF7A600C40D7B /* MeterView.m */; };
-		6571552813696D7900D60887 /* PulseAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6571552713696D7900D60887 /* PulseAudio.framework */; };
 		65748F6213715F7D007044CF /* Server.xib in Resources */ = {isa = PBXBuildFile; fileRef = 65748F6013715F7D007044CF /* Server.xib */; };
 		65748F6C13715FCC007044CF /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 65748F6A13715FCC007044CF /* MainMenu.xib */; };
 		65748F8A137161F5007044CF /* DocumentController.m in Sources */ = {isa = PBXBuildFile; fileRef = 65748F89137161F5007044CF /* DocumentController.m */; };
 		6574907013716A92007044CF /* ServerDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 6574906F13716A92007044CF /* ServerDocument.m */; };
 		6574913E137175E8007044CF /* MultipleLinesTextFieldCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6574913D137175E8007044CF /* MultipleLinesTextFieldCell.m */; };
+		658F4D3E144C6B0D00B3C9AC /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29B97324FDCFA39411CA2CEA /* AppKit.framework */; };
+		658F4D3F144C6B0D00B3C9AC /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
+		658F4D40144C6B0E00B3C9AC /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 13E42FB307B3F0F600E4EEF1 /* CoreData.framework */; };
+		658F4D41144C6B0F00B3C9AC /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29B97325FDCFA39411CA2CEA /* Foundation.framework */; };
+		658F4D42144C6B0F00B3C9AC /* PulseAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6571552713696D7900D60887 /* PulseAudio.framework */; };
 		65A09CC310F72B3300D07CF1 /* StreamView.m in Sources */ = {isa = PBXBuildFile; fileRef = 65A09CC210F72B3300D07CF1 /* StreamView.m */; };
 		65A09CE210F74DF300D07CF1 /* StreamListView.m in Sources */ = {isa = PBXBuildFile; fileRef = 65A09CE110F74DF300D07CF1 /* StreamListView.m */; };
 		65AF4117136C091D00650E2E /* Introspect.m in Sources */ = {isa = PBXBuildFile; fileRef = 65AF4116136C091D00650E2E /* Introspect.m */; };
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		8D11072D0486CEB800E47090 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
-		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -63,8 +66,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */,
-				6571552813696D7900D60887 /* PulseAudio.framework in Frameworks */,
+				658F4D3E144C6B0D00B3C9AC /* AppKit.framework in Frameworks */,
+				658F4D3F144C6B0D00B3C9AC /* Cocoa.framework in Frameworks */,
+				658F4D40144C6B0E00B3C9AC /* CoreData.framework in Frameworks */,
+				658F4D41144C6B0F00B3C9AC /* Foundation.framework in Frameworks */,
+				658F4D42144C6B0F00B3C9AC /* PulseAudio.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -97,20 +103,13 @@
 		1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				29B97324FDCFA39411CA2CEA /* AppKit.framework */,
+				13E42FB307B3F0F600E4EEF1 /* CoreData.framework */,
+				29B97325FDCFA39411CA2CEA /* Foundation.framework */,
 				6571552713696D7900D60887 /* PulseAudio.framework */,
 				1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */,
 			);
 			name = "Linked Frameworks";
-			sourceTree = "<group>";
-		};
-		1058C7A2FEA54F0111CA2CBB /* Other Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				29B97324FDCFA39411CA2CEA /* AppKit.framework */,
-				13E42FB307B3F0F600E4EEF1 /* CoreData.framework */,
-				29B97325FDCFA39411CA2CEA /* Foundation.framework */,
-			);
-			name = "Other Frameworks";
 			sourceTree = "<group>";
 		};
 		19C28FACFE9D520D11CA2CBB /* Products */ = {
@@ -159,7 +158,6 @@
 			isa = PBXGroup;
 			children = (
 				1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */,
-				1058C7A2FEA54F0111CA2CBB /* Other Frameworks */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
