@@ -25,12 +25,12 @@ if [ ! -d $framework ]; then
 	exit 1
 fi
 
-resources=$framework/Resources
+dest=$framework/Contents/MacOS
 papath=/opt/local/pulseaudio/
 
-libpath=$resources/lib
-modpath=$resources/lib/modules
-binpath=$resources/bin
+libpath=$dest/lib
+modpath=$dest/lib/pulse-0.98/modules
+binpath=$dest/bin
 portlibs=/opt/local/lib
 
 mkdir -p $libpath
@@ -39,9 +39,7 @@ mkdir -p $binpath
 
 cp -a $papath/bin/* $binpath/
 cp -a $papath/lib/*.dylib $libpath/
-cp -a $papath/lib/pulse-0.98/modules/* $modpath/
-
-#exit
+cp -a $papath/lib/pulse-0.98 $libpath/
 
 function copy_with_symlinks()
 {
@@ -112,9 +110,10 @@ function relocate_libs()
 
 relocate_libs $portlibs		$libpath	$libpath			$libpath
 relocate_libs $portlibs		$libpath	$binpath			$libpath
+relocate_libs $portlibs		$libpath	$modpath			$libpath
 
 relocate_libs $papath		$libpath	$libpath			$libpath
 relocate_libs $papath		$libpath	$binpath			$libpath
 relocate_libs $papath		$libpath	$framework/Versions/Current/	$libpath
-
+relocate_libs $papath		$libpath	$modpath			$libpath
 
