@@ -26,20 +26,15 @@ if [ ! -d $framework ]; then
 fi
 
 dest=$framework/Contents/MacOS
-papath=/opt/local/pulseaudio/
+paversion="1.98"
 
 libpath=$dest/lib
-modpath=$dest/lib/pulse-0.98/modules
+modpath=$dest/lib/pulse-$paversion/modules
 binpath=$dest/bin
 portlibs=/opt/local/lib
 
-mkdir -p $libpath
-mkdir -p $modpath
-mkdir -p $binpath
-
-cp -a $papath/bin/* $binpath/
-cp -a $papath/lib/*.dylib $libpath/
-cp -a $papath/lib/pulse-0.98 $libpath/
+echo $modpath
+exit
 
 function copy_with_symlinks()
 {

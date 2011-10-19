@@ -17,7 +17,7 @@
 - (void) start
 {
     NSString *binpath = @"/Library/Frameworks/PulseAudio.framework/Contents/MacOS/bin/pulseaudio";
-    NSString *modpath = @"/Library/Frameworks/PulseAudio.framework/Contents/MacOS/lib/pulse-0.98/modules/";
+    NSString *modpath = @"/Library/Frameworks/PulseAudio.framework/Contents/MacOS/lib/pulse-1.98/modules/";
 
     NSArray *args = [NSArray arrayWithObjects:
                      @"-n",
