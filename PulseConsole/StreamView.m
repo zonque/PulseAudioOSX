@@ -70,6 +70,7 @@
     [label sizeToFit];
     [self addSubview: label];
     
+    /*
     expandButton = [[NSButton alloc] initWithFrame: NSMakeRect(10.0, 10.0, 20.0, 20.0)];
     [expandButton setButtonType: NSOnOffButton];
     [expandButton setBezelStyle: NSDisclosureBezelStyle];
@@ -77,7 +78,8 @@
     [expandButton setAction: @selector(expandCallback:)];
     [expandButton setTarget: self];
     [self addSubview: expandButton];
-    
+    */
+
     meterView = [[MeterView alloc] initWithFrame: NSMakeRect(LEFT_MARGIN,
                                                              50.0,
                                                              rect.size.width - LEFT_MARGIN - RIGHT_MARGIN,
@@ -168,6 +170,7 @@
         case StreamTypeSink:
         case StreamTypePlayback:
         case StreamTypeRecording:
+            /*
             expandedHeight += 20.0;
             endpointSelect = [[NSPopUpButton alloc] initWithFrame: NSMakeRect(rect.size.width - 100.0 - RIGHT_MARGIN,
                                                                               expandedHeight,
@@ -178,6 +181,7 @@
             [[endpointSelect cell] setControlSize: NSSmallControlSize];
             [self addSubview: endpointSelect];
             expandedHeight += 20.0;
+            */
             break;
     }
     
