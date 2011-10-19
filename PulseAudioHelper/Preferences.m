@@ -23,7 +23,7 @@ static NSString *kPAPreferencesStatusBarEnabledKey      = @"statusBarEnabled";
 
 - (NSString *) preferencesFilePath
 {
-    return [NSString stringWithFormat: @"%@/Library/Preferences/org.pulseaudio.plist",
+    return [NSString stringWithFormat: @"%@/Library/Preferences/org.pulseaudio.PulseAudioHelper.plist",
             NSHomeDirectory()];
 }
 
