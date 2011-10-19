@@ -20,14 +20,17 @@ function XcodeBuild()
 base=$(pwd)
 
 ################################## pulseaudio source tree ##################################
+f=/Library/Frameworks/PulseAudio.framework
+test -d $f && rm -rf $f/*
+test -d $f || mkdir $f
+mkdir -p $f/Contents/MacOS
+mkdir -p $f/Contents/Resources
 cd ${base}/../../pulseaudio/
 sh ${base}/build_pulseaudio.sh
 
 ################################## framework ##################################
 cd ${base}/../Framework
 XcodeBuild PulseAudio.xcodeproj
-test -d /Library/Frameworks/PulseAudio.framework && \
-	rm -rf /Library/Frameworks/PulseAudio.framework/*
 sh install.sh
 sh ${base}/fixup_framework.sh
 dest=${targetdir}/Library/Frameworks
