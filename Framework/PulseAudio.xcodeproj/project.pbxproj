@@ -458,8 +458,8 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = /opt/local/pulseaudio/include/;
-				LIBRARY_SEARCH_PATHS = /opt/local/pulseaudio/lib/;
+				HEADER_SEARCH_PATHS = /Library/Frameworks/PulseAudio.framework/Contents/MacOS/include/;
+				LIBRARY_SEARCH_PATHS = /Library/Frameworks/PulseAudio.framework/Contents/MacOS/lib/;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-lpulse";
 				PREBINDING = NO;
@@ -474,8 +474,8 @@
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = /opt/local/pulseaudio/include/;
-				LIBRARY_SEARCH_PATHS = /opt/local/pulseaudio/lib/;
+				HEADER_SEARCH_PATHS = /Library/Frameworks/PulseAudio.framework/Contents/MacOS/include/;
+				LIBRARY_SEARCH_PATHS = /Library/Frameworks/PulseAudio.framework/Contents/MacOS/lib/;
 				OTHER_LDFLAGS = "-lpulse";
 				PREBINDING = NO;
 				SDKROOT = macosx10.6;
