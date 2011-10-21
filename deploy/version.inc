@@ -1,2 +1,2 @@
-version=1.pre6
+version=1.pre7
 
