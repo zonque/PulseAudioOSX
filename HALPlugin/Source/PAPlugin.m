@@ -42,6 +42,12 @@
 {
 	PADevice *dev;
 
+    // FIXME - this information should actually be obtained from
+    // PulseAudioHelper in order to support a dynamic number of
+    // virtual sound card instances. Also, the number of input
+    // output channels is not yet taken into account by the audio
+    // streaming logic, so for now, we're locked at one stereo
+    // stream only.
     dev = [[PADevice alloc] initWithPluginRef: pluginRef
                                    deviceName: @"PulseAudio"
                                nInputChannels: 2

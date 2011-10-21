@@ -259,8 +259,6 @@ struct IOProcTracker
                 (t->startTime.mSampleTime > now.mSampleTime))
                 enabled = false;
             
-            //enabled = false;
-            
             if (enabled) {
                 t->proc(deviceID, &now,
                         &inputList, &inputTime,
