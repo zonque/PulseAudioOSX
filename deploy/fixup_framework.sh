@@ -33,9 +33,6 @@ modpath=$dest/lib/pulse-$paversion/modules
 binpath=$dest/bin
 portlibs=/opt/local/lib
 
-echo $modpath
-exit
-
 function copy_with_symlinks()
 {
 	source=$1
@@ -58,8 +55,6 @@ function relocate_libs()
 	pattern=$1; shift
 	prefix=$1; shift
 	path=$1; shift
-
-	echo "prefix $prefix"
 
 	# as the resolving process can raise new dependencies, we have to do this in a loop
 	run=1
@@ -107,18 +102,8 @@ relocate_libs $portlibs		$libpath	$modpath
 relocate_libs $portlibs		$libpath	$libpath
 relocate_libs $portlibs		$libpath	$binpath
 
-relocate_libs $papath		$libpath	$modpath
-relocate_libs $papath		$libpath	$libpath
-relocate_libs $papath		$libpath	$binpath
-relocate_libs $papath		$libpath	$framework/Versions/Current/
-
 relocate_libs $portlibs		$libpath	$modpath
 relocate_libs $portlibs		$libpath	$libpath
 relocate_libs $portlibs		$libpath	$binpath
 
-
-
-
-
-
-
+echo "done."
