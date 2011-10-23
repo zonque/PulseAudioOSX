@@ -14,6 +14,8 @@
 
 #import "PAObject.h"
 
+#define CHANNELS_PER_STREAM 2
+
 @class PAStream;
 @class PAPlugin;
 @class PADevice;
@@ -55,12 +57,13 @@
 @property (nonatomic, readonly) NSString *serverName;
 @property (nonatomic, readonly) NSString *sinkForPlayback;
 @property (nonatomic, readonly) NSString *sourceForRecord;
+@property (nonatomic, readonly) NSArray *inputStreamArray;
+@property (nonatomic, readonly) NSArray *outputStreamArray;
 @property (nonatomic, assign) NSObject *delegate;
 
 - (NSString *) serverName;
 - (NSString *) sinkForPlayback;
 - (NSString *) sourceForRecord;
-
 
 - (id) initWithPluginRef: (AudioHardwarePlugInRef) ref
               deviceName: (NSString *) _name

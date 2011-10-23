@@ -24,6 +24,8 @@
 @synthesize serverName;
 @synthesize sinkForPlayback;
 @synthesize sourceForRecord;
+@synthesize inputStreamArray;
+@synthesize outputStreamArray;
 
 #pragma mark ### audio object handling ###
 
@@ -217,7 +219,7 @@
     
     PAStream *stream;
     
-    for (UInt32 i = 0; i < nInputChannels / 2; i++) {
+    for (UInt32 i = 0; i < nInputChannels / CHANNELS_PER_STREAM; i++) {
         stream = [[PAStream alloc] initWithDevice: self
                                           isInput: YES
                                   startingChannel: 1];
@@ -225,7 +227,7 @@
         [inputStreamArray addObject: stream];
     }
     
-    for (UInt32 i = 0; i < nOutputChannels / 2; i++) {
+    for (UInt32 i = 0; i < nOutputChannels / CHANNELS_PER_STREAM; i++) {
         stream = [[PAStream alloc] initWithDevice: self
                                           isInput: NO
                                   startingChannel: 1];
@@ -814,11 +816,12 @@
 - (void) PAServerConnectionEstablished: (PAServerConnection *) connection
 {
     NSLog(@"%s()", __func__);
-    BOOL ret = [serverConnection addAudioStreams: [deviceAudio countActiveChannels]
-                                      sampleRate: deviceAudio.sampleRate
-                                ioProcBufferSize: deviceAudio.ioProcBufferSize
-                                 sinkForPlayback: sinkForPlayback
-                                 sourceForRecord: sourceForRecord];
+    BOOL ret = [serverConnection addAudioPlaybackChannels: [deviceAudio countActivePlaybackChannels]
+                                           recordChannels: [deviceAudio countActiveRecordChannels]
+                                               sampleRate: deviceAudio.sampleRate
+                                         ioProcBufferSize: deviceAudio.ioProcBufferSize
+                                          sinkForPlayback: sinkForPlayback
+                                          sourceForRecord: sourceForRecord];
     if (!ret)
         NSLog(@"%s(): addAudioStreams failed!?", __func__);
     

@@ -84,11 +84,12 @@
                   port: (int) port;
 - (void) disconnect;
 - (BOOL) isConnected;
-- (BOOL) addAudioStreams: (UInt32) nChannels
-              sampleRate: (Float32) sampleRate
-        ioProcBufferSize: (UInt32) ioProcBufferSize
-         sinkForPlayback: (NSString *) sinkForPlayback
-         sourceForRecord: (NSString *) sourceForRecord;
+- (BOOL) addAudioPlaybackChannels: (UInt32) nPlaybackChannels
+                   recordChannels: (UInt32) nRecordChannels
+                       sampleRate: (Float32) sampleRate
+                 ioProcBufferSize: (UInt32) ioProcBufferSize
+                  sinkForPlayback: (NSString *) sink
+                  sourceForRecord: (NSString *) source;
 
 - (NSString *) clientName;
 - (void) setClientName: (NSString *) name;

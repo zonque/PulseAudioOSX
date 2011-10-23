@@ -35,7 +35,8 @@ typedef struct IOProcTracker IOProcTracker;
 - (AudioDeviceIOProcID) createIOProcID: (AudioDeviceIOProc) proc
                             clientData: (void *) clientData;
 - (BOOL) hasActiveProcs;
-- (UInt32) countActiveChannels;
+- (UInt32) countActivePlaybackChannels;
+- (UInt32) countActiveRecordChannels;
 - (BOOL) channelIsActive: (UInt32) channel;
 - (void) setChannelActive: (UInt32) channel
                    active: (BOOL) active;

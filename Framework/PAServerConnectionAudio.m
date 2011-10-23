@@ -54,21 +54,28 @@
 - (void) streamWriteCallback: (pa_stream *) stream
                       nBytes: (size_t) nBytes
 {
-    size_t written;
+    size_t written, read = 0;
     
     do {
         Byte *outputBuffer = NULL;
+        const Byte *inputBuffer = NULL;
         
         written = nBytes;
         pa_stream_begin_write(PAPlaybackStream, (void **) &outputBuffer, &written);
+
+        if (PARecordStream && pa_stream_readable_size(PARecordStream) >= nBytes)
+            pa_stream_peek(PARecordStream, (const void **) &inputBuffer, &read);
         
         written = [serverConnection.delegate PAServerConnection: serverConnection
                                                 hasPlaybackData: outputBuffer
-                                                     recordData: NULL
+                                                     recordData: inputBuffer
                                                        byteSize: written];
         
         pa_stream_write(PAPlaybackStream, outputBuffer, written, NULL, 0,
                         (pa_seek_mode_t) PA_SEEK_RELATIVE);
+
+        if (PARecordStream && read > 0)
+            pa_stream_drop(PARecordStream);
         
         nBytes -= written;
         
@@ -78,7 +85,6 @@
 - (void) streamReadCallback: (pa_stream *) stream
                      nBytes: (size_t) nBytes
 {
-    NSLog(@"%s() %s", __func__, stream == PARecordStream ? "input" : "output");
 }
 
 - (void) streamOverflowCallback: (pa_stream *) stream
@@ -155,7 +161,8 @@ static void staticStreamBufferAttrCallback(pa_stream *stream, void *userdata)
 
 - (id) initWithPAServerConnection: (PAServerConnection *) _serverConnection
                           context: (pa_context *) _context
-                        nChannels: (UInt32) nChannels
+                nPlaybackChannels: (UInt32) nPlaybackChannels
+                  nRecordChannels: (UInt32) nRecordChannels
                        sampleRate: (Float64) _sampleRate
                  ioProcBufferSize: (UInt32) _ioProcBufferSize
                   sinkForPlayback: (NSString *) sink
@@ -170,19 +177,9 @@ static void staticStreamBufferAttrCallback(pa_stream *stream, void *userdata)
     
     ioBufferFrameSize = _ioProcBufferSize;
     
-    if (sinkForPlayback)
-        [sinkForPlayback release];
-    
-    sinkForPlayback = [sink retain];
-    
-    if (sourceForRecord)
-        [sourceForRecord release];
-    
-    sourceForRecord = [source retain];
-    
     sampleSpec.format = PA_SAMPLE_FLOAT32;
     sampleSpec.rate = _sampleRate;
-    sampleSpec.channels = nChannels;
+    sampleSpec.channels = nPlaybackChannels;
     
     bufAttr.tlength = ioBufferFrameSize * pa_frame_size(&sampleSpec);
     bufAttr.maxlength = -1;
@@ -190,41 +187,64 @@ static void staticStreamBufferAttrCallback(pa_stream *stream, void *userdata)
     bufAttr.prebuf = -1;
     
     int ret = 0;
+    PAPlaybackStream = NULL;
+    PARecordStream = NULL;
+
+    if (nRecordChannels > 0) {
+        PARecordStream = pa_stream_new(PAContext, "Record", &sampleSpec, NULL);
+
+        if (!PARecordStream)
+            return nil;
+
+        pa_stream_set_read_callback(PARecordStream, staticStreamReadCallback, self);
+        pa_stream_set_event_callback(PARecordStream, staticStreamEventCallback, self);
+        pa_stream_set_started_callback(PARecordStream, staticStreamStartedCallback, self);
+        pa_stream_set_overflow_callback(PARecordStream, staticStreamOverflowCallback, self);
+        pa_stream_set_underflow_callback(PARecordStream, staticStreamUnderflowCallback, self);
+        pa_stream_set_buffer_attr_callback(PARecordStream, staticStreamBufferAttrCallback, self);
+
+        sampleSpec.channels = nRecordChannels;
+        
+        ret = pa_stream_connect_record(PARecordStream,
+                                       source ? [source cStringUsingEncoding: NSASCIIStringEncoding] : NULL,
+                                       &bufAttr, 0);
+        if (ret != 0)
+            return nil;
+        
+        if (sourceForRecord)
+            [sourceForRecord release];
+        
+        sourceForRecord = [source retain];
+    }
+
+    if (nPlaybackChannels > 0) {
+        PAPlaybackStream = pa_stream_new(PAContext, "Playback", &sampleSpec, NULL);
+        
+        if (!PAPlaybackStream)
+            return nil;
+        
+        pa_stream_set_event_callback(PAPlaybackStream, staticStreamEventCallback, self);
+        pa_stream_set_write_callback(PAPlaybackStream, staticStreamWriteCallback, self);
+        pa_stream_set_started_callback(PAPlaybackStream, staticStreamStartedCallback, self);
+        pa_stream_set_overflow_callback(PAPlaybackStream, staticStreamOverflowCallback, self);
+        pa_stream_set_underflow_callback(PAPlaybackStream, staticStreamUnderflowCallback, self);
+        pa_stream_set_buffer_attr_callback(PAPlaybackStream, staticStreamBufferAttrCallback, self);
     
-    PAPlaybackStream = pa_stream_new(PAContext, "Playback", &sampleSpec, NULL);
-    
-    if (!PAPlaybackStream)
-        return nil;
-    
-    pa_stream_set_event_callback(PAPlaybackStream, staticStreamEventCallback, self);
-    pa_stream_set_write_callback(PAPlaybackStream, staticStreamWriteCallback, self);
-    pa_stream_set_started_callback(PAPlaybackStream, staticStreamStartedCallback, self);
-    pa_stream_set_overflow_callback(PAPlaybackStream, staticStreamOverflowCallback, self);
-    pa_stream_set_underflow_callback(PAPlaybackStream, staticStreamUnderflowCallback, self);
-    pa_stream_set_buffer_attr_callback(PAPlaybackStream, staticStreamBufferAttrCallback, self);
-    
-    /*
-     PARecordStream = pa_stream_new(PAContext, "Record", &sampleSpec, NULL);
-     //pa_stream_set_read_callback(PARecordStream, staticStreamReadCallback, self);
-     pa_stream_set_event_callback(PARecordStream, staticStreamEventCallback, self);
-     pa_stream_set_overflow_callback(PARecordStream, staticStreamOverflowCallback, self);
-     pa_stream_set_underflow_callback(PARecordStream, staticStreamUnderflowCallback, self);
-     pa_stream_set_buffer_attr_callback(PARecordStream, staticStreamBufferAttrCallback, self);
-     pa_stream_connect_record(PARecordStream, NULL, &bufAttr, (pa_stream_flags_t) 0);
-     */
-    
-    if (PAPlaybackStream)
         ret = pa_stream_connect_playback(PAPlaybackStream,
                                          sink ? [sink cStringUsingEncoding: NSASCIIStringEncoding] : NULL,
                                          &bufAttr,
                                          (pa_stream_flags_t)  (PA_STREAM_INTERPOLATE_TIMING |
                                                                PA_STREAM_AUTO_TIMING_UPDATE),
                                          NULL, NULL);
-    
-    if (ret != 0)
-        return nil;
-    
-    
+        if (ret != 0)
+            return nil;
+        
+        if (sinkForPlayback)
+            [sinkForPlayback release];
+        
+        sinkForPlayback = [sink retain];
+    }
+
     return self;
 }
 

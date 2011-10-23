@@ -190,9 +190,14 @@ struct IOProcTracker
 
 #pragma mark stream configuration handling ###
 
-- (UInt32) countActiveChannels
+- (UInt32) countActivePlaybackChannels
 {
-    return 2;
+    return [device.outputStreamArray count] * CHANNELS_PER_STREAM;
+}
+
+- (UInt32) countActiveRecordChannels
+{
+    return [device.inputStreamArray count] * CHANNELS_PER_STREAM;
 }
 
 - (BOOL) channelIsActive: (UInt32) channel
@@ -236,15 +241,16 @@ struct IOProcTracker
     
     while (byteSize >= ioProcSize) {
         outputList.mBuffers[0].mNumberChannels = 2;
-        outputList.mBuffers[0].mDataByteSize = ioProcSize;
-        outputList.mBuffers[0].mData = playbackData;
-        outputList.mNumberBuffers = 1;
+        outputList.mBuffers[0].mDataByteSize = 0; //ioProcSize - FIXME;
+        outputList.mBuffers[0].mData = NULL; // FIXME
+        outputList.mNumberBuffers = 0; // FIXME
         
         inputList.mBuffers[0].mNumberChannels = 2;
         inputList.mBuffers[0].mDataByteSize = ioProcSize;
         inputList.mBuffers[0].mData = playbackData;
         inputList.mNumberBuffers = 1;
         
+        // FIXME
         inputTime.mSampleTime = (framesPlayed * usecPerFrame) - 10000;
         outputTime.mSampleTime = (framesPlayed * usecPerFrame) + 10000;
         
@@ -268,8 +274,8 @@ struct IOProcTracker
         }
         
         byteSize -= ioProcSize;
-        //inputBuffer += ioProcSize;
         playbackData += ioProcSize;
+        recordData += ioProcSize;
         count += ioProcSize;
         framesPlayed += ioProcSize / ioProcBufferSize;
     }

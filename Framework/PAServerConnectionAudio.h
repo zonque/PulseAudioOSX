@@ -40,7 +40,8 @@
 
 - (id) initWithPAServerConnection: (PAServerConnection *) serverConnection
                           context: (pa_context *) context
-                        nChannels: (UInt32) nChannels
+                nPlaybackChannels: (UInt32) nPlaybackChannels
+                  nRecordChannels: (UInt32) nRecordChannels
                        sampleRate: (Float64) sampleRate
                  ioProcBufferSize: (UInt32) ioProcBufferSize
                   sinkForPlayback: (NSString *) sinkForPlayback

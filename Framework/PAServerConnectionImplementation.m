@@ -730,11 +730,12 @@ static void staticClientNameSetCallback(pa_context *c, int success, void *userda
     return state == PA_CONTEXT_READY;
 }
 
-- (BOOL) addAudioStreams: (UInt32) nChannels
-              sampleRate: (Float32) sampleRate
-        ioProcBufferSize: (UInt32) ioProcBufferSize
-         sinkForPlayback: (NSString *) sink
-         sourceForRecord: (NSString *) source
+- (BOOL) addAudioPlaybackChannels: (UInt32) nPlaybackChannels
+                   recordChannels: (UInt32) nRecordChannels
+                       sampleRate: (Float32) sampleRate
+                 ioProcBufferSize: (UInt32) ioProcBufferSize
+                  sinkForPlayback: (NSString *) sink
+                  sourceForRecord: (NSString *) source;
 {
     if (![self isConnected])
         return NO;
@@ -745,7 +746,8 @@ static void staticClientNameSetCallback(pa_context *c, int success, void *userda
     pa_threaded_mainloop_lock(PAMainLoop);
     audio = [[PAServerConnectionAudio alloc] initWithPAServerConnection: server
                                                                 context: PAContext
-                                                              nChannels: nChannels
+                                                      nPlaybackChannels: nPlaybackChannels
+                                                        nRecordChannels: nRecordChannels
                                                              sampleRate: sampleRate
                                                        ioProcBufferSize: ioProcBufferSize
                                                         sinkForPlayback: sink

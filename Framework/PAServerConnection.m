@@ -54,17 +54,19 @@ static NSString *frameworkPath = @"/Library/Frameworks/PulseAudio.framework/";
     return [impl isConnected];
 }
 
-- (BOOL) addAudioStreams: (UInt32) nChannels
-              sampleRate: (Float32) sampleRate
-        ioProcBufferSize: (UInt32) ioProcBufferSize
-         sinkForPlayback: (NSString *) sinkForPlayback
-         sourceForRecord: (NSString *) sourceForRecord
+- (BOOL) addAudioPlaybackChannels: (UInt32) nPlaybackChannels
+                   recordChannels: (UInt32) nRecordChannels
+                       sampleRate: (Float32) sampleRate
+                 ioProcBufferSize: (UInt32) ioProcBufferSize
+                  sinkForPlayback: (NSString *) sink
+                  sourceForRecord: (NSString *) source
 {
-    return [impl addAudioStreams: nChannels
-                      sampleRate: sampleRate
-                ioProcBufferSize: ioProcBufferSize
-                 sinkForPlayback: sinkForPlayback
-                 sourceForRecord: sourceForRecord];
+    return [impl addAudioPlaybackChannels: nPlaybackChannels
+                           recordChannels: (UInt32) nRecordChannels
+                               sampleRate: sampleRate
+                         ioProcBufferSize: ioProcBufferSize
+                          sinkForPlayback: sink
+                          sourceForRecord: source];
 }
 
 - (NSString *) clientName

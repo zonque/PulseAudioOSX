@@ -44,13 +44,10 @@
 
     // FIXME - this information should actually be obtained from
     // PulseAudioHelper in order to support a dynamic number of
-    // virtual sound card instances. Also, the number of input
-    // output channels is not yet taken into account by the audio
-    // streaming logic, so for now, we're locked at one stereo
-    // stream only.
+    // virtual sound card instances.
     dev = [[PADevice alloc] initWithPluginRef: pluginRef
                                    deviceName: @"PulseAudio"
-                               nInputChannels: 2
+                               nInputChannels: 0
                               nOutputChannels: 2];
 	dev.owningObjectID = self.objectID;
 	dev.delegate = self;
