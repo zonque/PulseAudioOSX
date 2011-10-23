@@ -218,7 +218,7 @@
 {
     [parameters removeAllObjects];
     [properties removeAllObjects];
-    
+
     if ([[item className] isEqualToString: @"PAServerInfo"]) {
         PAServerInfo *info = (PAServerInfo *) item;
         
@@ -326,7 +326,7 @@
     }
     
     if ([[item className] isEqualToString: @"PASourceOutputInfo"]) {
-        PASourceOutputInfo *output = (PASourceOutputInfo *) output;
+        PASourceOutputInfo *output = (PASourceOutputInfo *) item;
         
         [parameters setObject: output.name
                        forKey: @"Source Output Name"];
