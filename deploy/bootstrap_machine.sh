@@ -1,6 +1,6 @@
 #!/bin/sh
 
-PORTS="autoconf automake intltool libtool libsndfile speex-devel gdbm liboil json-c; do sudo port install"
+PORTS="autoconf automake intltool libtool libsndfile speex-devel gdbm liboil json-c"
 
 for port in $PORTS; do
 	port install $port +universal;
