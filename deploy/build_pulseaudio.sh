@@ -8,7 +8,7 @@
 set -x
 
 export PATH="/opt/local/bin:/opt/local/sbin:$PATH"
-export CC="gcc-4.2"
+export CC="gcc"
 #export CFLAGS="-I/opt/local/include -O0 -g"
 export CFLAGS="-I/opt/local/include -O2"
 export LDFLAGS="-L/opt/local/lib"
